@@ -1,0 +1,286 @@
+{
+  "metadata": {
+    "generated_at": "2026-03-12T19:44:12Z",
+    "description": "Queryable dependency and component database for the Notation project",
+    "query_instructions": "Use jq to query this file. See query-examples.md for common queries."
+  },
+  "components": [
+    {
+      "id": "notation-cli",
+      "name": "notation",
+      "module": "github.com/notaryproject/notation/v2",
+      "type": "cli-binary",
+      "tier": 1,
+      "location": "/Users/toddysm/Documents/Development/notaryproject/notation",
+      "go_version": "1.24.0",
+      "description": "Main CLI binary — user-facing tool for signing and verifying OCI artifacts",
+      "key_packages": [
+        "cmd/notation",
+        "cmd/notation/blob",
+        "cmd/notation/policy",
+        "cmd/notation/key",
+        "cmd/notation/cert",
+        "cmd/notation/plugin",
+        "cmd/notation/internal/osutil",
+        "cmd/notation/internal/truststore",
+        "cmd/notation/internal/experimental"
+      ],
+      "cli_commands": [
+        "sign",
+        "verify",
+        "list",
+        "inspect",
+        "tag",
+        "login",
+        "logout",
+        "key add",
+        "key update",
+        "key delete",
+        "key list",
+        "cert add",
+        "cert show",
+        "cert update",
+        "cert delete",
+        "cert list",
+        "cert generate-test",
+        "policy import",
+        "policy export",
+        "policy show",
+        "plugin add",
+        "plugin remove",
+        "plugin list",
+        "blob sign",
+        "blob verify",
+        "blob policy import",
+        "blob policy export",
+        "blob policy show"
+      ]
+    },
+    {
+      "id": "notation-go",
+      "name": "notation-go",
+      "module": "github.com/notaryproject/notation-go",
+      "type": "library",
+      "tier": 2,
+      "location": "/Users/toddysm/Documents/Development/notaryproject/notation/deps/notation-go",
+      "go_version": "1.23.0",
+      "description": "High-level signing and verification library — implements Signer and Verifier interfaces",
+      "key_interfaces": [
+        "notation.Signer",
+        "notation.Verifier",
+        "registry.Repository",
+        "log.Logger",
+        "plugin.SignPlugin",
+        "plugin.VerifyPlugin"
+      ],
+      "key_packages": [
+        "notation.go (core interfaces)",
+        "signer.go (signer implementation)",
+        "verifier.go (verifier implementation)",
+        "verifier/trustpolicy (trust policy parser/validator)",
+        "registry (oras-go wrapper)",
+        "plugin (plugin manager and runner)",
+        "dir (config path constants)",
+        "log (context-based logging)"
+      ]
+    },
+    {
+      "id": "notation-core-go",
+      "name": "notation-core-go",
+      "module": "github.com/notaryproject/notation-core-go",
+      "type": "library",
+      "tier": 3,
+      "location": "/Users/toddysm/Documents/Development/notaryproject/notation/deps/notation-core-go",
+      "go_version": "1.23.0",
+      "description": "Cryptographic envelope layer — implements JWS and COSE envelope formats for Notary v2",
+      "key_interfaces": [
+        "signature.Envelope",
+        "signature.Signer",
+        "signature.Verifier"
+      ],
+      "key_packages": [
+        "signature (Envelope interface + registry pattern)",
+        "signature/jws (JWS envelope implementation)",
+        "signature/cose (COSE envelope implementation)",
+        "x509 (certificate chain verifier)",
+        "revocation (revocation checking)"
+      ]
+    },
+    {
+      "id": "notation-plugin-framework-go",
+      "name": "notation-plugin-framework-go",
+      "module": "github.com/notaryproject/notation-plugin-framework-go",
+      "type": "library",
+      "tier": 4,
+      "location": "/Users/toddysm/Documents/Development/notaryproject/notation/deps/notation-plugin-framework-go",
+      "go_version": "1.20",
+      "description": "Plugin protocol SDK — defines the JSON stdin/stdout protocol for notation plugins",
+      "key_interfaces": [
+        "plugin.Plugin",
+        "plugin.SignPlugin",
+        "plugin.VerifyPlugin",
+        "plugin.GenericPlugin"
+      ],
+      "key_packages": [
+        "plugin (Plugin interface + Dispatcher)",
+        "plugin/manager (plugin discovery and execution)",
+        "plugin/proto (protocol message types)"
+      ]
+    }
+  ],
+  "dependencies": {
+    "repo_level": [
+      {
+        "from": "notation-cli",
+        "to": "notation-go",
+        "type": "direct",
+        "imported_packages": ["notation", "signer", "verifier", "registry", "plugin", "dir", "log"]
+      },
+      {
+        "from": "notation-cli",
+        "to": "notation-core-go",
+        "type": "direct",
+        "imported_packages": ["signature", "x509"]
+      },
+      {
+        "from": "notation-cli",
+        "to": "notation-plugin-framework-go",
+        "type": "direct",
+        "imported_packages": ["plugin/proto"]
+      },
+      {
+        "from": "notation-go",
+        "to": "notation-core-go",
+        "type": "direct",
+        "imported_packages": ["signature", "signature/jws", "signature/cose", "x509"]
+      },
+      {
+        "from": "notation-go",
+        "to": "notation-plugin-framework-go",
+        "type": "direct",
+        "imported_packages": ["plugin", "plugin/manager"]
+      }
+    ],
+    "external": [
+      {
+        "package": "github.com/spf13/cobra",
+        "used_by": ["notation-cli"],
+        "purpose": "CLI command-line framework (arguments, subcommands, flags)",
+        "security_relevant": false
+      },
+      {
+        "package": "github.com/spf13/pflag",
+        "used_by": ["notation-cli"],
+        "purpose": "POSIX/GNU-style flags (used by cobra)",
+        "security_relevant": false
+      },
+      {
+        "package": "github.com/sirupsen/logrus",
+        "used_by": ["notation-cli"],
+        "purpose": "Structured logging",
+        "security_relevant": false
+      },
+      {
+        "package": "oras.land/oras-go/v2",
+        "used_by": ["notation-cli", "notation-go"],
+        "purpose": "OCI registry client (push/pull/resolve/referrers)",
+        "security_relevant": true,
+        "cve_count": 0
+      },
+      {
+        "package": "github.com/golang-jwt/jwt/v4",
+        "used_by": ["notation-go", "notation-core-go"],
+        "purpose": "JWT/JWS envelope construction and parsing",
+        "security_relevant": true,
+        "cve_count": 0,
+        "notes": "Algorithm confusion CVEs patched at v4.2.0; running v4.5.2"
+      },
+      {
+        "package": "github.com/veraison/go-cose",
+        "used_by": ["notation-core-go"],
+        "purpose": "COSE (RFC 9052) envelope construction and parsing",
+        "security_relevant": true,
+        "cve_count": 0
+      },
+      {
+        "package": "github.com/fxamacker/cbor/v2",
+        "used_by": ["notation-core-go"],
+        "purpose": "CBOR encoding (used by COSE envelopes)",
+        "security_relevant": true,
+        "cve_count": 0,
+        "notes": "Extensively fuzz-tested; processes potentially attacker-controlled input"
+      },
+      {
+        "package": "golang.org/x/crypto",
+        "used_by": ["notation-go", "notation-core-go"],
+        "purpose": "Extended cryptographic primitives",
+        "security_relevant": true,
+        "cve_count": 0
+      },
+      {
+        "package": "golang.org/x/term",
+        "used_by": ["notation-cli"],
+        "purpose": "Terminal control (password masking in login command)",
+        "security_relevant": false
+      },
+      {
+        "package": "github.com/go-ldap/ldap/v3",
+        "used_by": ["notation-go"],
+        "purpose": "Distinguished Name (DN) string parsing for trust policy identity matching",
+        "security_relevant": false,
+        "notes": "Only DN parsing used — no LDAP network connections made"
+      },
+      {
+        "package": "github.com/notaryproject/tspclient-go",
+        "used_by": ["notation-go", "notation-core-go"],
+        "purpose": "RFC 3161 timestamp authority client",
+        "security_relevant": true,
+        "cve_count": 0
+      },
+      {
+        "package": "github.com/opencontainers/image-spec",
+        "used_by": ["notation-cli", "notation-go", "notation-plugin-framework-go"],
+        "purpose": "OCI image spec types (Descriptor, MediaType, etc.)",
+        "security_relevant": false
+      }
+    ]
+  },
+  "impact_matrix": [
+    {
+      "change_in": "notation-plugin-framework-go/plugin/proto",
+      "affects": ["notation-plugin-framework-go", "notation-go", "notation-cli"],
+      "impact": "HIGH — changes plugin protocol JSON schema, breaking all existing plugins",
+      "tier_depth": 4
+    },
+    {
+      "change_in": "notation-core-go/signature.Envelope interface",
+      "affects": ["notation-core-go", "notation-go", "notation-cli"],
+      "impact": "HIGH — all envelope implementations and the full signing/verification pipeline break",
+      "tier_depth": 3
+    },
+    {
+      "change_in": "notation-go/notation.Signer interface",
+      "affects": ["notation-go", "notation-cli"],
+      "impact": "MEDIUM — CLI and library code must update, but plugin protocol is unaffected",
+      "tier_depth": 2
+    },
+    {
+      "change_in": "notation-go/verifier/trustpolicy",
+      "affects": ["notation-go", "notation-cli"],
+      "impact": "HIGH from a security perspective — trust policy changes affect which signatures are accepted",
+      "tier_depth": 2
+    },
+    {
+      "change_in": "notation-go/dir package (path constants)",
+      "affects": ["notation-go", "notation-cli"],
+      "impact": "MEDIUM — config file locations change, breaking upgrade paths for existing installations",
+      "tier_depth": 2
+    },
+    {
+      "change_in": "notation-cli/cmd/notation/internal/osutil",
+      "affects": ["notation-cli only"],
+      "impact": "LOW — internal utility used only by CLI code",
+      "tier_depth": 1
+    }
+  ]
+}
