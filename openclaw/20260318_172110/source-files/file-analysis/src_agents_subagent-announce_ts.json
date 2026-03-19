@@ -1,0 +1,408 @@
+{
+  "path": "src/agents/subagent-announce.ts",
+  "extension": ".ts",
+  "size_bytes": 52566,
+  "line_count": 1496,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Best-effort: fall back to richer history parsing below.",
+      "Ignore internal channel hints (webchat) so a valid persisted route",
+      "can still be used for outbound delivery. Non-standard channels that",
+      "are not in the deliverable list should NOT be stripped here \u2014 doing",
+      "so causes the session entry's stale lastChannel (often WhatsApp) to",
+      "override the actual requester origin, leading to delivery failures.",
+      "requesterOrigin (captured at spawn time) reflects the channel the user is",
+      "actually on and must take priority over the session entry, which may carry",
+      "stale lastChannel / lastTo values from a previous channel interaction.",
+      "Fallback text preserved from the pre-wake run when a wake continuation completes with NO_REPLY despite an earlier final summary already existing.",
+      "Best-effort only.",
+      "Build status label",
+      "Send to the requester session. For nested subagents this is an internal",
+      "follow-up injection (deliver=false) so the orchestrator receives it.",
+      "Best-effort follow-ups; ignore failures to avoid breaking the caller response.",
+      "Patch label after all writes complete",
+      "Best-effort",
+      "ignore"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "buildSubagentSystemPrompt"
+  ],
+  "imports": {
+    "internal": [
+      "../auto-reply/reply/queue.js",
+      "../auto-reply/tokens.js",
+      "../config/agent-limits.js",
+      "../config/config.js",
+      "../gateway/call.js",
+      "../infra/outbound/bound-delivery-router.js",
+      "../infra/outbound/session-binding-service.js",
+      "../plugins/hook-runner-global.js",
+      "../routing/session-key.js",
+      "../runtime.js",
+      "../sessions/session-key-utils.js",
+      "../shared/chat-content.js",
+      "./internal-events.js",
+      "./subagent-announce-queue.js",
+      "./subagent-depth.js",
+      "./subagent-spawn.js",
+      "./tools/agent-step.js",
+      "./tools/sessions-helpers.js",
+      "./tools/sessions-send-helpers.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "loadSubagentRegistryRuntime",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSubagentAnnounceTimeoutMs",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isInternalAnnounceRequesterSession",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "summarizeDeliveryError",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isTransientAnnounceDeliveryError",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isGatewayTimeoutError",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "waitForAnnounceRetryDelay",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "onAbort",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runAnnounceDeliveryWithRetry",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "extractToolResultText",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractInlineTextContent",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractSubagentOutputText",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "readLatestSubagentOutput",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "readLatestSubagentOutputWithRetry",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "captureSubagentCompletionReply",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "describeSubagentOutcome",
+      "line": 345,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatUntrustedChildResult",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildChildCompletionFindings",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatDurationShort",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatTokenCount",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildCompactAnnounceStatsLine",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveAnnounceOrigin",
+      "line": 488,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSubagentCompletionOrigin",
+      "line": 523,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "sendAnnounce",
+      "line": 595,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveRequesterStoreKey",
+      "line": 632,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "loadRequesterSessionEntry",
+      "line": 654,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAnnounceQueueKey",
+      "line": 664,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeQueueSubagentAnnounce",
+      "line": 672,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "sendSubagentAnnounceDirectly",
+      "line": 740,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "deliverSubagentAnnouncement",
+      "line": 843,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "loadSessionEntryByKey",
+      "line": 899,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSubagentSystemPrompt",
+      "line": 907,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildAnnounceReplyInstruction",
+      "line": 1024,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAnnounceSteerMessage",
+      "line": 1038,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasUsableSessionEntry",
+      "line": 1045,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildDescendantWakeMessage",
+      "line": 1053,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripWakeRunSuffixes",
+      "line": 1067,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isWakeContinuationRun",
+      "line": 1075,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "wakeSubagentRunAfterDescendants",
+      "line": 1083,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runSubagentAnnounceFlow",
+      "line": 1147,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "childSessionId",
+      "line": 1181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "requesterIsInternalSession",
+      "line": 1234,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ToolResultMessage",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "DeliveryContextSource",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SubagentRunOutcome",
+      "line": 1017,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SubagentAnnounceType",
+      "line": 1022,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 209,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

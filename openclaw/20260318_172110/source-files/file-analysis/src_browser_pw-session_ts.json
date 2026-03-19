@@ -1,0 +1,372 @@
+{
+  "path": "src/browser/pw-session.ts",
+  "extension": ".ts",
+  "size_bytes": 24599,
+  "line_count": 845,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Role-based refs from the last role snapshot (e.g. e1/e2). Mode \"role\" refs are generated from ariaSnapshot and resolved via getByRole. Mode \"aria\" refs are Playwright aria-ref ids and resolved via `aria-ref=...`.",
+      "Best-effort cache to make role refs stable even if Playwright returns a different Page object",
+      "for the same CDP target across requests.",
+      "Bypass proxy for loopback CDP connections (#31219)",
+      "Don't retry rate-limit errors; retrying worsens the 429.",
+      "Ignore fetch errors and fall through to return null.",
+      "If Playwright only exposes a single Page, use it as a best-effort fallback.",
+      "Best-effort cleanup; not required for termination to take effect.",
+      "Best-effort; ignore",
+      "Best-effort cancellation for stuck page operations. Playwright serializes CDP commands per page; a long-running or stuck operation (notably evaluate) can block all subsequent commands. We cannot safely \"cancel\" an individual command, and we do not want to close the actual Chromium tab. Instead, we disconnect Playwright's CDP connection so in-flight commands fail fast and the next request reconnects transparently. IMPORTANT: We CANNOT call Connection.close() because Playwright shares a single Connection across all objects (BrowserType, Browser, etc.). Closing it corrupts the entire Playwright instance, preventing reconnection. Instead we: 1. Null out `cached` so the next call triggers a fresh connectOverCDP 2. Fire-and-forget browser.close() \u2014 it may hang but won't block us 3. The next connectBrowser() creates a completely new CDP WebSocket connection The old browser.close() eventually resolves when the in-browser evaluate timeout fires, or the old connection gets GC'd. Either way, it doesn't affect the fresh connection.",
+      "Also clear the per-url in-flight connect so the next call does a fresh connectOverCDP",
+      "rather than awaiting a stale promise.",
+      "Remove the \"disconnected\" listener to prevent the old browser's teardown",
+      "from racing with a fresh connection and nulling the new cached entry.",
+      "Best-effort: kill any stuck JS to unblock the target's execution context before we",
+      "disconnect Playwright's CDP connection.",
+      "Fire-and-forget: don't await because browser.close() may hang on the stuck CDP pipe.",
+      "List all pages/tabs from the persistent Playwright connection. Used for remote profiles where HTTP-based /json/list is ephemeral.",
+      "Create a new page/tab using the persistent Playwright connection. Used for remote profiles where HTTP-based /json/new is ephemeral. Returns the new page's targetId and metadata.",
+      "Navigate to the URL",
+      "Navigation might fail for some URLs, but page is still created",
+      "Get the targetId for this page",
+      "Close a page/tab by targetId using the persistent Playwright connection. Used for remote profiles where HTTP-based /json/close is ephemeral.",
+      "Focus a page/tab by targetId using the persistent Playwright connection. Used for remote profiles where HTTP-based /json/activate can be ephemeral."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "storeRoleRefsForTarget",
+    "refLocator",
+    "ensureContextState",
+    "restoreRoleRefsForTarget",
+    "ensurePageState",
+    "rememberRoleRefsForTarget"
+  ],
+  "imports": {
+    "internal": [
+      "../infra/errors.js",
+      "../infra/net/ssrf.js",
+      "./cdp-proxy-bypass.js",
+      "./cdp.js",
+      "./chrome.js",
+      "./errors.js",
+      "./pw-session.page-cdp.js"
+    ],
+    "external": [
+      "playwright-core"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "normalizeCdpUrl",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findNetworkRequestById",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "roleRefsKey",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "rememberRoleRefsForTarget",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "storeRoleRefsForTarget",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "restoreRoleRefsForTarget",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "ensurePageState",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "observeContext",
+      "line": 303,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureContextState",
+      "line": 316,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "observeBrowser",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "connectBrowser",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "connectWithRetry",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "onDisconnected",
+      "line": 355,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getAllPages",
+      "line": 392,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "pageTargetId",
+      "line": 398,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "matchPageByTargetList",
+      "line": 409,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findPageByTargetIdViaTargetList",
+      "line": 435,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "findPageByTargetId",
+      "line": 451,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolvePageByTargetIdOrThrow",
+      "line": 483,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "getPageForTargetId",
+      "line": 495,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "refLocator",
+      "line": 519,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "closePlaywrightBrowserConnection",
+      "line": 558,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "cdpSocketNeedsAttach",
+      "line": 586,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "tryTerminateExecutionViaCdp",
+      "line": 597,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "forceDisconnectPlaywrightForTarget",
+      "line": 683,
+      "doc": "Best-effort cancellation for stuck page operations.     Playwright serializes CDP commands per page; a long-running or s",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "listPagesViaPlaywright",
+      "line": 718,
+      "doc": "List all pages from the persistent Playwright connection.   Used for remote profiles where HTTP-based  is ephemeral.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "createPageViaPlaywright",
+      "line": 754,
+      "doc": "Create a new page using the persistent Playwright connection.   Used for remote profiles where HTTP-based  is ephemeral.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "closePageByTargetIdViaPlaywright",
+      "line": 811,
+      "doc": "Close a page by targetId using the persistent Playwright connection.   Used for remote profiles where HTTP-based  is eph",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "focusPageByTargetIdViaPlaywright",
+      "line": 823,
+      "doc": "Focus a page by targetId using the persistent Playwright connection.   Used for remote profiles where HTTP-based  can be",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "BrowserConsoleMessage",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "BrowserPageError",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "BrowserNetworkRequest",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SnapshotForAIResult",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SnapshotForAIOptions",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "WithSnapshotForAI",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TargetInfoResponse",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ConnectedBrowser",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "PageState",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "RoleRefs",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "RoleRefsCacheEntry",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ContextState",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 120,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

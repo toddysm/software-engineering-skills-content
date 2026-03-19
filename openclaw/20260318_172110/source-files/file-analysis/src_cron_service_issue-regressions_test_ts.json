@@ -1,0 +1,92 @@
+{
+  "path": "src/cron/service.issue-regressions.test.ts",
+  "extension": ".ts",
+  "size_bytes": 63482,
+  "line_count": 1787,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Make dueJob past-due without running timer callbacks.",
+      "The timer should be re-armed (not null) so the scheduler stays alive,",
+      "with a fixed MAX_TIMER_DELAY_MS (60s) delay to avoid a hot-loop when",
+      "past-due jobs are waiting.  See #12025.",
+      "Barrier: ensure timer tick finished persisting state before cleanup.",
+      "Barrier for final persistence before cleanup.",
+      "Simulate a cron job \"0 13 * * *\" (daily 13:00 UTC) that fires exactly",
+      "at 13:00:00.000 and completes 7ms later (still in the same second).",
+      "Job completes very quickly (7ms) \u2014 still within the same second",
+      "First timer tick \u2014 should fire the job exactly once",
+      "nextRunAtMs MUST be in the future (next day), not the same second",
+      "Second timer tick (simulating the timer re-arm) \u2014 should NOT fire again",
+      "Advance virtual time so the abort fires before the busy-wait fallback window expires.",
+      "Full-suite parallel runs can briefly delay both workers from starting",
+      "even when `maxConcurrentRuns` is honored, so keep the assertion focused",
+      "on concurrency rather than a sub-100ms scheduler race.",
+      "Regression: isolated cron runs must not abort at 1/3 of configured timeoutSeconds.",
+      "The bug (issue #29774) caused the CLI-provider resume watchdog (ratio 0.3, maxMs 180 s)",
+      "to be applied on fresh sessions because a persisted cliSessionId was passed to",
+      "runCliAgent even when isNewSession=true.  At the service level this manifests as a",
+      "job abort that fires much sooner than the configured outer timeout.",
+      "Keep this short for suite speed while still separating expected timeout",
+      "from the 1/3-regression timeout.",
+      "The abort must not fire at the old ~1/3 regression value.",
+      "Keep the lower bound conservative for loaded CI runners."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../infra/heartbeat-wake.js",
+      "../process/command-queue.js",
+      "../process/lanes.js",
+      "./schedule.js",
+      "./service.js",
+      "./service/jobs.js",
+      "./service/ops.js",
+      "./service/state.js",
+      "./types.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "onAbort",
+      "line": 1154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 49,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

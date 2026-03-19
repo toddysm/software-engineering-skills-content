@@ -1,0 +1,121 @@
+{
+  "path": "extensions/feishu/src/typing.ts",
+  "extension": ".ts",
+  "size_bytes": 6942,
+  "line_count": 210,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Feishu emoji types for typing indicator",
+      "See: https://open.feishu.cn/document/server-docs/im-v1/message-reaction/emojis-introduce",
+      "Full list: https://github.com/go-lark/lark/blob/main/emoji.go"
+    ],
+    "inline_comments": [
+      "Feishu API error codes that indicate the caller should back off. These must propagate to the typing circuit breaker so the keepalive loop can trip and stop retrying. - 99991400: Rate limit (too many requests per second) - 99991403: Monthly API call quota exceeded - 429: Standard HTTP 429 returned as a Feishu SDK error code @see https://open.feishu.cn/document/server-docs/api-call-guide/generic-error-code",
+      "Custom error class for Feishu backoff conditions detected from non-throwing SDK responses. Carries a numeric `.code` so that `isFeishuBackoffError()` recognises it when the error is caught downstream.",
+      "Check whether an error represents a rate-limit or quota-exceeded condition from the Feishu API that should stop the typing keepalive loop. Handles two shapes: 1. AxiosError with `response.status` and `response.data.code` 2. Feishu SDK error with a top-level `code` property",
+      "AxiosError shape: err.response.status / err.response.data.code",
+      "Feishu SDK error shape: err.code",
+      "Check whether a Feishu SDK response object contains a backoff error code. The Feishu SDK sometimes returns a normal response (no throw) with an API-level error code in the response body. This must be detected so the circuit breaker can trip. See codex review on #28157.",
+      "Add a typing indicator (reaction) to a message. Rate-limit and quota errors are re-thrown so the circuit breaker in `createTypingCallbacks` (typing-start-guard) can trip and stop the keepalive loop. See #28062. Also checks for backoff codes in non-throwing SDK responses (#28157).",
+      "Feishu SDK may return a normal response with an API-level error code",
+      "instead of throwing. Detect backoff codes and throw to trip the breaker.",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK response type",
+      "Silently fail for other non-critical errors (e.g. message deleted, permission issues)",
+      "Remove a typing indicator (reaction) from a message. Rate-limit and quota errors are re-thrown for the same reason as above.",
+      "Check for backoff codes in non-throwing SDK responses",
+      "Silently fail for other non-critical errors"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "getBackoffCodeFromResponse",
+    "isFeishuBackoffError",
+    "FeishuBackoffError"
+  ],
+  "imports": {
+    "internal": [
+      "../runtime-api.js",
+      "./accounts.js",
+      "./client.js",
+      "./runtime.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isFeishuBackoffError",
+      "line": 51,
+      "doc": "Check whether an error represents a rate-limit or quota-exceeded condition   from the Feishu API that should stop the ty",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getBackoffCodeFromResponse",
+      "line": 83,
+      "doc": "Check whether a Feishu SDK response object contains a backoff error code.     The Feishu SDK sometimes returns a normal ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "addTypingIndicator",
+      "line": 103,
+      "doc": "Add a typing indicator (reaction) to a message.     Rate-limit and quota errors are re-thrown so the circuit breaker in ",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "removeTypingIndicator",
+      "line": 160,
+      "doc": "Remove a typing indicator (reaction) from a message.     Rate-limit and quota errors are re-thrown for the same reason a",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "for",
+      "line": 25,
+      "doc": "No documentation",
+      "is_public": false,
+      "extends": null,
+      "implements": []
+    },
+    {
+      "name": "FeishuBackoffError",
+      "line": 29,
+      "doc": "Custom error class for Feishu backoff conditions detected from non-throwing   SDK responses. Carries a numeric `.code` so that `isFeishuBackoffError()`   recognises it when the error is caught downstr",
+      "is_public": true,
+      "extends": "Error",
+      "implements": []
+    },
+    {
+      "name": "TypingIndicatorState",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

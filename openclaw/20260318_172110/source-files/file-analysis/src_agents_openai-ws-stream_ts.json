@@ -1,0 +1,352 @@
+{
+  "path": "src/agents/openai-ws-stream.ts",
+  "extension": ".ts",
+  "size_bytes": 34404,
+  "line_count": 949,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "OpenAI WebSocket StreamFn Integration Wraps `OpenAIWebSocketManager` in a `StreamFn` that can be plugged into the pi-embedded-runner agent in place of the default `streamSimple` HTTP function. Key behaviours: - Per-session `OpenAIWebSocketManager` (keyed by sessionId) - Tracks `previous_response_id` to send only incremental tool-result inputs - Falls back to `streamSimple` (HTTP) if the WebSocket connection fails - Cleanup helpers for releasing sessions after the run completes Complexity budget & risk mitigation: - **Transport aware**: respects `transport` (`auto` | `websocket` | `sse`) - **Transparent fallback in `auto` mode**: connect/send failures fall back to the existing HTTP `streamSimple`; forced `websocket` mode surfaces WS errors - **Zero shared state**: per-session registry; session cleanup on dispose prevents leaks - **Full parity**: all generation options (temperature, top_p, max_output_tokens, tool_choice, reasoning) forwarded identically to the HTTP path @see src/agents/openai-ws-connection.ts for the connection manager",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Per-session state",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Release and close the WebSocket session for the given sessionId. Call this after the agent run completes to free the connection.",
+      "Ignore close errors \u2014 connection may already be gone.",
+      "Returns true if a live WebSocket session exists for the given sessionId.",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Message format converters",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Convert the full pi-ai message history to an OpenAI `input` array. Handles user messages, assistant text+tool-call messages, and tool results.",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Response object \u2192 AssistantMessage",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\"reasoning\" items are informational only; skip.",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "StreamFn factory",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Creates a `StreamFn` backed by a persistent WebSocket connection to the OpenAI Responses API.  The first call for a given `sessionId` opens the connection; subsequent calls reuse it, sending only incremental tool-result inputs with `previous_response_id`. If the WebSocket connection is unavailable, the function falls back to the standard `streamSimple` HTTP path and logs a warning. @param apiKey     OpenAI API key @param sessionId  Agent session ID (used as the registry key) @param opts       Optional manager + abort signal overrides",
+      "\u2500\u2500 1. Get or create session state \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 2. Ensure connection is open \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Cancel any background reconnect attempts before marking as broken.",
+      "Fall back to HTTP immediately",
+      "Clean up stale session to prevent next turn from using stale",
+      "previousResponseId / lastContextLength after a mid-request drop.",
+      "\u2500\u2500 3. Compute incremental vs full input \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Subsequent turn: only send new messages (tool results) since last call",
+      "Filter to only tool results \u2014 the assistant message is already in server context",
+      "Shouldn't happen in a well-formed turn, but fall back to full context",
+      "First turn: send full context",
+      "\u2500\u2500 4. Build & send response.create \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Forward generation options that the HTTP path (openai-responses provider) also uses.",
+      "Cast to record since SimpleStreamOptions carries openai-specific fields as unknown.",
+      "Respect compat.supportsStore \u2014 providers like Gemini reject unknown",
+      "fields such as `store` with a 400 error.  Fixes #39086.",
+      "Fully reset session state so the next WS turn doesn't use stale",
+      "previous_response_id or lastContextLength from before the failure.",
+      "\u2500\u2500 5. Wait for response.completed \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Honour abort signal",
+      "If the WebSocket drops mid-request, reject so we don't hang forever.",
+      "Update session state",
+      "Build and emit the assistant message",
+      "Stream partial text updates for responsive UI",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Helpers",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Fall back to HTTP (`streamSimple`) and pipe events into the existing stream. This is called when the WebSocket is broken or unavailable."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "convertMessagesToInputItems",
+    "hasWsSession",
+    "releaseWsSession",
+    "createOpenAIWebSocketStreamFn",
+    "buildAssistantMessageFromResponse",
+    "convertTools"
+  ],
+  "imports": {
+    "internal": [
+      "./pi-embedded-runner/logger.js"
+    ],
+    "external": [
+      "node:crypto",
+      "@mariozechner/pi-agent-core",
+      "@mariozechner/pi-ai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "releaseWsSession",
+      "line": 79,
+      "doc": "Release and close the WebSocket session for the given sessionId.   Call this after the agent run completes to free the c",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "hasWsSession",
+      "line": 94,
+      "doc": "Returns true if a live WebSocket session exists for the given sessionId.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "toNonEmptyString",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeAssistantPhase",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "encodeAssistantTextSignature",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseAssistantTextSignature",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "supportsImageInput",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "contentToText",
+      "line": 160,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "contentToOpenAIParts",
+      "line": 181,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseReasoningItem",
+      "line": 239,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseThinkingSignature",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "convertTools",
+      "line": 274,
+      "doc": "",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "convertMessagesToInputItems",
+      "line": 290,
+      "doc": "Convert the full pi-ai message history to an OpenAI `input` array.   Handles user messages, assistant text+tool-call mes",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "pushAssistantText",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAssistantMessageFromResponse",
+      "line": 440,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveWsTransport",
+      "line": 519,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveWsWarmup",
+      "line": 528,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runWarmUp",
+      "line": 533,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "abortHandler",
+      "line": 549,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "closeHandler",
+      "line": 553,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanup",
+      "line": 571,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createOpenAIWebSocketStreamFn",
+      "line": 601,
+      "doc": "Creates a `StreamFn` backed by a persistent WebSocket connection to the   OpenAI Responses API.  The first call for a gi",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "run",
+      "line": 609,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "abortHandler",
+      "line": 839,
+      "doc": "Honour abort signal",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "closeHandler",
+      "line": 850,
+      "doc": "If the WebSocket drops mid-request, reject so we don't hang forever.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanup",
+      "line": 858,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildFullInput",
+      "line": 929,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "fallbackToHttp",
+      "line": 937,
+      "doc": "Fall back to HTTP (`streamSimple`) and pipe events into the existing stream.   This is called when the WebSocket is brok",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "WsSession",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    },
+    {
+      "name": "AnyMessage",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AssistantMessageWithPhase",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ReplayModelInfo",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OpenAIWebSocketStreamOptions",
+      "line": 509,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "WsTransport",
+      "line": 516,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "WsOptions",
+      "line": 526,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 154,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

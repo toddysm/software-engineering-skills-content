@@ -1,0 +1,102 @@
+{
+  "path": "src/agents/pi-tools.schema.ts",
+  "extension": ".ts",
+  "size_bytes": 7208,
+  "line_count": 209,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Provider quirks:",
+      "- Gemini rejects several JSON Schema keywords, so we scrub those.",
+      "- OpenAI rejects function tool schemas unless the *top-level* is `type: \"object\"`.",
+      "(TypeBox root unions compile to `{ anyOf: [...] }` without `type`).",
+      "- Anthropic expects full JSON Schema draft 2020-12 compliance.",
+      "- xAI rejects validation-constraint keywords (minLength, maxLength, etc.) outright.",
+      "",
+      "Normalize once here so callers can always pass `tools` through unchanged.",
+      "If schema already has type + properties (no top-level anyOf to merge),",
+      "clean it for Gemini/xAI compatibility as appropriate.",
+      "Some tool schemas (esp. unions) may omit `type` at the top-level. If we see",
+      "object-ish fields, force `type: \"object\"` so OpenAI accepts the schema.",
+      "Flatten union schemas into a single object schema:",
+      "- Gemini doesn't allow top-level `type` together with `anyOf`.",
+      "- OpenAI rejects schemas without top-level `type: \"object\"`.",
+      "- Anthropic accepts proper JSON Schema with constraints.",
+      "Merging properties preserves useful enums like `action` while keeping schemas portable.",
+      "@deprecated Use normalizeToolParameters with modelProvider instead. This function should only be used for Gemini providers."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path"
+    ]
+  },
+  "exports": [
+    "normalizeToolParameters",
+    "cleanToolSchemaForGemini"
+  ],
+  "imports": {
+    "internal": [
+      "../config/types.models.js",
+      "./model-compat.js",
+      "./pi-tools.types.js",
+      "./schema/clean-for-gemini.js",
+      "./schema/clean-for-xai.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "extractEnumValues",
+      "line": 7,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "mergePropertySchemas",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeToolParameters",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "applyProviderCleaning",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanToolSchemaForGemini",
+      "line": 207,
+      "doc": "Use normalizeToolParameters with modelProvider instead.   This function should only be used for Gemini providers.",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 48,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Minimal mixed concerns"
+    ],
+    "concerns": [],
+    "detected_concerns": []
+  }
+}

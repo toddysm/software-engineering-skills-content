@@ -1,0 +1,196 @@
+{
+  "path": "src/agents/compaction.ts",
+  "extension": ".ts",
+  "size_bytes": 15274,
+  "line_count": 464,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "SECURITY: toolResult.details can contain untrusted/verbose payloads; never include in LLM-facing compaction.",
+      "Overhead reserved for summarization prompt, system prompt, previous summary,",
+      "and serialization wrappers (<conversation> tags, instructions, etc.).",
+      "generateSummary uses reasoning: \"high\" which also consumes context budget.",
+      "Apply safety margin to compensate for estimateTokens() underestimation",
+      "(chars/4 heuristic misses multi-byte chars, special tokens, code tokens, etc.)",
+      "Split oversized messages to avoid unbounded chunk growth.",
+      "Compute adaptive chunk ratio based on average message size. When messages are large, we use smaller chunks to avoid exceeding model limits.",
+      "Apply safety margin to account for estimation inaccuracy",
+      "If average message is > 10% of context, reduce chunk ratio",
+      "Check if a single message is too large to summarize. If single message > 50% of context, it can't be summarized safely.",
+      "SECURITY: never feed toolResult.details into summarization prompts.",
+      "Summarize with progressive fallback for handling oversized messages. If full summarization fails, tries partial summarization excluding oversized messages.",
+      "Try full summarization first",
+      "Fallback 1: Summarize only small messages, note oversized ones",
+      "Final fallback: Just note what was there",
+      "After dropping a chunk, repair tool_use/tool_result pairing to handle",
+      "orphaned tool_results (whose tool_use was in the dropped chunk).",
+      "repairToolUseResultPairing drops orphaned tool_results, preventing",
+      "\"unexpected tool_use_id\" errors from Anthropic's API.",
+      "Track orphaned tool_results as dropped (they were in kept but their tool_use was dropped)",
+      "Note: We don't have the actual orphaned messages to add to droppedMessagesList",
+      "since repairToolUseResultPairing doesn't return them. This is acceptable since",
+      "the dropped messages are used for summarization, and orphaned tool_results",
+      "without their tool_use context aren't useful for summarization anyway."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "SUMMARIZATION_OVERHEAD_TOKENS",
+    "computeAdaptiveChunkRatio",
+    "MIN_CHUNK_RATIO",
+    "SAFETY_MARGIN",
+    "splitMessagesByTokenShare",
+    "buildCompactionSummarizationInstructions",
+    "estimateMessagesTokens",
+    "resolveContextWindowTokens",
+    "chunkMessagesByMaxTokens",
+    "pruneHistoryForContextShare",
+    "BASE_CHUNK_RATIO",
+    "isOversizedForSummary"
+  ],
+  "imports": {
+    "internal": [
+      "../config/types.agent-defaults.js",
+      "../infra/retry.js",
+      "../logging/subsystem.js",
+      "./defaults.js",
+      "./session-transcript-repair.js"
+    ],
+    "external": [
+      "@mariozechner/pi-agent-core",
+      "@mariozechner/pi-coding-agent",
+      "@mariozechner/pi-coding-agent"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveIdentifierPreservationInstructions",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildCompactionSummarizationInstructions",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "estimateMessagesTokens",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "estimateCompactionMessageTokens",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeParts",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "splitMessagesByTokenShare",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "chunkMessagesByMaxTokens",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "computeAdaptiveChunkRatio",
+      "line": 181,
+      "doc": "Compute adaptive chunk ratio based on average message size.   When messages are large, we use smaller chunks to avoid ex",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isOversizedForSummary",
+      "line": 206,
+      "doc": "Check if a single message is too large to summarize.   If single message > 50% of context, it can't be summarized safely",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "summarizeChunks",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "summarizeWithFallback",
+      "line": 264,
+      "doc": "Summarize with progressive fallback for handling oversized messages.   If full summarization fails, tries partial summar",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "summarizeInStages",
+      "line": 333,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "pruneHistoryForContextShare",
+      "line": 398,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveContextWindowTokens",
+      "line": 462,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "CompactionSummarizationInstructions",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

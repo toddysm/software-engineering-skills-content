@@ -1,0 +1,246 @@
+{
+  "path": "src/agents/context.ts",
+  "extension": ".ts",
+  "size_bytes": 13917,
+  "line_count": 407,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Lazy-load pi-coding-agent model metadata so we can infer context windows when",
+      "the agent reports a model id. This includes custom models.json entries."
+    ],
+    "inline_comments": [
+      "When the same bare model id appears under multiple providers with different",
+      "limits, keep the smaller window. This cache feeds both display paths and",
+      "runtime paths (flush thresholds, session context-token persistence), so",
+      "overestimating the limit could delay compaction and cause context overflow.",
+      "Callers that know the active provider should use resolveContextTokensForModel,",
+      "which tries the provider-qualified key first and falls back here.",
+      "If config can't be loaded, leave cache empty and retry after backoff.",
+      "Continue with best-effort discovery/overrides.",
+      "If model discovery fails, continue with config overrides only.",
+      "Keep lookup best-effort.",
+      "Best-effort: kick off loading, but don't block.",
+      "Keep prior behavior where model limits begin loading during startup.",
+      "This avoids a cold-start miss on the first context token lookup.",
+      "Keep the exact (lowercased) provider key; callers that need the canonical",
+      "alias (e.g. cache key construction) apply normalizeProviderId explicitly.",
+      "Look up an explicit contextWindow override for a specific provider+model",
+      "directly from config, without going through the shared discovery cache.",
+      "This avoids the cache keyspace collision where \"provider/model\" synthetic",
+      "keys overlap with raw slash-containing model IDs (e.g. OpenRouter's",
+      "\"google/gemini-2.5-pro\" stored as a raw catalog entry).",
+      "Mirror the lookup order in pi-embedded-runner/model.ts: exact key first,",
+      "then normalized fallback. This prevents alias collisions (e.g. when both",
+      "\"qwen\" and \"qwen-portal\" exist as config keys) from picking the wrong",
+      "contextWindow based on Object.entries iteration order.",
+      "1. Exact match (case-insensitive, no alias expansion).",
+      "2. Normalized fallback: covers alias keys such as \"qwen\" \u2192 \"qwen-portal\".",
+      "Only do the config direct scan when the caller explicitly passed a",
+      "provider. When provider is inferred from a slash in the model string",
+      "(e.g. \"google/gemini-2.5-pro\" \u2192 ref.provider = \"google\"), the model ID",
+      "may belong to a DIFFERENT provider (e.g. an OpenRouter session). Scanning",
+      "cfg.models.providers.google in that case would return Google's configured",
+      "window and misreport context limits for the OpenRouter session.",
+      "See status.ts log-usage fallback which calls with only { model } set.",
+      "When provider is explicitly given and the model ID is bare (no slash),",
+      "try the provider-qualified cache key BEFORE the bare key.  Discovery",
+      "entries are stored under qualified IDs (e.g. \"google-gemini-cli/",
+      "gemini-3.1-pro-preview \u2192 1M\"), while the bare key may hold a cross-",
+      "provider minimum (128k).  Returning the qualified entry gives the correct",
+      "provider-specific window for /status and session context-token persistence.",
+      "",
+      "Guard: only when params.provider is explicit (not inferred from a slash in",
+      "the model string). For model-only callers (e.g. status.ts log-usage",
+      "fallback with model=\"google/gemini-2.5-pro\"), the inferred provider would",
+      "construct \"google/gemini-2.5-pro\" as the qualified key which accidentally",
+      "matches OpenRouter's raw discovery entry \u2014 the bare lookup is correct there.",
+      "Bare key fallback.  For model-only calls with slash-containing IDs",
+      "(e.g. \"google/gemini-2.5-pro\") this IS the raw discovery cache key.",
+      "When provider is implicit, try qualified as a last resort so inferred",
+      "provider/model pairs (e.g. model=\"google-gemini-cli/gemini-3.1-pro\")",
+      "still find discovery entries stored under that qualified ID."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "applyDiscoveredContextWindows",
+    "resolveContextTokensForModel",
+    "lookupContextTokens",
+    "applyConfiguredContextWindows",
+    "ANTHROPIC_CONTEXT_1M_TOKENS"
+  ],
+  "imports": {
+    "internal": [
+      "../config/config.js",
+      "../config/config.js",
+      "../infra/backoff.js",
+      "../infra/cli-root-options.js",
+      "./agent-paths.js",
+      "./model-selection.js",
+      "./models-config.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "applyDiscoveredContextWindows",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "applyConfiguredContextWindows",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getCommandPathFromArgv",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldSkipEagerContextWindowWarmup",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "primeConfiguredContextWindows",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureContextWindowCacheLoaded",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "lookupContextTokens",
+      "line": 204,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveConfiguredModelParams",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveProviderModelRef",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveConfiguredProviderContextWindow",
+      "line": 269,
+      "doc": "\"google/gemini-2.5-pro\" stored as a raw catalog entry).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findContextWindow",
+      "line": 283,
+      "doc": "contextWindow based on Object.entries iteration order.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isAnthropic1MModel",
+      "line": 316,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveContextTokensForModel",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ModelEntry",
+      "line": 12,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ModelRegistryLike",
+      "line": 13,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ConfigModelEntry",
+      "line": 17,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ProviderConfigEntry",
+      "line": 18,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ModelsConfig",
+      "line": 19,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AgentModelEntry",
+      "line": 20,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 64,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

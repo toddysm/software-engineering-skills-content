@@ -1,0 +1,220 @@
+{
+  "path": "src/agents/session-transcript-repair.ts",
+  "extension": ".ts",
+  "size_bytes": 15411,
+  "line_count": 502,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Redact large/sensitive inline attachment content from persisted transcripts.",
+      "Apply redaction to both `.arguments` and `.input` properties since block structures can vary",
+      "Only sanitize (redact) sessions_spawn blocks; all others are passed through",
+      "unchanged to preserve provider-specific shapes (e.g. toolUse.input for Anthropic).",
+      "Anthropic (and Cloud Code Assist) reject transcripts where assistant tool calls are not",
+      "immediately followed by matching tool results. Session files can end up with results",
+      "displaced (e.g. after user turns) or duplicated. Repair by:",
+      "- moving matching toolResult messages directly after their assistant toolCall turn",
+      "- inserting synthetic error toolResults for missing ids",
+      "- dropping duplicate toolResults for the same id (anywhere in the transcript)",
+      "Tool results must only appear directly after the matching assistant tool call turn.",
+      "Any \"free-floating\" toolResult entries in session history can make strict providers",
+      "(Anthropic-compatible APIs, MiniMax, Cloud Code Assist) reject the entire request.",
+      "Skip tool call extraction for aborted or errored assistant messages.",
+      "When stopReason is \"error\" or \"aborted\", the tool_use blocks may be incomplete",
+      "(e.g., partialJson: true) and should not have synthetic tool_results created.",
+      "Creating synthetic results for incomplete tool calls causes API 400 errors:",
+      "\"unexpected tool_use_id found in tool_result blocks\"",
+      "See: https://github.com/openclaw/openclaw/issues/4597",
+      "Drop tool results that don't match the current assistant tool calls."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "repairToolCallInputs",
+    "sanitizeToolCallInputs",
+    "sanitizeToolUseResultPairing",
+    "repairToolUseResultPairing",
+    "stripToolResultDetails"
+  ],
+  "imports": {
+    "internal": [
+      "./tool-call-id.js"
+    ],
+    "external": [
+      "@mariozechner/pi-agent-core"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isRawToolCallBlock",
+      "line": 15,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasToolCallInput",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasNonEmptyStringField",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasToolCallId",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeAllowedToolNames",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasToolCallName",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "redactSessionsSpawnAttachmentsArgs",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeToolCallBlock",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "makeMissingToolResult",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "trimNonEmptyString",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeToolResultName",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripToolResultDetails",
+      "line": 198,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "repairToolCallInputs",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeToolCallInputs",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeToolUseResultPairing",
+      "line": 330,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "repairToolUseResultPairing",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "pushToolResult",
+      "line": 357,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "RawToolCallBlock",
+      "line": 7,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ToolCallInputRepairReport",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ToolCallInputRepairOptions",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ToolUseRepairReport",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 79,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

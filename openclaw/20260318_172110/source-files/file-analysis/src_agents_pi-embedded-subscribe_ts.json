@@ -1,0 +1,300 @@
+{
+  "path": "src/agents/pi-embedded-subscribe.ts",
+  "extension": ".ts",
+  "size_bytes": 26881,
+  "line_count": 726,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Track if a streamed chunk opened a <think> block (stateful across chunks).",
+      "If we're not streaming block replies, ensure the final payload includes",
+      "the final text even when interim streaming was enabled.",
+      "Non-streaming models (no text_delta): ensure assistantTexts gets the final",
+      "text when the chunker has nothing buffered to drain.",
+      "\u2500\u2500 Messaging tool duplicate detection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Track texts sent via messaging tools to suppress duplicate block replies.",
+      "Only committed (successful) texts are checked - pending texts are tracked",
+      "to support commit logic but not used for suppression (avoiding lost messages on tool failure).",
+      "These tools can send messages via sendMessage/threadReply actions (or sessions_send with message).",
+      "Create a single promise that resolves when ALL pending compactions complete",
+      "(tracked by pendingCompactionRetry counter, decremented in resolveCompactionRetry)",
+      "Prevent unhandled rejection if rejected after all consumers have resolved",
+      "KNOWN: Provider streams are not strictly once-only or perfectly ordered.",
+      "`text_end` can repeat full content; late `text_end` can arrive after `message_end`.",
+      "Tests: `src/agents/pi-embedded-subscribe.test.ts` (e.g. late text_end cases).",
+      "ignore tool result delivery failures",
+      "1. Handle <think> blocks (stateful, strip content inside)",
+      "2. Handle <final> blocks (stateful, strip content OUTSIDE)",
+      "If enforcement is disabled, we still strip the tags themselves to prevent",
+      "hallucinations (e.g. Minimax copying the style) from leaking, but we",
+      "do not enforce buffering/extraction logic.",
+      "If enforcement is enabled, only return text that appeared inside a <final> block.",
+      "Found <final> start tag.",
+      "Found </final> end tag.",
+      "Strict Mode: If enforcing final tags, we MUST NOT return content unless",
+      "we have seen a <final> tag. Otherwise, we leak \"thinking out loud\" text",
+      "(e.g. \"**Locating Manulife**...\") that the model emitted without <think> tags.",
+      "Hardened Cleanup: Remove any remaining <final> tags that might have been",
+      "missed (e.g. nested tags or hallucinations) to prevent leakage.",
+      "Strip <think> and <final> blocks across chunk boundaries to avoid leaking reasoning.",
+      "Also strip downgraded tool call text ([Tool Call: ...], [Historical context: ...], etc.).",
+      "Only check committed (successful) messaging tool texts - checking pending texts",
+      "is risky because if the tool fails after suppression, the user gets no response",
+      "Skip empty payloads, but always emit if audioAsVoice is set (to propagate the flag)",
+      "Compute delta: new text since the last emitted reasoning.",
+      "Guard against non-prefix changes (e.g. trim/format altering earlier content).",
+      "Broadcast thinking event to WebSocket clients in real-time",
+      "Mark as unsubscribed FIRST to prevent waitForCompactionRetry from creating",
+      "new un-resolvable promises during teardown.",
+      "Reject pending compaction wait to unblock awaiting code.",
+      "Don't resolve, as that would incorrectly signal \"compaction complete\" when it's still in-flight.",
+      "Reject with AbortError so it's caught by isAbortError() check in cleanup paths",
+      "Cancel any in-flight compaction to prevent resource leaks when unsubscribing.",
+      "Only abort if compaction is actually running to avoid unnecessary work.",
+      "Returns true if any messaging tool successfully sent a message.",
+      "Used to suppress agent's confirmation text (e.g., \"Respondi no Telegram!\")",
+      "which is generated AFTER the tool sends the actual answer.",
+      "Reject after unsubscribe so callers treat it as cancellation, not success"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "subscribeEmbeddedPiSession"
+  ],
+  "imports": {
+    "internal": [
+      "../auto-reply/reply/reply-directives.js",
+      "../auto-reply/reply/streaming-directives.js",
+      "../auto-reply/tool-meta.js",
+      "../infra/agent-events.js",
+      "../logging/subsystem.js",
+      "../markdown/code-spans.js",
+      "../markdown/code-spans.js",
+      "./pi-embedded-block-chunker.js",
+      "./pi-embedded-subscribe.handlers.js",
+      "./pi-embedded-subscribe.tools.js",
+      "./pi-embedded-subscribe.types.js",
+      "./pi-embedded-utils.js",
+      "./usage.js"
+    ],
+    "external": [
+      "@mariozechner/pi-agent-core"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "subscribeEmbeddedPiSession",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resetAssistantMessageState",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "rememberAssistantText",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldSkipAssistantText",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pushAssistantText",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "trimMessagingToolSent",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureCompactionPromise",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "noteCompactionRetry",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveCompactionRetry",
+      "line": 251,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeResolveCompactionWait",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "recordAssistantUsage",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getUsageTotals",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "incrementCompactionCount",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldEmitToolResult",
+      "line": 315,
+      "doc": "Tests: `src/agents/pi-embedded-subscribe.test.ts` (e.g. late text_end cases).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldEmitToolOutput",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatToolOutputBlock",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitToolResultMessage",
+      "line": 333,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitToolSummary",
+      "line": 351,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitToolOutput",
+      "line": 357,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitBlockChunk",
+      "line": 478,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "consumeReplyDirectives",
+      "line": 536,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "consumePartialReplyDirectives",
+      "line": 538,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "flushBlockReplyBuffer",
+      "line": 541,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitReasoningStream",
+      "line": 556,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resetForCompactionRetry",
+      "line": 588,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "noteLastAssistant",
+      "line": 606,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "unsubscribe",
+      "line": 646,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 103,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

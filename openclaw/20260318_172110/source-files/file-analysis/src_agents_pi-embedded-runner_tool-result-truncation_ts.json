@@ -1,0 +1,159 @@
+{
+  "path": "src/agents/pi-embedded-runner/tool-result-truncation.ts",
+  "extension": ".ts",
+  "size_bytes": 13856,
+  "line_count": 396,
+  "documentation": {
+    "file_docstring": "Hard character limit for a single tool result text block. Even for the largest context windows (~2M tokens), a single tool result should not exceed ~400K characters (~100K tokens). This acts as a safety net when we don't know the context window size.",
+    "header_comments": [],
+    "inline_comments": [
+      "Minimum characters to keep when truncating. We always keep at least the first portion so the model understands what was in the content.",
+      "Suffix appended to truncated tool results.",
+      "Marker inserted between head and tail when using head+tail truncation.",
+      "Detect whether text likely contains error/diagnostic content near the end, which should be preserved during truncation.",
+      "Check last ~2000 chars for error-like patterns",
+      "JSON closing \u2014 if the output is JSON, the tail has closing structure",
+      "Summary/result lines often appear at the end",
+      "Truncate a single text string to fit within maxChars. Uses a head+tail strategy when the tail contains important content (errors, results, JSON structure), otherwise preserves the beginning. This ensures error messages and summaries at the end of tool output aren't lost during truncation.",
+      "If tail looks important, split budget between head and tail",
+      "Find clean cut points at newline boundaries",
+      "Default: keep the beginning",
+      "Calculate the maximum allowed characters for a single tool result based on the model's context window tokens. Uses a rough 4 chars \u2248 1 token heuristic (conservative for English text; actual ratio varies by tokenizer).",
+      "Rough conversion: ~4 chars per token on average",
+      "Get the total character count of text content blocks in a tool result message.",
+      "Truncate a tool result message's text content blocks to fit within maxChars. Returns a new message (does not mutate the original).",
+      "Calculate total text size",
+      "Distribute the budget proportionally among text blocks",
+      "Proportional budget for this block",
+      "Find oversized tool result entries in a session and truncate them. This operates on the session file by: 1. Opening the session manager 2. Walking the current branch to find oversized tool results 3. Branching from before the first oversized tool result 4. Re-appending all entries from that point with truncated tool results @returns Object indicating whether any truncation was performed",
+      "Find oversized tool result entries and their indices in the branch",
+      "Branch from the parent of the first oversized entry",
+      "The oversized entry is the root - very unusual but handle it",
+      "Re-append all entries from the first oversized one onwards,",
+      "with truncated tool results",
+      "appendMessage expects Message | CustomMessage | BashExecutionMessage",
+      "Branch summaries reference specific entry IDs - skip to avoid inconsistency",
+      "Labels reference specific entry IDs - skip to avoid inconsistency",
+      "Truncate oversized tool results in an array of messages (in-memory). Returns a new array with truncated messages. This is used as a pre-emptive guard before sending messages to the LLM, without modifying the session file.",
+      "Check if a tool result message exceeds the size limit for a given context window.",
+      "Estimate whether the session likely has oversized tool results that caused a context overflow. Used as a heuristic to decide whether to attempt tool result truncation before giving up."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "truncateToolResultText",
+    "truncateOversizedToolResultsInMessages",
+    "calculateMaxToolResultChars",
+    "isOversizedToolResult",
+    "HARD_MAX_TOOL_RESULT_CHARS",
+    "sessionLikelyHasOversizedToolResults",
+    "getToolResultTextLength",
+    "truncateToolResultMessage"
+  ],
+  "imports": {
+    "internal": [
+      "./logger.js"
+    ],
+    "external": [
+      "@mariozechner/pi-agent-core",
+      "@mariozechner/pi-ai",
+      "@mariozechner/pi-coding-agent"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "hasImportantTail",
+      "line": 51,
+      "doc": "Detect whether text likely contains error content near the end,   which should be preserved during truncation.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "truncateToolResultText",
+      "line": 71,
+      "doc": "Truncate a single text string to fit within maxChars.     Uses a head+tail strategy when the tail contains important con",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "calculateMaxToolResultChars",
+      "line": 122,
+      "doc": "Calculate the maximum allowed characters for a single tool result   based on the model's context window tokens.     Uses",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getToolResultTextLength",
+      "line": 132,
+      "doc": "Get the total character count of text content blocks in a tool result message.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "truncateToolResultMessage",
+      "line": 156,
+      "doc": "Truncate a tool result message's text content blocks to fit within maxChars.   Returns a new message (does not mutate th",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "truncateOversizedToolResultsInSession",
+      "line": 206,
+      "doc": "Find oversized tool result entries in a session and truncate them.     This operates on the session file by:   1. Openin",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "truncateOversizedToolResultsInMessages",
+      "line": 340,
+      "doc": "Truncate oversized tool results in an array of messages (in-memory).   Returns a new array with truncated messages.     ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isOversizedToolResult",
+      "line": 365,
+      "doc": "Check if a tool result message exceeds the size limit for a given context window.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sessionLikelyHasOversizedToolResults",
+      "line": 378,
+      "doc": "Estimate whether the session likely has oversized tool results that caused   a context overflow. Used as a heuristic to ",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ToolResultTruncationOptions",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

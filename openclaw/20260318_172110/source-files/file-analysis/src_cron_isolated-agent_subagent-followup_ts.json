@@ -1,0 +1,129 @@
+{
+  "path": "src/cron/isolated-agent/subagent-followup.ts",
+  "extension": ".ts",
+  "size_bytes": 7156,
+  "line_count": 203,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Empty text after payload filtering means the agent either returned",
+      "NO_REPLY (deliberately silent) or produced no deliverable content.",
+      "Do not treat this as an interim acknowledgement that needs a rerun.",
+      "Fall back to the registry's frozen result text when the session transcript",
+      "is unavailable (e.g. child session already deleted by announce cleanup).",
+      "Waits for descendant subagents to complete using a push-based approach: each active descendant run is awaited via `agent.wait` (gateway RPC) instead of a busy-poll loop.  After all active runs settle, a short grace period polls the cron agent's session for a post-orchestration synthesis message.",
+      "Snapshot the currently active descendant run IDs.",
+      "No active descendants and none were observed before the call \u2013 nothing to wait for.",
+      "--- Push-based wait for all active descendants ---",
+      "We iterate in case first-level descendants spawn their own subagents while",
+      "we wait, so new active runs can appear between rounds.",
+      "Wait for all currently pending runs concurrently.  If any fails or times",
+      "out, allSettled absorbs the error so we proceed to the next iteration.",
+      "Refresh: check for newly created active descendants (e.g. spawned by",
+      "the runs that just finished) and keep looping if any exist.",
+      "--- Grace period: wait for the cron agent's synthesis ---",
+      "After the subagent announces fire and the cron agent processes them, it",
+      "produces a new assistant message.  Poll briefly (bounded by",
+      "finalReplyGraceMs) to capture that synthesis.",
+      "Final read after grace period expires."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "expectsSubagentFollowup",
+    "isLikelyInterimCronMessage"
+  ],
+  "imports": {
+    "internal": [
+      "../../agents/subagent-registry.js",
+      "../../agents/tools/agent-step.js",
+      "../../auto-reply/tokens.js",
+      "../../gateway/call.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveCronSubagentTimings",
+      "line": 6,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeHintText",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isLikelyInterimCronMessage",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "expectsSubagentFollowup",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "readDescendantSubagentFallbackReply",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "waitForDescendantSubagentSummary",
+      "line": 121,
+      "doc": "Waits for descendant subagents to complete using a push-based approach:   each active descendant run is awaited via `age",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "getActiveRuns",
+      "line": 132,
+      "doc": "Snapshot the currently active descendant run IDs.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveUsableLatestReply",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

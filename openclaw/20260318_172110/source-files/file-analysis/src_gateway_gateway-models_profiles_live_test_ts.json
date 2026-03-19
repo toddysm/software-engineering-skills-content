@@ -1,0 +1,400 @@
+{
+  "path": "src/gateway/gateway-models.profiles.live.test.ts",
+  "extension": ".ts",
+  "size_bytes": 56984,
+  "line_count": 1615,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Reuse shared live-model cap when gateway-specific cap is not provided.",
+      "Gateway live runs multiple probes per model; scale timeout by model cap.",
+      "Chosen to avoid common OCR confusions in our 5x7 bitmap font.",
+      "Notably: 0\u21948, B\u21948, 6\u21949, 3\u2194B, D\u21940.",
+      "Must stay within the glyph set in `src/gateway/live-image-probe.ts`.",
+      "Gateway uses derived ports (browser/canvas). Avoid flaky collisions by",
+      "ensuring the common derived offsets are free too.",
+      "Live tests should avoid Docker sandboxing so tool probes can",
+      "operate on the temporary probe files we create in the host workspace.",
+      "Keep selection state so the gateway picks the same known-good profiles",
+      "as the host (important when some profiles are rate-limited/disabled).",
+      "Ensure session exists + override model for this run.",
+      "Reset between models: avoids cross-provider transcript incompatibilities",
+      "(notably OpenAI Responses requiring reasoning replay for function_call items).",
+      "Catalog drift: model IDs can disappear or become unavailable on the API.",
+      "Treat as skip when scanning \"all models\" for Google.",
+      "Real tool invocation: force the agent to Read a local file and echo a nonce.",
+      "Shorter code => less OCR flake across providers, still tests image attachments end-to-end.",
+      "Best-effort: do not fail the whole live suite on flaky image handling.",
+      "(We still keep prompt + tool probes as hard checks.)",
+      "OCR / image-read flake: allow a small edit distance, but still require the \"cat\" token above.",
+      "Regression: tool-call-only turn followed by a user message (OpenAI responses bug class).",
+      "OpenAI Codex refresh tokens can become single-use; skip instead of failing all live tests."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../agents/agent-paths.js",
+      "../agents/agent-scope.js",
+      "../agents/live-model-filter.js",
+      "../agents/model-auth.js",
+      "../agents/model-suppression.js",
+      "../agents/models-config.js",
+      "../agents/pi-embedded-helpers/errors.js",
+      "../agents/pi-model-discovery.js",
+      "../config/config.js",
+      "../config/types.js",
+      "../infra/env.js",
+      "../routing/session-key.js",
+      "../utils/message-channel.js",
+      "./client.js",
+      "./live-image-probe.js",
+      "./server.js",
+      "./session-utils.js"
+    ],
+    "external": [
+      "node:crypto",
+      "node:fs/promises",
+      "node:net",
+      "node:os",
+      "node:path",
+      "@mariozechner/pi-ai",
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "parseFilter",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toInt",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveGatewayLiveMaxModels",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveGatewayLiveSuiteTimeoutMs",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isGatewayLiveProbeTimeout",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "withGatewayLiveProbeTimeout",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "capByProviderSpread",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "logProgress",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "enterProductionEnvForLiveRun",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreProductionEnvForLiveRun",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatFailurePreview",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "assertNoReasoningTags",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isMeaningful",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isGoogleModelNotFoundText",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isGoogleishProvider",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isRefreshTokenReused",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isChatGPTUsageLimitErrorMessage",
+      "line": 280,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isProviderUnavailableErrorMessage",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isInstructionsRequiredError",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isOpenAIReasoningSequenceError",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isToolNonceRefusal",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isToolNonceProbeMiss",
+      "line": 321,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isMissingProfileError",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isEmptyStreamText",
+      "line": 330,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAnthropicRefusalToken",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runAnthropicRefusalProbe",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "randomImageProbeCode",
+      "line": 385,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "editDistance",
+      "line": 398,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getFreePort",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "isPortFree",
+      "line": 453,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "getFreeGatewayPort",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "ok",
+      "line": 472,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "connectClient",
+      "line": 482,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "stop",
+      "line": 485,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractTranscriptMessageText",
+      "line": 515,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "readSessionAssistantTexts",
+      "line": 545,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "waitForSessionAssistantText",
+      "line": 565,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "requestGatewayAgentText",
+      "line": 589,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "buildLiveGatewayConfig",
+      "line": 634,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeAuthConfig",
+      "line": 679,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildMinimaxProviderOverride",
+      "line": 730,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runGatewayModelSuite",
+      "line": 746,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "GatewayModelSuiteParams",
+      "line": 624,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 176,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "path": "src/gateway/exec-approval-manager.ts",
+  "extension": ".ts",
+  "size_bytes": 6691,
+  "line_count": 211,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Grace period to keep resolved entries for late awaitDecision calls"
+    ],
+    "inline_comments": [
+      "Caller metadata (best-effort). Used to prevent other clients from replaying an approval id.",
+      "Register an approval record and return a promise that resolves when the decision is made. This separates registration (synchronous) from waiting (async), allowing callers to confirm registration before the decision is made.",
+      "Idempotent: return existing promise if still pending",
+      "Already resolved - don't allow re-registration",
+      "Create entry first so we can capture it in the closure (not re-fetch from map)",
+      "@deprecated Use register() instead for explicit separation of registration and waiting.",
+      "Prevent double-resolve (e.g., if called after timeout already resolved)",
+      "Resolve the promise first, then delete after a grace period.",
+      "This allows in-flight awaitDecision calls to find the resolved entry.",
+      "Only delete if the entry hasn't been replaced",
+      "One-time approvals must be consumed atomically so the same runId",
+      "cannot be replayed during the resolved-entry grace window.",
+      "Wait for decision on an already-registered approval. Returns the decision promise if the ID is pending, null otherwise."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ExecApprovalManager"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "node:crypto"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolve",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "expire",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "consumeAllowOnce",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "lookupPendingId",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ExecApprovalRequestPayload",
+      "line": 10,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ExecApprovalRecord",
+      "line": 12,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "PendingEntry",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ExecApprovalIdLookupResult",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ExecApprovalManager",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "extends": null,
+      "implements": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

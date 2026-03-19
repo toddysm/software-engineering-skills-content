@@ -1,0 +1,278 @@
+{
+  "path": "extensions/voice-call/src/providers/twilio.ts",
+  "extension": ".ts",
+  "size_bytes": 23495,
+  "line_count": 708,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Twilio Voice API provider implementation. Uses Twilio Programmable Voice API with Media Streams for real-time bidirectional audio streaming. @see https://www.twilio.com/docs/voice @see https://www.twilio.com/docs/voice/media-streams",
+      "Delete stored TwiML for a given `callId`. We keep TwiML in-memory only long enough to satisfy the initial Twilio webhook request (notify mode). Subsequent webhooks should not reuse it.",
+      "Delete stored TwiML for a call, addressed by Twilio's provider call SID. This is used when we only have `providerCallId` (e.g. hangup).",
+      "Clear TTS queue for a call (barge-in). Used when user starts speaking to interrupt current TTS playback.",
+      "Make an authenticated request to the Twilio API.",
+      "Verify Twilio webhook signature using HMAC-SHA1. Handles reverse proxy scenarios (Tailscale, nginx, ngrok) by reconstructing the public URL from forwarding headers. @see https://www.twilio.com/docs/usage/webhooks/webhooks-security",
+      "Parse Twilio webhook event into normalized format.",
+      "For Twilio, we must return TwiML. Most actions are driven by Calls API updates,",
+      "so the webhook response is typically a pause to keep the call alive.",
+      "Parse Twilio direction to normalized format.",
+      "Convert Twilio webhook params to normalized event format.",
+      "Handle speech result (from <Gather>)",
+      "Handle DTMF",
+      "Handle call status changes",
+      "Generate TwiML response for webhook. When a call is answered, connects to media stream for bidirectional audio.",
+      "Get the WebSocket URL for media streaming. Derives from the public URL origin + stream path.",
+      "Extract just the origin (host) from the public URL, ignoring any path",
+      "Convert https:// to wss:// for WebSocket",
+      "Append the stream path",
+      "Generate TwiML to connect a call to a WebSocket media stream. This enables bidirectional audio streaming for real-time STT/TTS. @param streamUrl - WebSocket URL (wss://...) for the media stream",
+      "Extract token from URL and pass via <Parameter> instead of query string.",
+      "Twilio strips query params from WebSocket URLs, but delivers <Parameter>",
+      "values in the \"start\" message's customParameters field.",
+      "Initiate an outbound call via Twilio API. If inlineTwiml is provided, uses that directly (for notify mode). Otherwise, uses webhook URL for dynamic TwiML.",
+      "Create separate URL for status callbacks (required by Twilio)",
+      "Store TwiML content if provided (for notify mode)",
+      "We now serve it from the webhook endpoint instead of sending inline",
+      "Build request params - always use URL-based TwiML.",
+      "Twilio silently ignores `StatusCallback` when using the inline `Twiml` parameter.",
+      "Hang up a call via Twilio API.",
+      "Play TTS audio via Twilio. Two modes: 1. Core TTS + Media Streams: If TTS provider and media stream are available, generates audio via core TTS and streams it through WebSocket (preferred). 2. TwiML <Say>: Falls back to Twilio's native TTS with Polly voices. Note: This may not work on all Twilio accounts.",
+      "Try telephony TTS via media stream first (if configured)",
+      "Fall through to TwiML <Say> fallback",
+      "Fall back to TwiML <Say> (may not work on all accounts)",
+      "Play TTS via core TTS and Twilio Media Streams. Generates audio with core TTS, converts to mu-law, and streams via WebSocket. Uses a queue to serialize playback and prevent overlapping audio.",
+      "Stream audio in 20ms chunks (160 bytes at 8kHz mu-law)",
+      "Generate audio with core TTS (returns mu-law at 8kHz)",
+      "Pace the audio to match real-time playback",
+      "Send a mark to track when audio finishes",
+      "Start listening for speech via Twilio <Gather>.",
+      "Stop listening - for Twilio this is a no-op as <Gather> auto-ends.",
+      "Twilio's <Gather> automatically stops on speech end",
+      "No explicit action needed",
+      "Transient error \u2014 keep the call and rely on timer fallback",
+      "-----------------------------------------------------------------------------",
+      "Twilio-specific types",
+      "-----------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "TwilioProvider"
+  ],
+  "imports": {
+    "internal": [
+      "../config.js",
+      "../http-headers.js",
+      "../media-stream.js",
+      "../telephony-audio.js",
+      "../telephony-tts.js",
+      "../voice-mapping.js",
+      "./base.js",
+      "./shared/guarded-json-api.js",
+      "./twilio/api.js",
+      "./twilio/twiml-policy.js",
+      "./twilio/webhook.js"
+    ],
+    "external": [
+      "node:crypto"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "createTwilioRequestDedupeKey",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "deleteStoredTwiml",
+      "line": 112,
+      "doc": "Delete stored TwiML for a given `callId`.         We keep TwiML in-memory only long enough to satisfy the initial Twilio",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "deleteStoredTwimlForProviderCall",
+      "line": 122,
+      "doc": "Delete stored TwiML for a call, addressed by Twilio's provider call SID.         This is used when we only have `provide",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setPublicUrl",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "setTTSProvider",
+      "line": 163,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "setMediaStreamHandler",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "registerCallStream",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "unregisterCallStream",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isValidStreamToken",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "clearTtsQueue",
+      "line": 197,
+      "doc": "Clear TTS queue for a call (barge-in).     Used when user starts speaking to interrupt current TTS playback.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "verifyWebhook",
+      "line": 230,
+      "doc": "Verify Twilio webhook signature using HMAC-SHA1.         Handles reverse proxy scenarios (Tailscale, nginx, ngrok) by re",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "generateTwimlResponse",
+      "line": 378,
+      "doc": "Generate TwiML response for webhook.     When a call is answered, connects to media stream for bidirectional audio.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getStreamAuthToken",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getStreamConnectXml",
+      "line": 470,
+      "doc": "Generate TwiML to connect a call to a WebSocket media stream.     This enables bidirectional audio streaming for real-ti",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "initiateCall",
+      "line": 495,
+      "doc": "Initiate an outbound call via Twilio API.     If inlineTwiml is provided, uses that directly (for notify mode).     Othe",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "hangupCall",
+      "line": 535,
+      "doc": "Hang up a call via Twilio API.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "playTts",
+      "line": 558,
+      "doc": "Play TTS audio via Twilio.         Two modes:     1. Core TTS + Media Streams: If TTS provider and media stream are avai",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "playTtsViaStream",
+      "line": 603,
+      "doc": "Play TTS via core TTS and Twilio Media Streams.     Generates audio with core TTS, converts to mu-law, and streams via W",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "startListening",
+      "line": 640,
+      "doc": "Start listening for speech via Twilio <Gather>.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "stopListening",
+      "line": 665,
+      "doc": "Stop listening - for Twilio this is a no-op as <Gather> auto-ends.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "getCallStatus",
+      "line": 670,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "TwilioProviderOptions",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "TwilioProvider",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "extends": null,
+      "implements": [
+        "VoiceCallProvider"
+      ]
+    },
+    {
+      "name": "TwilioCallResponse",
+      "line": 701,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 89,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

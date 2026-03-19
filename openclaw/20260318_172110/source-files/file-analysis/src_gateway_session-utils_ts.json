@@ -1,0 +1,314 @@
+{
+  "path": "src/gateway/session-utils.ts",
+  "extension": ".ts",
+  "size_bytes": 32100,
+  "line_count": 1028,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Find a session entry by exact or case-insensitive key match. Returns both the entry and the actual store key it was found under, so callers can clean up legacy mixed-case keys when they differ from canonicalKey.",
+      "Exact match first.",
+      "Case-insensitive scan for ALL candidates.",
+      "Find all on-disk store keys that match the given key case-insensitively. Returns every key from the store whose lowercased form equals the target's lowercased form.",
+      "Remove legacy key variants for one canonical session key. Candidates can include aliases (for example, \"agent:ops:main\" when canonical is \"agent:ops:work\").",
+      "Resolve main-alias references (e.g. agent:ops:main \u2192 configured main key).",
+      "Mirror combined-store merge behavior so follow-up mutations target the",
+      "same backing store that won the listing merge when ids collide.",
+      "Scan the on-disk store for case variants of every target to find",
+      "legacy mixed-case entries (e.g. \"agent:ops:MAIN\" when canonical is \"agent:ops:work\").",
+      "Merge with existing entry based on latest timestamp to ensure data consistency and avoid overwriting with less complete data.",
+      "Prefer the last runtime model recorded on the session entry.",
+      "This is the actual model used by the latest run and must win over defaults.",
+      "Provider is explicitly recorded \u2014 use it directly. Re-parsing the",
+      "model string through parseModelRef would incorrectly split OpenRouter",
+      "vendor-prefixed model names (e.g. model=\"anthropic/claude-haiku-4.5\"",
+      "with provider=\"openrouter\") into { provider: \"anthropic\" }, discarding",
+      "the stored OpenRouter provider and causing direct API calls to a",
+      "provider the user has no credentials for.",
+      "Fall back to explicit per-session override (set at spawn/model-patch time),",
+      "then finally to configured defaults."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "getSessionDefaults",
+    "listAgentsForGateway",
+    "listSessionsFromStore",
+    "loadCombinedSessionStoreForGateway",
+    "resolveSessionModelRef",
+    "loadSessionEntry",
+    "migrateAndPruneGatewaySessionStoreKey",
+    "resolveGatewaySessionStoreTarget",
+    "resolveSessionModelIdentityRef",
+    "classifySessionKey",
+    "resolveSessionStoreKey",
+    "canonicalizeSpawnedByForAgent",
+    "deriveSessionTitle",
+    "findStoreKeysIgnoreCase",
+    "pruneLegacyStoreKeys",
+    "parseGroupKey"
+  ],
+  "imports": {
+    "internal": [
+      "../agents/agent-scope.js",
+      "../agents/context.js",
+      "../agents/defaults.js",
+      "../config/config.js",
+      "../config/paths.js",
+      "../infra/boundary-file-read.js",
+      "../sessions/session-key-utils.js",
+      "../utils/delivery-context.js",
+      "./session-utils.fs.js"
+    ],
+    "external": [
+      "node:fs",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "tryResolveExistingPath",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveIdentityAvatarUrl",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatSessionIdPrefix",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "truncateTitle",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "deriveSessionTitle",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "loadSessionEntry",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "findStoreMatch",
+      "line": 199,
+      "doc": "Find a session entry by exact or case-insensitive key match.   Returns both the entry and the actual store key it was fo",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findStoreKeysIgnoreCase",
+      "line": 223,
+      "doc": "Find all on-disk store keys that match the given key case-insensitively.   Returns every key from the store whose lowerc",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "pruneLegacyStoreKeys",
+      "line": 241,
+      "doc": "Remove legacy key variants for one canonical session key.   Candidates can include aliases (for example, \"agent:ops:main",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "migrateAndPruneGatewaySessionStoreKey",
+      "line": 266,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "classifySessionKey",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "parseGroupKey",
+      "line": 307,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isStorePathTemplate",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "listExistingAgentIdsFromDisk",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "listConfiguredAgentIds",
+      "line": 341,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "listAgentsForGateway",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "canonicalizeSessionKeyForAgent",
+      "line": 421,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveDefaultStoreAgentId",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSessionStoreKey",
+      "line": 436,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveSessionStoreAgentId",
+      "line": 473,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "canonicalizeSpawnedByForAgent",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildGatewaySessionStoreScanTargets",
+      "line": 509,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveGatewaySessionStoreCandidates",
+      "line": 532,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveGatewaySessionStoreLookup",
+      "line": 554,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveGatewaySessionStoreTarget",
+      "line": 604,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "mergeSessionEntryIntoCombined",
+      "line": 663,
+      "doc": "Merge with existing entry based on latest timestamp to ensure data consistency and avoid overwriting with less complete data.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "loadCombinedSessionStoreForGateway",
+      "line": 692,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getSessionDefaults",
+      "line": 738,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveSessionModelRef",
+      "line": 755,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveSessionModelIdentityRef",
+      "line": 813,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "listSessionsFromStore",
+      "line": 846,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 160,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, auth"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth"
+    ]
+  }
+}

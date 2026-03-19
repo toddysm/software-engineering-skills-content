@@ -1,0 +1,118 @@
+{
+  "path": "src/auto-reply/heartbeat.ts",
+  "extension": ".ts",
+  "size_bytes": 5790,
+  "line_count": 171,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Default heartbeat prompt (used when config.agents.defaults.heartbeat.prompt is unset).",
+      "Keep it tight and avoid encouraging the model to invent/rehash \"open loops\" from prior chat context."
+    ],
+    "inline_comments": [
+      "Check if HEARTBEAT.md content is \"effectively empty\" - meaning it has no actionable tasks. This allows skipping heartbeat API calls when no tasks are configured. A file is considered effectively empty if it contains only: - Whitespace - Comment lines (lines starting with #) - Empty lines Note: A missing file returns false (not effectively empty) so the LLM can still decide what to do. This function is only for when the file exists but has no content.",
+      "Skip empty lines",
+      "Skip markdown header lines (# followed by space or EOL, ## etc)",
+      "(Those aren't valid markdown headers - ATX headers require space after #)",
+      "Skip empty markdown list items like \"- [ ]\" or \"* [ ]\" or just \"- \"",
+      "Found a non-empty, non-comment line - there's actionable content",
+      "All lines were either empty or comments",
+      "Strip the token when it appears at the end of the text.",
+      "Also strip up to 4 trailing non-word characters the model may have appended",
+      "(e.g. \".\", \"!!!\", \"---\"). Keep trailing punctuation only when real",
+      "sentence text exists before the token.",
+      "Normalize lightweight markup so HEARTBEAT_OK wrapped in HTML/Markdown",
+      "(e.g., <b>HEARTBEAT_OK</b> or **HEARTBEAT_OK**) still strips.",
+      "Drop HTML tags.",
+      "Decode common nbsp variant.",
+      "Remove markdown-ish wrappers at the edges."
+    ],
+    "todo_comments": [
+      "This intentionally does NOT skip lines like \"#TODO\" or \"#hashtag\" which might be content"
+    ],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "HEARTBEAT_PROMPT",
+    "isHeartbeatContentEffectivelyEmpty",
+    "resolveHeartbeatPrompt",
+    "DEFAULT_HEARTBEAT_ACK_MAX_CHARS",
+    "stripHeartbeatToken",
+    "DEFAULT_HEARTBEAT_EVERY"
+  ],
+  "imports": {
+    "internal": [
+      "../utils.js",
+      "./tokens.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isHeartbeatContentEffectivelyEmpty",
+      "line": 23,
+      "doc": "Check if HEARTBEAT.md content is \"effectively empty\" - meaning it has no actionable tasks.   This allows skipping heartb",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveHeartbeatPrompt",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripTokenAtEdges",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripHeartbeatToken",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripMarkup",
+      "line": 135,
+      "doc": "(e.g., <b>HEARTBEAT_OK</b> or **HEARTBEAT_OK**) still strips.",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "StripHeartbeatMode",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 28,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, auth"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth"
+    ]
+  }
+}

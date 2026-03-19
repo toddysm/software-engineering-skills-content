@@ -1,0 +1,122 @@
+{
+  "path": "extensions/matrix/src/matrix/monitor/direct.ts",
+  "extension": ".ts",
+  "size_bytes": 5550,
+  "line_count": 152,
+  "documentation": {
+    "file_docstring": "Check if an error is a Matrix M_NOT_FOUND response (missing state event). The bot-sdk throws MatrixError with errcode/statusCode on the error object.",
+    "header_comments": [],
+    "inline_comments": [
+      "Check m.direct account data (most authoritative)",
+      "Conservative fallback: 2-member rooms without an explicit room name are likely",
+      "DMs with broken m.direct / is_direct flags. This has been observed on Continuwuity",
+      "where m.direct pointed to the wrong room and is_direct was never set on the invite.",
+      "Unlike the removed heuristic, this requires two signals (member count + no name)",
+      "to avoid false positives on named 2-person group rooms.",
+      "",
+      "Performance: member count is cached (resolveMemberCount). The room name state",
+      "check is not cached but only runs for the subset of 2-member rooms that reach",
+      "this fallback path (no m.direct, no is_direct). In typical deployments this is",
+      "a small minority of rooms.",
+      "",
+      "Note: there is a narrow race where a room name is being set concurrently with",
+      "this check. The consequence is a one-time misclassification that self-corrects",
+      "on the next message (once the state event is synced). This is acceptable given",
+      "the alternative of an additional API call on every message.",
+      "Missing state events (M_NOT_FOUND) are expected for unnamed rooms and",
+      "strongly indicate a DM. Any other error (network, auth) is ambiguous,",
+      "so we fall through to classify as group rather than guess."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "createDirectRoomTracker"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "@vector-im/matrix-bot-sdk"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isMatrixNotFoundError",
+      "line": 20,
+      "doc": "Check if an error is a Matrix M_NOT_FOUND response (missing state event).   The bot-sdk throws MatrixError with errcode ",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createDirectRoomTracker",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "ensureSelfUserId",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "refreshDmCache",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveMemberCount",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "hasDirectFlag",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "DirectMessageCheck",
+      "line": 3,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "DirectRoomTrackerOptions",
+      "line": 9,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 23,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

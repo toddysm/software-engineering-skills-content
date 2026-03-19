@@ -1,0 +1,384 @@
+{
+  "path": "src/gateway/server-methods/chat.ts",
+  "extension": ".ts",
+  "size_bytes": 50601,
+  "line_count": 1567,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Webchat clients never inherit external delivery routes. Configured-main",
+      "sessions are stricter than channel-scoped sessions: only CLI callers, or",
+      "legacy callers with no client metadata, may inherit the last external route.",
+      "Validate that a value is a finite number, returning undefined otherwise.",
+      "Sanitize usage metadata to ensure only finite numeric fields are included. Prevents UI crashes from malformed transcript JSON.",
+      "Whitelist known usage fields and validate they're finite numbers",
+      "Preserve nested usage.cost when present",
+      "Sanitize cost metadata to ensure only finite numeric fields are included. Prevents UI crashes from calling .toFixed() on non-numbers.",
+      "Keep usage/cost so the chat UI can render per-message token and cost badges.",
+      "Only retain usage/cost on assistant messages and validate numeric fields to prevent UI crashes.",
+      "Validate and sanitize usage/cost for assistant messages",
+      "Extract the visible text from an assistant history message for silent-token checks. Returns `undefined` for non-assistant messages or messages with no extractable text. When `entry.text` is present it takes precedence over `entry.content` to avoid dropping messages that carry real text alongside a stale `content: \"NO_REPLY\"`.",
+      "Drop assistant messages whose entire visible text is the silent reply token.",
+      "Inject timestamp so agents know the current date/time.",
+      "Only BodyForAgent gets the timestamp \u2014 Body stays raw for UI display.",
+      "See: https://github.com/moltbot/moltbot/issues/3658",
+      "Register for any other active runs *in the same session* so",
+      "late-joining clients (e.g. page refresh mid-response) receive",
+      "in-progress tool events without leaking cross-session data.",
+      "Keep this compatible with Pi stopReason enums even though this message isn't",
+      "persisted to the transcript due to the append failure.",
+      "Load session to find transcript file",
+      "Broadcast to webchat for immediate UI update"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "sanitizeChatSendMessageInput",
+    "chatHandlers"
+  ],
+  "imports": {
+    "internal": [
+      "../../agents/agent-scope.js",
+      "../../agents/model-selection.js",
+      "../../agents/timeout.js",
+      "../../auto-reply/dispatch.js",
+      "../../auto-reply/reply/reply-dispatcher.js",
+      "../../auto-reply/templating.js",
+      "../../auto-reply/tokens.js",
+      "../../auto-reply/types.js",
+      "../../channels/reply-prefix.js",
+      "../../config/sessions.js",
+      "../../infra/json-utf8-bytes.js",
+      "../../sessions/input-provenance.js",
+      "../../sessions/send-policy.js",
+      "../../sessions/session-key-utils.js",
+      "../chat-attachments.js",
+      "../chat-sanitize.js",
+      "../method-scopes.js",
+      "../protocol/schema/primitives.js",
+      "../server-constants.js",
+      "../ws-log.js",
+      "./agent-timestamp.js",
+      "./agent-wait-dedupe.js",
+      "./attachment-normalize.js",
+      "./chat-transcript-inject.js"
+    ],
+    "external": [
+      "node:fs",
+      "node:path",
+      "@mariozechner/pi-coding-agent"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveChatSendOriginatingRoute",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripDisallowedChatControlChars",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeChatSendMessageInput",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "normalizeOptionalChatSystemReceipt",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isAcpBridgeClient",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "truncateChatHistoryText",
+      "line": 289,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeChatHistoryContentBlock",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toFiniteNumber",
+      "line": 344,
+      "doc": "Validate that a value is a finite number, returning undefined otherwise.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeUsage",
+      "line": 352,
+      "doc": "Sanitize usage metadata to ensure only finite numeric fields are included.   Prevents UI crashes from malformed transcri",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeCost",
+      "line": 394,
+      "doc": "Sanitize cost metadata to ensure only finite numeric fields are included.   Prevents UI crashes from calling .toFixed() ",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeChatHistoryMessage",
+      "line": 403,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractAssistantTextForSilentCheck",
+      "line": 477,
+      "doc": "Extract the visible text from an assistant history message for silent-token checks.   Returns `undefined` for non-assist",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeChatHistoryMessages",
+      "line": 509,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildOversizedHistoryPlaceholder",
+      "line": 529,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "replaceOversizedChatHistoryMessages",
+      "line": 550,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "enforceChatHistoryFinalBudget",
+      "line": 569,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveTranscriptPath",
+      "line": 591,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureTranscriptFile",
+      "line": 613,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "transcriptHasIdempotencyKey",
+      "line": 639,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "appendAssistantTranscriptMessage",
+      "line": 657,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectSessionAbortPartials",
+      "line": 708,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "persistAbortedPartials",
+      "line": 733,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createChatAbortOps",
+      "line": 765,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeOptionalText",
+      "line": 778,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveChatAbortRequester",
+      "line": 783,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "canRequesterAbortChatRun",
+      "line": 794,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveAuthorizedRunIdsForSession",
+      "line": 815,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "abortChatRunsForSessionKeyWithPartials",
+      "line": 837,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "nextChatSeq",
+      "line": 886,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "broadcastChatFinal",
+      "line": 892,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isBtwReplyPayload",
+      "line": 914,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "broadcastSideResult",
+      "line": 926,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "broadcastChatError",
+      "line": 941,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "TranscriptAppendResult",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AbortOrigin",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AbortedPartialSnapshot",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChatAbortRequester",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChatSendDeliveryEntry",
+      "line": 113,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChatSendOriginatingRoute",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SideResultPayload",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 172,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,402 @@
+{
+  "path": "extensions/voice-call/src/webhook-security.ts",
+  "extension": ".ts",
+  "size_bytes": 29317,
+  "line_count": 980,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Validate Twilio webhook signature using HMAC-SHA1. Twilio signs requests by concatenating the URL with sorted POST params, then computing HMAC-SHA1 with the auth token. @see https://www.twilio.com/docs/usage/webhooks/webhooks-security",
+      "HMAC-SHA1 with auth token, then base64 encode",
+      "Use timing-safe comparison to prevent timing attacks",
+      "Timing-safe string comparison to prevent timing attacks.",
+      "Still do comparison to maintain constant time",
+      "Configuration for secure URL reconstruction.",
+      "Whitelist of allowed hostnames. If provided, only these hosts will be accepted from forwarding headers. This prevents host header injection attacks. SECURITY: You must provide this OR set trustForwardingHeaders=true to use X-Forwarded-Host headers. Without either, forwarding headers are ignored.",
+      "Explicitly trust X-Forwarded-* headers without a whitelist. WARNING: Only set this to true if you trust your proxy configuration and understand the security implications. @default false",
+      "List of trusted proxy IP addresses. X-Forwarded-* headers will only be trusted if the request comes from one of these IPs. Requires remoteIP to be set for validation.",
+      "The IP address of the incoming request (for proxy validation).",
+      "Validate that a hostname matches RFC 1123 format. Prevents injection of malformed hostnames.",
+      "RFC 1123 hostname: alphanumeric, hyphens, dots",
+      "Also allow ngrok/tunnel subdomains",
+      "Safely extract hostname from a host header value. Handles IPv6 addresses and prevents injection via malformed values.",
+      "Handle IPv6 addresses: [::1]:8080",
+      "Handle IPv4/domain with optional port",
+      "Check for @ which could indicate user info injection attempt",
+      "Validate the extracted hostname",
+      "Reconstruct the public webhook URL from request headers. SECURITY: This function validates host headers to prevent host header injection attacks. When using forwarding headers (X-Forwarded-Host, etc.), always provide allowedHosts to whitelist valid hostnames. When behind a reverse proxy (Tailscale, nginx, ngrok), the original URL used by Twilio differs from the local request URL. We use standard forwarding headers to reconstruct it. Priority order: 1. X-Forwarded-Proto + X-Forwarded-Host (standard proxy headers) 2. X-Original-Host (nginx) 3. Ngrok-Forwarded-Host (ngrok specific) 4. Host header (direct connection)",
+      "SECURITY: Only trust forwarding headers if explicitly configured.",
+      "Either allowedHosts must be set (for whitelist validation) or",
+      "trustForwardingHeaders must be true (explicit opt-in to trust).",
+      "Also check trusted proxy IPs if configured",
+      "Only trust forwarding headers if: (has whitelist OR explicitly trusted) AND from trusted proxy",
+      "Determine protocol - only trust X-Forwarded-Proto from trusted proxies",
+      "Determine host - with security validation",
+      "Try forwarding headers in priority order",
+      "Fallback to Host header if no valid forwarding header found",
+      "Last resort: try to extract from ctx.url",
+      "URL parsing failed - use empty string (will result in invalid URL)",
+      "Extract path from the context URL (fallback to \"/\" on parse failure)",
+      "URL parsing failed",
+      "Result of Twilio webhook verification with detailed info.",
+      "Verify Telnyx webhook signature using Ed25519. Telnyx signs `timestamp|payload` and provides: - `telnyx-signature-ed25519` (Base64 signature) - `telnyx-timestamp` (Unix seconds)",
+      "Verify Twilio webhook with full context and detailed result.",
+      "Allow ngrok free tier compatibility mode (loopback only). IMPORTANT: This does NOT bypass signature verification. It only enables trusting forwarded headers on loopback so we can reconstruct the public ngrok URL that Twilio used for signing.",
+      "Whitelist of allowed hostnames for host header validation. Prevents host header injection attacks.",
+      "Explicitly trust X-Forwarded-* headers without a whitelist. WARNING: Only enable if you trust your proxy configuration. @default false",
+      "List of trusted proxy IP addresses. X-Forwarded-* headers will only be trusted from these IPs.",
+      "The remote IP address of the request (for proxy validation).",
+      "Allow skipping verification for development/testing",
+      "Reconstruct the URL Twilio used",
+      "Parse the body as URL-encoded params",
+      "Twilio webhook signatures can differ in whether port is included.",
+      "Retry a small, deterministic set of URL variants before failing closed.",
+      "ignore invalid publicUrl; primary verification already used best effort",
+      "Check if this is ngrok free tier - the URL might have different format",
+      "-----------------------------------------------------------------------------",
+      "Plivo webhook verification",
+      "-----------------------------------------------------------------------------",
+      "Result of Plivo webhook verification with detailed info.",
+      "Verify Plivo webhooks using V3 signature if present; fall back to V2. Header names (case-insensitive; Node provides lower-case keys): - V3: X-Plivo-Signature-V3 / X-Plivo-Signature-V3-Nonce - V2: X-Plivo-Signature-V2 / X-Plivo-Signature-V2-Nonce",
+      "Whitelist of allowed hostnames for host header validation. Prevents host header injection attacks.",
+      "Explicitly trust X-Forwarded-* headers without a whitelist. WARNING: Only enable if you trust your proxy configuration. @default false",
+      "List of trusted proxy IP addresses. X-Forwarded-* headers will only be trusted from these IPs.",
+      "The remote IP address of the request (for proxy validation)."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "reconstructWebhookUrl",
+    "verifyTelnyxWebhook",
+    "verifyTwilioWebhook",
+    "verifyPlivoWebhook",
+    "validateTwilioSignature"
+  ],
+  "imports": {
+    "internal": [
+      "./http-headers.js",
+      "./types.js"
+    ],
+    "external": [
+      "node:crypto"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "sha256Hex",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createSkippedVerificationReplayKey",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pruneReplayCache",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "markReplay",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "validateTwilioSignature",
+      "line": 79,
+      "doc": "Validate Twilio webhook signature using HMAC-SHA1.     Twilio signs requests by concatenating the URL with sorted POST p",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildTwilioDataToSign",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildCanonicalTwilioParamString",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "timingSafeEqual",
+      "line": 122,
+      "doc": "Timing-safe string comparison to prevent timing attacks.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isValidHostname",
+      "line": 171,
+      "doc": "Validate that a hostname matches RFC 1123 format.   Prevents injection of malformed hostnames.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractHostname",
+      "line": 186,
+      "doc": "Safely extract hostname from a host header value.   Handles IPv6 addresses and prevents injection via malformed values.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractHostnameFromHeader",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeAllowedHosts",
+      "line": 227,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "reconstructWebhookUrl",
+      "line": 258,
+      "doc": "Reconstruct the public webhook URL from request headers.     SECURITY: This function validates host headers to prevent h",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isAllowedForwardedHost",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildTwilioVerificationUrl",
+      "line": 349,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isLoopbackAddress",
+      "line": 369,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripPortFromUrl",
+      "line": 382,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setPortOnUrl",
+      "line": 395,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractPortFromHostHeader",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createTwilioReplayKey",
+      "line": 442,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "decodeBase64OrBase64Url",
+      "line": 453,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "base64UrlEncode",
+      "line": 461,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "importEd25519PublicKey",
+      "line": 465,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "verifyTelnyxWebhook",
+      "line": 497,
+      "doc": "Verify Telnyx webhook signature using Ed25519.     Telnyx signs `timestamp|payload` and provides:   - `telnyx-signature-",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "verifyTwilioWebhook",
+      "line": 565,
+      "doc": "Verify Twilio webhook with full context and detailed result.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "normalizeSignatureBase64",
+      "line": 717,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getBaseUrlNoQuery",
+      "line": 722,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "timingSafeEqualString",
+      "line": 727,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "validatePlivoV2Signature",
+      "line": 736,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toParamMapFromSearchParams",
+      "line": 754,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sortedQueryString",
+      "line": 765,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sortedParamsString",
+      "line": 776,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "constructPlivoV3BaseUrl",
+      "line": 787,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "validatePlivoV3Signature",
+      "line": 816,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "verifyPlivoWebhook",
+      "line": 856,
+      "doc": "Verify Plivo webhooks using V3 signature if present; fall back to V2.     Header names (case-insensitive; Node provides ",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ReplayCache",
+      "line": 9,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "WebhookUrlOptions",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "TwilioVerificationResult",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "TelnyxVerificationResult",
+      "line": 433,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "PlivoVerificationResult",
+      "line": 705,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "PlivoParamMap",
+      "line": 752,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 123,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

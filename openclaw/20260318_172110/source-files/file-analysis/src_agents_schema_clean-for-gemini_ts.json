@@ -1,0 +1,147 @@
+{
+  "path": "src/agents/schema/clean-for-gemini.ts",
+  "extension": ".ts",
+  "size_bytes": 12327,
+  "line_count": 415,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Cloud Code Assist API rejects a subset of JSON Schema keywords.",
+      "This module scrubs/normalizes tool schemas to keep Gemini happy.",
+      "Keywords that Cloud Code Assist API rejects (not compliant with their JSON Schema subset)"
+    ],
+    "inline_comments": [
+      "Non-standard (OpenAPI) keyword; Claude validators reject it.",
+      "Cloud Code Assist appears to validate tool schemas more strictly/quirkily than",
+      "draft 2020-12 in practice; these constraints frequently trigger 400s.",
+      "Check if an anyOf/oneOf array contains only literal values that can be flattened.",
+      "TypeBox Type.Literal generates { const: \"value\", type: \"string\" }.",
+      "Some schemas may use { enum: [\"value\"], type: \"string\" }.",
+      "Both patterns are flattened to { type: \"string\", enum: [\"a\", \"b\", ...] }.",
+      "Guard malformed schemas (e.g. properties: null) that can trigger",
+      "downstream Object.* crashes in strict provider validators.",
+      "Cloud Code Assist API rejects anyOf/oneOf in nested schemas even after",
+      "simplifyUnionVariants runs above. Flatten remaining unions as a fallback:",
+      "pick the common type or use the first variant's type so the tool",
+      "declaration is accepted by Google's validation layer.",
+      "Last-resort flattening for anyOf/oneOf arrays that could not be simplified by `simplifyUnionVariants`. Picks a representative type so the schema is accepted by Google's restricted JSON Schema validation."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path"
+    ]
+  },
+  "exports": [
+    "GEMINI_UNSUPPORTED_SCHEMA_KEYWORDS",
+    "cleanSchemaForGemini"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "copySchemaMeta",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "tryFlattenLiteralAnyOf",
+      "line": 46,
+      "doc": "Both patterns are flattened to { type: \"string\", enum: [\"a\", \"b\", ...] }.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isNullSchema",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripNullVariants",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extendSchemaDefs",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "decodeJsonPointerSegment",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "tryResolveLocalRef",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "simplifyUnionVariants",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanSchemaForGeminiWithDefs",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "flattenUnionFallback",
+      "line": 373,
+      "doc": "Last-resort flattening for anyOf arrays that could not be simplified   by `simplifyUnionVariants`. Picks a representativ",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanSchemaForGemini",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "SchemaDefs",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 76,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "business_logic"
+    ]
+  }
+}

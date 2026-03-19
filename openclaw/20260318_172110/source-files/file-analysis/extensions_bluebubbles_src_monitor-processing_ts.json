@@ -1,0 +1,298 @@
+{
+  "path": "extensions/bluebubbles/src/monitor-processing.ts",
+  "extension": ".ts",
+  "size_bytes": 51862,
+  "line_count": 1518,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "In-memory rolling history map keyed by account + chat identifier. Populated from incoming messages during the session. API backfill is attempted until one fetch resolves (or retries are exhausted).",
+      "Check if text is a tapback pattern (e.g., 'Loved \"hello\"') and transform to emoji format",
+      "For tapbacks, we'll append [[reply_to:N]] at the end; for regular messages, prepend it",
+      "Cache from-me messages so reply context can resolve sender/body.",
+      "Mention gating for group chats (parity with iMessage/WhatsApp)",
+      "Command gating (parity with iMessage/WhatsApp)",
+      "Block control commands from unauthorized senders in groups",
+      "Allow control commands to bypass mention gating when authorized (parity with iMessage)",
+      "Skip group messages that require mention but weren't mentioned",
+      "Cache allowed inbound messages so later replies can resolve sender/body without",
+      "surfacing dropped content (allowlist/mention/command gating).",
+      "If no cached short ID, try to get one from the UUID directly",
+      "Use inline [[reply_to:N]] tag format",
+      "For tapbacks/reactions: append at end (e.g., \"reacted with \u2764\ufe0f [[reply_to:4]]\")",
+      "For regular replies: prepend at start (e.g., \"[[reply_to:4]] Awesome\")",
+      "Build fromLabel the same way as iMessage/Signal (formatInboundFromLabel):",
+      "group label + id for groups, sender for DMs.",
+      "The sender identity is included in the envelope body via formatInboundEnvelope.",
+      "Respect sendReadReceipts config (parity with WhatsApp)",
+      "Cache outbound message to get short ID",
+      "History: in-memory rolling map with bounded API backfill retries",
+      "Record the current message into rolling history",
+      "Build inbound history from the in-memory map",
+      "Use short ID for token savings (agent can use this to reference the message)",
+      "Use short ID for token savings (agent can use this to reference the message)",
+      "Resolve short ID (e.g., \"5\") to full UUID",
+      "Intentionally no-op for block streaming. We stop typing in finally",
+      "after the run completes to avoid flicker between paragraph blocks.",
+      "Stop typing after streaming completes to avoid a stuck indicator.",
+      "Use short ID for token savings",
+      "Format: \"Tyler reacted with \u2764\ufe0f [[reply_to:5]]\" or \"Tyler removed \u2764\ufe0f reaction [[reply_to:5]]\""
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "logVerbose"
+  ],
+  "imports": {
+    "internal": [
+      "./attachments.js",
+      "./chat.js",
+      "./history.js",
+      "./media-send.js",
+      "./probe.js",
+      "./reactions.js",
+      "./runtime-api.js",
+      "./secret-input.js",
+      "./send.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "trimOrUndefined",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeSnippet",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isBlueBubblesSelfChatMessage",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "prunePendingOutboundMessageIds",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "rememberPendingOutboundMessageId",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "forgetPendingOutboundMessageId",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "chatsMatch",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "consumePendingOutboundMessageId",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "logVerbose",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "logGroupAllowlistHint",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveBlueBubblesAckReaction",
+      "line": 251,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAccountScopedHistoryKey",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "historyDedupKey",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "truncateHistoryBody",
+      "line": 312,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "mergeHistoryEntries",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "appendUnique",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pruneHistoryBackfillState",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "markHistoryBackfillResolved",
+      "line": 364,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "planHistoryBackfillAttempt",
+      "line": 379,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildInboundHistorySnapshot",
+      "line": 412,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "processMessage",
+      "line": 450,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "cacheInboundMessage",
+      "line": 505,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldAckReaction",
+      "line": 956,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeEnqueueOutboundMessageId",
+      "line": 1019,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeReplyDirectiveText",
+      "line": 1043,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearTypingRestartTimer",
+      "line": 1206,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restartTypingSoon",
+      "line": 1212,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "processReaction",
+      "line": 1445,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "PendingOutboundMessageId",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "HistoryBackfillState",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 243,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

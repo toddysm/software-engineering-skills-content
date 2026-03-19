@@ -1,0 +1,119 @@
+{
+  "path": "src/hooks/bundled/session-memory/handler.ts",
+  "extension": ".ts",
+  "size_bytes": 12266,
+  "line_count": 371,
+  "documentation": {
+    "file_docstring": "Session memory hook handler Saves session context to memory when /new or /reset command is triggered Creates a new dated memory file with LLM-generated slug",
+    "header_comments": [],
+    "inline_comments": [
+      "Read recent messages from session file for slug generation",
+      "Parse JSONL and extract user/assistant messages first",
+      "Session files have entries with type=\"message\" containing a nested message object",
+      "Extract text content",
+      "Skip invalid JSON lines",
+      "Then slice to get exactly messageCount messages",
+      "Try the active transcript first; if /new already rotated it, fallback to the latest .jsonl.reset.* sibling.",
+      "Ignore directory read errors.",
+      "Save session context to memory when /new or /reset command is triggered",
+      "Only trigger on reset/new commands",
+      "Get today's date for filename",
+      "Generate descriptive slug from session using LLM",
+      "Prefer previousSessionEntry (old session before /new) over current (which may be empty)",
+      "If sessionFile is empty or looks like a new/reset file, try to find the previous session file.",
+      "Read message count from hook config (default: 15)",
+      "Get recent conversation content, with fallback to rotated reset transcript.",
+      "Avoid calling the model provider in unit tests; keep hooks fast and deterministic.",
+      "Use LLM to generate a descriptive slug",
+      "If no slug, use timestamp",
+      "Create filename with date and slug",
+      "Format time as HH:MM:SS UTC",
+      "Extract context details",
+      "Build Markdown entry",
+      "Include conversation content if available",
+      "Write under memory root with alias-safe file validation.",
+      "Log completion (but don't send user-visible confirmation - it's internal housekeeping)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "controller",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "controller/handler path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../../../config/config.js",
+      "../../../config/paths.js",
+      "../../../infra/fs-safe.js",
+      "../../../logging/subsystem.js",
+      "../../../sessions/input-provenance.js",
+      "../../config.js",
+      "../../hooks.js",
+      "../../llm-slug-generator.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:os",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveDisplaySessionKey",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getRecentSessionContent",
+      "line": 53,
+      "doc": "Read recent messages from session file for slug generation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "getRecentSessionContentWithResetFallback",
+      "line": 101,
+      "doc": "Try the active transcript first; if  already rotated it,   fallback to the latest .jsonl.reset. sibling.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "stripResetSuffix",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findPreviousSessionFile",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [],
+  "complexity_score": 45,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "path": "src/agents/pi-embedded-runner/compact.ts",
+  "extension": ".ts",
+  "size_bytes": 48295,
+  "line_count": 1252,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Core compaction logic without lane queueing. Use this when already inside a session/global lane to avoid deadlocks.",
+      "Resolve compaction model: prefer config override, then fall back to caller-supplied model",
+      "When switching provider via override, drop the primary auth profile to avoid",
+      "sending the wrong credentials (e.g. OpenAI profile token to OpenRouter).",
+      "Provider changed \u2014 drop primary auth profile so getApiKeyForModel",
+      "falls back to provider-based key resolution for the override model.",
+      "Apply contextTokens cap to model so pi-coding-agent's auto-compaction",
+      "threshold uses the effective limit, not the native context window.",
+      "Resolve channel-specific message actions for system prompt",
+      "Sets compaction/pruning runtime state and returns extension factories",
+      "that must be passed to the resource loader for the safeguard to be active.",
+      "Only create an explicit resource loader when there are extension factories",
+      "to register; otherwise let createAgentSession use its built-in default.",
+      "Apply validated transcript to the live session even when no history limit is configured,",
+      "so compaction and hook metrics are based on the same message set.",
+      "\"Original\" compaction metrics should describe the validated transcript that enters",
+      "limiting/compaction, not the raw on-disk session snapshot.",
+      "Re-run tool_use/tool_result pairing repair after truncation, since",
+      "limitHistoryTurns can orphan tool_result blocks by removing the",
+      "assistant message that contained the matching tool_use.",
+      "hooks; current events only report counts/metadata.",
+      "Measure compactedCount from the original pre-limiting transcript so compaction",
+      "lifecycle metrics represent total reduction through the compaction pipeline.",
+      "Estimate full session tokens BEFORE compaction (including system prompt,",
+      "bootstrap context, workspace files, and all history). This is needed for",
+      "a correct sanity check \u2014 result.tokensBefore only covers the summarizable",
+      "history subset, not the full session.",
+      "If token estimation throws on a malformed message, fall back to 0 so",
+      "the sanity check below becomes a no-op instead of crashing compaction.",
+      "Estimate tokens after compaction by summing token estimates for remaining messages",
+      "Sanity check: compare against the best full-session pre-compaction baseline.",
+      "Prefer the provider-observed live count when available; otherwise use the",
+      "heuristic full-session estimate with a 10% margin for counter jitter.",
+      "If estimation fails, leave tokensAfter undefined",
+      "current events only report summary metadata.",
+      "Compacts a session with lane queueing (session lane + global lane). Use this from outside a lane context. If already inside a lane, use `compactEmbeddedPiSessionDirect` to avoid deadlocks.",
+      "Resolve token budget from model context window so the context engine",
+      "knows the compaction target.  The runner's afterTurn path passes this",
+      "automatically, but the /compact command path needs to compute it here.",
+      "When the context engine owns compaction, its compact() implementation",
+      "bypasses compactEmbeddedPiSessionDirect (which fires the hooks internally).",
+      "Fire before_compaction / after_compaction hooks here so plugin subscribers",
+      "are notified regardless of which engine is active.",
+      "Engine-owned compaction doesn't load the transcript at this level, so",
+      "message counts are unavailable.  We pass sessionFile so hook subscribers",
+      "can read the transcript themselves if they need exact counts."
+    ],
+    "todo_comments": [
+      "TODO(#7175): Consider exposing full message snapshots or pre-compaction injection",
+      "TODO(#9611): Consider exposing compaction summaries or post-compaction injection;"
+    ],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../../auto-reply/heartbeat.js",
+      "../../auto-reply/thinking.js",
+      "../../config/channel-capabilities.js",
+      "../../config/config.js",
+      "../../hooks/internal-hooks.js",
+      "../../infra/machine-name.js",
+      "../../infra/secure-random.js",
+      "../../memory/index.js",
+      "../../plugin-sdk/signal.js",
+      "../../plugins/hook-runner-global.js",
+      "../../plugins/provider-runtime.js",
+      "../../process/command-queue.js",
+      "../../routing/session-key.js",
+      "../../sessions/transcript-events.js",
+      "../../tts/tts.js",
+      "../../utils.js",
+      "../../utils/message-channel.js",
+      "../../utils/provider-utils.js",
+      "../agent-paths.js",
+      "../agent-scope.js",
+      "../bash-tools.js",
+      "../bootstrap-files.js",
+      "../channel-tools.js",
+      "../context-window-guard.js",
+      "../custom-api-registry.js",
+      "../date-time.js",
+      "../defaults.js",
+      "../docs-path.js",
+      "../memory-search.js",
+      "../model-tool-support.js",
+      "../models-config.js",
+      "../ollama-stream.js",
+      "../owner-display.js",
+      "../pi-bundle-lsp-runtime.js",
+      "../pi-bundle-mcp-tools.js",
+      "../pi-project-settings.js",
+      "../pi-tools.js",
+      "../runtime-plugins.js",
+      "../sandbox.js",
+      "../session-file-repair.js",
+      "../session-tool-result-guard-wrapper.js",
+      "../session-transcript-repair.js",
+      "../shell-utils.js",
+      "../transcript-policy.js",
+      "./extensions.js",
+      "./history.js",
+      "./lanes.js",
+      "./logger.js",
+      "./message-action-discovery-input.js",
+      "./model.js",
+      "./sandbox-info.js",
+      "./session-manager-cache.js",
+      "./skills-runtime.js",
+      "./tool-name-allowlist.js",
+      "./tool-split.js",
+      "./types.js",
+      "./utils.js",
+      "./wait-for-idle-before-flush.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:os",
+      "@mariozechner/pi-agent-core"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "hasRealConversationContent",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createCompactionDiagId",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeObservedTokenCount",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getMessageTextChars",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveMessageToolLabel",
+      "line": 205,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "summarizeCompactionMessages",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "classifyCompactionReason",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolvePostCompactionIndexSyncMode",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runPostCompactionSessionMemorySync",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "syncPostCompactionSessionMemory",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runPostCompactionSideEffects",
+      "line": 362,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "compactEmbeddedPiSessionDirect",
+      "line": 384,
+      "doc": "Core compaction logic without lane queueing.   Use this when already inside a session lane to avoid deadlocks.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "fail",
+      "line": 426,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "compactEmbeddedPiSession",
+      "line": 1126,
+      "doc": "Compacts a session with lane queueing (session lane + global lane).   Use this from outside a lane context. If already i",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "CompactEmbeddedPiSessionParams",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CompactionMessageMetrics",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 173,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

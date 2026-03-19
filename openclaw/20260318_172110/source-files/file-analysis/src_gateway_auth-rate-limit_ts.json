@@ -1,0 +1,183 @@
+{
+  "path": "src/gateway/auth-rate-limit.ts",
+  "extension": ".ts",
+  "size_bytes": 7801,
+  "line_count": 232,
+  "documentation": {
+    "file_docstring": "In-memory sliding-window rate limiter for gateway authentication attempts. Tracks failed auth attempts by {scope, clientIp}. A scope lets callers keep independent counters for different credential classes (for example, shared gateway token/password vs device-token auth) while still sharing one limiter instance. Design decisions: - Pure in-memory Map \u2013 no external dependencies; suitable for a single gateway process.  The Map is periodically pruned to avoid unbounded growth. - Loopback addresses (127.0.0.1 / ::1) are exempt by default so that local CLI sessions are never locked out. - The module is side-effect-free: callers create an instance via {@link createAuthRateLimiter} and pass it where needed.",
+    "header_comments": [],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Types",
+      "---------------------------------------------------------------------------",
+      "Canonicalize client IPs used for auth throttling so all call sites share one representation (including IPv4-mapped IPv6 forms).",
+      "Periodic cleanup to avoid unbounded map growth.",
+      "Allow the Node.js process to exit even if the timer is still active.",
+      "Remove attempts that fell outside the window.",
+      "Still locked out?",
+      "Lockout expired \u2013 clear it.",
+      "If currently locked, do nothing (already blocked).",
+      "If locked out, keep the entry until the lockout expires."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "createAuthRateLimiter",
+    "AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN",
+    "normalizeRateLimitClientIp",
+    "AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET",
+    "AUTH_RATE_LIMIT_SCOPE_DEFAULT",
+    "AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH"
+  ],
+  "imports": {
+    "internal": [
+      "./net.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "normalizeRateLimitClientIp",
+      "line": 91,
+      "doc": "Canonicalize client IPs used for auth throttling so all call sites   share one representation (including IPv4-mapped IPv",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createAuthRateLimiter",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "normalizeScope",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeIp",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveKey",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isExempt",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "slideWindow",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "check",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "recordFailure",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "reset",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "prune",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "size",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "dispose",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "RateLimitConfig",
+      "line": 25,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "RateLimitEntry",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "RateLimitCheckResult",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "AuthRateLimiter",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

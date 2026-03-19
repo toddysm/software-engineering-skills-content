@@ -1,0 +1,341 @@
+{
+  "path": "src/commands/onboard-custom.ts",
+  "extension": ".ts",
+  "size_bytes": 24995,
+  "line_count": 825,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Detects if a URL is from Azure AI Foundry or Azure OpenAI. Matches both: - https://*.services.ai.azure.com (Azure AI Foundry) - https://*.openai.azure.com (classic Azure OpenAI)",
+      "Transforms an Azure AI Foundry/OpenAI URL to include the deployment path. Azure requires: https://host/openai/deployments/<model-id>/chat/completions?api-version=2024-xx-xx-preview But we can't add query params here, so we just add the path prefix. The api-version will be handled by the Azure OpenAI client or as a query param. Example: https://my-resource.services.ai.azure.com + gpt-5-nano => https://my-resource.services.ai.azure.com/openai/deployments/gpt-5-nano",
+      "Check if the URL already includes the deployment path",
+      "Use a base URL with /v1 injected for this raw fetch only. The rest of the app uses the",
+      "Anthropic client, which appends /v1 itself; config should store the base URL",
+      "without /v1 to avoid /v1/v1/messages at runtime. See docs/gateway/configuration-reference.md.",
+      "Transform Azure URLs to include the deployment path for API calls"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "applyCustomApiConfig",
+    "resolveCustomProviderId",
+    "CustomApiError",
+    "parseNonInteractiveCustomApiFlags"
+  ],
+  "imports": {
+    "internal": [
+      "../agents/context-window-guard.js",
+      "../agents/defaults.js",
+      "../agents/model-selection.js",
+      "../agents/ollama-defaults.js",
+      "../config/config.js",
+      "../config/types.models.js",
+      "../config/types.secrets.js",
+      "../runtime.js",
+      "../utils/fetch-timeout.js",
+      "../wizard/prompts.js",
+      "./auth-choice.apply-helpers.js",
+      "./model-picker.js",
+      "./models/shared.js",
+      "./onboard-types.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "normalizeContextWindowForCustomModel",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isAzureUrl",
+      "line": 35,
+      "doc": "Detects if a URL is from Azure AI Foundry or Azure OpenAI.   Matches both:   - https:.services.ai.azure.com (Azure AI Fo",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "transformAzureUrl",
+      "line": 55,
+      "doc": "Transforms an Azure AI Foundry URL to include the deployment path.   Azure requires: https:<model-id>?api-version=2024-x",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeEndpointId",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildEndpointIdFromUrl",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveUniqueEndpointId",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveAliasError",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAzureOpenAiHeaders",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildOpenAiHeaders",
+      "line": 228,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildAnthropicHeaders",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatVerificationError",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeOptionalProviderApiKey",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveVerificationEndpoint",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "requestVerification",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "requestOpenAiVerification",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "requestAnthropicVerification",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "promptBaseUrlAndKey",
+      "line": 384,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "promptCustomApiRetryChoice",
+      "line": 428,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "promptCustomApiModelId",
+      "line": 439,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "applyCustomApiRetryChoice",
+      "line": 449,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveProviderApi",
+      "line": 474,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseCustomApiCompatibility",
+      "line": 480,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveCustomProviderId",
+      "line": 494,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "parseNonInteractiveCustomApiFlags",
+      "line": 523,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "applyCustomApiConfig",
+      "line": 555,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "promptCustomApiConfig",
+      "line": 672,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "CustomApiCompatibility",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CustomApiCompatibilityChoice",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CustomApiResult",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ApplyCustomApiConfigParams",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ParseNonInteractiveCustomApiFlagsParams",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ParsedNonInteractiveCustomApiFlags",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CustomApiErrorCode",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CustomApiError",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": true,
+      "extends": "Error",
+      "implements": []
+    },
+    {
+      "name": "ResolveCustomProviderIdParams",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ResolvedCustomProviderId",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "VerificationResult",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CustomApiRetryChoice",
+      "line": 426,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 83,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

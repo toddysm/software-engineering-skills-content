@@ -1,0 +1,149 @@
+{
+  "path": "src/auto-reply/reply/session.ts",
+  "extension": ".ts",
+  "size_bytes": 24012,
+  "line_count": 634,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Native slash commands (Telegram/Discord/Slack) are delivered on a separate",
+      "\"slash session\" key, but should mutate the target chat session.",
+      "CRITICAL: Skip cache to ensure fresh data when resolving session identity.",
+      "Stale cache (especially with multiple gateway processes or on Windows where",
+      "mtime granularity may miss rapid writes) can cause incorrect sessionId",
+      "generation, leading to orphaned transcript files. See #17971.",
+      "Prefer CommandBody/RawBody (clean message) for command detection; fall back",
+      "to Body which may contain structural context (history, sender labels).",
+      "IMPORTANT: do NOT lowercase the entire command body.",
+      "Users often pass case-sensitive arguments (e.g. filesystem paths on Linux).",
+      "Command parsing downstream lowercases only the command token for matching.",
+      "Use CommandBody/RawBody for reset trigger matching (clean message without structural context).",
+      "Timestamp/message prefixes (e.g. \"[Dec 4 17:35] \") are added by the",
+      "web inbox before we get here. They prevented reset triggers like \"/new\"",
+      "from matching, so strip structural wrappers when checking for resets.",
+      "Reset triggers are configured as lowercased commands (e.g. \"/new\"), but users may type",
+      "\"/NEW\" etc. Match case-insensitively while keeping the original casing for any stripped body.",
+      "ACP-bound conversations handle /new and /reset in command handling",
+      "so the bound ACP runtime can be reset in place without rotating the",
+      "normal OpenClaw session/transcript.",
+      "Capture the current session entry before any reset so its transcript can be",
+      "archived afterward.  We need to do this for both explicit resets (/new, /reset)",
+      "and for scheduled/daily resets where the session has become stale (!freshEntry).",
+      "Without this, daily-reset transcripts are left as orphaned files on disk (#35481).",
+      "When a reset trigger (/new, /reset) starts a new session, carry over",
+      "user-set behavior overrides (verbose, thinking, reasoning, ttsAuto)",
+      "so the user doesn't have to re-enable them every time.",
+      "Track the originating channel/to for announce routing (subagent announce-back).",
+      "Only fall back to persisted threadId for thread sessions.  Non-thread",
+      "sessions (e.g. DM without topics) must not inherit a stale threadId from a",
+      "previous interaction that happened inside a topic/thread.",
+      "Persist previously stored thinking/verbose levels when present.",
+      "Track originating channel for subagent announce routing.",
+      "Parent context is too large \u2014 forking would create a thread session",
+      "that immediately overflows the model's context window. Start fresh",
+      "instead and mark as forked to prevent re-attempts. See #26905.",
+      "Clear stale token metrics from previous session so /status doesn't",
+      "display the old session's context usage after /new or /reset.",
+      "Preserve per-session overrides while resetting compaction state on /new.",
+      "Preserve per-session overrides while resetting compaction state on /new.",
+      "Archive old transcript so it doesn't accumulate on disk (#14869).",
+      "Keep BodyStripped aligned with Body (best default for agent prompts).",
+      "RawBody is reserved for command/directive parsing and may omit context.",
+      "Run session plugin hooks (fire-and-forget)",
+      "If replacing an existing session, fire session_end for the old one",
+      "Fire session_start for the new session"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../../agents/agent-scope.js",
+      "../../agents/bootstrap-cache.js",
+      "../../channels/chat-type.js",
+      "../../config/config.js",
+      "../../config/types.tts.js",
+      "../../gateway/session-utils.fs.js",
+      "../../infra/outbound/conversation-id.js",
+      "../../infra/session-maintenance-warning.js",
+      "../../logging/subsystem.js",
+      "../../plugins/hook-runner-global.js",
+      "../../routing/session-key.js",
+      "../../utils/delivery-context.js",
+      "../command-auth.js",
+      "../templating.js",
+      "./acp-reset-target.js",
+      "./discord-parent-channel.js",
+      "./inbound-text.js",
+      "./mentions.js",
+      "./session-fork.js",
+      "./session-hooks.js"
+    ],
+    "external": [
+      "node:crypto",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveAcpResetBindingContext",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveBoundAcpSessionForReset",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "initSessionState",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "shouldBypassAcpResetForTrigger",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "SessionInitResult",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 96,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

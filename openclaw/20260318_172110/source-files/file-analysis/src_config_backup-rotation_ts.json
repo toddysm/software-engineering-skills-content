@@ -1,0 +1,103 @@
+{
+  "path": "src/config/backup-rotation.ts",
+  "extension": ".ts",
+  "size_bytes": 3635,
+  "line_count": 125,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "best-effort",
+      "best-effort",
+      "best-effort",
+      "Harden file permissions on all .bak files in the rotation ring. copyFile does not guarantee permission preservation on all platforms (e.g. Windows, some NFS mounts), so we explicitly chmod each backup to owner-only (0o600) to match the main config file.",
+      "Harden the primary .bak",
+      "best-effort",
+      "Harden numbered backups",
+      "best-effort",
+      "Remove orphan .bak files that fall outside the managed rotation ring. These can accumulate from interrupted writes, manual copies, or PID-stamped backups (e.g. openclaw.json.bak.1772352289, openclaw.json.bak.before-marketing). Only files matching `<configBasename>.bak.*` are considered; the primary `.bak` and numbered `.bak.1` through `.bak.{N-1}` are preserved.",
+      "Build the set of valid numbered suffixes: \"1\", \"2\", ..., \"{N-1}\"",
+      "This is an orphan \u2014 remove it",
+      "best-effort",
+      "Run the full backup maintenance cycle around config writes. Order matters: rotate ring -> create new .bak -> harden modes -> prune orphan .bak.* files.",
+      "best-effort"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "configuration",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "config/settings path"
+    ]
+  },
+  "exports": [
+    "CONFIG_BACKUP_COUNT"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "rotateConfigBackups",
+      "line": 16,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "hardenBackupPermissions",
+      "line": 44,
+      "doc": "Harden file permissions on all .bak files in the rotation ring.   copyFile does not guarantee permission preservation on",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "cleanOrphanBackups",
+      "line": 72,
+      "doc": "Remove orphan .bak files that fall outside the managed rotation ring.   These can accumulate from interrupted writes, ma",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "maintainConfigBackups",
+      "line": 115,
+      "doc": "Run the full backup maintenance cycle around config writes.   Order matters: rotate ring -> create new .bak -> harden mo",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "BackupRotationFs",
+      "line": 5,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "BackupMaintenanceFs",
+      "line": 12,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 17,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "auth"
+    ]
+  }
+}

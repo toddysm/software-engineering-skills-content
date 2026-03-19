@@ -1,0 +1,100 @@
+{
+  "path": "src/agents/subagent-orphan-recovery.ts",
+  "extension": ".ts",
+  "size_bytes": 10914,
+  "line_count": 314,
+  "documentation": {
+    "file_docstring": "Post-restart orphan recovery for subagent sessions. After a SIGUSR1 gateway reload aborts in-flight subagent LLM calls, this module scans for orphaned sessions (those with `abortedLastRun: true` that are still tracked as active in the subagent registry) and sends a synthetic resume message to restart their work. @see https://github.com/openclaw/openclaw/issues/47711",
+    "header_comments": [],
+    "inline_comments": [
+      "Build the resume message for an orphaned subagent.",
+      "Send a resume message to an orphaned subagent session via the gateway agent method.",
+      "Scan for and resume orphaned subagent sessions after a gateway restart. An orphaned session is one where: 1. It has an active (not ended) entry in the subagent run registry 2. Its session store entry has `abortedLastRun: true` For each orphaned session found, we: 1. Clear the `abortedLastRun` flag 2. Send a synthetic resume message to trigger a new LLM turn",
+      "Schedule orphan recovery after a delay, with retry logic. The delay gives the gateway time to fully bootstrap after restart. If recovery fails (e.g. gateway not yet ready), retries with exponential backoff."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "scheduleOrphanRecovery"
+  ],
+  "imports": {
+    "internal": [
+      "../config/config.js",
+      "../gateway/call.js",
+      "../gateway/session-utils.fs.js",
+      "../logging/subsystem.js",
+      "./subagent-registry.js",
+      "./subagent-registry.types.js"
+    ],
+    "external": [
+      "node:crypto"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "buildResumeMessage",
+      "line": 35,
+      "doc": "Build the resume message for an orphaned subagent.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractMessageText",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resumeOrphanedSession",
+      "line": 79,
+      "doc": "Send a resume message to an orphaned subagent session via the gateway agent method.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "recoverOrphanedSubagentSessions",
+      "line": 134,
+      "doc": "Scan for and resume orphaned subagent sessions after a gateway restart.     An orphaned session is one where:   1. It ha",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "scheduleOrphanRecovery",
+      "line": 275,
+      "doc": "Schedule orphan recovery after a delay, with retry logic.   The delay gives the gateway time to fully bootstrap after re",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "attemptRecovery",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 43,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

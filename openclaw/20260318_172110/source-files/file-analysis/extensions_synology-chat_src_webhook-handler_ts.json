@@ -1,0 +1,192 @@
+{
+  "path": "extensions/synology-chat/src/webhook-handler.ts",
+  "extension": ".ts",
+  "size_bytes": 12897,
+  "line_count": 397,
+  "documentation": {
+    "file_docstring": "Inbound webhook handler for Synology Chat outgoing webhooks. Parses form-urlencoded/JSON body, validates security, delivers to agent.",
+    "header_comments": [],
+    "inline_comments": [
+      "One rate limiter per account, created lazily",
+      "Parse/normalize incoming webhook payload. Supports: - application/x-www-form-urlencoded - application/json Token resolution order: body.token -> query.token -> headers Field aliases: - user_id <- user_id | userId | user - text    <- text | message | content",
+      "Fallback for clients with missing/incorrect content-type.",
+      "Try JSON first, then form-urlencoded.",
+      "Create an HTTP request handler for Synology Chat outgoing webhooks. This handler: 1. Parses form-urlencoded/JSON payload 2. Validates token (constant-time) 3. Checks user allowlist 4. Checks rate limit 5. Sanitizes input 6. Immediately ACKs request (204) 7. Delivers to the agent asynchronously and sends final reply via incomingUrl",
+      "Only accept POST",
+      "Parse body",
+      "Parse payload",
+      "Token validation",
+      "DM policy authorization",
+      "Rate limit",
+      "Sanitize input",
+      "Strip trigger word",
+      "ACK immediately so Synology Chat won't remain in \"Processing...\"",
+      "Default to webhook user_id; may be replaced with Chat API user_id below.",
+      "Deliver to agent asynchronously (with 120s timeout to match nginx proxy_read_timeout)",
+      "Resolve the Chat-internal user_id for sending replies.",
+      "Synology Chat outgoing webhooks use a per-integration user_id that may",
+      "differ from the global Chat API user_id required by method=chatbot.",
+      "We resolve via the user_list API, matching by nickname/username.",
+      "Send reply back to Synology Chat using the resolved Chat user_id"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "controller",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "controller/handler path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "createWebhookHandler",
+    "clearSynologyWebhookRateLimiterStateForTest",
+    "getSynologyWebhookRateLimiterCountForTest"
+  ],
+  "imports": {
+    "internal": [
+      "./client.js",
+      "./security.js",
+      "./types.js"
+    ],
+    "external": [
+      "node:http",
+      "node:querystring"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "getRateLimiter",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearSynologyWebhookRateLimiterStateForTest",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getSynologyWebhookRateLimiterCountForTest",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "readBody",
+      "line": 44,
+      "doc": "",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "firstNonEmptyString",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pickAlias",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseQueryParams",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseFormBody",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseJsonBody",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "headerValue",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractTokenFromHeaders",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parsePayload",
+      "line": 152,
+      "doc": "Parse incoming webhook payload.     Supports:   - application-www-form-urlencoded   - application     Token resolution o",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "respondJson",
+      "line": 209,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "respondNoContent",
+      "line": 215,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createWebhookHandler",
+      "line": 253,
+      "doc": "Create an HTTP request handler for Synology Chat outgoing webhooks.     This handler:   1. Parses form-urlencoded payloa",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "WebhookHandlerDeps",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 54,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

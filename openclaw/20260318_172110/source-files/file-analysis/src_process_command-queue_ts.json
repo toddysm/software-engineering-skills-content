@@ -1,0 +1,206 @@
+{
+  "path": "src/process/command-queue.ts",
+  "extension": ".ts",
+  "size_bytes": 10160,
+  "line_count": 331,
+  "documentation": {
+    "file_docstring": "Dedicated error type thrown when a new command is rejected because the gateway is currently draining for restart.",
+    "header_comments": [],
+    "inline_comments": [
+      "Minimal in-process queue to serialize command executions.",
+      "Default lane (\"main\") preserves the existing behavior. Additional lanes allow",
+      "low-risk parallelism (e.g. cron jobs) without interleaving stdin / logs for",
+      "the main auto-reply workflow.",
+      "Keep queue runtime state on globalThis so every bundled entry/chunk shares the same lanes, counters, and draining flag in production builds.",
+      "Mark gateway as draining for restart so new enqueues fail fast with `GatewayDrainingError` instead of being silently killed on shutdown.",
+      "Reset all lane runtime state to idle. Used after SIGUSR1 in-process restarts where interrupted tasks' finally blocks may not run, leaving stale active task IDs that permanently block new work from draining. Bumps lane generation and clears execution counters so stale completions from old in-flight tasks are ignored. Queued entries are intentionally preserved \u2014 they represent pending user work that should still execute after restart. After resetting, drains any lanes that still have queued entries so preserved work is pumped immediately rather than waiting for a future `enqueueCommandInLane()` call (which may never come).",
+      "Drain after the full reset pass so all lanes are in a clean state first.",
+      "Returns the total number of actively executing tasks across all lanes (excludes queued-but-not-started entries).",
+      "Wait for all currently active tasks across all lanes to finish. Polls at a short interval; resolves when no tasks are active or when `timeoutMs` elapses (whichever comes first). New tasks enqueued after this call are ignored \u2014 only tasks that are already executing are waited on.",
+      "Keep shutdown/drain checks responsive without busy looping."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "waitForActiveTasks",
+    "enqueueCommandInLane",
+    "clearCommandLane",
+    "resetAllLanes",
+    "getQueueSize",
+    "setCommandLaneConcurrency",
+    "enqueueCommand",
+    "CommandLaneClearedError",
+    "GatewayDrainingError",
+    "markGatewayDraining",
+    "getActiveTaskCount",
+    "getTotalQueueSize"
+  ],
+  "imports": {
+    "internal": [
+      "../logging/diagnostic.js",
+      "../shared/global-singleton.js",
+      "./lanes.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "getLaneState",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "completeTask",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "drainLane",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pump",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "markGatewayDraining",
+      "line": 157,
+      "doc": "Mark gateway as draining for restart so new enqueues fail fast with   `GatewayDrainingError` instead of being silently k",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "setCommandLaneConcurrency",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "enqueueCommandInLane",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "enqueueCommand",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getQueueSize",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getTotalQueueSize",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "clearCommandLane",
+      "line": 223,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resetAllLanes",
+      "line": 251,
+      "doc": "Reset all lane runtime state to idle. Used after SIGUSR1 in-process   restarts where interrupted tasks' finally blocks m",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getActiveTaskCount",
+      "line": 272,
+      "doc": "Returns the total number of actively executing tasks across all lanes   (excludes queued-but-not-started entries).",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "waitForActiveTasks",
+      "line": 288,
+      "doc": "Wait for all currently active tasks across all lanes to finish.   Polls at a short interval; resolves when no tasks are ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "check",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "CommandLaneClearedError",
+      "line": 9,
+      "doc": "Dedicated error type thrown when a queued command is rejected because   its lane was cleared.  Callers that fire-and-forget enqueued tasks can   catch (or ignore) this specific type to avoid unhandled",
+      "is_public": true,
+      "extends": "Error",
+      "implements": []
+    },
+    {
+      "name": "GatewayDrainingError",
+      "line": 20,
+      "doc": "Dedicated error type thrown when a new command is rejected because the   gateway is currently draining for restart.",
+      "is_public": true,
+      "extends": "Error",
+      "implements": []
+    },
+    {
+      "name": "QueueEntry",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "LaneState",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

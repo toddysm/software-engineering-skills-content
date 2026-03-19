@@ -1,0 +1,400 @@
+{
+  "path": "src/plugins/hooks.ts",
+  "extension": ".ts",
+  "size_bytes": 29183,
+  "line_count": 961,
+  "documentation": {
+    "file_docstring": "Plugin Hook Runner Provides utilities for executing plugin lifecycle hooks with proper error handling, priority ordering, and async support.",
+    "header_comments": [],
+    "inline_comments": [
+      "Re-export types for consumers",
+      "Get hooks for a specific hook name, sorted by priority (higher first).",
+      "Create a hook runner for a specific registry.",
+      "Keep the first defined override so higher-priority hooks win.",
+      "Run a hook that doesn't return a value (fire-and-forget style). All handlers are executed in parallel for performance.",
+      "Run a hook that can return a modifying result. Handlers are executed sequentially in priority order, and results are merged.",
+      "Run a sequential claim hook where the first `{ handled: true }` result wins.",
+      "=========================================================================",
+      "Agent Hooks",
+      "=========================================================================",
+      "Run before_model_resolve hook. Allows plugins to override provider/model before model resolution.",
+      "Run before_prompt_build hook. Allows plugins to inject context and system prompt before prompt submission.",
+      "Run before_agent_start hook. Legacy compatibility hook that combines model resolve + prompt build phases.",
+      "Run agent_end hook. Allows plugins to analyze completed conversations. Runs in parallel (fire-and-forget).",
+      "Run llm_input hook. Allows plugins to observe the exact input payload sent to the LLM. Runs in parallel (fire-and-forget).",
+      "Run llm_output hook. Allows plugins to observe the exact output payload returned by the LLM. Runs in parallel (fire-and-forget).",
+      "Run before_compaction hook.",
+      "Run after_compaction hook.",
+      "Run before_reset hook. Fired when /new or /reset clears a session, before messages are lost. Runs in parallel (fire-and-forget).",
+      "=========================================================================",
+      "Message Hooks",
+      "=========================================================================",
+      "Run inbound_claim hook. Allows plugins to claim an inbound event before commands/agent dispatch.",
+      "Run message_received hook. Runs in parallel (fire-and-forget).",
+      "Run message_sending hook. Allows plugins to modify or cancel outgoing messages. Runs sequentially.",
+      "Run message_sent hook. Runs in parallel (fire-and-forget).",
+      "=========================================================================",
+      "Tool Hooks",
+      "=========================================================================",
+      "Run before_tool_call hook. Allows plugins to modify or block tool calls. Runs sequentially.",
+      "Run after_tool_call hook. Runs in parallel (fire-and-forget).",
+      "Run tool_result_persist hook. This hook is intentionally synchronous: it runs in hot paths where session transcripts are appended synchronously. Handlers are executed sequentially in priority order (higher first). Each handler may return `{ message }` to replace the message passed to the next handler.",
+      "oxlint-disable-next-line typescript/no-explicit-any",
+      "Guard against accidental async handlers (this hook is sync-only).",
+      "oxlint-disable-next-line typescript/no-explicit-any",
+      "=========================================================================",
+      "Message Write Hooks",
+      "=========================================================================",
+      "Run before_message_write hook. This hook is intentionally synchronous: it runs on the hot path where session transcripts are appended synchronously. Handlers are executed sequentially in priority order (higher first). If any handler returns { block: true }, the message is NOT written to the session JSONL and we return immediately. If a handler returns { message }, the modified message replaces the original for subsequent handlers and the final write.",
+      "oxlint-disable-next-line typescript/no-explicit-any",
+      "Guard against accidental async handlers (this hook is sync-only).",
+      "oxlint-disable-next-line typescript/no-explicit-any",
+      "If any handler blocks, return immediately.",
+      "If handler provided a modified message, use it for subsequent handlers.",
+      "If message was modified by any handler, return it.",
+      "=========================================================================",
+      "Session Hooks",
+      "=========================================================================",
+      "Run session_start hook. Runs in parallel (fire-and-forget).",
+      "Run session_end hook. Runs in parallel (fire-and-forget).",
+      "Run subagent_spawning hook. Runs sequentially so channel plugins can deterministically provision session bindings.",
+      "Run subagent_delivery_target hook. Runs sequentially so channel plugins can deterministically resolve routing.",
+      "Run subagent_spawned hook. Runs in parallel (fire-and-forget).",
+      "Run subagent_ended hook. Runs in parallel (fire-and-forget).",
+      "=========================================================================",
+      "Gateway Hooks",
+      "=========================================================================",
+      "Run gateway_start hook. Runs in parallel (fire-and-forget).",
+      "Run gateway_stop hook. Runs in parallel (fire-and-forget).",
+      "=========================================================================",
+      "Utility",
+      "=========================================================================",
+      "Check if any hooks are registered for a given hook name.",
+      "Get count of registered hooks for a given hook name.",
+      "Agent hooks",
+      "Message hooks",
+      "Tool hooks",
+      "Message write hooks",
+      "Session hooks",
+      "Gateway hooks",
+      "Utility"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "createHookRunner"
+  ],
+  "imports": {
+    "internal": [
+      "../shared/text/join-segments.js",
+      "./registry.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "getHooksForName",
+      "line": 139,
+      "doc": "Get hooks for a specific hook name, sorted by priority (higher first).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getHooksForNameAndPlugin",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createHookRunner",
+      "line": 159,
+      "doc": "Create a hook runner for a specific registry.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeHookError",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runVoidHook",
+      "line": 242,
+      "doc": "Run a hook that doesn't return a value (fire-and-forget style).     All handlers are executed in parallel for performanc",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runModifyingHook",
+      "line": 269,
+      "doc": "Run a hook that can return a modifying result.     Handlers are executed sequentially in priority order, and results are",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runClaimingHook",
+      "line": 308,
+      "doc": "Run a sequential claim hook where the first `{ handled: true }` result wins.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runBeforeModelResolve",
+      "line": 429,
+      "doc": "Run before_model_resolve hook.     Allows plugins to override provider before model resolution.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runBeforePromptBuild",
+      "line": 445,
+      "doc": "Run before_prompt_build hook.     Allows plugins to inject context and system prompt before prompt submission.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runBeforeAgentStart",
+      "line": 461,
+      "doc": "Run before_agent_start hook.     Legacy compatibility hook that combines model resolve + prompt build phases.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runAgentEnd",
+      "line": 481,
+      "doc": "Run agent_end hook.     Allows plugins to analyze completed conversations.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runLlmInput",
+      "line": 493,
+      "doc": "Run llm_input hook.     Allows plugins to observe the exact input payload sent to the LLM.     Runs in parallel (fire-an",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runLlmOutput",
+      "line": 502,
+      "doc": "Run llm_output hook.     Allows plugins to observe the exact output payload returned by the LLM.     Runs in parallel (f",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runBeforeCompaction",
+      "line": 509,
+      "doc": "Run before_compaction hook.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runAfterCompaction",
+      "line": 519,
+      "doc": "Run after_compaction hook.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runBeforeReset",
+      "line": 531,
+      "doc": "Run before_reset hook.     Fired when  or  clears a session, before messages are lost.     Runs in parallel (fire-and-fo",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runInboundClaim",
+      "line": 546,
+      "doc": "Run inbound_claim hook.     Allows plugins to claim an inbound event before commands dispatch.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runInboundClaimForPlugin",
+      "line": 557,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runInboundClaimForPluginOutcome",
+      "line": 570,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runMessageReceived",
+      "line": 587,
+      "doc": "Run message_received hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runMessageSending",
+      "line": 599,
+      "doc": "Run message_sending hook.     Allows plugins to modify or cancel outgoing messages.     Runs sequentially.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runMessageSent",
+      "line": 618,
+      "doc": "Run message_sent hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runBeforeToolCall",
+      "line": 634,
+      "doc": "Run before_tool_call hook.     Allows plugins to modify or block tool calls.     Runs sequentially.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runAfterToolCall",
+      "line": 654,
+      "doc": "Run after_tool_call hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runToolResultPersist",
+      "line": 671,
+      "doc": "Run tool_result_persist hook.         This hook is intentionally synchronous: it runs in hot paths where session     tra",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runBeforeMessageWrite",
+      "line": 736,
+      "doc": "Run before_message_write hook.         This hook is intentionally synchronous: it runs on the hot path where     session",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runSessionStart",
+      "line": 805,
+      "doc": "Run session_start hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runSessionEnd",
+      "line": 816,
+      "doc": "Run session_end hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runSubagentSpawning",
+      "line": 827,
+      "doc": "Run subagent_spawning hook.     Runs sequentially so channel plugins can deterministically provision session bindings.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runSubagentDeliveryTarget",
+      "line": 843,
+      "doc": "Run subagent_delivery_target hook.     Runs sequentially so channel plugins can deterministically resolve routing.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runSubagentSpawned",
+      "line": 859,
+      "doc": "Run subagent_spawned hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runSubagentEnded",
+      "line": 870,
+      "doc": "Run subagent_ended hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runGatewayStart",
+      "line": 885,
+      "doc": "Run gateway_start hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runGatewayStop",
+      "line": 896,
+      "doc": "Run gateway_stop hook.     Runs in parallel (fire-and-forget).",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "hasHooks",
+      "line": 910,
+      "doc": "Check if any hooks are registered for a given hook name.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getHookCount",
+      "line": 917,
+      "doc": "Get count of registered hooks for a given hook name.",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "HookRunnerLogger",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "HookRunnerOptions",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "PluginTargetedInboundClaimOutcome",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "HookRunner",
+      "line": 961,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 77,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "ui",
+      "logging"
+    ]
+  }
+}

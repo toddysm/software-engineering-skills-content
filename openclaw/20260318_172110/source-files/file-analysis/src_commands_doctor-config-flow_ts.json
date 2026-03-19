@@ -1,0 +1,460 @@
+{
+  "path": "src/commands/doctor-config-flow.ts",
+  "extension": ".ts",
+  "size_bytes": 65101,
+  "line_count": 2015,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "ignore and try next token",
+      "Scan all channel configs for dmPolicy=\"open\" without allowFrom including \"*\". This configuration is rejected by the schema validator but can easily occur when users (or integrations) set dmPolicy to \"open\" without realising that an explicit allowFrom wildcard is also required.",
+      "Check the top-level channel config",
+      "Check per-account configs (e.g. channels.discord.accounts.mybot)",
+      "Scan all channel configs for dmPolicy=\"allowlist\" without any allowFrom entries. This configuration blocks all DMs because no sender can match the empty allowlist. Common after upgrades that remove external allowlist file support.",
+      "These channels enforce group access via channel/space config, not sender-based",
+      "groupAllowFrom lists.",
+      "Keep doctor warnings aligned with runtime access semantics.",
+      "Match runtime semantics: resolveGroupAllowFromSources treats",
+      "empty arrays as unset and falls back to allowFrom.",
+      "missing config",
+      "continue",
+      "If it already exists, skip silently.",
+      "Compatibility migration (2026-01-02, commit: 16420e5b) \u2014 normalize per-provider allowlists; move WhatsApp gating into channels.whatsapp.allowFrom."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "configuration",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "config/settings path"
+    ]
+  },
+  "exports": [
+    "collectMissingExplicitDefaultAccountWarnings",
+    "collectMissingDefaultAccountBindingWarnings"
+  ],
+  "imports": {
+    "internal": [
+      "../channels/registry.js",
+      "../cli/command-format.js",
+      "../cli/command-secret-gateway.js",
+      "../cli/command-secret-targets.js",
+      "../config/bindings.js",
+      "../config/config.js",
+      "../config/config.js",
+      "../config/dangerous-name-matching.js",
+      "../config/issue-format.js",
+      "../config/plugin-auto-enable.js",
+      "../config/types.tools.js",
+      "../infra/exec-command-resolution.js",
+      "../pairing/pairing-store.js",
+      "../plugin-sdk/account-resolution.js",
+      "../secrets/shared.js",
+      "../terminal/note.js",
+      "../utils.js",
+      "./doctor-legacy-config.js",
+      "./doctor-prompter.js",
+      "./doctor-state-migrations.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "asObjectRecord",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeBindingChannelKey",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectChannelsMissingDefaultAccount",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectMissingDefaultAccountBindingWarnings",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "collectMissingExplicitDefaultAccountWarnings",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "collectTelegramAccountScopes",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectTelegramAllowFromLists",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanTelegramAllowFromUsernameEntries",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanList",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeRepairTelegramAllowFromUsernames",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveUserId",
+      "line": 373,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "repairList",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "repairAccount",
+      "line": 462,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "collectDiscordAccountScopes",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectDiscordIdLists",
+      "line": 511,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanDiscordNumericIdEntries",
+      "line": 567,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanList",
+      "line": 569,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeRepairDiscordNumericIds",
+      "line": 590,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "repairList",
+      "line": 602,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "addMutableAllowlistHits",
+      "line": 643,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanMutableAllowlistEntries",
+      "line": 671,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeRepairOpenPolicyAllowFrom",
+      "line": 935,
+      "doc": "Scan all channel configs for dmPolicy=\"open\" without allowFrom including \"\".   This configuration is rejected by the sch",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveAllowFromMode",
+      "line": 949,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasWildcard",
+      "line": 959,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasAllowFromEntries",
+      "line": 1060,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeRepairAllowlistPolicyAllowFrom",
+      "line": 1064,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveAllowFromMode",
+      "line": 1075,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "detectEmptyAllowlistPolicy",
+      "line": 1223,
+      "doc": "Scan all channel configs for dmPolicy=\"allowlist\" without any allowFrom entries.   This configuration blocks all DMs bec",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "usesSenderBasedGroupAllowlist",
+      "line": 1231,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "allowsGroupAllowFromFallback",
+      "line": 1240,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeConfiguredSafeBins",
+      "line": 1369,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeConfiguredTrustedSafeBinDirs",
+      "line": 1382,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectExecSafeBinScopes",
+      "line": 1391,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanExecSafeBinCoverage",
+      "line": 1445,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanExecSafeBinTrustedDirHints",
+      "line": 1463,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeRepairExecSafeBinProfiles",
+      "line": 1489,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectLegacyToolsBySenderKeyHits",
+      "line": 1536,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "scanLegacyToolsBySenderKeys",
+      "line": 1578,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeRepairLegacyToolsBySenderKeys",
+      "line": 1584,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "maybeMigrateLegacyConfig",
+      "line": 1643,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "loadAndMaybeMigrateDoctorConfig",
+      "line": 1690,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "TelegramAllowFromUsernameHit",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TelegramAllowFromListRef",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChannelMissingDefaultAccountContext",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "DiscordNumericIdHit",
+      "line": 478,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "DiscordIdListRef",
+      "line": 480,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MutableAllowlistHit",
+      "line": 636,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OpenPolicyAllowFromMode",
+      "line": 947,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AllowFromMode",
+      "line": 1073,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ExecSafeBinCoverageHit",
+      "line": 1349,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ExecSafeBinScopeRef",
+      "line": 1355,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ExecSafeBinTrustedDirHintHit",
+      "line": 1363,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "LegacyToolsBySenderKeyHit",
+      "line": 1529,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 320,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

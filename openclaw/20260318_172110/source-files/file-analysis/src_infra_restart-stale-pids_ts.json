@@ -1,0 +1,149 @@
+{
+  "path": "src/infra/restart-stale-pids.ts",
+  "extension": ".ts",
+  "size_bytes": 11193,
+  "line_count": 291,
+  "documentation": {
+    "file_docstring": "After SIGKILL, the kernel may not release the TCP port immediately. Poll until the port is confirmed free (or until the budget expires) before returning control to the caller (typically `triggerOpenClawRestart` \u2192 `systemctl restart`). Without this wait the new process races the dying process for the port and systemd enters an EADDRINUSE restart loop. POLL_SPAWN_TIMEOUT_MS is intentionally much shorter than SPAWN_TIMEOUT_MS so that a single slow or hung lsof invocation does not consume the entire polling budget. At 400 ms per call, up to five independent lsof attempts fit within PORT_FREE_TIMEOUT_MS = 2000 ms, each with a definitive outcome.",
+    "header_comments": [],
+    "inline_comments": [
+      "Best-effort fallback when Atomics.wait is unavailable.",
+      "Parse openclaw gateway PIDs from lsof -Fpc stdout. Pure function \u2014 no I/O. Excludes the current process.",
+      "Deduplicate: dual-stack listeners (IPv4 + IPv6) cause lsof to emit the",
+      "same PID twice. Return each PID at most once to avoid double-killing.",
+      "Find PIDs of gateway processes listening on the given port using synchronous lsof. Returns only PIDs that belong to openclaw gateway processes (not the current process).",
+      "Attempt a single lsof poll for the given port. Returns a discriminated union with four possible states: { free: true }                      \u2014 port confirmed free { free: false }                     \u2014 port confirmed busy { free: null; permanent: false }    \u2014 transient error, keep retrying { free: null; permanent: true }     \u2014 lsof unavailable (ENOENT / EACCES), no point retrying Separating transient from permanent errors is critical so that: 1. A slow/timed-out lsof call (transient) does not abort the polling loop \u2014 the caller retries until the wall-clock budget expires. 2. Non-zero lsof exits from runtime/permission failures (status > 1) are not misclassified as \"port free\" \u2014 they are inconclusive and retried. 3. A missing lsof binary (permanent) short-circuits cleanly rather than spinning the full budget pointlessly.",
+      "Spawn-level failure. ENOENT / EACCES means lsof is permanently",
+      "unavailable on this system; other errors (e.g. timeout) are transient.",
+      "lsof canonical \"no matching processes\" exit \u2014 port is genuinely free.",
+      "Guard: on Linux containers with restricted /proc (AppArmor, seccomp,",
+      "user namespaces), lsof can exit 1 AND still emit some output for the",
+      "processes it could read. Parse stdout when non-empty to avoid false-free.",
+      "status > 1: runtime/permission/flag error. Cannot confirm port state \u2014",
+      "treat as a transient failure and keep polling rather than falsely",
+      "reporting the port as free (which would recreate the EADDRINUSE race).",
+      "status === 0: lsof found listeners. Parse pids from the stdout we",
+      "already hold \u2014 no second lsof spawn, no new failure surface.",
+      "Synchronously terminate stale gateway processes. Callers must pass a non-empty pids array. Sends SIGTERM, waits briefly, then SIGKILL for survivors.",
+      "ESRCH \u2014 already gone",
+      "already gone",
+      "Poll the given port until it is confirmed free, lsof is confirmed unavailable, or the wall-clock budget expires. Each poll invocation uses POLL_SPAWN_TIMEOUT_MS (400 ms), which is significantly shorter than PORT_FREE_TIMEOUT_MS (2000 ms). This ensures that a single slow or hung lsof call cannot consume the entire polling budget and cause the function to exit prematurely with an inconclusive result. Up to five independent lsof attempts fit within the budget. Exit conditions: - `pollPortOnce` returns `{ free: true }`                    \u2192 port confirmed free - `pollPortOnce` returns `{ free: null, permanent: true }`   \u2192 lsof unavailable, bail - `pollPortOnce` returns `{ free: false }`                   \u2192 port busy, sleep + retry - `pollPortOnce` returns `{ free: null, permanent: false }`  \u2192 transient error, sleep + retry - Wall-clock deadline exceeded                               \u2192 log warning, proceed anyway",
+      "lsof is permanently unavailable (ENOENT / EACCES) \u2014 bail immediately,",
+      "no point spinning the remaining budget.",
+      "result.free === false: port still bound.",
+      "result.free === null && !permanent: transient lsof error \u2014 keep polling.",
+      "Inspect the gateway port and kill any stale gateway processes holding it. Blocks until the port is confirmed free (or the poll budget expires) so the supervisor (systemd / launchctl) does not race a zombie process for the port and enter an EADDRINUSE restart loop. Called before service restart commands to prevent port conflicts.",
+      "Wait for the port to be released before returning \u2014 called unconditionally",
+      "even when `killed` is empty (all pids were already dead before SIGTERM).",
+      "A process can exit before our signal arrives yet still leave its socket",
+      "in TIME_WAIT / FIN_WAIT; polling is the only reliable way to confirm the",
+      "kernel has fully released the port before systemd fires the new process."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "__testing",
+    "cleanStaleGatewayProcessesSync",
+    "findGatewayPidsOnPortSync"
+  ],
+  "imports": {
+    "internal": [
+      "../config/paths.js",
+      "../logging/subsystem.js",
+      "./ports-lsof.js"
+    ],
+    "external": [
+      "node:child_process"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "getTimeMs",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sleepSync",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parsePidsFromLsofOutput",
+      "line": 57,
+      "doc": "Parse openclaw gateway PIDs from lsof -Fpc stdout.   Pure function \u2014 no I. Excludes the current process.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findGatewayPidsOnPortSync",
+      "line": 85,
+      "doc": "Find PIDs of gateway processes listening on the given port using synchronous lsof.   Returns only PIDs that belong to op",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "pollPortOnce",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "terminateStaleProcessesSync",
+      "line": 186,
+      "doc": "Synchronously terminate stale gateway processes.   Callers must pass a non-empty pids array.   Sends SIGTERM, waits brie",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "waitForPortFreeSync",
+      "line": 229,
+      "doc": "Poll the given port until it is confirmed free, lsof is confirmed unavailable,   or the wall-clock budget expires.     E",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanStaleGatewayProcessesSync",
+      "line": 256,
+      "doc": "Inspect the gateway port and kill any stale gateway processes holding it.   Blocks until the port is confirmed free (or ",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "PollResult",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 43,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

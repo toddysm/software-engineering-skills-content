@@ -1,0 +1,74 @@
+{
+  "path": "src/gateway/server-methods/agent-timestamp.ts",
+  "extension": ".ts",
+  "size_bytes": 2730,
+  "line_count": 80,
+  "documentation": {
+    "file_docstring": "Matches a leading `[... YYYY-MM-DD HH:MM ...]` envelope \u2014 either from channel plugins or from a previous injection. Uses the same YYYY-MM-DD HH:MM format as {@link formatZonedTimestamp}, so detection stays in sync with the formatting.",
+    "header_comments": [],
+    "inline_comments": [
+      "Injects a compact timestamp prefix into a message if one isn't already present. Uses the same `YYYY-MM-DD HH:MM TZ` format as channel envelope timestamps ({@link formatZonedTimestamp}), keeping token cost low (~7 tokens) and format consistent across all agent contexts. Used by the gateway `agent` and `chat.send` handlers to give TUI, web, spawned subagents, `sessions_send`, and heartbeat wake events date/time awareness \u2014 without modifying the system prompt (which is cached). Channel messages (Discord, Telegram, etc.) already have timestamps via envelope formatting and take a separate code path \u2014 they never reach these handlers, so there is no double-stamping risk. The detection pattern is a safety net for edge cases. @see https://github.com/moltbot/moltbot/issues/3658",
+      "Already has an envelope or injected timestamp",
+      "Already has a cron-injected timestamp",
+      "3-letter DOW: small models (8B) can't reliably derive day-of-week from",
+      "a date, and may treat a bare \"Wed\" as a typo. Costs ~1 token.",
+      "Build TimestampInjectionOptions from an OpenClawConfig."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "timestampOptsFromConfig",
+    "injectTimestamp"
+  ],
+  "imports": {
+    "internal": [
+      "../../agents/date-time.js",
+      "../../config/types.js",
+      "../../infra/format-time/format-datetime.ts"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "injectTimestamp",
+      "line": 41,
+      "doc": "Injects a compact timestamp prefix into a message if one isn't already   present. Uses the same `YYYY-MM-DD HH:MM TZ` fo",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "timestampOptsFromConfig",
+      "line": 76,
+      "doc": "Build TimestampInjectionOptions from an OpenClawConfig.",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "TimestampInjectionOptions",
+      "line": 19,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "auth"
+    ]
+  }
+}

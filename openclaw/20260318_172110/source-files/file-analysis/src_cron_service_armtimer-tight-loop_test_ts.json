@@ -1,0 +1,82 @@
+{
+  "path": "src/cron/service.armtimer-tight-loop.test.ts",
+  "extension": ".ts",
+  "size_bytes": 6019,
+  "line_count": 187,
+  "documentation": {
+    "file_docstring": "Create a cron job that is past-due AND has a stuck `runningAtMs` marker. This combination causes `findDueJobs` to return `[]` (blocked by `runningAtMs`) while `nextWakeAtMs` still returns the past-due timestamp, which before the fix resulted in a `setTimeout(0)` tight loop.",
+    "header_comments": [],
+    "inline_comments": [
+      "Stuck: set from a previous execution that was interrupted.",
+      "Not yet old enough for STUCK_RUN_MS (2 h) to clear it.",
+      "Before the fix, delay would be 0 (tight loop).",
+      "After the fix, delay must be >= MIN_REFIRE_GAP_MS (2000 ms).",
+      "The natural delay (10 s) should be used, not the floor.",
+      "Simulate the onTimer path: it will find no runnable jobs (blocked by",
+      "runningAtMs) and re-arm the timer in its finally block.",
+      "The re-armed timer must NOT use delay=0. It should use at least",
+      "MIN_REFIRE_GAP_MS to prevent the hot-loop.",
+      "The last setTimeout call is from the finally\u2192armTimer path."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "./service.test-harness.js",
+      "./service/state.js",
+      "./service/timer.js",
+      "./types.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:path",
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "createStuckPastDueJob",
+      "line": 18,
+      "doc": "Create a cron job that is past-due AND has a stuck `runningAtMs` marker.   This combination causes `findDueJobs` to retu",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractTimeoutDelays",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createTimerState",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 4,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

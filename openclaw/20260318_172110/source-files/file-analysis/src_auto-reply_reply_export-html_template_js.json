@@ -1,0 +1,589 @@
+{
+  "path": "src/auto-reply/reply/export-html/template.js",
+  "extension": ".js",
+  "size_bytes": 63483,
+  "line_count": 1875,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "============================================================",
+      "DATA LOADING",
+      "============================================================"
+    ],
+    "inline_comments": [
+      "============================================================",
+      "URL PARAMETER HANDLING",
+      "============================================================",
+      "Parse URL parameters for deep linking: leafId and targetId",
+      "Check for injected params (when loaded in iframe via srcdoc) or use window.location",
+      "Use URL leafId if provided, otherwise fall back to session default",
+      "============================================================",
+      "DATA STRUCTURES",
+      "============================================================",
+      "Entry lookup by ID",
+      "Tool call lookup (toolCallId -> {name, arguments})",
+      "Label lookup (entryId -> label string)",
+      "Labels are stored in 'label' entries that reference their target via targetId",
+      "============================================================",
+      "TREE DATA PREPARATION (no DOM, pure data)",
+      "============================================================",
+      "Build tree structure from flat entries. Returns array of root nodes, each with { entry, children, label }.",
+      "Create nodes",
+      "Build parent-child relationships",
+      "Sort children by timestamp",
+      "Build set of entry IDs on path from root to target.",
+      "Stop if no parent or self-referencing (root)",
+      "Get array of entries from root to target (the conversation path).",
+      "Stop if no parent or self-referencing (root)",
+      "Tree node lookup for finding leaves",
+      "Find the newest leaf node reachable from a given node. This allows clicking any node in a branch to show the full branch. Children are sorted by timestamp, so the newest is always last.",
+      "Build tree node map lazily",
+      "Follow the newest (last) child at each level",
+      "Flatten tree into list with indentation and connector info. Returns array of { node, indent, showConnector, isLast, gutters, isVirtualRootChild, multipleRoots }. Matches tree-selector.ts logic exactly.",
+      "Mark which subtrees contain the active leaf",
+      "Stack: [node, indent, justBranched, showConnector, isLast, gutters, isVirtualRootChild]",
+      "Add roots (prioritize branch containing active leaf)",
+      "Order children (active branch first)",
+      "Calculate child indent (matches tree-selector.ts)",
+      "Parent branches: children get +1",
+      "First generation after a branch: +1 for visual grouping",
+      "Single-child chain: stay flat",
+      "Build gutters for children",
+      "Add children in reverse order for stack",
+      "Build ASCII prefix string for tree node.",
+      "============================================================",
+      "FILTERING (pure data)",
+      "============================================================",
+      "Filter flat nodes based on current filterMode and searchQuery.",
+      "Always show current leaf",
+      "Hide assistant messages with only tool calls (no text) unless error/aborted",
+      "Apply filter mode",
+      "Apply search filter",
+      "Recalculate visual structure based on visible tree",
+      "Recompute indentation/connectors for the filtered view Filtering can hide intermediate entries; descendants attach to the nearest visible ancestor. Keep indentation semantics aligned with flattenTree() so single-child chains don't drift right.",
+      "Build entry map for parent lookup (using full tree)",
+      "Find nearest visible ancestor for a node",
+      "Build visible tree structure",
+      "Update multipleRoots based on visible roots",
+      "Build a map for quick lookup: nodeId \u2192 FlatNode",
+      "DFS traversal of visible tree, applying same indentation rules as flattenTree()",
+      "Stack items: [nodeId, indent, justBranched, showConnector, isLast, gutters, isVirtualRootChild]",
+      "Add visible roots in reverse order (to process in forward order via stack)",
+      "Update this node's visual properties",
+      "Get visible children of this node",
+      "Calculate child indent using same rules as flattenTree():",
+      "- Parent branches (multiple children): children get +1",
+      "- Just branched and indent > 0: children get +1 for visual grouping",
+      "- Single-child chain: stay flat",
+      "Build gutters for children (same logic as flattenTree)",
+      "Add children in reverse order (to process in forward order via stack)",
+      "============================================================",
+      "TREE DISPLAY TEXT (pure data -> string)",
+      "============================================================",
+      "Validate image fields before interpolating data URLs.",
+      "Truncate string to maxLen chars, append \"...\" if truncated.",
+      "Get display text for tree node (returns HTML string).",
+      "============================================================",
+      "TREE RENDERING (DOM manipulation)",
+      "============================================================",
+      "Full render only on first call or when filter/search changes",
+      "Navigate to the newest leaf through this node, but scroll to the clicked node",
+      "Just update markers and classes",
+      "Scroll active node into view after layout",
+      "============================================================",
+      "MESSAGE RENDERING",
+      "============================================================",
+      "Download the session data as a JSONL file. Reconstructs the original format: header line + entry lines.",
+      "Build JSONL content: header first, then all entries",
+      "Create download",
+      "Build a shareable URL for a specific message. URL format: base?gistId&leafId=<leafId>&targetId=<entryId>",
+      "Check for injected base URL (used when loaded in iframe via srcdoc)",
+      "Find the gist ID (first query param without value, e.g., ?abc123)",
+      "Build the share URL",
+      "If we have an injected base URL (iframe context), use it directly",
+      "Otherwise build from current location (direct file access)",
+      "Copy text to clipboard with visual feedback. Uses navigator.clipboard with fallback to execCommand for HTTP contexts.",
+      "Clipboard API failed, try fallback",
+      "Fallback for HTTP or when Clipboard API is unavailable",
+      "Render the copy-link button HTML for a message.",
+      "============================================================",
+      "HEADER / STATS",
+      "============================================================",
+      "Render system prompt (user's base prompt, applies to all providers)",
+      "============================================================",
+      "NAVIGATION",
+      "============================================================",
+      "Cache for rendered entry DOM nodes",
+      "Check cache first",
+      "Render to HTML string, then parse to node",
+      "Cache the node",
+      "Build messages using cached DOM nodes",
+      "Attach click handlers for copy-link buttons",
+      "Use setTimeout(0) to ensure DOM is fully laid out before scrolling",
+      "If scrollToEntryId is provided, scroll to that specific entry",
+      "Briefly highlight the target message",
+      "============================================================",
+      "INITIALIZATION",
+      "============================================================",
+      "Escape HTML tags in text (but not code blocks)",
+      "Configure marked with syntax highlighting and HTML escaping for text",
+      "Code blocks: syntax highlight, no HTML escaping",
+      "Auto-detect language if not specified",
+      "Text content: escape HTML tags",
+      "Inline code: escape HTML",
+      "Raw HTML blocks/inline HTML: escape to prevent script execution.",
+      "Simple marked parse (escaping handled in renderers)",
+      "Search input",
+      "Filter buttons",
+      "Sidebar toggle",
+      "Toggle states",
+      "Keyboard shortcuts",
+      "Initial render",
+      "If URL has targetId, scroll to that specific message; otherwise stay at top",
+      "Deep link: navigate to leaf and scroll to target message",
+      "Fallback: use last entry if no leafId"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "buildTree",
+      "line": 75,
+      "doc": "Build tree structure from flat entries.     Returns array of root nodes, each with { entry, children, label }.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sortChildren",
+      "line": 104,
+      "doc": "Sort children by timestamp",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildActivePathIds",
+      "line": 118,
+      "doc": "Build set of entry IDs on path from root to target.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getPath",
+      "line": 135,
+      "doc": "Get array of entries from root to target (the conversation path).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findNewestLeaf",
+      "line": 157,
+      "doc": "Find the newest leaf node reachable from a given node.     This allows clicking any node in a branch to show the full br",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "mapNodes",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "flattenTree",
+      "line": 187,
+      "doc": "Flatten tree into list with indentation and connector info.     Returns array of { node, indent, showConnector, isLast, ",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "markActive",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildTreePrefix",
+      "line": 289,
+      "doc": "Build ASCII prefix string for tree node.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasTextContent",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractContent",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getSearchableText",
+      "line": 353,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "filterNodes",
+      "line": 397,
+      "doc": "Filter flat nodes based on current filterMode and searchQuery.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "recalculateVisualStructure",
+      "line": 473,
+      "doc": "Recompute indentation for the filtered view         Filtering can hide intermediate entries; descendants attach to the n",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findVisibleAncestor",
+      "line": 487,
+      "doc": "Find nearest visible ancestor for a node",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shortenPath",
+      "line": 604,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatToolCall",
+      "line": 623,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "escapeHtml",
+      "line": 662,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "escapeHtmlAttr",
+      "line": 668,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeImageMimeType",
+      "line": 676,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeImageBase64",
+      "line": 683,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderDataUrlImage",
+      "line": 694,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "truncate",
+      "line": 705,
+      "doc": "Truncate string to maxLen chars, append \"...\" if truncated.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getTreeNodeDisplayHtml",
+      "line": 715,
+      "doc": "Get display text for tree node (returns HTML string).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalize",
+      "line": 716,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderTree",
+      "line": 804,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "forceTreeRerender",
+      "line": 886,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatTokens",
+      "line": 895,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatTimestamp",
+      "line": 908,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "replaceTabs",
+      "line": 920,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "str",
+      "line": 925,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getLanguageFromPath",
+      "line": 935,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findToolResult",
+      "line": 970,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatExpandableOutput",
+      "line": 981,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderToolCall",
+      "line": 1038,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getResultText",
+      "line": 1043,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getResultImages",
+      "line": 1051,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderResultImages",
+      "line": 1058,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildShareUrl",
+      "line": 1242,
+      "doc": "Build a shareable URL for a specific message.     URL format: base?gistId&leafId=<leafId>&targetId=<entryId>",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "copyToClipboard",
+      "line": 1270,
+      "doc": "Copy text to clipboard with visual feedback.     Uses navigator.clipboard with fallback to execCommand for HTTP contexts",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "renderCopyLinkButton",
+      "line": 1311,
+      "doc": "Render the copy-link button HTML for a message.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderEntry",
+      "line": 1320,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "computeStats",
+      "line": 1442,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderHeader",
+      "line": 1507,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderEntryToNode",
+      "line": 1633,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "navigateTo",
+      "line": 1656,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "escapeHtmlTags",
+      "line": 1715,
+      "doc": "Escape HTML tags in text (but not code blocks)",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeMarkdownImageLabel",
+      "line": 1721,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "renderMarkdownImage",
+      "line": 1726,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "code",
+      "line": 1741,
+      "doc": "Code blocks: syntax highlight, no HTML escaping",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "text",
+      "line": 1762,
+      "doc": "Text content: escape HTML tags",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "codespan",
+      "line": 1766,
+      "doc": "Inline code: escape HTML",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "html",
+      "line": 1770,
+      "doc": "Raw HTML blocks/inline HTML: escape to prevent script execution.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "image",
+      "line": 1773,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "safeMarkedParse",
+      "line": 1780,
+      "doc": "Simple marked parse (escaping handled in renderers)",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "closeSidebar",
+      "line": 1812,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toggleThinking",
+      "line": 1825,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toggleToolOutputs",
+      "line": 1835,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 299,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

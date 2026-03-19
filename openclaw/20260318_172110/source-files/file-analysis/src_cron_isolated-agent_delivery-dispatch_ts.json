@@ -1,0 +1,248 @@
+{
+  "path": "src/cron/isolated-agent/delivery-dispatch.ts",
+  "extension": ".ts",
+  "size_bytes": 20074,
+  "line_count": 591,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Strip :topic:NNN from message targets and normalize Feishu/Lark prefixes on",
+      "both sides so cron duplicate suppression compares canonical IDs.",
+      "Shared callers can treat a matching message-tool send as the completed",
+      "delivery path. Cron-owned callers keep this false so direct cron delivery",
+      "remains the only source of delivered state.",
+      "Cached entries are only recorded after a successful non-empty delivery.",
+      "Isolated cron direct delivery uses its own transient retry loop.",
+      "Keep all attempts out of the write-ahead delivery queue so a",
+      "late-successful first send cannot leave behind a failed queue",
+      "entry that replays on the next restart.",
+      "See: https://github.com/openclaw/openclaw/issues/40545",
+      "Best-effort; direct delivery result should still be returned.",
+      "Also check for already-completed descendants. If the subagent finished",
+      "before delivery-dispatch runs, activeSubagentRuns is 0 and",
+      "expectedSubagentFollowup may be false (e.g. cron said \"on it\" which",
+      "doesn't match the narrow hint list). We still need to use the",
+      "descendant's output instead of the interim cron text.",
+      "Descendants already finished before we got here. Use their output",
+      "directly instead of the cron agent's interim text.",
+      "Parent orchestration is still in progress; avoid announcing a partial",
+      "update to the main requester. Mark deliveryAttempted so the timer does",
+      "not fire a redundant enqueueSystemEvent fallback (double-announce bug).",
+      "Descendants existed but no post-orchestration synthesis arrived AND",
+      "no descendant fallback reply was available. Suppress stale parent",
+      "text like \"on it, pulling everything together\". Mark deliveryAttempted",
+      "so the timer does not fire a redundant enqueueSystemEvent fallback.",
+      "Finalize descendant/subagent output first for text-only cron runs, then",
+      "send through the real outbound adapter so delivered=true always reflects",
+      "an actual channel send instead of internal announce routing."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "resolveCronDeliveryBestEffort",
+    "resetCompletedDirectCronDeliveriesForTests",
+    "getCompletedDirectCronDeliveriesCountForTests",
+    "matchesMessagingToolDeliveryTarget"
+  ],
+  "imports": {
+    "internal": [
+      "../../agents/subagent-registry.js",
+      "../../auto-reply/tokens.js",
+      "../../auto-reply/types.js",
+      "../../cli/outbound-send-deps.js",
+      "../../config/config.js",
+      "../../gateway/call.js",
+      "../../infra/backoff.js",
+      "../../infra/outbound/identity.js",
+      "../../infra/outbound/session-context.js",
+      "../../logger.js",
+      "../types.js",
+      "./delivery-target.js",
+      "./helpers.js",
+      "./run.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "normalizeDeliveryTarget",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "matchesMessagingToolDeliveryTarget",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveCronDeliveryBestEffort",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "cloneDeliveryResults",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pruneCompletedDirectCronDeliveries",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "rememberCompletedDirectCronDelivery",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getCompletedDirectCronDelivery",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildDirectCronDeliveryIdempotencyKey",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resetCompletedDirectCronDeliveriesForTests",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getCompletedDirectCronDeliveriesCountForTests",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "summarizeDirectCronDeliveryError",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isTransientDirectCronDeliveryError",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveDirectCronRetryDelaysMs",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "retryTransientDirectCronDelivery",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "dispatchCronDelivery",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "failDeliveryTarget",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runDelivery",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "cleanupDirectCronSessionIfNeeded",
+      "line": 396,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "SuccessfulDeliveryTarget",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "DispatchCronDeliveryParams",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "DispatchCronDeliveryState",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CompletedDirectCronDelivery",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

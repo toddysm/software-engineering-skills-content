@@ -1,0 +1,100 @@
+{
+  "path": "src/auto-reply/reply/followup-runner.ts",
+  "extension": ".ts",
+  "size_bytes": 15238,
+  "line_count": 377,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Sends followup payloads, routing to the originating channel if set. When originatingChannel/originatingTo are set on the queued run, replies are routed directly to that provider instead of using the session's current dispatcher. This ensures replies go back to where the message originated.",
+      "Check if we should route to originating channel.",
+      "Route to originating channel if set, otherwise fall back to dispatcher.",
+      "Fall back to the caller-provided dispatcher only when the",
+      "originating channel matches the session's message provider.",
+      "In that case onBlockReply was created by the same channel's",
+      "handler and delivers to the correct destination.  For true",
+      "cross-channel routing (origin !== provider), falling back",
+      "would send to the wrong channel, so we drop the payload.",
+      "Both signals are required for the typing controller to clean up.",
+      "The main inbound dispatch path calls markDispatchIdle() from the",
+      "buffered dispatcher's finally block, but followup turns bypass the",
+      "dispatcher entirely \u2014 so we must fire both signals here.  Without",
+      "this, NO_REPLY / empty-payload followups leave the typing indicator",
+      "stuck (the keepalive loop keeps sending \"typing\" to Telegram",
+      "indefinitely until the TTL expires)."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "createFollowupRunner"
+  ],
+  "imports": {
+    "internal": [
+      "../../agents/agent-scope.js",
+      "../../agents/bootstrap-budget.js",
+      "../../agents/context.js",
+      "../../agents/defaults.js",
+      "../../agents/model-fallback.js",
+      "../../agents/pi-embedded.js",
+      "../../config/sessions.js",
+      "../../config/types.js",
+      "../../globals.js",
+      "../../infra/agent-events.js",
+      "../../runtime.js",
+      "../../utils/message-channel.js",
+      "../heartbeat.js",
+      "../templating.js",
+      "../tokens.js",
+      "../types.js",
+      "./agent-runner-utils.js",
+      "./queue.js",
+      "./reply-threading.js",
+      "./route-reply.js",
+      "./session-run-accounting.js",
+      "./typing-mode.js",
+      "./typing.js"
+    ],
+    "external": [
+      "node:crypto"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "createFollowupRunner",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sendFollowupPayloads",
+      "line": 77,
+      "doc": "Sends followup payloads, routing to the originating channel if set.         When originatingChannel are set on the queue",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

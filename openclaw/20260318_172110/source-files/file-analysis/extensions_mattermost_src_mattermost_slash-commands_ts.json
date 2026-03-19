@@ -1,0 +1,240 @@
+{
+  "path": "extensions/mattermost/src/mattermost/slash-commands.ts",
+  "extension": ".ts",
+  "size_bytes": 18387,
+  "line_count": 572,
+  "documentation": {
+    "file_docstring": "Mattermost native slash command support. Registers custom slash commands via the Mattermost REST API and handles incoming command callbacks via an HTTP endpoint on the gateway. Architecture: - On startup, registers commands with MM via POST /api/v4/commands - MM sends HTTP POST to callbackUrl when a user invokes a command - The callback handler reconstructs the text as `/<command> <args>` and routes it through the standard inbound reply pipeline - On shutdown, cleans up registered commands via DELETE /api/v4/commands/{id}",
+    "header_comments": [],
+    "inline_comments": [
+      "\u2500\u2500\u2500 Types \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Explicit callback URL override (e.g. behind a reverse proxy). If not set, auto-derived from baseUrl + gateway port + callbackPath.",
+      "Payload sent by Mattermost when a slash command is invoked. Can arrive as application/x-www-form-urlencoded or application/json.",
+      "Response format for Mattermost slash command callbacks.",
+      "\u2500\u2500\u2500 MM API types \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500\u2500 Default commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Built-in OpenClaw commands to register as native slash commands. These mirror the text-based commands already handled by the gateway.",
+      "\u2500\u2500\u2500 Command registration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "List existing custom slash commands for a team.",
+      "Create a custom slash command on a Mattermost team.",
+      "Delete a custom slash command.",
+      "Update an existing custom slash command.",
+      "Register all OpenClaw slash commands for a given team. Skips commands that are already registered with the same trigger + callback URL. Returns the list of newly created command IDs.",
+      "Fetch existing commands to avoid duplicates",
+      "Fail closed: if we can't list existing commands, we should not attempt to",
+      "create/update anything because we may create duplicates and end up with an",
+      "empty/partial token set (causing callbacks to be rejected until restart).",
+      "Already registered with the correct callback URL",
+      "Exists but points to a different URL: attempt to reconcile by updating",
+      "(useful during callback URL migrations).",
+      "Fallback: try delete+recreate for commands owned by this bot user.",
+      "Can't reconcile; skip this command.",
+      "Continue on to create below.",
+      "Clean up all registered slash commands.",
+      "\u2500\u2500\u2500 Callback parsing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Parse a Mattermost slash command callback payload from a URL-encoded or JSON body.",
+      "Validate required fields (same checks as the form-encoded branch)",
+      "Default: application/x-www-form-urlencoded",
+      "Map the trigger word back to the original OpenClaw command name. e.g. \"oc_status\" -> \"/status\", \"oc_model\" -> \"/model\"",
+      "Use the trigger map if available for accurate name resolution",
+      "\u2500\u2500\u2500 Config resolution \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Ensure the callback path starts with a leading `/` to prevent malformed URLs like `http://host:portapi/...`.",
+      "\"auto\" defaults to false for mattermost (opt-in)",
+      "Build the callback URL that Mattermost will POST to when a command is invoked.",
+      "NOTE: Wildcard listen hosts are valid bind addresses but are not routable callback",
+      "destinations. Don't emit callback URLs like http://0.0.0.0:3015/... or http://[::]:3015/...",
+      "when an operator sets gateway.customBindHost.",
+      "Bracket IPv6 literals so the URL is valid: http://[::1]:3015/..."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "resolveCallbackUrl",
+    "parseSlashCommandPayload",
+    "DEFAULT_COMMAND_SPECS",
+    "resolveSlashCommandConfig",
+    "resolveCommandText",
+    "isSlashCommandsEnabled"
+  ],
+  "imports": {
+    "internal": [
+      "./client.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "listMattermostCommands",
+      "line": 191,
+      "doc": "List existing custom slash commands for a team.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "createMattermostCommand",
+      "line": 203,
+      "doc": "Create a custom slash command on a Mattermost team.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "deleteMattermostCommand",
+      "line": 216,
+      "doc": "Delete a custom slash command.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "updateMattermostCommand",
+      "line": 228,
+      "doc": "Update an existing custom slash command.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "registerSlashCommands",
+      "line": 246,
+      "doc": "Register all OpenClaw slash commands for a given team.   Skips commands that are already registered with the same trigge",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "cleanupSlashCommands",
+      "line": 393,
+      "doc": "Clean up all registered slash commands.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "parseSlashCommandPayload",
+      "line": 417,
+      "doc": "Parse a Mattermost slash command callback payload from a URL-encoded or JSON body.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveCommandText",
+      "line": 489,
+      "doc": "Map the trigger word back to the original OpenClaw command name.   e.g. \"oc_status\" -> \"\", \"oc_model\" -> \"\"",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "normalizeCallbackPath",
+      "line": 509,
+      "doc": "Ensure the callback path starts with a leading `` to prevent   malformed URLs like `http::portapi...`.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSlashCommandConfig",
+      "line": 515,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isSlashCommandsEnabled",
+      "line": 526,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveCallbackUrl",
+      "line": 540,
+      "doc": "Build the callback URL that Mattermost will POST to when a command is invoked.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isWildcardBindHost",
+      "line": 549,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "MattermostSlashCommandConfig",
+      "line": 19,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostCommandSpec",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostRegisteredCommand",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostSlashCommandPayload",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostSlashCommandResponse",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostCommandCreate",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostCommandUpdate",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostCommandResponse",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 66,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

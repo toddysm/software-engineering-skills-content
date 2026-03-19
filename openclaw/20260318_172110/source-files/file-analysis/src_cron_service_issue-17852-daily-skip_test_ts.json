@@ -1,0 +1,67 @@
+{
+  "path": "src/cron/service.issue-17852-daily-skip.test.ts",
+  "extension": ".ts",
+  "size_bytes": 3646,
+  "line_count": 88,
+  "documentation": {
+    "file_docstring": "Regression test for issue #17852: daily cron jobs skip a day (48h jump). Root cause: onTimer's results-processing block used the full recomputeNextRuns which could silently advance a past-due nextRunAtMs for a job that became due between findDueJobs and the post-execution locked block \u2014 skipping that run and jumping 48h ahead. Fix: use recomputeNextRunsForMaintenance in the post-execution block, which only fills in missing nextRunAtMs values and never overwrites existing (including past-due) ones.",
+    "header_comments": [],
+    "inline_comments": [
+      "Simulate: job scheduled for 3:00 AM, timer processing happens at 3:00:01",
+      "The job was NOT executed in this tick (e.g., it became due between",
+      "findDueJobs and the post-execution block).",
+      "Maintenance should NOT touch existing past-due nextRunAtMs.",
+      "The job should still be eligible for execution on the next timer tick.",
+      "This test documents the buggy behavior that caused #17852.",
+      "The full recomputeNextRuns sees a past-due nextRunAtMs and advances it",
+      "to the next occurrence WITHOUT executing the job.",
+      "The full recomputeNextRuns advances it to TOMORROW \u2014 skipping today's",
+      "execution entirely.  This is the 48h jump bug: from the previous run",
+      "(yesterday 3 AM) to the newly computed next run (tomorrow 3 AM)."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "./service.test-harness.js",
+      "./service/jobs.js",
+      "./types.js"
+    ],
+    "external": [
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "createDailyThreeAmJob",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 4,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic"
+    ]
+  }
+}

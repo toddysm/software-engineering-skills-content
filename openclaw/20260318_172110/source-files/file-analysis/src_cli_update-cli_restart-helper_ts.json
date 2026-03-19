@@ -1,0 +1,109 @@
+{
+  "path": "src/cli/update-cli/restart-helper.ts",
+  "extension": ".ts",
+  "size_bytes": 6377,
+  "line_count": 175,
+  "documentation": {
+    "file_docstring": "Shell-escape a string for embedding in single-quoted shell arguments. Replaces every `'` with `'\\''` (end quote, escaped quote, resume quote). For batch scripts, validates against special characters instead.",
+    "header_comments": [],
+    "inline_comments": [
+      "Prepares a standalone script to restart the gateway service. This script is written to a temporary directory and does not depend on the installed package files, ensuring restart capability even if the update process temporarily removes or corrupts installation files.",
+      "Fallback to 501 if getuid is not available (though it should be on macOS)",
+      "Resolve HOME at generation time via env/process.env to match launchd.ts,",
+      "and shell-escape the label in the plist filename to prevent injection.",
+      "If we can't write the script, we'll fall back to the standard restart method",
+      "Executes the prepared restart script as a **detached** process. The script must outlive the CLI process because the CLI itself is part of the service being restarted \u2014 `systemctl restart` / `launchctl kickstart -k` will terminate the current process tree.  Using `spawn({ detached: true })` + `unref()` ensures the script survives the parent's exit. Resolves immediately after spawning; the script runs independently."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../../config/paths.js",
+      "../../daemon/cmd-argv.js"
+    ],
+    "external": [
+      "node:child_process",
+      "node:fs/promises",
+      "node:os",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "shellEscape",
+      "line": 18,
+      "doc": "Shell-escape a string for embedding in single-quoted shell arguments.   Replaces every `'` with `'\\''` (end quote, escap",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isBatchSafe",
+      "line": 23,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSystemdUnit",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveLaunchdLabel",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveWindowsTaskName",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "prepareRestartScript",
+      "line": 58,
+      "doc": "Prepares a standalone script to restart the gateway service.   This script is written to a temporary directory and does ",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "runRestartScript",
+      "line": 164,
+      "doc": "Executes the prepared restart script as a  process.     The script must outlive the CLI process because the CLI itself i",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

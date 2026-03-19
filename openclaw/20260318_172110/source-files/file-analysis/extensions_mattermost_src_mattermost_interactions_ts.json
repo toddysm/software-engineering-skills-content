@@ -1,0 +1,280 @@
+{
+  "path": "extensions/mattermost/src/mattermost/interactions.ts",
+  "extension": ".ts",
+  "size_bytes": 22888,
+  "line_count": 689,
+  "documentation": {
+    "file_docstring": "Mattermost interactive message callback payload. Sent by Mattermost when a user clicks an action button. See: https://developers.mattermost.com/integrate/plugins/interactive-messages/",
+    "header_comments": [],
+    "inline_comments": [
+      "\u2500\u2500 Callback URL registry \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Resolve the interaction callback URL for an account. Falls back to computing it from interactions.callbackBaseUrl or gateway host config.",
+      "Prefer merged per-account config when available, but keep the top-level path for",
+      "callers/tests that still pass the root Mattermost config shape directly.",
+      "Bracket IPv6 literals so the URL is valid: http://[::1]:18789/...",
+      "Resolve the interaction callback URL for an account. Prefers the in-memory registered URL (set by the gateway monitor) so callers outside the monitor lifecycle can reuse the runtime-validated callback destination.",
+      "\u2500\u2500 HMAC token management \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Secret is derived from the bot token so it's stable across CLI and gateway processes.",
+      "Backward-compatible fallback for call sites/tests that only pass botToken.",
+      "Fallback for single-account runtimes that only registered scoped secrets.",
+      "\u2500\u2500 Button builder helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Build Mattermost `props.attachments` with interactive buttons. Each button includes an HMAC token in its integration context so the callback handler can verify the request originated from a legitimate button click (Mattermost's recommended security pattern).",
+      "Sanitize a button ID so Mattermost's action router can match it. Mattermost uses the action ID in the URL path `/api/v4/posts/{id}/actions/{actionId}` and IDs containing hyphens or underscores break the server-side routing. See: https://github.com/mattermost/mattermost/issues/25747",
+      "\u2500\u2500 Request body reader \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 HTTP handler \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Only accept POST",
+      "Verify HMAC token",
+      "Strip _token before verification (it wasn't in the original context)",
+      "Ensure the callback can only target an action that exists on the original post.",
+      "Dispatch as system event so the agent can handle it.",
+      "Wrapped in try/catch \u2014 the post update below must still run even if",
+      "system event dispatch fails (e.g. missing sessionKey or channel lookup).",
+      "Update the post via API to replace buttons with a completion indicator.",
+      "Respond with empty JSON \u2014 the post update is handled above",
+      "Dispatch a synthetic inbound message so the agent responds to the button click."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "setInteractionCallbackUrl",
+    "verifyInteractionToken",
+    "resolveInteractionCallbackPath",
+    "getInteractionCallbackUrl",
+    "getInteractionSecret",
+    "resolveInteractionCallbackUrl",
+    "generateInteractionToken",
+    "createMattermostInteractionHandler",
+    "buildButtonProps",
+    "buildButtonAttachments",
+    "computeInteractionCallbackUrl",
+    "setInteractionSecret"
+  ],
+  "imports": {
+    "internal": [
+      "../runtime-api.js",
+      "../runtime.js",
+      "./client.js"
+    ],
+    "external": [
+      "node:crypto",
+      "node:http"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "setInteractionCallbackUrl",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getInteractionCallbackUrl",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveInteractionCallbackPath",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isWildcardBindHost",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeCallbackBaseUrl",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "headerValue",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isAllowedInteractionSource",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "computeInteractionCallbackUrl",
+      "line": 115,
+      "doc": "Resolve the interaction callback URL for an account.   Falls back to computing it from interactions.callbackBaseUrl or g",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveInteractionCallbackUrl",
+      "line": 147,
+      "doc": "Resolve the interaction callback URL for an account.   Prefers the in-memory registered URL (set by the gateway monitor)",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "deriveInteractionSecret",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setInteractionSecret",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getInteractionSecret",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "canonicalizeInteractionContext",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "generateInteractionToken",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "verifyInteractionToken",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeActionId",
+      "line": 264,
+      "doc": "Sanitize a button ID so Mattermost's action router can match it.   Mattermost uses the action ID in the URL path `{id}{a",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildButtonAttachments",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildButtonProps",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "readInteractionBody",
+      "line": 351,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createMattermostInteractionHandler",
+      "line": 386,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "MattermostInteractionPayload",
+      "line": 16,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostInteractionResponse",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostInteractionAuthorizationResult",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostInteractiveButtonInput",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "InteractionCallbackConfig",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostButton",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MattermostAttachment",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 66,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "path": "extensions/synology-chat/src/client.ts",
+  "extension": ".ts",
+  "size_bytes": 8109,
+  "line_count": 270,
+  "documentation": {
+    "file_docstring": "Synology Chat HTTP client. Sends messages TO Synology Chat via the incoming webhook URL.",
+    "header_comments": [],
+    "inline_comments": [
+      "--- Chat user_id resolution ---",
+      "Synology Chat uses two different user_id spaces:",
+      "- Outgoing webhook user_id: per-integration sequential ID (e.g. 1)",
+      "- Chat API user_id: global internal ID (e.g. 4)",
+      "The chatbot API (method=chatbot) requires the Chat API user_id in the",
+      "user_ids array. We resolve via the user_list API and cache the result.",
+      "Cache user lists per bot endpoint to avoid cross-account bleed.",
+      "Send a text message to Synology Chat via the incoming webhook. @param incomingUrl - Synology Chat incoming webhook URL @param text - Message text to send @param userId - Optional user ID to mention with @ @returns true if sent successfully",
+      "Synology Chat API requires user_ids (numeric) to specify the recipient",
+      "The @mention is optional but user_ids is mandatory",
+      "Internal rate limit: min 500ms between sends",
+      "Retry with exponential backoff (3 attempts, 300ms base)",
+      "will retry",
+      "Send a file URL to Synology Chat.",
+      "Fetch the list of Chat users visible to this bot via the user_list API. Results are cached for CACHE_TTL_MS to avoid excessive API calls. The user_list endpoint uses the same base URL as the chatbot API but with method=user_list instead of method=chatbot.",
+      "Resolve a webhook username to the correct Chat API user_id. Synology Chat outgoing webhooks send a user_id that may NOT match the Chat-internal user_id needed by the chatbot API (method=chatbot). The webhook's \"username\" field corresponds to the Chat user's \"nickname\". @param incomingUrl - Bot incoming webhook URL (used to derive user_list URL) @param webhookUsername - The username from the outgoing webhook payload @param allowInsecureSsl - Skip TLS verification @returns The correct Chat user_id, or undefined if not found",
+      "Match by nickname first (webhook \"username\" field = Chat \"nickname\")",
+      "Then by username",
+      "Synology NAS may use self-signed certs on local network.",
+      "Set allowInsecureSsl: true in channel config to skip verification."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [],
+  "imports": {
+    "internal": [],
+    "external": [
+      "node:http",
+      "node:https"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "sendMessage",
+      "line": 48,
+      "doc": "Send a text message to Synology Chat via the incoming webhook.      incomingUrl - Synology Chat incoming webhook URL    ",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "sendFileUrl",
+      "line": 89,
+      "doc": "Send a file URL to Synology Chat.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "fetchChatUsers",
+      "line": 113,
+      "doc": "Fetch the list of Chat users visible to this bot via the user_list API.   Results are cached for CACHE_TTL_MS to avoid e",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resolveChatUserId",
+      "line": 187,
+      "doc": "Resolve a webhook username to the correct Chat API user_id.     Synology Chat outgoing webhooks send a user_id that may ",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "buildWebhookBody",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseNumericUserId",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "doPost",
+      "line": 223,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sleep",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ChatUser",
+      "line": 19,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    },
+    {
+      "name": "ChatUserCacheEntry",
+      "line": 25,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChatWebhookPayload",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 27,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

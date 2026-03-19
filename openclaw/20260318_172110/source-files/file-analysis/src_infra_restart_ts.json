@@ -1,0 +1,237 @@
+{
+  "path": "src/infra/restart.ts",
+  "extension": ".ts",
+  "size_bytes": 15370,
+  "line_count": 512,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Default to 5 minutes to avoid aborting in-flight subagent LLM calls.",
+      "Configurable via gateway.reload.deferralTimeoutMs.",
+      "Register a callback that scheduleGatewaySigusr1Restart checks before emitting SIGUSR1. The callback should return the number of pending items (0 = safe to restart).",
+      "Emit an authorized SIGUSR1 gateway restart, guarded against duplicate emissions. Returns true if SIGUSR1 was emitted, false if a restart was already emitted. Both scheduleGatewaySigusr1Restart and the config watcher should use this to ensure only one restart fires.",
+      "Roll back the cycle marker so future restart requests can still proceed.",
+      "Mark the currently emitted SIGUSR1 restart cycle as consumed by the run loop. This explicitly advances the cycle state instead of resetting emit guards inside consumeGatewaySigusr1RestartAuthorization().",
+      "Poll pending work until it drains (or times out), then emit one restart signal. Shared by both the direct RPC restart path and the config watcher path.",
+      "kickstart fails when the service was previously booted out (deregistered from launchd).",
+      "Fall back to bootstrap (re-register from plist) + kickstart.",
+      "Use env HOME to match how launchd.ts resolves the plist install path."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "setGatewaySigusr1RestartPolicy",
+    "triggerOpenClawRestart",
+    "setPreRestartDeferralCheck",
+    "scheduleGatewaySigusr1Restart",
+    "isGatewaySigusr1RestartExternallyAllowed",
+    "markGatewaySigusr1RestartHandled",
+    "emitGatewayRestart",
+    "__testing",
+    "deferGatewayRestartUntilIdle",
+    "consumeGatewaySigusr1RestartAuthorization"
+  ],
+  "imports": {
+    "internal": [
+      "../config/config.js",
+      "../logging/subsystem.js",
+      "./restart-stale-pids.js",
+      "./windows-task-restart.js"
+    ],
+    "external": [
+      "node:child_process",
+      "node:os",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "hasUnconsumedRestartSignal",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearPendingScheduledRestart",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "summarizeChangedPaths",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatRestartAudit",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setPreRestartDeferralCheck",
+      "line": 102,
+      "doc": "Register a callback that scheduleGatewaySigusr1Restart checks before emitting SIGUSR1.   The callback should return the ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "emitGatewayRestart",
+      "line": 112,
+      "doc": "Emit an authorized SIGUSR1 gateway restart, guarded against duplicate emissions.   Returns true if SIGUSR1 was emitted, ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resetSigusr1AuthorizationIfExpired",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setGatewaySigusr1RestartPolicy",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isGatewaySigusr1RestartExternallyAllowed",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "authorizeGatewaySigusr1Restart",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "consumeGatewaySigusr1RestartAuthorization",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "markGatewaySigusr1RestartHandled",
+      "line": 181,
+      "doc": "Mark the currently emitted SIGUSR1 restart cycle as consumed by the run loop.   This explicitly advances the cycle state",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "deferGatewayRestartUntilIdle",
+      "line": 198,
+      "doc": "Poll pending work until it drains (or times out), then emit one restart signal.   Shared by both the direct RPC restart ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "formatSpawnDetail",
+      "line": 250,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clean",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeSystemdUnit",
+      "line": 287,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "triggerOpenClawRestart",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "scheduleGatewaySigusr1Restart",
+      "line": 408,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resetSigusr1State",
+      "line": 501,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "RestartAttempt",
+      "line": 13,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "RestartAuditInfo",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "RestartDeferralHooks",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ScheduledRestart",
+      "line": 397,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 59,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

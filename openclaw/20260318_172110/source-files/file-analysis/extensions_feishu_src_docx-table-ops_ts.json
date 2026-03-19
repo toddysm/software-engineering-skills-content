@@ -1,0 +1,140 @@
+{
+  "path": "extensions/feishu/src/docx-table-ops.ts",
+  "extension": ".ts",
+  "size_bytes": 9426,
+  "line_count": 298,
+  "documentation": {
+    "file_docstring": "Table utilities and row/column manipulation operations for Feishu documents. Combines: - Adaptive column width calculation (content-proportional, CJK-aware) - Block cleaning for Descendant API (removes read-only fields) - Table row/column insert, delete, and merge operations",
+    "header_comments": [],
+    "inline_comments": [
+      "============ Table Utilities ============",
+      "Feishu table constraints",
+      "Calculate adaptive column widths based on cell content length. Algorithm: 1. For each column, find the max content length across all rows 2. Weight CJK characters as 2x width (they render wider) 3. Calculate proportional widths based on content length 4. Apply min/max constraints 5. Redistribute remaining space to fill total table width Total width is derived from the original column_width values returned by the Convert API, ensuring tables match Feishu's expected dimensions. @param blocks - Array of blocks from Convert API @param tableBlockId - The block_id of the table block @returns Array of column widths in pixels",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any",
+      "Find the table block",
+      "Use original total width from Convert API, or fall back to default",
+      "Build block lookup map",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any",
+      "Extract text content from a table cell",
+      "Calculate weighted length (CJK chars count as 2)",
+      "CJK (Chinese/Japanese/Korean) characters render ~2x wider than ASCII",
+      "Find max content length per column",
+      "Handle empty table: distribute width equally, clamped to [MIN, MAX] so",
+      "wide tables (e.g. 15+ columns) don't produce sub-50 widths that Feishu",
+      "rejects as invalid column_width values.",
+      "Calculate proportional widths",
+      "Apply min/max constraints",
+      "Redistribute remaining space to fill total width",
+      "Find columns that can still grow (not at max)",
+      "Distribute evenly among growable columns",
+      "Clean blocks for Descendant API with adaptive column widths. - Removes parent_id from all blocks - Fixes children type (string \u2192 array) for TableCell blocks - Removes merge_info (read-only, causes API error) - Calculates and applies adaptive column_width for tables @param blocks - Array of blocks from Convert API @returns Cleaned blocks ready for Descendant API",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any",
+      "Pre-calculate adaptive widths for all tables",
+      "eslint-disable-next-line @typescript-eslint/no-unused-vars",
+      "Fix: Convert API sometimes returns children as string for TableCell",
+      "Clean table blocks",
+      "eslint-disable-next-line @typescript-eslint/no-unused-vars",
+      "============ Table Row/Column Operations ============"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "cleanBlocksForDescendant",
+    "calculateAdaptiveColumnWidths"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "@larksuiteoapi/node-sdk"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "calculateAdaptiveColumnWidths",
+      "line": 36,
+      "doc": "Calculate adaptive column widths based on cell content length.     Algorithm:   1. For each column, find the max content",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getCellText",
+      "line": 65,
+      "doc": "Extract text content from a table cell",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getWeightedLength",
+      "line": 87,
+      "doc": "CJK (Chinese/Japanese/Korean) characters render ~2x wider than ASCII",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanBlocksForDescendant",
+      "line": 162,
+      "doc": "eslint-disable-next-line @typescript-eslint/no-explicit-any",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "insertTableRow",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "insertTableColumn",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "deleteTableRows",
+      "line": 235,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "deleteTableColumns",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "mergeTableCells",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [],
+  "complexity_score": 38,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

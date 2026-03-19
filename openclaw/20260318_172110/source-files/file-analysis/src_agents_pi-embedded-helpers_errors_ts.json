@@ -1,0 +1,468 @@
+{
+  "path": "src/agents/pi-embedded-helpers/errors.ts",
+  "extension": ".ts",
+  "size_bytes": 32392,
+  "line_count": 1041,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.",
+      "Anthropic API and OpenAI-compatible providers (e.g. ZhipuAI/GLM) return this stop reason",
+      "when the context window is exceeded. pi-ai surfaces it as \"Unhandled stop reason: model_context_window_exceeded\".",
+      "Chinese proxy error messages for context overflow",
+      "Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.",
+      "Billing/quota errors can contain patterns like \"request size exceeds\" or",
+      "\"maximum token limit exceeded\" that match the context overflow heuristic.",
+      "Billing is a more specific error class \u2014 exclude it early.",
+      "Rate limit errors can match the broad CONTEXT_OVERFLOW_HINT_RE pattern",
+      "(e.g., \"request reached organization TPD rate limit\" matches request.*limit).",
+      "Exclude them before checking context overflow heuristics.",
+      "Treat any likely overflow shape as a compaction failure when compaction terms are present.",
+      "Providers often vary wording (e.g. \"context window exceeded\") across APIs.",
+      "Keep explicit fallback for bare \"context overflow\" strings.",
+      "Allow provider-wrapped API payloads such as \"Ollama API error 400: {...}\".",
+      "Some providers return quota/balance errors under HTTP 400, so do not",
+      "let the generic format fallback mask an explicit billing signal.",
+      "ignore parse errors",
+      "Also format errors if errorMessage is present, even if stopReason isn't \"error\"",
+      "Catch role ordering errors - including JSON-wrapped and \"400\" prefix variants",
+      "Never return raw unhandled errors - log for debugging but return safe message",
+      "Only apply error-pattern rewrites when the caller knows this text is an error payload.",
+      "Otherwise we risk swallowing legitimate assistant text that merely *mentions* these errors.",
+      "Strip leading blank lines (including whitespace-only lines) without clobbering indentation on",
+      "the first content line (e.g. markdown/code blocks).",
+      "Anthropic often wraps transient 500s in JSON payloads like:",
+      "{\"type\":\"error\",\"error\":{\"type\":\"api_error\",\"message\":\"Internal server error\"}}",
+      "Direct pattern matches from OpenClaw internals and common providers.",
+      "Google Gemini: \"models/X is not found for api version\"",
+      "JSON error payloads: {\"status\": \"NOT_FOUND\"} or {\"code\": 404} combined with not-found text.",
+      "529 is always overloaded, even without explicit overload keywords in the body.",
+      "Treat remaining transient 5xx provider failures as retryable transport issues."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "classifyFailoverReason",
+    "parseImageSizeError",
+    "classifyFailoverReasonFromHttpStatus",
+    "isFailoverErrorMessage",
+    "isRawApiErrorPayload",
+    "getApiErrorPayloadFingerprint",
+    "BILLING_ERROR_USER_MESSAGE",
+    "extractObservedOverflowTokenCount",
+    "parseImageDimensionError",
+    "formatAssistantErrorText",
+    "isCloudflareOrHtmlErrorPage",
+    "isCloudCodeAssistFormatError",
+    "isBillingAssistantError",
+    "isRateLimitAssistantError",
+    "formatRawAssistantErrorForUi",
+    "isAuthAssistantError",
+    "isMissingToolCallInputError",
+    "isLikelyContextOverflowError",
+    "isCompactionFailureError",
+    "isImageDimensionErrorMessage",
+    "formatBillingErrorMessage",
+    "isContextOverflowError",
+    "isImageSizeError",
+    "isTransientHttpError",
+    "parseApiErrorInfo",
+    "isModelNotFoundErrorMessage",
+    "isFailoverAssistantError",
+    "sanitizeUserFacingText"
+  ],
+  "imports": {
+    "internal": [
+      "../../config/config.js",
+      "../../logging/subsystem.js",
+      "../sandbox.js",
+      "../stable-stringify.js",
+      "./types.js"
+    ],
+    "external": [
+      "@mariozechner/pi-ai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "formatBillingErrorMessage",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "formatRateLimitOrOverloadedErrorCopy",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isReasoningConstraintErrorMessage",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasRateLimitTpmHint",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isContextOverflowError",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isLikelyContextOverflowError",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isCompactionFailureError",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "extractObservedOverflowTokenCount",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "includesAnyHint",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasExplicit402BillingSignal",
+      "line": 283,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasQuotaRefreshWindowSignal",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasRetryable402TransientSignal",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalize402Message",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "classify402Message",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "classifyFailoverReasonFrom402Text",
+      "line": 344,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractLeadingHttpStatus",
+      "line": 351,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isCloudflareOrHtmlErrorPage",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isTransientHttpError",
+      "line": 383,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "classifyFailoverReasonFromHttpStatus",
+      "line": 395,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripFinalTagsFromText",
+      "line": 447,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collapseConsecutiveDuplicateBlocks",
+      "line": 454,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeBlock",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isLikelyHttpErrorText",
+      "line": 483,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldRewriteContextOverflowText",
+      "line": 499,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isErrorPayloadObject",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseApiErrorPayload",
+      "line": 540,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getApiErrorPayloadFingerprint",
+      "line": 568,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isRawApiErrorPayload",
+      "line": 579,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "parseApiErrorInfo",
+      "line": 590,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "formatRawAssistantErrorForUi",
+      "line": 646,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "formatAssistantErrorText",
+      "line": 676,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeUserFacingText",
+      "line": 766,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isRateLimitAssistantError",
+      "line": 820,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isMissingToolCallInputError",
+      "line": 837,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isBillingAssistantError",
+      "line": 844,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isJsonApiInternalServerError",
+      "line": 851,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseImageDimensionError",
+      "line": 861,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isImageDimensionErrorMessage",
+      "line": 884,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "parseImageSizeError",
+      "line": 888,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isImageSizeError",
+      "line": 906,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isCloudCodeAssistFormatError",
+      "line": 913,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isAuthAssistantError",
+      "line": 917,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isModelNotFoundErrorMessage",
+      "line": 924,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isCliSessionExpiredErrorMessage",
+      "line": 955,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "classifyFailoverReason",
+      "line": 976,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isFailoverErrorMessage",
+      "line": 1032,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isFailoverAssistantError",
+      "line": 1036,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "PaymentRequiredFailoverReason",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ErrorPayload",
+      "line": 511,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ApiErrorInfo",
+      "line": 583,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 187,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

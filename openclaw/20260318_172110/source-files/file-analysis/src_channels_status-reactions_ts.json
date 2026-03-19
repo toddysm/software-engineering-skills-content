@@ -1,0 +1,240 @@
+{
+  "path": "src/channels/status-reactions.ts",
+  "extension": ".ts",
+  "size_bytes": 11590,
+  "line_count": 400,
+  "documentation": {
+    "file_docstring": "Channel-agnostic status reaction controller. Provides a unified interface for displaying agent status via message reactions.",
+    "header_comments": [
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Types",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "inline_comments": [
+      "Resolve the appropriate emoji for a tool invocation.",
+      "Create a status reaction controller. Features: - Promise chain serialization (prevents concurrent API calls) - Debouncing (intermediate states debounce, terminal states are immediate) - Stall timers (soft/hard warnings on inactivity) - Terminal state protection (done/error mark finished, subsequent updates ignored)",
+      "Merge user-provided overrides with defaults",
+      "State",
+      "Known emojis for clear operation",
+      "Serialize async operations to prevent race conditions.",
+      "Clear all timers.",
+      "Clear debounce timer only (used during phase transitions).",
+      "Reset stall timers (called on each phase change).",
+      "Apply an emoji: set new reaction and optionally remove old one.",
+      "If adapter supports removeReaction and there's a different previous emoji, remove it",
+      "Schedule an emoji change (debounced or immediate).",
+      "Deduplicate: if already scheduled/current, skip send but keep stall timers fresh",
+      "Immediate execution for terminal states",
+      "Debounced execution for intermediate states",
+      "Reset stall timers on phase change (unless triggered by stall timer itself)",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Controller API",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Directly enqueue to ensure we return the updated promise",
+      "Remove all known emojis (Discord-style)",
+      "For platforms without removeReaction, set empty or just skip",
+      "(Telegram handles this atomically on the next setReaction)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "resolveToolEmoji",
+    "CODING_TOOL_TOKENS",
+    "createStatusReactionController",
+    "DEFAULT_TIMING",
+    "WEB_TOOL_TOKENS",
+    "DEFAULT_EMOJIS"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveToolEmoji",
+      "line": 101,
+      "doc": "Resolve the appropriate emoji for a tool invocation.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createStatusReactionController",
+      "line": 127,
+      "doc": "Create a status reaction controller.     Features:   - Promise chain serialization (prevents concurrent API calls)   - D",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "enqueue",
+      "line": 176,
+      "doc": "Serialize async operations to prevent race conditions.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearAllTimers",
+      "line": 184,
+      "doc": "Clear all timers.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearDebounceTimer",
+      "line": 202,
+      "doc": "Clear debounce timer only (used during phase transitions).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resetStallTimers",
+      "line": 212,
+      "doc": "Reset stall timers (called on each phase change).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "applyEmoji",
+      "line": 232,
+      "doc": "Apply an emoji: set new reaction and optionally remove old one.",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "scheduleEmoji",
+      "line": 257,
+      "doc": "Schedule an emoji change (debounced or immediate).",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setQueued",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setThinking",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setTool",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setCompacting",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cancelPending",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "finishWithEmoji",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setDone",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setError",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clear",
+      "line": 347,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "restoreInitial",
+      "line": 377,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "for",
+      "line": 3,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    },
+    {
+      "name": "StatusReactionAdapter",
+      "line": 10,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "StatusReactionEmojis",
+      "line": 17,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "StatusReactionTiming",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "StatusReactionController",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 38,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

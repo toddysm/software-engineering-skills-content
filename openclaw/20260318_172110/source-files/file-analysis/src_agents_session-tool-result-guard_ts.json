@@ -1,0 +1,139 @@
+{
+  "path": "src/agents/session-tool-result-guard.ts",
+  "extension": ".ts",
+  "size_bytes": 9578,
+  "line_count": 266,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Truncate oversized text content blocks in a tool result message. Returns the original message if under the limit, or a new message with truncated text blocks otherwise.",
+      "Optional transform applied to any message before persistence.",
+      "Optional, synchronous transform applied to toolResult messages *before* they are persisted to the session transcript.",
+      "Whether to synthesize missing tool results to satisfy strict providers. Defaults to true.",
+      "Optional set/list of tool names accepted for assistant toolCall/toolUse blocks. When set, tool calls with unknown names are dropped before persistence.",
+      "Synchronous hook invoked before any message is written to the session JSONL. If the hook returns { block: true }, the message is silently dropped. If it returns { message }, the modified message is written instead.",
+      "Run the before_message_write hook. Returns the (possibly modified) message, or null if the message should be blocked.",
+      "Apply hard size cap before persistence to prevent oversized tool results",
+      "from consuming the entire context window on subsequent LLM calls.",
+      "Skip tool call extraction for aborted/errored assistant messages.",
+      "When stopReason is \"error\" or \"aborted\", the tool_use blocks may be incomplete",
+      "and should not have synthetic tool_results created. Creating synthetic results",
+      "for incomplete tool calls causes API 400 errors:",
+      "\"unexpected tool_use_id found in tool_result blocks\"",
+      "This matches the behavior in repairToolUseResultPairing (session-transcript-repair.ts)",
+      "Always clear pending tool call state before appending non-tool-result messages.",
+      "flushPendingToolResults() only inserts synthetic results when allowSyntheticToolResults",
+      "is true; it always clears the pending map. Without this, providers that disable",
+      "synthetic results (e.g. OpenAI) accumulate stale pending state when a user message",
+      "interrupts in-flight tool calls, leaving orphaned tool_use blocks in the transcript",
+      "that cause API 400 errors on subsequent requests.",
+      "If new tool calls arrive while older ones are pending, flush the old ones first.",
+      "Monkey-patch appendMessage with our guarded version."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "installSessionToolResultGuard"
+  ],
+  "imports": {
+    "internal": [
+      "../sessions/transcript-events.js",
+      "./session-tool-result-state.js",
+      "./session-transcript-repair.js",
+      "./tool-call-id.js"
+    ],
+    "external": [
+      "@mariozechner/pi-agent-core",
+      "@mariozechner/pi-coding-agent"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "capToolResultSize",
+      "line": 25,
+      "doc": "Truncate oversized text content blocks in a tool result message.   Returns the original message if under the limit, or a",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "trimNonEmptyString",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizePersistedToolResultName",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "installSessionToolResultGuard",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "persistMessage",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "applyBeforeWriteHook",
+      "line": 132,
+      "doc": "Run the before_message_write hook. Returns the (possibly modified) message,     or null if the message should be blocked",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "flushPendingToolResults",
+      "line": 146,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearPendingToolResults",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "guardedAppend",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 41,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

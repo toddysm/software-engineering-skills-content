@@ -1,0 +1,99 @@
+{
+  "path": "src/agents/pi-embedded-runner.sessions-yield.e2e.test.ts",
+  "extension": ".ts",
+  "size_bytes": 11927,
+  "line_count": 345,
+  "documentation": {
+    "file_docstring": "End-to-end test proving that when sessions_yield is called: 1. The attempt completes with yieldDetected 2. The run exits with stopReason \"end_turn\" and no pendingToolCalls 3. The parent session is idle (clearActiveEmbeddedRun has run) This exercises the full path: mock LLM \u2192 agent loop \u2192 tool execution \u2192 callback \u2192 attempt result \u2192 run result. Follows the same pattern as pi-embedded-runner.e2e.test.ts.",
+    "header_comments": [],
+    "inline_comments": [
+      "1. Run completed with end_turn (yield causes clean exit)",
+      "2. No pending tool calls (yield is NOT a client tool call)",
+      "3. Parent session is IDLE \u2014 clearActiveEmbeddedRun ran in finally block",
+      "4. Steer would fail \u2014 session not in ACTIVE_EMBEDDED_RUNS",
+      "5. The yield stops at tool time \u2014 there is no second provider call.",
+      "6. Session transcript contains only the original assistant tool call.",
+      "Reset for other tests",
+      "1. Run completed with end_turn despite the extra queued tool call",
+      "2. Session is idle",
+      "3. The yield prevented a post-tool provider call.",
+      "4. Transcript should contain sessions_yield but NOT a successful read result",
+      "The read tool call should be in the assistant message (LLM requested it),",
+      "but its result should NOT show a successful file read.",
+      "...but the file was never actually read (no tool result with file contents)",
+      "If the read tool ran, its result would reference the file path.",
+      "The abort should have prevented it from executing."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "./pi-embedded-runner/runs.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:path",
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "createMockUsage",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildToolUseMessage",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildStopMessage",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "readSessionMessages",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "readSessionEntries",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [],
+  "complexity_score": 18,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "auth"
+    ]
+  }
+}

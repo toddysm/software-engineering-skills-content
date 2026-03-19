@@ -1,0 +1,270 @@
+{
+  "path": "src/cron/service/ops.ts",
+  "extension": ".ts",
+  "size_bytes": 18365,
+  "line_count": 593,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Use the maintenance-only version so that read-only operations never",
+      "advance a past-due nextRunAtMs without executing the job (#16156).",
+      "Defensive: recompute all next-run times to ensure consistency",
+      "Non-schedule edits should not mutate other jobs, but still repair a",
+      "missing/corrupt nextRunAtMs for the updated job.",
+      "Normalize job tick state (clears stale runningAtMs markers) before",
+      "checking if already running, so a stale marker from a crashed Phase-1",
+      "persist does not block manual triggers for up to STUCK_RUN_MS (#17554).",
+      "Reserve this run under lock, then execute outside lock so read ops",
+      "(`list`, `status`) stay responsive while the run is in progress.",
+      "Persist the running marker before releasing lock so timer ticks that",
+      "force-reload from disk cannot start the same job concurrently.",
+      "Manual runs should not advance other due jobs without executing them.",
+      "Use maintenance-only recompute to repair missing values while",
+      "preserving existing past-due nextRunAtMs entries for future timer ticks.",
+      "Isolated Telegram send can persist target writeback directly to disk.",
+      "Reload before final persist so manual `cron run` keeps those changes."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "service",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "service path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "wakeNow",
+    "stop"
+  ],
+  "imports": {
+    "internal": [
+      "../../process/command-queue.js",
+      "../../process/lanes.js",
+      "../types.js",
+      "./initial-delivery.js",
+      "./locked.js",
+      "./state.js",
+      "./store.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "mergeManualRunSnapshotAfterReload",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureLoadedForRead",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "start",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "stop",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "status",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "list",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "jobs",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveEnabledFilter",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sortJobs",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "listPage",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "add",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "update",
+      "line": 271,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "remove",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "inspectManualRunPreflight",
+      "line": 375,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "inspectManualRunDisposition",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "prepareManualRun",
+      "line": 415,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "finishPreparedManualRun",
+      "line": 455,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "run",
+      "line": 542,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "enqueueRun",
+      "line": 551,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "wakeNow",
+      "line": 588,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "CronJobsEnabledFilter",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CronJobsSortBy",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CronSortDir",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CronListPageOptions",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CronListPageResult",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "PreparedManualRun",
+      "line": 344,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ManualRunDisposition",
+      "line": 359,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ManualRunPreflightResult",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 75,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

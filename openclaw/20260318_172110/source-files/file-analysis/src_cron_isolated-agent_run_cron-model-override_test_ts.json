@@ -1,0 +1,109 @@
+{
+  "path": "src/cron/isolated-agent/run.cron-model-override.test.ts",
+  "extension": ".ts",
+  "size_bytes": 9177,
+  "line_count": 253,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "---------- helpers ----------",
+      "Crucially: no model or modelProvider \u2014 simulates a brand-new session",
+      "---------- tests ----------",
+      "Hold onto the cron session *object* \u2014 the code may reassign its",
+      "`sessionEntry` property (e.g. during skills snapshot refresh), so",
+      "checking a stale reference would give a false negative.",
+      "Agent default model is Opus",
+      "Cron payload model override resolves to Sonnet",
+      "Simulate the agent run throwing (e.g. LLM provider timeout)",
+      "The session entry should record the intended cron model override (Sonnet)",
+      "so that sessions_list does not fall back to the agent default (Opus).",
+      "",
+      "BUG (#21057): before the fix, the model was only written to the session",
+      "entry AFTER a successful run (in the post-run telemetry block), so it",
+      "remained undefined when the run threw in the catch block.",
+      "Capture a deep snapshot of the session entry at each persist call so we",
+      "can inspect what sessions_list would see mid-run \u2014 before the post-run",
+      "persist overwrites the entry with the actual model from agentMeta.",
+      "Persist ordering: [0] skills snapshot, [1] pre-run model+systemSent,",
+      "[2] post-run telemetry.  Index 1 is what a concurrent sessions_list",
+      "would read while the agent run is in flight.",
+      "Model should remain undefined \u2014 the early return happens before the",
+      "pre-run persist block, so neither the session entry nor the store",
+      "should be touched with a rejected model.",
+      "No cron payload model \u2014 the job has no model field",
+      "Session-level /model override set by user (e.g. via /model command)",
+      "resolveAllowedModelRef is called for the session override path too",
+      "Even though the run failed, the session-level model override should",
+      "be persisted on the entry \u2014 not the agent default (Opus).",
+      "Persist ordering: [1] skills snapshot, [2] pre-run, [3] post-run.",
+      "Only the pre-run persist (call 2) should fail \u2014 the skills snapshot",
+      "persist is pre-existing code without a try-catch guard.",
+      "The run should still complete successfully despite the persist failure",
+      "No cron payload model override",
+      "With no override, the default model (Opus) should still be persisted",
+      "on the session entry rather than left undefined."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [],
+    "external": [
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "makeJob",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "makeParams",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "makeFreshSessionEntry",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "makeSuccessfulRunResult",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 7,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

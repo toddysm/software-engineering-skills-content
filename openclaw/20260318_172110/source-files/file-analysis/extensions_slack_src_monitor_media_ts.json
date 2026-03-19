@@ -1,0 +1,228 @@
+{
+  "path": "extensions/slack/src/monitor/media.ts",
+  "extension": ".ts",
+  "size_bytes": 15938,
+  "line_count": 510,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Slack-hosted files typically come from *.slack.com and redirect to Slack CDN domains.",
+      "Include a small allowlist of known Slack domains to avoid leaking tokens if a file URL",
+      "is ever spoofed or mishandled.",
+      "Fetches a URL with Authorization header, handling cross-origin redirects. Node.js fetch strips Authorization headers on cross-origin redirects for security. Slack's file URLs redirect to CDN domains with pre-signed URLs that don't need the Authorization header, so we handle the initial auth request manually.",
+      "Initial request with auth and manual redirect handling",
+      "If not a redirect, return the response directly",
+      "Handle redirect - the redirected URL should be pre-signed and not need auth",
+      "Resolve relative URLs against the original",
+      "Only follow safe protocols (we do NOT include Authorization on redirects).",
+      "Follow the redirect without the Authorization header",
+      "(Slack's CDN URLs are pre-signed and don't need it)",
+      "Slack voice messages (audio clips, huddle recordings) carry a `subtype` of `\"slack_audio\"` but are served with a `video/*` MIME type (e.g. `video/mp4`, `video/webm`).  Override the primary type to `audio/` so the media-understanding pipeline routes them to transcription.",
+      "Narrow this parser to Slack's explicit \"shared/forwarded\" attachment payloads.",
+      "Downloads all files attached to a Slack message and returns them as an array. Returns `null` when no files could be downloaded.",
+      "Note: fetchRemoteMedia calls fetchImpl(url) with the URL string today and",
+      "handles size limits internally. Provide a fetcher that uses auth once, then lets",
+      "the redirect chain continue without credentials.",
+      "Guard against auth/login HTML pages returned instead of binary media.",
+      "Allow user-provided HTML files through.",
+      "Fetches the most recent messages in a Slack thread (excluding the current message). Used to populate thread context when a new thread session starts. Uses cursor pagination and keeps only the latest N retained messages so long threads still produce up-to-date context without unbounded memory growth.",
+      "Slack recommends no more than 200 per page.",
+      "Keep messages with text OR file attachments",
+      "For file-only messages, create a placeholder showing attached filenames"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "resetSlackThreadStarterCacheForTest",
+    "MAX_SLACK_MEDIA_FILES"
+  ],
+  "imports": {
+    "internal": [
+      "../types.js"
+    ],
+    "external": [
+      "@slack/web-api",
+      "openclaw/plugin-sdk/infra-runtime",
+      "openclaw/plugin-sdk/media-runtime",
+      "openclaw/plugin-sdk/media-runtime",
+      "openclaw/plugin-sdk/media-runtime",
+      "openclaw/plugin-sdk/request-url"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isSlackHostname",
+      "line": 9,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "assertSlackFileUrl",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createSlackMediaFetch",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "fetchWithSlackAuth",
+      "line": 69,
+      "doc": "Fetches a URL with Authorization header, handling cross-origin redirects.   Node.js fetch strips Authorization headers o",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resolveSlackMediaMimetype",
+      "line": 113,
+      "doc": "Slack voice messages (audio clips, huddle recordings) carry a `subtype` of   `\"slack_audio\"` but are served with a `vide",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "looksLikeHtmlBuffer",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isForwardedSlackAttachment",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveForwardedAttachmentImageUrl",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "mapLimit",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveSlackMedia",
+      "line": 190,
+      "doc": "Downloads all files attached to a Slack message and returns them as an array.   Returns `null` when no files could be do",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resolveSlackAttachmentContent",
+      "line": 261,
+      "doc": "",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "evictThreadStarterCache",
+      "line": 353,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSlackThreadStarter",
+      "line": 374,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resetSlackThreadStarterCacheForTest",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveSlackThreadHistory",
+      "line": 452,
+      "doc": "Fetches the most recent messages in a Slack thread (excluding the current message).   Used to populate thread context wh",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "SlackMediaResult",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SlackThreadStarter",
+      "line": 337,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SlackThreadStarterCacheEntry",
+      "line": 344,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SlackThreadMessage",
+      "line": 424,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SlackRepliesPageMessage",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SlackRepliesPage",
+      "line": 440,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 73,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

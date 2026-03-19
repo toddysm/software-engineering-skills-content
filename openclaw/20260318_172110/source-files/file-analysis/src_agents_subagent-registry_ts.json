@@ -1,0 +1,532 @@
+{
+  "path": "src/agents/subagent-registry.ts",
+  "extension": ".ts",
+  "size_bytes": 44730,
+  "line_count": 1499,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Use var to avoid TDZ when init runs across circular imports during bootstrap.",
+      "Maximum number of announce delivery attempts before giving up. Prevents infinite retry loops when `runSubagentAnnounceFlow` repeatedly returns `false` due to stale state or transient conditions (#18264).",
+      "Non-completion announce entries older than this are force-expired even if delivery never succeeded.",
+      "Completion-message flows can wait for descendants to finish, but this hard cap prevents indefinite pending state when descendants never fully settle.",
+      "Embedded runs can emit transient lifecycle `error` events while provider/model retry is still in progress. Defer terminal error cleanup briefly so a subsequent lifecycle `start` / `end` can cancel premature failure announces.",
+      "retryCount is \"attempts already made\", so retry #1 waits 1s, then 2s, 4s...",
+      "Best-effort guard: avoid false orphan pruning on transient read/config failures.",
+      "If a late lifecycle completion arrives after an earlier kill marker, allow",
+      "completion cleanup/announce to run instead of staying permanently suppressed.",
+      "Skip entries that have exhausted their retry budget or expired (#18264).",
+      "Wait for completion again after restart.",
+      "Resume pending work.",
+      "Schedule orphan recovery for subagent sessions that were aborted",
+      "by a SIGUSR1 reload. This runs after a short delay to let the",
+      "gateway fully bootstrap first. Dynamic import to avoid increasing",
+      "startup memory footprint. (#47711)",
+      "Ignore import failures \u2014 orphan recovery is best-effort.",
+      "ignore restore failures",
+      "Archive/purge is terminal for the run record; remove any retained attachments too.",
+      "ignore",
+      "dirReal is guaranteed non-null here (early return above handles null case).",
+      "best effort",
+      "Clean up attachments before the run record is removed.",
+      "Defer until descendants are fully settled, including post-end cleanup.",
+      "Keep both cleanup modes retryable after deferred/failed announce.",
+      "Delete-mode is finalized only after announce succeeds or give-up triggers.",
+      "Clear the in-flight resume marker so the scheduled retry can run again.",
+      "Force-expire stale non-completion announces; completion-message flows can",
+      "stay pending while descendants run for a long time.",
+      "If the interrupted run already finished while suppression was active, retry",
+      "cleanup now so completion output is not lost when restart dispatch fails.",
+      "Wait for subagent completion via gateway RPC (cross-process).",
+      "The in-process lifecycle listener is a fallback for embedded runs.",
+      "ignore",
+      "Hook failures should not break termination flow."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "listSubagentRunsForController",
+    "initSubagentRegistry",
+    "countPendingDescendantRuns",
+    "resolveRequesterForChildSession",
+    "addSubagentRunForTests",
+    "countActiveDescendantRuns",
+    "listDescendantRunsForRequester",
+    "clearSubagentRunSteerRestart",
+    "listSubagentRunsForRequester",
+    "markSubagentRunTerminated",
+    "countActiveRunsForSession",
+    "isSubagentSessionRunActive",
+    "releaseSubagentRun",
+    "replaceSubagentRunAfterSteer",
+    "shouldIgnorePostCompletionAnnounceForSession",
+    "resetSubagentRegistryForTests",
+    "countPendingDescendantRunsExcludingRun",
+    "markSubagentRunForSteerRestart",
+    "registerSubagentRun"
+  ],
+  "imports": {
+    "internal": [
+      "../auto-reply/tokens.js",
+      "../config/config.js",
+      "../context-engine/init.js",
+      "../context-engine/registry.js",
+      "../context-engine/types.js",
+      "../gateway/call.js",
+      "../infra/agent-events.js",
+      "../logging/subsystem.js",
+      "../runtime.js",
+      "../utils/delivery-context.js",
+      "./runtime-plugins.js",
+      "./subagent-announce-queue.js",
+      "./subagent-registry.types.js",
+      "./timeout.js"
+    ],
+    "external": [
+      "node:fs",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "capFrozenResultText",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveAnnounceRetryDelayMs",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "logAnnounceGiveUp",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "persistSubagentRuns",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "findSessionEntryByKey",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSubagentRunOrphanReason",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "reconcileOrphanedRun",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "reconcileOrphanedRestoredRuns",
+      "line": 227,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearPendingLifecycleError",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clearAllPendingLifecycleErrors",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "schedulePendingLifecycleError",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "notifyContextEngineSubagentEnded",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "suppressAnnounceForSteerRestart",
+      "line": 338,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldKeepThreadBindingAfterRun",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldEmitEndedHookForRun",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitSubagentEndedHookForRun",
+      "line": 359,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "freezeRunResultAtCompletion",
+      "line": 380,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "listPendingCompletionRunsForSession",
+      "line": 394,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "refreshFrozenResultFromSession",
+      "line": 418,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "completeSubagentRun",
+      "line": 452,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "startSubagentAnnounceCleanupFlow",
+      "line": 533,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "finalizeAnnounceCleanup",
+      "line": 538,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resumeSubagentRun",
+      "line": 582,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreSubagentRunsOnce",
+      "line": 661,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveArchiveAfterMs",
+      "line": 706,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSubagentWaitTimeoutMs",
+      "line": 715,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "startSweeper",
+      "line": 722,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stopSweeper",
+      "line": 732,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sweepSubagentRuns",
+      "line": 740,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "ensureListener",
+      "line": 779,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "safeRemoveAttachmentsDir",
+      "line": 836,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveReal",
+      "line": 841,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "finalizeSubagentCleanup",
+      "line": 874,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "emitCompletionEndedHookIfNeeded",
+      "line": 971,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "completeCleanupBookkeeping",
+      "line": 990,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "retryDeferredCompletedAnnounces",
+      "line": 1018,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "beginSubagentCleanup",
+      "line": 1047,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "markSubagentRunForSteerRestart",
+      "line": 1063,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "clearSubagentRunSteerRestart",
+      "line": 1080,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "replaceSubagentRunAfterSteer",
+      "line": 1103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "registerSubagentRun",
+      "line": 1173,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "waitForSubagentCompletion",
+      "line": 1235,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resetSubagentRegistryForTests",
+      "line": 1300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "addSubagentRunForTests",
+      "line": 1318,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "releaseSubagentRun",
+      "line": 1322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "findRunIdsByChildSessionKey",
+      "line": 1341,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveRequesterForChildSession",
+      "line": 1345,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isSubagentSessionRunActive",
+      "line": 1362,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "shouldIgnorePostCompletionAnnounceForSession",
+      "line": 1376,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "markSubagentRunTerminated",
+      "line": 1383,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "listSubagentRunsForRequester",
+      "line": 1444,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "listSubagentRunsForController",
+      "line": 1451,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "countActiveRunsForSession",
+      "line": 1458,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "countActiveDescendantRuns",
+      "line": 1465,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "countPendingDescendantRuns",
+      "line": 1472,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "countPendingDescendantRunsExcludingRun",
+      "line": 1479,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "listDescendantRunsForRequester",
+      "line": 1490,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "initSubagentRegistry",
+      "line": 1497,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "SubagentRunOrphanReason",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 218,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

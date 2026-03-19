@@ -1,0 +1,431 @@
+{
+  "path": "src/cron/service/timer.ts",
+  "extension": ".ts",
+  "size_bytes": 41203,
+  "line_count": 1261,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Minimum gap between consecutive fires of the same cron job.  This is a safety net that prevents spin-loops when `computeJobNextRunAtMs` returns a value within the same second as the just-completed run.  The guard is intentionally generous (2 s) so it never masks a legitimate schedule but always breaks an infinite re-trigger cycle.  (See #17821)",
+      "Exponential backoff delays (in ms) indexed by consecutive error count. After the last entry the delay stays constant.",
+      "Apply the result of a job execution to the job's state. Handles consecutive error tracking, exponential backoff, one-shot disable, and nextRunAtMs computation. Returns `true` if the job should be deleted.",
+      "Preserve recurring \"every\" anchors for manual force runs.",
+      "Track consecutive errors for backoff / auto-disable.",
+      "One-shot done or skipped: disable to prevent tight-loop (#11452).",
+      "consecutiveErrors is always set to \u22651 by the increment block above.",
+      "Schedule retry with backoff (#24355).",
+      "Permanent error or max retries exhausted: disable.",
+      "Note: deleteAfterRun:true only triggers on ok (see shouldDelete above),",
+      "so exhausted-retry jobs are disabled but intentionally kept in the store",
+      "to preserve the error state for inspection.",
+      "Apply exponential backoff for errored jobs to prevent retry storms.",
+      "If the schedule expression/timezone throws (croner edge cases),",
+      "record the schedule error (auto-disables after repeated failures)",
+      "and fall back to backoff-only schedule so the state update is not lost.",
+      "Use whichever is later: the natural next run or the backoff delay.",
+      "If the schedule expression/timezone throws (croner edge cases),",
+      "record the schedule error (auto-disables after repeated failures)",
+      "so a persistent throw doesn't cause a MIN_REFIRE_GAP_MS hot loop.",
+      "Safety net: ensure the next fire is at least MIN_REFIRE_GAP_MS",
+      "after the current run ended.  Prevents spin-loops when the",
+      "schedule computation lands in the same second due to",
+      "timezone/croner edge cases (see #17821).",
+      "Floor: when the next wake time is in the past (delay === 0), enforce a",
+      "minimum delay to prevent a tight setTimeout(0) loop.  This can happen",
+      "when a job has a stuck runningAtMs marker and a past-due nextRunAtMs:",
+      "findDueJobs skips the job (blocked by runningAtMs), while",
+      "recomputeNextRunsForMaintenance intentionally does not advance the",
+      "past-due nextRunAtMs (per #13992).  The finally block in onTimer then",
+      "re-invokes armTimer with delay === 0, creating an infinite hot-loop",
+      "that saturates the event loop and fills the log file to its size cap.",
+      "Wake at least once a minute to avoid schedule drift and recover quickly",
+      "when the process was paused or wall-clock time jumps.",
+      "Intentionally avoid an `async` timer callback:",
+      "Vitest's fake-timer helpers can await async callbacks, which would block",
+      "tests that simulate long-running jobs. Runtime behavior is unchanged.",
+      "Re-arm the timer so the scheduler keeps ticking even when a job is",
+      "still executing.  Without this, a long-running job (e.g. an agentTurn",
+      "exceeding MAX_TIMER_DELAY_MS) causes the clamped 60 s timer to fire",
+      "while `running` is true.  The early return then leaves no timer set,",
+      "silently killing the scheduler until the next gateway restart.",
+      "",
+      "We use MAX_TIMER_DELAY_MS as a fixed re-check interval to avoid a",
+      "zero-delay hot-loop when past-due jobs are waiting for the current",
+      "execution to finish.",
+      "See: https://github.com/openclaw/openclaw/issues/12025",
+      "Keep a watchdog timer armed while a tick is executing. If execution hangs",
+      "(for example in a provider call), the scheduler still wakes to re-check.",
+      "Use maintenance-only recompute to avoid advancing past-due nextRunAtMs",
+      "values without execution. This prevents jobs from being silently skipped",
+      "when the timer wakes up but findDueJobs returns empty (see #13992).",
+      "Use maintenance-only recompute to avoid advancing past-due",
+      "nextRunAtMs values that became due between findDueJobs and this",
+      "locked block.  The full recomputeNextRuns would silently skip",
+      "those jobs (advancing nextRunAtMs without execution), causing",
+      "daily cron schedules to jump 48 h instead of 24 h (#17852).",
+      "Piggyback session reaper on timer tick (self-throttled to every 5 min).",
+      "Placed in `finally` so the reaper runs even when a long-running job keeps",
+      "`state.running` true across multiple timer ticks \u2014 the early return at the",
+      "top of onTimer would otherwise skip the reaper indefinitely.",
+      "One-shot with terminal status: skip unless it's a transient-error retry.",
+      "Retries have nextRunAtMs > lastRunAtMs (scheduled after the failed run) (#24355).",
+      "ok/skipped or error-without-retry always skip (#13845).",
+      "Respect active retry backoff windows on restart, but allow missed-slot",
+      "replay once the backoff window has elapsed.",
+      "Only replay a \"missed slot\" when there is concrete run history.",
+      "Preserve any new past-due nextRunAtMs values that became due while",
+      "startup catch-up was running. They should execute on a future tick",
+      "instead of being silently advanced.",
+      "Preserve the job session namespace for main-target reminders so heartbeat",
+      "routing can deliver follow-through in the originating channel/thread.",
+      "Downstream gateway wiring canonicalizes/guards this key per agent.",
+      "Cron-triggered heartbeats should deliver to the last active channel.",
+      "Without this override, heartbeat target defaults to \"none\" (since",
+      "e2362d35) and cron main-session responses are silently swallowed.",
+      "See: https://github.com/openclaw/openclaw/issues/28508",
+      "Execute a job. This version is used by the `run` command and other places that need the full execution with state updates."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "service",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "service path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "stopTimer",
+    "wake",
+    "applyJobResult",
+    "armTimer",
+    "emit"
+  ],
+  "imports": {
+    "internal": [
+      "../../agents/failover-error.js",
+      "../../config/types.cron.js",
+      "../../infra/heartbeat-wake.js",
+      "../../routing/session-key.js",
+      "../delivery.js",
+      "../session-reaper.js",
+      "./locked.js",
+      "./state.js",
+      "./store.js",
+      "./timeout-policy.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "executeJobCoreWithTimeout",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resolveRunConcurrency",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "timeoutErrorMessage",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isAbortError",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "errorBackoffMs",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isTransientCronError",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveRetryConfig",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveDeliveryStatus",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeCronMessageChannel",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeTo",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clampPositiveInt",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clampNonNegativeInt",
+      "line": 198,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveFailureAlert",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "emitFailureAlert",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "applyJobResult",
+      "line": 295,
+      "doc": "Apply the result of a job execution to the job's state.   Handles consecutive error tracking, exponential backoff, one-s",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "computeNextWithPreservedLastRun",
+      "line": 311,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "applyOutcomeToStoredJob",
+      "line": 476,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "armTimer",
+      "line": 507,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "armRunningRecheckTimer",
+      "line": 561,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onTimer",
+      "line": 572,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "isRunnableJob",
+      "line": 733,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isErrorBackoffPending",
+      "line": 804,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectRunnableJobs",
+      "line": 820,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runMissedJobs",
+      "line": 843,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "planStartupCatchup",
+      "line": 856,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "executeStartupCatchupPlan",
+      "line": 913,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runStartupCatchupCandidate",
+      "line": 924,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "applyStartupCatchupOutcomes",
+      "line": 957,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runDueJobs",
+      "line": 994,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "executeJobCore",
+      "line": 1005,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resolveAbortError",
+      "line": 1012,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "waitWithAbort",
+      "line": 1016,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "onAbort",
+      "line": 1029,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "executeJob",
+      "line": 1161,
+      "doc": "Execute a job. This version is used by the `run` command and other   places that need the full execution with state upda",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "emitJobFinished",
+      "line": 1203,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "wake",
+      "line": 1233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stopTimer",
+      "line": 1248,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "emit",
+      "line": 1255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "TimedCronRunOutcome",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "StartupCatchupCandidate",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "StartupCatchupPlan",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 180,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,567 @@
+{
+  "path": "src/memory/qmd-manager.ts",
+  "extension": ".ts",
+  "size_bytes": 69681,
+  "line_count": 2069,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Han unigrams are usually too broad for BM25 and can drown signal.",
+      "QMD uses XDG base dirs for its internal state.",
+      "Collections are managed via `qmd collection add` and stored inside the index DB.",
+      "- config:  $XDG_CONFIG_HOME (contexts, etc.)",
+      "- cache:   $XDG_CACHE_HOME/qmd/index.sqlite",
+      "workaround for upstream bug https://github.com/tobi/qmd/issues/132",
+      "QMD doesn't respect XDG_CONFIG_HOME:",
+      "QMD stores its ML models under $XDG_CACHE_HOME/qmd/models/.  Because we",
+      "override XDG_CACHE_HOME to isolate the index per-agent, qmd would not",
+      "find models installed at the default location (~/.cache/qmd/models/) and",
+      "would attempt to re-download them on every invocation.  Symlink the",
+      "default models directory into our custom cache so the index stays",
+      "isolated while models are shared.",
+      "QMD collections are persisted inside the index database and must be created",
+      "via the CLI. Prefer listing existing collections when supported, otherwise",
+      "fall back to best-effort idempotent `qmd collection add`.",
+      "ignore; older qmd versions might not support list --json.",
+      "Some qmd builds ignore `--json` and still print table output.",
+      "Older qmd versions may only return names from `collection list --json`.",
+      "Do not perform destructive rebinds when metadata is incomplete: remove+add",
+      "can permanently drop collections if add fails (for example on timeout).",
+      "Always scope to managed collections (default + custom). Even for `search`/`vsearch`,",
+      "pass collection filters; if a given QMD build rejects these flags, we fall back to `query`.",
+      "Symlink the default QMD models directory into our custom XDG_CACHE_HOME so that the pre-installed ML models (~/.cache/qmd/models/) are reused rather than re-downloaded for every agent.  If the default models directory does not exist, or a models directory/symlink already exists in the target, this is a no-op.",
+      "process.env is never modified \u2014 only this.env (passed to child_process",
+      "spawn) overrides XDG_CACHE_HOME.  So reading it here gives us the",
+      "user's original value, which is where `qmd` downloaded its models.",
+      "",
+      "On Windows, well-behaved apps (including Rust `dirs` / Go os.UserCacheDir)",
+      "store caches under %LOCALAPPDATA% rather than ~/.cache.  Fall back to",
+      "LOCALAPPDATA when XDG_CACHE_HOME is not set on Windows.",
+      "Check if the default models directory exists.",
+      "Missing path is normal on first run and should be silent.",
+      "Check if something already exists at the target path",
+      "Already exists (directory, symlink, or file) \u2013 leave it alone",
+      "Does not exist \u2013 proceed to create symlink",
+      "On Windows, creating directory symlinks requires either Administrator",
+      "privileges or Developer Mode.  Fall back to a directory junction which",
+      "works without elevated privileges (junctions are always absolute-path,",
+      "which is fine here since both paths are already absolute).",
+      "Non-fatal: if we can't symlink, qmd will fall back to downloading",
+      "Large `qmd update` runs can easily exceed the output cap; keep only stderr.",
+      "Allow future searches to retry daemon start on transient failures.",
+      "Keep mcporter and direct qmd commands on the same agent-scoped XDG state.",
+      "busy_timeout is per-connection; set it on every open so concurrent",
+      "processes retry instead of failing immediately with SQLITE_BUSY.",
+      "Use a lower value than the write path (5 s) because this read-only",
+      "connection runs synchronous queries on the main thread via DatabaseSync.",
+      "In WAL mode readers rarely block, so 1 s is a safe upper bound."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "QmdMemoryManager"
+  ],
+  "imports": {
+    "internal": [
+      "../agents/agent-scope.js",
+      "../config/config.js",
+      "../config/paths.js",
+      "../infra/fs-safe.js",
+      "../logging/subsystem.js",
+      "./fs-utils.js",
+      "./qmd-process.js",
+      "./qmd-scope.js",
+      "./sqlite.js",
+      "./qmd-query-parser.js",
+      "./query-expansion.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:os",
+      "node:path",
+      "node:readline"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "hasHanScript",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeHanBm25Query",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "runWithQmdEmbedLock",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "initialize",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "bootstrapCollections",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureCollections",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "isDirectoryGlobPattern",
+      "line": 492,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isCollectionAlreadyExistsError",
+      "line": 496,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isCollectionMissingError",
+      "line": 501,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isMissingCollectionSearchError",
+      "line": 508,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "tryRepairMissingCollectionSearch",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "addCollection",
+      "line": 524,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "removeCollection",
+      "line": 530,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "shouldRebindCollection",
+      "line": 622,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pathsMatch",
+      "line": 638,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalize",
+      "line": 639,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldRepairNullByteCollectionError",
+      "line": 649,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldRepairDuplicateDocumentConstraint",
+      "line": 658,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "rebuildManagedCollectionsForRepair",
+      "line": 668,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "tryRepairNullByteCollections",
+      "line": 690,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "status",
+      "line": 919,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "probeEmbeddingAvailability",
+      "line": 952,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "probeVectorAvailability",
+      "line": 956,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "close",
+      "line": 960,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "run",
+      "line": 1001,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runQmdUpdateWithRetry",
+      "line": 1030,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "runQmdUpdateOnce",
+      "line": 1050,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "isRetryableUpdateError",
+      "line": 1070,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldRunEmbed",
+      "line": 1079,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "noteEmbedFailure",
+      "line": 1095,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "enqueueForcedUpdate",
+      "line": 1107,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "drainForcedUpdates",
+      "line": 1117,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "symlinkSharedModels",
+      "line": 1132,
+      "doc": "Symlink the default QMD models directory into our custom XDG_CACHE_HOME so     that the pre-installed ML models (~.cache",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "ensureMcporterDaemonStarted",
+      "line": 1208,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "isRecord",
+      "line": 1300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureDb",
+      "line": 1388,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "exportSessions",
+      "line": 1403,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "renderSessionMarkdown",
+      "line": 1459,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pickSessionCollectionName",
+      "line": 1465,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeCollectionNameSegment",
+      "line": 1480,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "logScopeDenied",
+      "line": 1704,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isScopeAllowed",
+      "line": 1713,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isInsideWorkspace",
+      "line": 1755,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveReadPath",
+      "line": 1768,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isWithinWorkspace",
+      "line": 1792,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isWithinRoot",
+      "line": 1803,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clampResultsByInjectedChars",
+      "line": 1812,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldSkipUpdate",
+      "line": 1882,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isSqliteBusyError",
+      "line": 1896,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isUnsupportedQmdOptionError",
+      "line": 1902,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createQmdBusyError",
+      "line": 1914,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "waitForPendingUpdateBeforeSearch",
+      "line": 1919,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "listManagedCollectionNames",
+      "line": 2032,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "computeManagedCollectionNames",
+      "line": 2036,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildCollectionFilterArgs",
+      "line": 2050,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "SqliteDatabase",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CollectionRoot",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SessionExporterConfig",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ListedCollection",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ManagedCollection",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "QmdManagerMode",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "QmdMemoryManager",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "extends": null,
+      "implements": [
+        "MemorySearchManager"
+      ]
+    },
+    {
+      "name": "McporterWarnGlobal",
+      "line": 1213,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "McporterGlobal",
+      "line": 1225,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 363,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

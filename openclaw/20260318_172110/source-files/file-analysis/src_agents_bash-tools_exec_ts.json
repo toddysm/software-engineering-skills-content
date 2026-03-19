@@ -1,0 +1,130 @@
+{
+  "path": "src/agents/bash-tools.exec.ts",
+  "extension": ".ts",
+  "size_bytes": 21056,
+  "line_count": 599,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Intentionally simple parsing: we only support common forms like",
+      "python file.py",
+      "python3 -u file.py",
+      "node --experimental-something file.js",
+      "If the command is more complex (pipes, heredocs, quoted paths with spaces), skip preflight.",
+      "Best-effort: only validate if file exists and is reasonably small.",
+      "Common failure mode: shell env var syntax leaking into Python/JS.",
+      "We deliberately match all-caps/underscore vars to avoid false positives with `$` as a JS identifier.",
+      "Another recurring pattern from the issue: shell commands accidentally emitted as JS.",
+      "oxlint-disable-next-line typescript/no-explicit-any",
+      "Derive agentId only when sessionKey is an agent session key.",
+      "Keep local exec defaults in sync with exec-approvals.json when tools.exec.ask is unset.",
+      "Logic: Sandbox gets raw env. Host (gateway/node) must pass validation.",
+      "We validate BEFORE merging to prevent any dangerous vars from entering the stream.",
+      "`tools.exec.pathPrepend` is only meaningful when exec runs locally (gateway) or in the sandbox.",
+      "Node hosts intentionally ignore request-scoped PATH overrides, so don't pretend this applies.",
+      "Preflight: catch a common model failure mode (shell syntax leaking into Python/JS sources)",
+      "before we execute and burn tokens in cron loops.",
+      "Tool-call abort should not kill backgrounded sessions; timeouts still must."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "execTool",
+    "createExecTool"
+  ],
+  "imports": {
+    "internal": [
+      "../infra/exec-approvals.js",
+      "../infra/exec-safe-bin-runtime-policy.js",
+      "../logger.js",
+      "../routing/session-key.js",
+      "./bash-process-registry.js",
+      "./bash-tools.exec-host-gateway.js",
+      "./bash-tools.exec-host-node.js",
+      "./sandbox-paths.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:path",
+      "@mariozechner/pi-agent-core"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "extractScriptTargetFromCommand",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "validateScriptFileForShellBleed",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "createExecTool",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getWarningText",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onAbortSignal",
+      "line": 496,
+      "doc": "Tool-call abort should not kill backgrounded sessions; timeouts still must.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveRunning",
+      "line": 510,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onYieldNow",
+      "line": 530,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 92,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

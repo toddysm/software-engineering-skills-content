@@ -1,0 +1,79 @@
+{
+  "path": "src/config/env-preserve.ts",
+  "extension": ".ts",
+  "size_bytes": 4406,
+  "line_count": 134,
+  "documentation": {
+    "file_docstring": "Preserves `${VAR}` environment variable references during config write-back. When config is read, `${VAR}` references are resolved to their values. When writing back, callers pass the resolved config. This module detects values that match what a `${VAR}` reference would resolve to and restores the original reference, so env var references survive config round-trips. A value is restored only if: 1. The pre-substitution value contained a `${VAR}` pattern 2. Resolving that pattern with current env vars produces the incoming value If a caller intentionally set a new value (different from what the env var resolves to), the new value is kept as-is.",
+    "header_comments": [],
+    "inline_comments": [
+      "Check if a string contains any `${VAR}` env var references.",
+      "Resolve `${VAR}` references in a single string using the given env. Returns null if any referenced var is missing (instead of throwing). Mirrors the substitution semantics of `substituteString` in env-substitution.ts: - `${VAR}` \u2192 env value (returns null if missing) - `$${VAR}` \u2192 literal `${VAR}` (escape sequence)",
+      "Escaped: $${VAR} -> literal ${VAR}",
+      "Substitution: ${VAR} -> env value",
+      "Deep-walk the incoming config and restore `${VAR}` references from the pre-substitution parsed config wherever the resolved value matches. @param incoming - The resolved config about to be written @param parsed - The pre-substitution parsed config (from the current file on disk) @param env - Environment variables for verification @returns A new config object with env var references restored where appropriate",
+      "If parsed has no env var refs at this level, return incoming as-is",
+      "String leaf: check if parsed was a ${VAR} template that resolves to incoming",
+      "The incoming value matches what the env var resolves to \u2014 restore the reference",
+      "Arrays: walk element by element",
+      "Objects: walk key by key",
+      "New key added by caller \u2014 keep as-is",
+      "Mismatched types or primitives \u2014 keep incoming"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "configuration",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "config/settings path"
+    ]
+  },
+  "exports": [
+    "restoreEnvVarRefs"
+  ],
+  "imports": {
+    "internal": [
+      "../infra/plain-object.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "hasEnvVarRef",
+      "line": 24,
+      "doc": "Check if a string contains any `${VAR}` env var references.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "tryResolveString",
+      "line": 36,
+      "doc": "Resolve `${VAR}` references in a single string using the given env.   Returns null if any referenced var is missing (ins",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreEnvVarRefs",
+      "line": 89,
+      "doc": "Deep-walk the incoming config and restore `${VAR}` references from the   pre-substitution parsed config wherever the res",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic"
+    ]
+  }
+}

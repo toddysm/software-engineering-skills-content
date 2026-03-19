@@ -1,0 +1,316 @@
+{
+  "path": "src/agents/skills/workspace.ts",
+  "extension": ".ts",
+  "size_bytes": 29549,
+  "line_count": 935,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Replace the user's home directory prefix with `~` in skill file paths to reduce system prompt token usage. Models understand `~` expansion, and the read tool resolves `~` to the home directory. Example: `/Users/alice/.bun/.../skills/github/SKILL.md` \u2192 `~/.bun/.../skills/github/SKILL.md` Saves ~5\u20136 tokens per skill path \u00d7 N skills \u2248 400\u2013600 tokens total.",
+      "If skillFilter is provided, only include skills in the filter list.",
+      "Discord command descriptions must be \u2264100 characters",
+      "ignore broken symlinks",
+      "Heuristic: if `dir/skills/*/SKILL.md` exists for any entry, treat `dir/skills` as the real root.",
+      "Note: don't stop at 25, but keep a cap to avoid pathological scans.",
+      "If the root itself is a skill directory, just load it directly (but enforce size cap).",
+      "Only consider immediate subfolders that look like skills (have SKILL.md) and are under size cap.",
+      "Precedence: extra < bundled < managed < agents-skills-personal < agents-skills-project < workspace",
+      "ignore malformed skills",
+      "Compact skill catalog: name + location only (no description). Used as a fallback when the full format exceeds the char budget, preserving awareness of all skills before resorting to dropping.",
+      "Budget reserved for the compact-mode warning line prepended by the caller.",
+      "Reserve space for the warning line the caller prepends in compact mode.",
+      "Full format exceeds budget. Try compact (name + location, no description)",
+      "to preserve awareness of all skills before dropping any.",
+      "No skills dropped \u2014 only format downgraded. Preserve existing truncated state.",
+      "Compact still too large \u2014 binary search the largest prefix that fits."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "loadWorkspaceSkillEntries",
+    "resolveSkillsPromptForRun",
+    "buildWorkspaceSkillsPrompt",
+    "formatSkillsCompact",
+    "buildWorkspaceSkillCommandSpecs",
+    "buildWorkspaceSkillSnapshot",
+    "filterWorkspaceSkillEntries"
+  ],
+  "imports": {
+    "internal": [
+      "../../config/config.js",
+      "../../infra/path-guards.js",
+      "../../logging/subsystem.js",
+      "../../utils.js",
+      "../sandbox-paths.js",
+      "./bundled-dir.js",
+      "./config.js",
+      "./filter.js",
+      "./plugin-skills.js",
+      "./serialize.js"
+    ],
+    "external": [
+      "node:fs",
+      "node:os",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "compactSkillPaths",
+      "line": 46,
+      "doc": "Replace the user's home directory prefix with `~` in skill file paths   to reduce system prompt token usage. Models unde",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "debugSkillCommandOnce",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "filterSkillEntries",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeSkillCommandName",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveUniqueSkillCommandName",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSkillsLimits",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "listChildDirectories",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "tryRealpath",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "warnEscapedSkillPath",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveContainedSkillPath",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "filterLoadedSkillsInsideRoot",
+      "line": 223,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveNestedSkillsRoot",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "unwrapLoadedSkills",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "loadSkillEntries",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "loadSkills",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "escapeXml",
+      "line": 529,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatSkillsCompact",
+      "line": 543,
+      "doc": "Compact skill catalog: name + location only (no description).   Used as a fallback when the full format exceeds the char",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "applySkillsPromptLimits",
+      "line": 566,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "fitsFull",
+      "line": 579,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "fitsCompact",
+      "line": 584,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildWorkspaceSkillSnapshot",
+      "line": 614,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildWorkspaceSkillsPrompt",
+      "line": 633,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveWorkspaceSkillPromptState",
+      "line": 650,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSkillsPromptForRun",
+      "line": 694,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "loadWorkspaceSkillEntries",
+      "line": 714,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveUniqueSyncedSkillDirName",
+      "line": 725,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveSyncedSkillDestinationPath",
+      "line": 747,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "syncSkillsToWorkspace",
+      "line": 764,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "filterWorkspaceSkillEntries",
+      "line": 822,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildWorkspaceSkillCommandSpecs",
+      "line": 829,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "dispatch",
+      "line": 879,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ResolvedSkillsLimits",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "WorkspaceSkillBuildOptions",
+      "line": 640,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 117,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

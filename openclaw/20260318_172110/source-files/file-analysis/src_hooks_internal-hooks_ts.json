@@ -1,0 +1,271 @@
+{
+  "path": "src/hooks/internal-hooks.ts",
+  "extension": ".ts",
+  "size_bytes": 12165,
+  "line_count": 421,
+  "documentation": {
+    "file_docstring": "Hook system for OpenClaw agent events Provides an extensible event-driven hook system for agent events like command processing, session lifecycle, etc.",
+    "header_comments": [],
+    "inline_comments": [
+      "============================================================================",
+      "Message Hook Events",
+      "============================================================================",
+      "Registry of hook handlers by event key. Uses a globalThis singleton so that registerInternalHook and triggerInternalHook always share the same Map even when the bundler emits multiple copies of this module into separate chunks (bundle splitting). Without the singleton, handlers registered in one chunk are invisible to triggerInternalHook in another chunk, causing hooks to silently fire with zero handlers.",
+      "Register a hook handler for a specific event type or event:action combination @param eventKey - Event type (e.g., 'command') or specific action (e.g., 'command:new') @param handler - Function to call when the event is triggered @example ```ts // Listen to all command events registerInternalHook('command', async (event) => { console.log('Command:', event.action); }); // Listen only to /new commands registerInternalHook('command:new', async (event) => { await saveSessionToMemory(event); }); ```",
+      "Unregister a specific hook handler @param eventKey - Event key the handler was registered for @param handler - The handler function to remove",
+      "Clean up empty handler arrays",
+      "Clear all registered hooks (useful for testing)",
+      "Get all registered event keys (useful for debugging)",
+      "Trigger a hook event Calls all handlers registered for: 1. The general event type (e.g., 'command') 2. The specific event:action combination (e.g., 'command:new') Handlers are called in registration order. Errors are caught and logged but don't prevent other handlers from running. @param event - The event to trigger",
+      "Create a hook event with common fields filled in @param type - The event type @param action - The action within that type @param sessionKey - The session key @param context - Additional context"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "isMessageSentEvent",
+    "isMessagePreprocessedEvent",
+    "isAgentBootstrapEvent",
+    "isMessageReceivedEvent",
+    "unregisterInternalHook",
+    "isGatewayStartupEvent",
+    "isMessageTranscribedEvent",
+    "createInternalHookEvent",
+    "getRegisteredEventKeys",
+    "registerInternalHook",
+    "clearInternalHooks"
+  ],
+  "imports": {
+    "internal": [
+      "../agents/workspace.js",
+      "../cli/deps.js",
+      "../config/config.js",
+      "../logging/subsystem.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "registerInternalHook",
+      "line": 214,
+      "doc": "Register a hook handler for a specific event type or event:action combination      eventKey - Event type (e.g., 'command",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "unregisterInternalHook",
+      "line": 227,
+      "doc": "Unregister a specific hook handler      eventKey - Event key the handler was registered for    handler - The handler fun",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "clearInternalHooks",
+      "line": 247,
+      "doc": "Clear all registered hooks (useful for testing)",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getRegisteredEventKeys",
+      "line": 254,
+      "doc": "Get all registered event keys (useful for debugging)",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "triggerInternalHook",
+      "line": 270,
+      "doc": "Trigger a hook event     Calls all handlers registered for:   1. The general event type (e.g., 'command')   2. The speci",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "createInternalHookEvent",
+      "line": 298,
+      "doc": "Create a hook event with common fields filled in      type - The event type    action - The action within that type    s",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isHookEventTypeAndAction",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isAgentBootstrapEvent",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isGatewayStartupEvent",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isMessageReceivedEvent",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isMessageSentEvent",
+      "line": 380,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isMessageTranscribedEvent",
+      "line": 395,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isMessagePreprocessedEvent",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "InternalHookEventType",
+      "line": 13,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AgentBootstrapHookContext",
+      "line": 15,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AgentBootstrapHookEvent",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "GatewayStartupHookContext",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "GatewayStartupHookEvent",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageReceivedHookContext",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageReceivedHookEvent",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageSentHookContext",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageSentHookEvent",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageEnrichedBodyHookContext",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageTranscribedHookContext",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessageTranscribedHookEvent",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessagePreprocessedHookContext",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MessagePreprocessedHookEvent",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "InternalHookEvent",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "InternalHookHandler",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

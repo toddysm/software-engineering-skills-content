@@ -1,0 +1,153 @@
+{
+  "path": "src/agents/pi-embedded-runner/run/images.ts",
+  "extension": ".ts",
+  "size_bytes": 11466,
+  "line_count": 360,
+  "documentation": {
+    "file_docstring": "Common image file extensions for detection.",
+    "header_comments": [],
+    "inline_comments": [
+      "Result of detecting an image reference in text.",
+      "Checks if a file extension indicates an image file.",
+      "Detects image references in a user prompt. Patterns detected: - Absolute paths: /path/to/image.png - Relative paths: ./image.png, ../images/photo.jpg - Home paths: ~/Pictures/screenshot.png - file:// URLs: file:///path/to/image.png - Message attachments: [Image: source: /path/to/image.jpg] @param prompt The user prompt text to scan @returns Array of detected image references",
+      "Helper to add a path ref",
+      "Pattern for [media attached: path (type) | url] or [media attached N/M: path (type) | url] format",
+      "Each bracket = ONE file. The | separates path from URL, not multiple files.",
+      "Multi-file format uses separate brackets on separate lines.",
+      "Skip \"[media attached: N files]\" header lines",
+      "Extract path before the (mime/type) or | delimiter",
+      "Format is: path (type) | url  OR  just: path (type)",
+      "Path may contain spaces (e.g., \"ChatGPT Image Apr 21.png\")",
+      "Use non-greedy .+? to stop at first image extension",
+      "Pattern for [Image: source: /path/...] format from messaging systems",
+      "Remote HTTP(S) URLs are intentionally ignored. Native image injection is local-only.",
+      "Pattern for file:// URLs - treat as paths since loadWebMedia handles them",
+      "Use fileURLToPath for proper handling (e.g., file://localhost/path)",
+      "Skip malformed file:// URLs",
+      "Pattern for file paths (absolute, relative, or home)",
+      "Matches:",
+      "- /absolute/path/to/file.ext (including paths with special chars like Messages/Attachments)",
+      "- ./relative/path.ext",
+      "- ../parent/path.ext",
+      "- ~/home/path.ext",
+      "Use capture group 1 (the path without delimiter prefix); skip if undefined",
+      "Loads an image from a file path and returns it as ImageContent. @param ref The detected image reference @param workspaceDir The current workspace directory for resolving relative paths @param options Optional settings for sandbox and size limits @returns The loaded image content, or null if loading failed",
+      "Resolve paths relative to sandbox or workspace as needed",
+      "loadWebMedia handles local file paths (including file:// URLs)",
+      "EXIF orientation is already normalized by loadWebMedia -> resizeToJpeg",
+      "Default to JPEG since optimization converts images to JPEG format",
+      "Log the actual error for debugging (size limits, network failures, etc.)",
+      "Checks if a model supports image input based on its input capabilities. @param model The model object with input capability array @returns True if the model supports image input",
+      "Detects and loads images referenced in a prompt for models with vision capability. This function scans the prompt for image references (file paths and URLs), loads them, and returns them as ImageContent array ready to be passed to the model's prompt method. @param params Configuration for image detection and loading @returns Object with loaded images for current prompt only"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "detectImageReferences",
+    "modelSupportsImages"
+  ],
+  "imports": {
+    "internal": [
+      "../../../media/web-media.js",
+      "../../../utils.js",
+      "../../image-sanitization.js",
+      "../../sandbox-paths.js",
+      "../../sandbox/fs-bridge.js",
+      "../../tool-images.js",
+      "../logger.js"
+    ],
+    "external": [
+      "node:path",
+      "node:url",
+      "@mariozechner/pi-ai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isImageExtension",
+      "line": 56,
+      "doc": "Checks if a file extension indicates an image file.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeRefForDedupe",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeImagesWithLog",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "detectImageReferences",
+      "line": 94,
+      "doc": "Detects image references in a user prompt.     Patterns detected:   - Absolute paths: .png   - Relative paths: ..png, ..",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "addPathRef",
+      "line": 99,
+      "doc": "Helper to add a path ref",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "loadImageFromRef",
+      "line": 194,
+      "doc": "Loads an image from a file path and returns it as ImageContent.      ref The detected image reference    workspaceDir Th",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "modelSupportsImages",
+      "line": 271,
+      "doc": "Checks if a model supports image input based on its input capabilities.      model The model object with input capabilit",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "detectAndLoadPromptImages",
+      "line": 285,
+      "doc": "Detects and loads images referenced in a prompt for models with vision capability.     This function scans the prompt fo",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "DetectedImageRef",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

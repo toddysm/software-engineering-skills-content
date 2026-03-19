@@ -1,0 +1,150 @@
+{
+  "path": "src/gateway/server/ws-connection.ts",
+  "extension": ".ts",
+  "size_bytes": 10237,
+  "line_count": 318,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "browserRateLimiter?: AuthRateLimiter; gatewayMethods: string[]; events: string[]; }; export type AttachGatewayWsConnectionHandlerParams = GatewayWsSharedHandlerParams & { logGateway: SubsystemLogger; logHealth: SubsystemLogger; logWsControl: SubsystemLogger; extraHandlers: GatewayRequestHandlers; broadcast: ( event: string, payload: unknown, opts?: { dropIfSlow?: boolean; stateVersion?: { presence?: number; health?: number }; }, ) => void; buildRequestContext: () => GatewayRequestContext; }; export function attachGatewayWsConnectionHandler(params: AttachGatewayWsConnectionHandlerParams) { const { wss, clients, port, gatewayHost, canvasHostEnabled, canvasHostServerPort, resolvedAuth, rateLimiter, browserRateLimiter, gatewayMethods, events, logGateway, logHealth, logWsControl, extraHandlers, broadcast, buildRequestContext, } = params; const originCheckMetrics: WsOriginCheckMetrics = { hostHeaderFallbackAccepted: 0 }; wss.on(\"connection\", (socket, upgradeReq) => { let client: GatewayWsClient | null = null; let closed = false; const openedAt = Date.now(); const connId = randomUUID(); const remoteAddr = (socket as WebSocket & { _socket?: { remoteAddress?: string } })._socket ?.remoteAddress; const headerValue = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value; const requestHost = headerValue(upgradeReq.headers.host); const requestOrigin = headerValue(upgradeReq.headers.origin); const requestUserAgent = headerValue(upgradeReq.headers[\"user-agent\"]); const forwardedFor = headerValue(upgradeReq.headers[\"x-forwarded-for\"]); const realIp = headerValue(upgradeReq.headers[\"x-real-ip\"]); const canvasHostPortForWs = canvasHostServerPort ?? (canvasHostEnabled ? port : undefined); const canvasHostOverride = gatewayHost && gatewayHost !== \"0.0.0.0\" && gatewayHost !== \"::\" ? gatewayHost : undefined; const canvasHostUrl = resolveCanvasHostUrl({ canvasPort: canvasHostPortForWs, hostOverride: canvasHostServerPort ? canvasHostOverride : undefined, requestHost: upgradeReq.headers.host, forwardedProto: upgradeReq.headers[\"x-forwarded-proto\"], localAddress: upgradeReq.socket?.localAddress, }); logWs(\"in\", \"open\", { connId, remoteAddr }); let handshakeState: \"pending\" | \"connected\" | \"failed\" = \"pending\"; let closeCause: string | undefined; let closeMeta: Record<string, unknown> = {}; let lastFrameType: string | undefined; let lastFrameMethod: string | undefined; let lastFrameId: string | undefined; const setCloseCause = (cause: string, meta?: Record<string, unknown>) => { if (!closeCause) { closeCause = cause; } if (meta && Object.keys(meta).length > 0) { closeMeta = { ...closeMeta, ...meta }; } }; const setLastFrameMeta = (meta: { type?: string; method?: string; id?: string }) => { if (meta.type || meta.method || meta.id) { lastFrameType = meta.type ?? lastFrameType; lastFrameMethod = meta.method ?? lastFrameMethod; lastFrameId = meta.id ?? lastFrameId; } }; const send = (obj: unknown) => { try { socket.send(JSON.stringify(obj)); } catch {"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "attachGatewayWsConnectionHandler"
+  ],
+  "imports": {
+    "internal": [
+      "../../infra/canvas-host-url.js",
+      "../../infra/skills-remote.js",
+      "../../infra/system-presence.js",
+      "../../logging/subsystem.js",
+      "../../utils.js",
+      "../../utils/message-channel.js",
+      "../auth-rate-limit.js",
+      "../auth.js",
+      "../net.js",
+      "../server-constants.js",
+      "../server-methods/types.js",
+      "../server-utils.js",
+      "../ws-log.js",
+      "./health-state.js",
+      "./presence-events.js",
+      "./ws-types.js"
+    ],
+    "external": [
+      "node:crypto",
+      "ws"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "replaceControlChars",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sanitizeLogValue",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "attachGatewayWsConnectionHandler",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "headerValue",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setCloseCause",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "setLastFrameMeta",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "send",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "close",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isNoisySwiftPmHelperClose",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "SubsystemLogger",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "GatewayWsSharedHandlerParams",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AttachGatewayWsConnectionHandlerParams",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

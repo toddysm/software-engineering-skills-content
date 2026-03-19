@@ -1,0 +1,145 @@
+{
+  "path": "extensions/mattermost/src/mattermost/slash-state.ts",
+  "extension": ".ts",
+  "size_bytes": 10481,
+  "line_count": 313,
+  "documentation": {
+    "file_docstring": "Shared state for Mattermost slash commands. Bridges the plugin registration phase (HTTP route) with the monitor phase (command registration with MM API). The HTTP handler needs to know which tokens are valid, and the monitor needs to store registered command IDs. State is kept per-account so that multi-account deployments don't overwrite each other's tokens, registered commands, or handlers.",
+    "header_comments": [],
+    "inline_comments": [
+      "\u2500\u2500\u2500 Per-account state \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Get the slash command state for a specific account, or null if not activated.",
+      "Get all active slash command account states.",
+      "Activate slash commands for a specific account. Called from the monitor after bot connects.",
+      "Deactivate slash commands for a specific account (on shutdown/disconnect).",
+      "Deactivate all accounts (full shutdown)",
+      "Register the HTTP route for slash command callbacks. Called during plugin registration. The single HTTP route dispatches to the correct per-account handler by matching the inbound token against each account's registered tokens.",
+      "Collect callback paths from both top-level and per-account config.",
+      "Command registration uses account.config.commands, so the HTTP route",
+      "registration must include any account-specific callbackPath overrides.",
+      "Also extract the pathname from an explicit callbackUrl when it differs",
+      "from callbackPath, so that Mattermost callbacks hit a registered route.",
+      "Invalid URL \u2014 ignore, will be caught during registration",
+      "We need to peek at the token to route to the right account handler.",
+      "Since each account handler also validates the token, we find the",
+      "account whose token set contains the inbound token and delegate.",
+      "If there's only one active account (common case), route directly.",
+      "Multi-account: buffer the body, find the matching account by token,",
+      "then replay the request to the correct handler.",
+      "Parse just the token to find the right account",
+      "parse failed \u2014 will be caught by handler",
+      "No matching account \u2014 reject",
+      "Replay: create a synthetic readable that re-emits the buffered body",
+      "Copy necessary IncomingMessage properties"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "getSlashCommandState",
+    "getAllSlashCommandStates",
+    "resolveSlashHandlerForToken",
+    "activateSlashCommands",
+    "deactivateSlashCommands",
+    "registerSlashCommandRoute"
+  ],
+  "imports": {
+    "internal": [
+      "../runtime-api.js",
+      "./accounts.js",
+      "./slash-commands.js",
+      "./slash-http.js"
+    ],
+    "external": [
+      "node:http"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveSlashHandlerForToken",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getSlashCommandState",
+      "line": 68,
+      "doc": "Get the slash command state for a specific account, or null if not activated.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getAllSlashCommandStates",
+      "line": 75,
+      "doc": "Get all active slash command account states.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "activateSlashCommands",
+      "line": 83,
+      "doc": "Activate slash commands for a specific account.   Called from the monitor after bot connects.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "deactivateSlashCommands",
+      "line": 124,
+      "doc": "Deactivate slash commands for a specific account (on shutdown).",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "registerSlashCommandRoute",
+      "line": 151,
+      "doc": "Register the HTTP route for slash command callbacks.   Called during plugin registration.     The single HTTP route disp",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "routeHandler",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "read",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "SlashCommandAccountState",
+      "line": 20,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

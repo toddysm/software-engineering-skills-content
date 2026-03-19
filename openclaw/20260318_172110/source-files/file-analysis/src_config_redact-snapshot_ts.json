@@ -1,0 +1,305 @@
+{
+  "path": "src/config/redact-snapshot.ts",
+  "extension": ".ts",
+  "size_bytes": 22992,
+  "line_count": 724,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "SecretRef objects include structural fields like source/provider that are",
+      "not secret material and may appear widely in config text.",
+      "Sentinel value used to replace sensitive config fields in gateway responses. Write-side handlers (config.set, config.apply, config.patch) detect this sentinel and restore the original value from the on-disk config, so a round-trip through the Web UI does not corrupt credentials.",
+      "ConfigUiHints' keys look like this:",
+      "- path.subpath.key (nested objects)",
+      "- path.subpath[].key (object in array in object)",
+      "- path.*.key (object in record in object)",
+      "records are handled by the lookup, but arrays need two entries in",
+      "the Set, as their first lookup is done before the code knows it's",
+      "an array.",
+      "hey, greptile, notice how this is *NOT* in an else block?",
+      "Deep-walk an object and replace string values at sensitive paths with the redaction sentinel.",
+      "Collect all sensitive string values from a config object. Used for text-based redaction of the raw JSON5 source.",
+      "Worker for redactObject() and collectSensitiveValues(). Used when there are ConfigUiHints available.",
+      "Keep behavior symmetric with object fallback: if hints miss the path,",
+      "still run pattern-based guessing for non-extension arrays.",
+      "Hey, greptile, look here, this **IS** only applied to strings",
+      "Keep primitives at explicitly-sensitive paths fully redacted.",
+      "Fall back to pattern-based guessing for paths not covered by schema",
+      "hints. This catches dynamic keys inside catchall objects (for example",
+      "env.GROQ_API_KEY) and extension/plugin config alike.",
+      "Worker for redactObject() and collectSensitiveValues(). Used when ConfigUiHints are NOT available.",
+      "Replace known sensitive values in a raw JSON5 string with the sentinel. Values are replaced longest-first to avoid partial matches.",
+      "Returns a copy of the config snapshot with all sensitive fields replaced by {@link REDACTED_SENTINEL}. The `hash` is preserved (it tracks config identity, not content). Both `config` (the parsed object) and `raw` (the JSON5 source) are scrubbed so no credential can leak through either path. When `uiHints` are provided, sensitivity is determined from the schema hints. Without hints, falls back to regex-based detection via `isSensitivePath()`.",
+      "Redact sensitive fields from a plain config object (not a full snapshot). Used by write endpoints (config.set, config.patch, config.apply) to avoid leaking credentials in their responses.",
+      "This is bad. We could try to redact the raw string using known key names,",
+      "but then we would not be able to restore them, and would trash the user's",
+      "credentials. Less than ideal---we should never delete important data.",
+      "On the other hand, we cannot hand out \"raw\" if we're not sure we have",
+      "properly redacted all sensitive data. Handing out a partially or, worse,",
+      "unredacted config string would be bad.",
+      "Therefore, the only safe route is to reject handling out broken configs.",
+      "else: snapshot.config must be valid and populated, as that is what",
+      "readConfigFileSnapshot() does when it creates the snapshot.",
+      "Also redact the resolved config (contains values after ${ENV} substitution)",
+      "Deep-walk `incoming` and replace any {@link REDACTED_SENTINEL} values (on sensitive paths) with the corresponding value from `original`. This is called by config.set / config.apply / config.patch before writing, so that credentials survive a Web UI round-trip unmodified.",
+      "Worker for restoreRedactedValues(). Used when there are ConfigUiHints available.",
+      "Note: If the user removed an item in the middle of the array,",
+      "we have no way of knowing which one. In this case, the last",
+      "element(s) get(s) chopped off. Not good, so please don't put",
+      "sensitive string array in the config...",
+      "Keep behavior symmetric with object fallback: if hints miss the path,",
+      "still run pattern-based guessing for non-extension arrays.",
+      "Worker for restoreRedactedValues(). Used when ConfigUiHints are NOT available.",
+      "Note: If the user removed an item in the middle of the array,",
+      "we have no way of knowing which one. In this case, the last",
+      "element(s) get(s) chopped off. Not good, so please don't put",
+      "sensitive string array in the config..."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "configuration",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "config/settings path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "REDACTED_SENTINEL",
+    "redactConfigObject",
+    "redactConfigSnapshot",
+    "restoreRedactedValues"
+  ],
+  "imports": {
+    "internal": [
+      "../logging/subsystem.js",
+      "../shared/net/url-userinfo.js",
+      "./redact-snapshot.secret-ref.js",
+      "./schema.hints.js",
+      "./types.openclaw.js"
+    ],
+    "external": [
+      "json5"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isSensitivePath",
+      "line": 15,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isEnvVarPlaceholder",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isWholeObjectSensitivePath",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isUserInfoUrlPath",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectSensitiveStrings",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isExplicitlyNonSensitivePath",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildRedactionLookup",
+      "line": 87,
+      "doc": "an array.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "redactObject",
+      "line": 121,
+      "doc": "Deep-walk an object and replace string values at sensitive paths   with the redaction sentinel.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "collectSensitiveValues",
+      "line": 136,
+      "doc": "Collect all sensitive string values from a config object.   Used for text-based redaction of the raw JSON5 source.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "redactObjectWithLookup",
+      "line": 155,
+      "doc": "Worker for redactObject() and collectSensitiveValues().   Used when there are ConfigUiHints available.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "redactObjectGuessing",
+      "line": 268,
+      "doc": "Worker for redactObject() and collectSensitiveValues().   Used when ConfigUiHints are NOT available.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "redactRawText",
+      "line": 341,
+      "doc": "Replace known sensitive values in a raw JSON5 string with the sentinel.   Values are replaced longest-first to avoid par",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "withRestoreWarningsSuppressed",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "redactConfigObject",
+      "line": 378,
+      "doc": "Redact sensitive fields from a plain config object (not a full snapshot).   Used by write endpoints (config.set, config.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "redactConfigSnapshot",
+      "line": 382,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "restoreRedactedValues",
+      "line": 447,
+      "doc": "Deep-walk `incoming` and replace any { REDACTED_SENTINEL} values   (on sensitive paths) with the corresponding value fro",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "restoreOriginalValueOrThrow",
+      "line": 493,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "mapRedactedArray",
+      "line": 507,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toObjectRecord",
+      "line": 520,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "shouldPassThroughRestoreValue",
+      "line": 527,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "toRestoreArrayContext",
+      "line": 531,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreArrayItemWithLookup",
+      "line": 541,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreArrayItemWithGuessing",
+      "line": 561,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreGuessingArray",
+      "line": 583,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreRedactedValuesWithLookup",
+      "line": 608,
+      "doc": "Worker for restoreRedactedValues().   Used when there are ConfigUiHints available.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "restoreRedactedValuesGuessing",
+      "line": 687,
+      "doc": "Worker for restoreRedactedValues().   Used when ConfigUiHints are NOT available.",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "RedactionResult",
+      "line": 433,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "RedactionError",
+      "line": 483,
+      "doc": "No documentation",
+      "is_public": false,
+      "extends": "Error",
+      "implements": []
+    }
+  ],
+  "complexity_score": 110,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "path": "src/cron/session-reaper.ts",
+  "extension": ".ts",
+  "size_bytes": 4860,
+  "line_count": 152,
+  "documentation": {
+    "file_docstring": "Cron session reaper \u2014 prunes completed isolated cron run sessions from the session store after a configurable retention period. Pattern: sessions keyed as `...:cron:<jobId>:run:<uuid>` are ephemeral run records. The base session (`...:cron:<jobId>`) is kept as-is.",
+    "header_comments": [],
+    "inline_comments": [
+      "Sweep the session store and prune expired cron run sessions. Designed to be called from the cron timer tick \u2014 self-throttles via MIN_SWEEP_INTERVAL_MS to avoid excessive I/O. Lock ordering: this function acquires the session-store file lock via `updateSessionStore`. It must be called OUTSIDE of the cron service's own `locked()` section to avoid lock-order inversions. The cron timer calls this after all `locked()` sections have been released."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "resetReaperThrottle",
+    "resolveRetentionMs"
+  ],
+  "imports": {
+    "internal": [
+      "../cli/parse-duration.js",
+      "../config/types.cron.js",
+      "../gateway/session-utils.fs.js",
+      "../sessions/session-key-utils.js",
+      "./service/state.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveRetentionMs",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sweepCronRunSessions",
+      "line": 57,
+      "doc": "Sweep the session store and prune expired cron run sessions.   Designed to be called from the cron timer tick \u2014 self-thr",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resetReaperThrottle",
+      "line": 150,
+      "doc": "",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ReaperResult",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

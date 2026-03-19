@@ -1,0 +1,346 @@
+{
+  "path": "src/acp/translator.ts",
+  "extension": ".ts",
+  "size_bytes": 34506,
+  "line_count": 1100,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Maximum allowed prompt size (2MB) to prevent DoS via memory exhaustion (CWE-400, GHSA-cxpw-2g23-2vgw)",
+      "Pass MAX_PROMPT_BYTES so extractTextFromPrompt rejects oversized content",
+      "block-by-block, before the full string is ever assembled in memory (CWE-400)",
+      "Defense-in-depth: also check the final assembled message (includes cwd prefix)",
+      "Capture runId before cancelActiveRun clears session.activeRunId.",
+      "Gateway chat events can carry the latest full assistant snapshot on both",
+      "incremental updates and the terminal final event. Process the snapshot",
+      "first so ACP clients never drop the last visible assistant text.",
+      "ACP has no explicit \"server_error\" stop reason.  Use \"end_turn\" so clients",
+      "do not treat transient backend errors (timeouts, rate-limits) as deliberate",
+      "(e.g. \"refusal\" | \"timeout\" | \"rate_limit\"), use it to distinguish here."
+    ],
+    "todo_comments": [
+      "refusals.  TODO: when ChatEventSchema gains a structured errorKind field"
+    ],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "AcpGatewayAgent"
+  ],
+  "imports": {
+    "internal": [
+      "../auto-reply/thinking.js",
+      "../gateway/client.js",
+      "../gateway/protocol/index.js",
+      "../gateway/session-utils.js",
+      "../utils.js",
+      "./commands.js",
+      "./meta.js",
+      "./session-mapper.js",
+      "./session.js",
+      "./types.js"
+    ],
+    "external": [
+      "node:crypto",
+      "node:os",
+      "@agentclientprotocol/sdk"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "formatThinkingLevelName",
+      "line": 132,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildThinkingModeDescription",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatConfigValueName",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSelectConfigOption",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSessionPresentation",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractReplayText",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSessionMetadata",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSessionUsageSnapshot",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSystemInputProvenance",
+      "line": 313,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildSystemProvenanceReceipt",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "start",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "handleGatewayReconnect",
+      "line": 374,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "handleGatewayDisconnect",
+      "line": 378,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "handleGatewayEvent",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "initialize",
+      "line": 397,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "newSession",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "loadSession",
+      "line": 450,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "unstable_listSessions",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "authenticate",
+      "line": 504,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "setSessionMode",
+      "line": 508,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "prompt",
+      "line": 568,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "cancel",
+      "line": 640,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "handleAgentEvent",
+      "line": 689,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "handleChatEvent",
+      "line": 784,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "sendAvailableCommands",
+      "line": 893,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "getSessionTranscript",
+      "line": 1002,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "assertSupportedSessionSetup",
+      "line": 1082,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "enforceSessionCreateRateLimit",
+      "line": 1091,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "PendingPrompt",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "PendingToolCall",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AcpGatewayAgentOptions",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "GatewaySessionPresentationRow",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SessionPresentation",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SessionMetadata",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SessionUsageSnapshot",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SessionSnapshot",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "GatewayTranscriptMessage",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "AcpGatewayAgent",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": true,
+      "extends": null,
+      "implements": [
+        "Agent"
+      ]
+    }
+  ],
+  "complexity_score": 102,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

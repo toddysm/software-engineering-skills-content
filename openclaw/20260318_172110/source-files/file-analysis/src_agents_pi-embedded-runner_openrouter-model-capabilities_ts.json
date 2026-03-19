@@ -1,0 +1,176 @@
+{
+  "path": "src/agents/pi-embedded-runner/openrouter-model-capabilities.ts",
+  "extension": ".ts",
+  "size_bytes": 9235,
+  "line_count": 301,
+  "documentation": {
+    "file_docstring": "Runtime OpenRouter model capability detection. When an OpenRouter model is not in the built-in static list, we look up its actual capabilities from a cached copy of the OpenRouter model catalog. Cache layers (checked in order): 1. In-memory Map (instant, cleared on process restart) 2. On-disk JSON file (<stateDir>/cache/openrouter-models.json) 3. OpenRouter API fetch (populates both layers) Model capabilities are assumed stable \u2014 the cache has no TTL expiry. A background refresh is triggered only when a model is not found in the cache (i.e. a newly added model on OpenRouter). Sync callers can read whatever is already cached. Async callers can await a one-time fetch so the first unknown-model lookup resolves with real capabilities instead of the text-only fallback.",
+    "header_comments": [],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Types",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Disk cache",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "In-memory cache state",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "API fetch",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Public API",
+      "---------------------------------------------------------------------------",
+      "Ensure the cache is populated. Checks in-memory first, then disk, then triggers a background API fetch as a last resort. Does not block \u2014 returns immediately.",
+      "Try loading from disk before hitting the network.",
+      "Ensure capabilities for a specific model are available before first use. Known cached entries return immediately. Unknown entries wait for at most one catalog fetch, then leave sync resolution to read from the populated cache on the same request.",
+      "Synchronously look up model capabilities from the cache. If a model is not found but the cache exists, a background refresh is triggered in case it's a newly added model not yet in the cache.",
+      "Model not found but cache exists \u2014 may be a newly added model.",
+      "Trigger a refresh so the next call picks it up."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ensureOpenRouterModelCache",
+    "getOpenRouterModelCapabilities"
+  ],
+  "imports": {
+    "internal": [
+      "../../config/paths.js",
+      "../../infra/net/proxy-fetch.js",
+      "../../logging/subsystem.js"
+    ],
+    "external": [
+      "node:fs",
+      "node:path"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveDiskCacheDir",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveDiskCachePath",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "writeDiskCache",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isValidCapabilities",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "readDiskCache",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseModel",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "doFetch",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "triggerFetch",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "ensureOpenRouterModelCache",
+      "line": 240,
+      "doc": "Ensure the cache is populated. Checks in-memory first, then disk, then   triggers a background API fetch as a last resor",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "loadOpenRouterModelCapabilities",
+      "line": 263,
+      "doc": "Ensure capabilities for a specific model are available before first use.     Known cached entries return immediately. Un",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "getOpenRouterModelCapabilities",
+      "line": 285,
+      "doc": "Synchronously look up model capabilities from the cache.     If a model is not found but the cache exists, a background ",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "OpenRouterApiModel",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    },
+    {
+      "name": "OpenRouterModelCapabilities",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "DiskCachePayload",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

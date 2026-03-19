@@ -1,0 +1,207 @@
+{
+  "path": "src/agents/pi-embedded-utils.ts",
+  "extension": ".ts",
+  "size_bytes": 13627,
+  "line_count": 455,
+  "documentation": {
+    "file_docstring": "Strip malformed Minimax tool invocations that leak into text content. Minimax sometimes embeds tool calls as XML in text blocks instead of proper structured tool calls. This removes: - <invoke name=\"...\">...</invoke> blocks - </minimax:tool_call> closing tags",
+    "header_comments": [],
+    "inline_comments": [
+      "Remove <invoke ...>...</invoke> blocks (non-greedy to handle multiple).",
+      "Remove stray minimax tool tags.",
+      "Strip model control tokens leaked into assistant text output. Models like GLM-5 and DeepSeek sometimes emit internal delimiter tokens (e.g. `<|assistant|>`, `<|tool_call_result_begin|>`, `<\uff5cbegin\u2581of\u2581sentence\uff5c>`) in their responses. These use the universal `<|...|>` convention (ASCII or full-width pipe variants) and should never reach end users. This is a provider bug \u2014 no upstream fix tracked yet. Remove this function when upstream providers stop leaking tokens. @see https://github.com/openclaw/openclaw/issues/40020",
+      "Match both ASCII pipe <|...|> and full-width pipe <\uff5c...\uff5c> (U+FF5C) variants.",
+      "Strip downgraded tool call text representations that leak into text content. When replaying history to Gemini, tool calls without `thought_signature` are downgraded to text blocks like `[Tool Call: name (ID: ...)]`. These should not be shown to users.",
+      "Remove [Tool Call: name (ID: ...)] blocks and their Arguments.",
+      "Remove [Tool Result for ID ...] blocks and their content.",
+      "Remove [Historical context: ...] markers (self-contained within brackets).",
+      "Strip thinking tags and their content from text. This is a safety net for cases where the model outputs <think> tags that slip through other filtering mechanisms.",
+      "Only apply keyword-based error rewrites when the assistant message is actually an error.",
+      "Otherwise normal prose that *mentions* errors (e.g. \"context overflow\") can get clobbered.",
+      "Gate on stopReason only \u2014 a non-error response with an errorMessage set (e.g. from a",
+      "background tool failure) should not have its content rewritten (#13935).",
+      "Show reasoning in italics (cursive) for markdown-friendly surfaces (Discord, etc.).",
+      "Keep the plain \"Reasoning:\" prefix so existing parsing/detection keeps working.",
+      "Note: Underscore markdown cannot span multiple lines on Telegram, so we wrap",
+      "each non-empty line separately.",
+      "Avoid false positives: only treat it as structured thinking when it begins",
+      "with a think tag (common for local/OpenAI-compat providers that emulate",
+      "reasoning blocks via tags)."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "extractAssistantThinking",
+    "promoteThinkingTagsToBlocks",
+    "inferToolMetaFromArgs",
+    "stripDowngradedToolCallText",
+    "isAssistantMessage",
+    "stripModelSpecialTokens",
+    "formatReasoningMessage",
+    "splitThinkingTaggedText",
+    "stripMinimaxToolCallXml",
+    "extractAssistantText",
+    "extractThinkingFromTaggedStream",
+    "extractThinkingFromTaggedText",
+    "stripThinkingTagsFromText"
+  ],
+  "imports": {
+    "internal": [
+      "../shared/chat-content.js",
+      "../shared/text/reasoning-tags.js",
+      "./pi-embedded-helpers.js",
+      "./tool-display.js"
+    ],
+    "external": [
+      "@mariozechner/pi-agent-core",
+      "@mariozechner/pi-ai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isAssistantMessage",
+      "line": 8,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripMinimaxToolCallXml",
+      "line": 19,
+      "doc": "Strip malformed Minimax tool invocations that leak into text content.   Minimax sometimes embeds tool calls as XML in te",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripModelSpecialTokens",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripDowngradedToolCallText",
+      "line": 68,
+      "doc": "Strip downgraded tool call text representations that leak into text content.   When replaying history to Gemini, tool ca",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "stripToolCalls",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripThinkingTagsFromText",
+      "line": 232,
+      "doc": "Strip thinking tags and their content from text.   This is a safety net for cases where the model outputs <think> tags  ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "extractAssistantText",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "extractAssistantThinking",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "formatReasoningMessage",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "splitThinkingTaggedText",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "pushText",
+      "line": 316,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "pushThinking",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "promoteThinkingTagsToBlocks",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "extractThinkingFromTaggedText",
+      "line": 407,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "extractThinkingFromTaggedStream",
+      "line": 427,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "inferToolMetaFromArgs",
+      "line": 452,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ThinkTaggedSplitBlock",
+      "line": 289,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 85,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

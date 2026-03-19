@@ -1,0 +1,112 @@
+{
+  "path": "src/gateway/server/ws-connection/connect-policy.ts",
+  "extension": ".ts",
+  "size_bytes": 4769,
+  "line_count": 126,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "`allowInsecureAuth` must not bypass secure-context/device-auth requirements.",
+      "When auth is completely disabled (mode=none), there is no shared secret",
+      "or token to gate pairing. Requiring pairing in this configuration adds",
+      "friction without security value since any client can already connect",
+      "without credentials. Guard with policy.isControlUi because this function",
+      "is called for ALL clients (not just Control UI) at the call site.",
+      "Scope to operator role so node-role sessions still need device identity",
+      "(#43478 was reverted for skipping ALL clients).",
+      "dangerouslyDisableDeviceAuth is the break-glass path for Control UI",
+      "operators. Keep pairing aligned with the missing-device bypass, including",
+      "open-auth deployments where there is no shared token/password to prove.",
+      "dangerouslyDisableDeviceAuth: true \u2014 operator has explicitly opted out of",
+      "device-identity enforcement for this Control UI.  Allow for operator-role",
+      "sessions only; node-role sessions must still satisfy device identity so",
+      "that the break-glass flag cannot be abused to admit device-less node",
+      "registrations (see #45405 review).",
+      "Allow localhost Control UI connections when allowInsecureAuth is configured.",
+      "Localhost has no network interception risk, and browser SubtleCrypto",
+      "(needed for device identity) is unavailable in insecure HTTP contexts.",
+      "Remote connections are still rejected to preserve the MitM protection",
+      "that the security fix (#20684) intended."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "resolveControlUiAuthPolicy",
+    "isTrustedProxyControlUiOperatorAuth",
+    "shouldSkipControlUiPairing",
+    "evaluateMissingDeviceIdentity"
+  ],
+  "imports": {
+    "internal": [
+      "../../protocol/index.js",
+      "../../role-policy.js",
+      "../../role-policy.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveControlUiAuthPolicy",
+      "line": 13,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "shouldSkipControlUiPairing",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isTrustedProxyControlUiOperatorAuth",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "evaluateMissingDeviceIdentity",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ControlUiAuthPolicy",
+      "line": 5,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MissingDeviceIdentityDecision",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 15,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "auth"
+    ]
+  }
+}

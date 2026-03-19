@@ -1,0 +1,409 @@
+{
+  "path": "extensions/feishu/src/docx.ts",
+  "extension": ".ts",
+  "size_bytes": 49946,
+  "line_count": 1460,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "============ Helpers ============",
+      "const MAX_BLOCKS_PER_INSERT = 50; const MAX_CONVERT_RETRY_DEPTH = 8; async function convertMarkdown(client: Lark.Client, markdown: string) { const res = await client.docx.document.convert({ data: { content_type: \"markdown\", content: markdown }, }); if (res.code !== 0) { throw new Error(res.msg); } return { blocks: res.data?.blocks ?? [], firstLevelBlockIds: res.data?.first_level_block_ids ?? [], }; } function sortBlocksByFirstLevel(blocks: any[], firstLevelIds: string[]): any[] { if (!firstLevelIds || firstLevelIds.length === 0) return blocks; const sorted = firstLevelIds.map((id) => blocks.find((b) => b.block_id === id)).filter(Boolean); const sortedIds = new Set(firstLevelIds); const remaining = blocks.filter((b) => !sortedIds.has(b.block_id)); return [...sorted, ...remaining]; }",
+      "Insert blocks one at a time to preserve document order.",
+      "The batch API (sending all children at once) does not guarantee ordering",
+      "because Feishu processes the batch asynchronously.  Sequential single-block",
+      "inserts (each appended to the end) produce deterministic results.",
+      "",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block types",
+      "Insert blocks using the Descendant API (supports tables, nested lists, large docs). Unlike the Children API, this supports block_type 31/32 (Table/TableCell). @param parentBlockId - Parent block to insert into (defaults to docToken = document root) @param index - Position within parent's children (-1 = end, 0 = first)",
+      "Pass Buffer directly so form-data can calculate Content-Length correctly.",
+      "Readable.from() produces a stream with unknown length, causing Content-Length",
+      "mismatch that silently truncates uploads for images larger than ~1KB.",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK file type",
+      "Required when the document block belongs to a non-default datacenter:",
+      "tells the drive service which document the block belongs to for routing.",
+      "Per API docs: certain upload scenarios require the cloud document token.",
+      "Enforce mutual exclusivity: exactly one input source must be provided.",
+      "data URI: data:image/png;base64,xxxx",
+      "Only base64-encoded data URIs are supported; reject plain/URL-encoded ones.",
+      "Validate the payload is actually base64 before decoding; Node's decoder",
+      "is permissive and would silently accept garbage bytes otherwise.",
+      "Estimate decoded byte count from base64 length BEFORE allocating the",
+      "full buffer to avoid spiking memory on oversized payloads.",
+      "local path: ~, ./ and ../ are unambiguous (not in base64 alphabet).",
+      "Absolute paths (/...) are supported but must exist on disk. If an absolute",
+      "path does not exist we throw immediately rather than falling through to",
+      "base64 decoding, which would silently upload garbage bytes.",
+      "Note: JPEG base64 starts with \"/9j/\" \u2014 pass as data:image/jpeg;base64,...",
+      "to avoid ambiguity with absolute paths.",
+      "plain base64 string (standard base64 alphabet includes '+', '/', '=')",
+      "Node's Buffer.from is permissive and silently ignores out-of-alphabet chars,",
+      "which would decode malformed strings into arbitrary bytes. Reject early.",
+      "Estimate decoded byte count from base64 length BEFORE allocating the",
+      "full buffer to avoid spiking memory on oversized payloads.",
+      "Step 1: Create an empty image block (block_type 27).",
+      "Per Feishu FAQ: image token cannot be set at block creation time.",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK type",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK return shape",
+      "Step 2: Resolve and upload the image buffer.",
+      "Step 3: Set the image token on the block.",
+      "Feishu API does not allow creating empty file blocks (block_type 23).",
+      "Workaround: create a placeholder text block, then replace it with file content.",
+      "Actually, file blocks need a different approach: use markdown link as placeholder.",
+      "Create a placeholder text block first",
+      "Get the first inserted block - we'll delete it and create the file in its place",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK return shape",
+      "Delete the placeholder",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block type",
+      "Upload file to Feishu drive",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK file type",
+      "============ Actions ============",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block type",
+      "Paginate through all children to reliably locate after_block_id.",
+      "documentBlockChildren.get returns up to 200 children per page; large",
+      "parents require multiple requests.",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block type",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block type",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK return type",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK return shape may vary by version",
+      "row-major cell ids, if API returns them directly",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK return type",
+      "SDK types are loose here across versions",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block payload",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block payload",
+      "table cell is a container block: clear existing children, then create text child blocks",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block type",
+      "============ Tool Registration ============",
+      "Check if any account is configured",
+      "Register if enabled on any account; account routing is resolved per execution.",
+      "Main document tool with action-based dispatch",
+      "eslint-disable-next-line @typescript-eslint/no-explicit-any -- exhaustive check fallback",
+      "Keep feishu_app_scopes as independent tool"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "registerFeishuDocTools"
+  ],
+  "imports": {
+    "internal": [
+      "../runtime-api.js",
+      "./accounts.js",
+      "./doc-schema.js",
+      "./docx-batch-insert.js",
+      "./docx-color-text.js",
+      "./runtime.js"
+    ],
+    "external": [
+      "node:fs",
+      "node:os",
+      "node:path",
+      "node:path",
+      "@larksuiteoapi/node-sdk",
+      "@sinclair/typebox"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "json",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractImageUrls",
+      "line": 37,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "cleanBlocksForInsert",
+      "line": 76,
+      "doc": "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK block types",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "convertMarkdown",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "sortBlocksByFirstLevel",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "insertBlocks",
+      "line": 125,
+      "doc": "const MAX_BLOCKS_PER_INSERT = 50; const MAX_CONVERT_RETRY_DEPTH = 8;  async function convertMarkdown(client: Lark.Client",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "splitMarkdownByHeadings",
+      "line": 162,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "splitMarkdownBySize",
+      "line": 185,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "convertMarkdownWithFallback",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "chunkedConvertMarkdown",
+      "line": 258,
+      "doc": "",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "chunkedInsertBlocks",
+      "line": 274,
+      "doc": "eslint-disable -eslint-explicit-any -- SDK block types",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "insertBlocksWithDescendant",
+      "line": 305,
+      "doc": "Insert blocks using the Descendant API (supports tables, nested lists, large docs).   Unlike the Children API, this supp",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "clearDocumentContent",
+      "line": 330,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "uploadImageToDocx",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "downloadImage",
+      "line": 388,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "resolveUploadInput",
+      "line": 393,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "processImages",
+      "line": 530,
+      "doc": "Insert blocks using the Descendant API (supports tables, nested lists, large docs).   Unlike the Children API, this supp",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "uploadImageBlock",
+      "line": 572,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "uploadFileBlock",
+      "line": 628,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "readDoc",
+      "line": 710,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "createDoc",
+      "line": 750,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "writeDoc",
+      "line": 812,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "appendDoc",
+      "line": 843,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "insertDoc",
+      "line": 874,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "createTable",
+      "line": 950,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "tableBlock",
+      "line": 986,
+      "doc": "eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK return type",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "writeTableCells",
+      "line": 1002,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "createTableWithValues",
+      "line": 1088,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "updateBlock",
+      "line": 1121,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "deleteBlock",
+      "line": 1149,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "listBlocks",
+      "line": 1184,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "getBlock",
+      "line": 1197,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "listAppScopes",
+      "line": 1210,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "registerFeishuDocTools",
+      "line": 1229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getClient",
+      "line": 1248,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "execute",
+      "line": 1273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "execute",
+      "line": 1443,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "Logger",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "FeishuDocExecuteParams",
+      "line": 1246,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 165,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

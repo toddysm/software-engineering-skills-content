@@ -1,0 +1,388 @@
+{
+  "path": "src/agents/openai-ws-connection.ts",
+  "extension": ".ts",
+  "size_bytes": 17087,
+  "line_count": 548,
+  "documentation": {
+    "file_docstring": "OpenAI WebSocket Connection Manager Manages a persistent WebSocket connection to the OpenAI Responses API (wss://api.openai.com/v1/responses) for multi-turn tool-call workflows. Features: - Auto-reconnect with exponential backoff (max 5 retries: 1s/2s/4s/8s/16s) - Tracks previous_response_id per connection for incremental turns - Warm-up support (generate: false) to pre-load the connection - Typed WebSocket event definitions matching the Responses API SSE spec @see https://developers.openai.com/api/docs/guides/websocket-mode",
+    "header_comments": [],
+    "inline_comments": [
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "WebSocket Event Types (Server \u2192 Client)",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Client \u2192 Server Event Types",
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Manages a persistent WebSocket connection to the OpenAI Responses API. Usage: ```ts const manager = new OpenAIWebSocketManager(); await manager.connect(apiKey); manager.onMessage((event) => { if (event.type === \"response.completed\") { console.log(\"Response ID:\", event.response.id); } }); manager.send({ type: \"response.create\", model: \"gpt-5.2\", input: [...] }); ```",
+      "Returns the previous_response_id from the last completed response, for use in subsequent response.create events.",
+      "Opens a WebSocket connection to the OpenAI Responses API. Resolves when the connection is established (open event fires). Rejects if the initial connection fails after max retries.",
+      "Sends a typed event to the OpenAI Responses API over the WebSocket. Throws if the connection is not open.",
+      "Registers a handler for incoming server-sent WebSocket events. Returns an unsubscribe function.",
+      "Returns true if the WebSocket is currently open and ready to send.",
+      "Permanently closes the WebSocket connection and disables auto-reconnect.",
+      "\u2500\u2500\u2500 Internal: Connection Lifecycle \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Remove open listener so we don't resolve after an error.",
+      "Emit \"error\" on the manager only when there are listeners; otherwise",
+      "the promise rejection below is the primary error channel for this",
+      "initial connection failure. (An uncaught \"error\" event in Node.js",
+      "throws synchronously and would prevent the promise from rejecting.)",
+      "The onClose handler already calls _scheduleReconnect() for the next",
+      "attempt, so we intentionally swallow the rejection here to avoid",
+      "double-scheduling (which would double-increment retryCount per",
+      "failed reconnect and exhaust the retry budget prematurely).",
+      "",
+      "Blob or other \u2014 coerce to string",
+      "Track previous_response_id on completion",
+      "Sends a warm-up event to pre-load the connection and model without generating output. Pass tools/instructions to prime the connection for the upcoming session."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "OpenAIWebSocketManager"
+  ],
+  "imports": {
+    "internal": [
+      "./provider-attribution.js"
+    ],
+    "external": [
+      "node:events",
+      "ws"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "isOpenAIPublicWebSocketUrl",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "connect",
+      "line": 337,
+      "doc": "Opens a WebSocket connection to the OpenAI Responses API.     Resolves when the connection is established (open event fi",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "send",
+      "line": 348,
+      "doc": "Sends a typed event to the OpenAI Responses API over the WebSocket.     Throws if the connection is not open.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isConnected",
+      "line": 371,
+      "doc": "Returns true if the WebSocket is currently open and ready to send.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "close",
+      "line": 378,
+      "doc": "Permanently closes the WebSocket connection and disables auto-reconnect.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "_openConnection",
+      "line": 392,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onOpen",
+      "line": 411,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onError",
+      "line": 417,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onClose",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "onMessage",
+      "line": 439,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "_scheduleReconnect",
+      "line": 450,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "_safeEmitError",
+      "line": 479,
+      "doc": "with \"unhandled 'error' event\" when no one is listening.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "_cancelRetryTimer",
+      "line": 485,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "_handleMessage",
+      "line": 492,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "warmUp",
+      "line": 538,
+      "doc": "Sends a warm-up event to pre-load the connection and model without generating output.     Pass tools to prime the connec",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ResponseObject",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "UsageInfo",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OpenAIResponsesAssistantPhase",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OutputItem",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ResponseCreatedEvent",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ResponseInProgressEvent",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ResponseCompletedEvent",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ResponseFailedEvent",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OutputItemAddedEvent",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OutputItemDoneEvent",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ContentPartAddedEvent",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ContentPartDoneEvent",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OutputTextDeltaEvent",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OutputTextDoneEvent",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "FunctionCallArgumentsDeltaEvent",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "FunctionCallArgumentsDoneEvent",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "RateLimitUpdatedEvent",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ErrorEvent",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OpenAIWebSocketEvent",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ContentPart",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "InputItem",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ToolChoice",
+      "line": 204,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "FunctionToolDefinition",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ResponseCreateEvent",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "WarmUpEvent",
+      "line": 240,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "ClientEvent",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OpenAIWebSocketManagerOptions",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "InternalEvents",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OpenAIWebSocketManager",
+      "line": 298,
+      "doc": "Manages a persistent WebSocket connection to the OpenAI Responses API.     Usage:   ```ts   const manager = new OpenAIWebSocketManager();   await manager.connect(apiKey);     manager.onMessage((event)",
+      "is_public": true,
+      "extends": "EventEmitter",
+      "implements": []
+    }
+  ],
+  "complexity_score": 42,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

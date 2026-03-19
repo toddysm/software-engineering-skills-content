@@ -1,0 +1,164 @@
+{
+  "path": "src/agents/tools/cron-tool.ts",
+  "extension": ".ts",
+  "size_bytes": 20787,
+  "line_count": 540,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "NOTE: We use Type.Object({}, { additionalProperties: true }) for job/patch",
+      "instead of CronAddParamsSchema/CronJobPatchSchema because the gateway schemas",
+      "contain nested unions. Tool schemas need to stay provider-friendly, so we",
+      "accept \"any object\" here and validate at runtime.",
+      "Flattened schema: runtime validates per-action requirements.",
+      "buildAgentPeerSessionKey encodes peers as:",
+      "- direct:<peerId>",
+      "- <channel>:direct:<peerId>",
+      "- <channel>:<accountId>:direct:<peerId>",
+      "- <channel>:group:<peerId>",
+      "- <channel>:channel:<peerId>",
+      "Note: legacy keys may use \"dm\" instead of \"direct\".",
+      "Threaded sessions append :thread:<id>, which we strip so delivery targets the parent peer.",
+      "NOTE: Telegram forum topics encode as <chatId>:topic:<topicId> and should be preserved.",
+      "Flat-params recovery: non-frontier models (e.g. Grok) sometimes flatten",
+      "job properties to the top level alongside `action` instead of nesting",
+      "them inside `job`. When `params.job` is missing or empty, reconstruct",
+      "a synthetic job object from any recognised top-level job fields.",
+      "See: https://github.com/openclaw/openclaw/issues/11310",
+      "Only use the synthetic job if at least one meaningful field is present",
+      "(schedule, payload, message, or text are the minimum signals that the",
+      "LLM intended to create a job).",
+      "Flat-params recovery for patch"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "createCronTool"
+  ],
+  "imports": {
+    "internal": [
+      "../../config/config.js",
+      "../../cron/normalize.js",
+      "../../cron/types.js",
+      "../../cron/webhook-url.js",
+      "../../sessions/session-key-utils.js",
+      "../../shared/chat-content.js",
+      "../../utils.js",
+      "../agent-scope.js",
+      "../schema/typebox.js",
+      "./common.js",
+      "./gateway.js",
+      "./sessions-helpers.js"
+    ],
+    "external": [
+      "@sinclair/typebox"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "stripExistingContext",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "truncateText",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractMessageText",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildReminderContextLines",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "stripThreadSuffixFromSessionKey",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "inferDeliveryFromSessionKey",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createCronTool",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "CronToolOptions",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "GatewayToolCaller",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "CronToolDeps",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChatMessage",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 80,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

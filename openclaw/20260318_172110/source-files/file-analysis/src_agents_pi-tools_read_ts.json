@@ -1,0 +1,353 @@
+{
+  "path": "src/agents/pi-tools.read.ts",
+  "extension": ".ts",
+  "size_bytes": 26964,
+  "line_count": 829,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "NOTE(steipete): Upstream read now does file-magic MIME detection; we keep the wrapper",
+      "to normalize payloads and sanitize oversized images before they hit providers.",
+      "pi-coding-agent uses: \"Read image file [image/png]\"",
+      "When workspaceOnly is false, allow writes anywhere on the host",
+      "When workspaceOnly is true, enforce workspace boundary",
+      "When workspaceOnly is false, allow edits anywhere on the host",
+      "When workspaceOnly is true, enforce workspace boundary",
+      "Path escapes workspace root.  Don't throw here \u2013 the upstream",
+      "library replaces any `access` error with a misleading \"File not",
+      "found\" message.  By returning silently the subsequent `readFile`",
+      "call will throw the same \"Path escapes workspace root\" error",
+      "through a code-path that propagates the original message.",
+      "Don't throw here \u2013 see the comment above about the upstream",
+      "library swallowing access errors as \"File not found\"."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "wrapToolMemoryFlushAppendOnlyWrite",
+    "wrapToolWorkspaceRootGuard",
+    "createHostWorkspaceWriteTool",
+    "createOpenClawReadTool",
+    "createSandboxedWriteTool",
+    "resolveToolPathAgainstWorkspaceRoot",
+    "wrapToolWorkspaceRootGuardWithOptions",
+    "createHostWorkspaceEditTool",
+    "createSandboxedEditTool",
+    "createSandboxedReadTool"
+  ],
+  "imports": {
+    "internal": [
+      "../media/mime.js",
+      "../media/sniff-mime-from-base64.js",
+      "./image-sanitization.js",
+      "./path-policy.js",
+      "./pi-tools.host-edit.js",
+      "./pi-tools.types.js",
+      "./sandbox-paths.js",
+      "./sandbox/fs-bridge.js",
+      "./tool-images.js"
+    ],
+    "external": [
+      "node:fs/promises",
+      "node:path",
+      "node:url",
+      "@mariozechner/pi-agent-core",
+      "@mariozechner/pi-coding-agent"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "clamp",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveAdaptiveReadMaxBytes",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "formatBytes",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getToolResultText",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "withToolResultText",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "extractReadTruncationDetails",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripReadContinuationNotice",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "stripReadTruncationContentDetails",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "executeReadWithAdaptivePaging",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "rewriteReadImageHeader",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeReadImageResult",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "wrapToolWorkspaceRootGuard",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "mapContainerPathToWorkspaceRoot",
+      "line": 358,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveToolPathAgainstWorkspaceRoot",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "readOptionalUtf8File",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "appendMemoryFlushContent",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "wrapToolMemoryFlushAppendOnlyWrite",
+      "line": 514,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "wrapToolWorkspaceRootGuardWithOptions",
+      "line": 565,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createSandboxedReadTool",
+      "line": 600,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createSandboxedWriteTool",
+      "line": 610,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createSandboxedEditTool",
+      "line": 617,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createHostWorkspaceWriteTool",
+      "line": 624,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createHostWorkspaceEditTool",
+      "line": 631,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createOpenClawReadTool",
+      "line": 639,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "createSandboxReadOperations",
+      "line": 671,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createSandboxWriteOperations",
+      "line": 689,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createSandboxEditOperations",
+      "line": 700,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "writeHostFile",
+      "line": 715,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "createHostWriteOperations",
+      "line": 721,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createHostEditOperations",
+      "line": 755,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "createFsAccessError",
+      "line": 825,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ToolContentBlock",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ImageContentBlock",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TextContentBlock",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OpenClawReadToolOptions",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ReadTruncationDetails",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MemoryFlushAppendOnlyWriteOptions",
+      "line": 422,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "SandboxToolParams",
+      "line": 593,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 85,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: ui, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "auth",
+      "logging"
+    ]
+  }
+}

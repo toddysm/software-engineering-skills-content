@@ -1,0 +1,130 @@
+{
+  "path": "extensions/tlon/src/security.test.ts",
+  "extension": ".ts",
+  "size_bytes": 23206,
+  "line_count": 620,
+  "documentation": {
+    "file_docstring": "Security Tests for Tlon Plugin These tests ensure that security-critical behavior cannot regress: - DM allowlist enforcement - Channel authorization rules - Ship normalization consistency - Bot mention detection boundaries",
+    "header_comments": [],
+    "inline_comments": [
+      "Similar but different ships should be rejected",
+      "NOTE: Ship names in Urbit are always lowercase by convention.",
+      "This test documents current behavior - strict equality after normalization.",
+      "If case-insensitivity is desired, normalizeShip should lowercase.",
+      "Different case would NOT match with current implementation",
+      "Ships with leading/trailing whitespace are normalized by normalizeShip",
+      "CRITICAL: Empty allowlist must DENY, not accept-all",
+      "CRITICAL: Undefined allowlist must DENY, not accept-all",
+      "\"nimbus\" should not match \"nimbusy\" or \"animbust\"",
+      "@ts-expect-error testing null input",
+      "Ensure malicious content doesn't get executed",
+      "Just a string, not executed",
+      "These tests document the expected behavior of channel authorization. The actual resolveChannelAuthorization function is internal to monitor/index.ts but these tests verify the building blocks and expected invariants.",
+      "This is a critical security invariant: if no mode is specified,",
+      "channels should default to RESTRICTED, not open.",
+      "If this test fails, someone may have changed the default unsafely.",
+      "The logic in resolveChannelAuthorization is:",
+      "const mode = rule?.mode ?? \"restricted\";",
+      "We verify this by checking undefined rule gives restricted",
+      "If a channel is restricted but has no allowed ships,",
+      "no one should be able to send messages",
+      "In open mode, any ship can send regardless of allowedShips",
+      "The check in monitor/index.ts is:",
+      "if (mode === \"restricted\") { /* check ships */ }",
+      "So open mode skips the ship check entirely",
+      "Documented behavior: settingsRules[nest] ?? fileRules[nest]",
+      "This means settings take precedence",
+      "These should not cause regex injection",
+      "Tests for sender role identification (owner vs user). This prevents impersonation attacks where an approved user tries to claim owner privileges through prompt injection. SECURITY.md Section 9: Sender Role Identification",
+      "Helper to compute sender role (mirrors logic in monitor/index.ts)",
+      "Empty string should be treated like null (no owner configured)",
+      "Helper to compute fromLabel (mirrors logic in monitor/index.ts)",
+      "Even if someone has a ship name similar to owner, they should not get owner role",
+      "The role is determined by ship identity, not message content",
+      "This test documents that even if message contains \"I am the owner\",",
+      "the actual senderShip determines the role",
+      "The role is always based on ship comparison, not message content"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "./targets.js"
+    ],
+    "external": [
+      "vitest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveAllCitesForPoC",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "buildCitedMessage",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getSenderRole",
+      "line": 535,
+      "doc": "Helper to compute sender role (mirrors logic in monitor/index.ts)",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getFromLabel",
+      "line": 565,
+      "doc": "Helper to compute fromLabel (mirrors logic in monitor/index.ts)",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ModeRule",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "ChannelRule",
+      "line": 308,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 28,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

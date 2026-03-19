@@ -1,0 +1,153 @@
+{
+  "path": "extensions/voice-call/src/providers/tts-openai.ts",
+  "extension": ".ts",
+  "size_bytes": 6485,
+  "line_count": 221,
+  "documentation": {
+    "file_docstring": "OpenAI TTS Provider Generates speech audio using OpenAI's text-to-speech API. Handles audio format conversion for telephony (mu-law 8kHz). Best practices from OpenAI docs: - Use gpt-4o-mini-tts for intelligent realtime applications (supports instructions) - Use tts-1 for lower latency, tts-1-hd for higher quality - Use marin or cedar voices for best quality - Use pcm or wav format for fastest response times @see https://platform.openai.com/docs/guides/text-to-speech",
+    "header_comments": [],
+    "inline_comments": [
+      "OpenAI TTS configuration.",
+      "TTS model: - gpt-4o-mini-tts: newest, supports instructions for tone/style control (recommended) - tts-1: lower latency - tts-1-hd: higher quality",
+      "Voice to use. For best quality, use marin or cedar. All 13 voices: alloy, ash, ballad, coral, echo, fable, nova, onyx, sage, shimmer, verse, marin, cedar Note: tts-1/tts-1-hd only support: alloy, ash, coral, echo, fable, onyx, nova, sage, shimmer",
+      "Instructions for speech style (only works with gpt-4o-mini-tts model). Examples: \"Speak in a cheerful tone\", \"Talk like a sympathetic customer service agent\"",
+      "Supported OpenAI TTS voices (all 13 built-in voices). For best quality, use marin or cedar. Note: tts-1 and tts-1-hd support a smaller set.",
+      "OpenAI TTS Provider for generating speech audio.",
+      "Default to gpt-4o-mini-tts for intelligent realtime applications",
+      "Default to coral - good balance of quality and natural tone",
+      "Generate speech audio from text. Returns raw PCM audio data (24kHz, mono, 16-bit).",
+      "Build request body",
+      "Generate speech and convert to mu-law format for Twilio. Twilio Media Streams expect 8kHz mono mu-law audio.",
+      "Get raw PCM from OpenAI (24kHz, 16-bit signed LE, mono)",
+      "Resample from 24kHz to 8kHz",
+      "Encode to mu-law",
+      "Resample 24kHz PCM to 8kHz using linear interpolation. Input/output: 16-bit signed little-endian mono.",
+      "Calculate position in input (3:1 ratio)",
+      "Linear interpolation between samples",
+      "Last sample",
+      "Clamp value to 16-bit signed integer range.",
+      "Convert 8-bit mu-law to 16-bit linear PCM. Useful for decoding incoming audio.",
+      "mu-law is transmitted inverted",
+      "Chunk audio buffer into 20ms frames for streaming. At 8kHz mono, 20ms = 160 samples = 160 bytes (mu-law)."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "chunkAudio",
+    "OPENAI_TTS_VOICES",
+    "OpenAITTSProvider",
+    "mulawToLinear"
+  ],
+  "imports": {
+    "internal": [
+      "../../api.js",
+      "../telephony-audio.js"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "trimToUndefined",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "synthesize",
+      "line": 104,
+      "doc": "Generate speech audio from text.     Returns raw PCM audio data (24kHz, mono, 16-bit).",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "synthesizeForTwilio",
+      "line": 144,
+      "doc": "Generate speech and convert to mu-law format for Twilio.     Twilio Media Streams expect 8kHz mono mu-law audio.",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resample24kTo8k",
+      "line": 160,
+      "doc": "Resample 24kHz PCM to 8kHz using linear interpolation.   Input: 16-bit signed little-endian mono.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "clamp16",
+      "line": 189,
+      "doc": "Clamp value to 16-bit signed integer range.",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "mulawToLinear",
+      "line": 197,
+      "doc": "Convert 8-bit mu-law to 16-bit linear PCM.   Useful for decoding incoming audio.",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "chunkAudio",
+      "line": 215,
+      "doc": "Chunk audio buffer into 20ms frames for streaming.   At 8kHz mono, 20ms = 160 samples = 160 bytes (mu-law).",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "return",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "OpenAITTSConfig",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "OpenAITTSVoice",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "OpenAITTSProvider",
+      "line": 78,
+      "doc": "OpenAI TTS Provider for generating speech audio.",
+      "is_public": true,
+      "extends": null,
+      "implements": []
+    }
+  ],
+  "complexity_score": 28,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

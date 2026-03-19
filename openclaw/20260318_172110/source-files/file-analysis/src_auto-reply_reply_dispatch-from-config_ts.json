@@ -1,0 +1,171 @@
+{
+  "path": "src/auto-reply/reply/dispatch-from-config.ts",
+  "extension": ".ts",
+  "size_bytes": 26945,
+  "line_count": 756,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Restore route thread context only from the active turn or the thread-scoped session key.",
+      "Do not read thread ids from the normalised session store here: `origin.threadId` can be",
+      "folded back into lastThreadId/deliveryContext during store normalisation and resurrect a",
+      "stale route after thread delivery was intentionally cleared.",
+      "Extract message context for hooks (plugin and internal)",
+      "Check if we should route replies to originating channel instead of dispatcher.",
+      "Only route when the originating channel is DIFFERENT from the current surface.",
+      "This handles cross-provider routing (e.g., message from Telegram being processed",
+      "by a shared session that's currently on Slack) while preserving normal dispatcher",
+      "flow when the provider handles its own messages.",
+      "",
+      "Debug: `pnpm test src/auto-reply/reply/dispatch-from-config.test.ts`",
+      "Prefer provider channel because surface may carry origin metadata in relayed flows.",
+      "Helper to send a payload via route-reply (async). Only used when actually routing to a different provider. Note: Only called when shouldRouteToOriginating is true, so originatingChannel and originatingTo are guaranteed to be defined.",
+      "TypeScript doesn't narrow these from the shouldRouteToOriginating check,",
+      "but they're guaranteed non-null when this function is called.",
+      "Trigger plugin hooks (fire-and-forget)",
+      "Bridge to internal hooks (HOOK.md discovery system) - refs #8807",
+      "Track accumulated block text for TTS generation after streaming completes.",
+      "When block streaming succeeds, there's no final reply, so we need to generate",
+      "TTS audio separately from the accumulated block content.",
+      "Group/native flows intentionally suppress tool summary text, but media-only",
+      "tool results (for example TTS audio) must still be delivered.",
+      "Suppress reasoning payloads \u2014 channels using this generic dispatch",
+      "path (WhatsApp, web, etc.) do not have a dedicated reasoning lane.",
+      "Telegram has its own dispatch path that handles reasoning splitting.",
+      "Accumulate block text for TTS generation after streaming",
+      "Command handling prepared a trailing prompt after ACP in-place reset.",
+      "Route that tail through ACP now (same turn) instead of embedded dispatch.",
+      "Suppress reasoning payloads from channel delivery \u2014 channels using this",
+      "generic dispatch path do not have a dedicated reasoning lane.",
+      "Route final reply to originating channel.",
+      "Generate TTS-only reply after block streaming completes (when there's no final reply).",
+      "This handles the case where block streaming succeeds and drops final payloads,",
+      "but we still want TTS audio to be generated from the accumulated block content.",
+      "Only send if TTS was actually applied (mediaUrl exists)",
+      "Send TTS-only payload (no text, just audio) so it doesn't duplicate the block content"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "configuration",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "config/settings path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../../agents/agent-scope.js",
+      "../../channels/plugins/exec-approval-local.js",
+      "../../config/config.js",
+      "../../globals.js",
+      "../../hooks/fire-and-forget.js",
+      "../../hooks/internal-hooks.js",
+      "../../infra/diagnostic-events.js",
+      "../../plugins/hook-runner-global.js",
+      "../../sessions/send-policy.js",
+      "../../tts/tts.js",
+      "../../utils/message-channel.js",
+      "../reply.js",
+      "../templating.js",
+      "../types.js",
+      "./abort.js",
+      "./dispatch-acp.js",
+      "./inbound-dedupe.js",
+      "./reply-dispatcher.js",
+      "./reply-payloads.js",
+      "./route-reply.js",
+      "./typing-policy.js"
+    ],
+    "external": [
+      "openclaw/plugin-sdk/reply-payload"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "normalizeMediaType",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "isInboundAudioContext",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "dispatchReplyFromConfig",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "markProcessing",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "markIdle",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveToolDeliveryPayload",
+      "line": 511,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "run",
+      "line": 556,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "run",
+      "line": 578,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    }
+  ],
+  "classes": [
+    {
+      "name": "DispatchFromConfigResult",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 103,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

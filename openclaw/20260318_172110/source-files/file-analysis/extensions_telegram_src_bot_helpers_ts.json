@@ -1,0 +1,326 @@
+{
+  "path": "extensions/telegram/src/bot/helpers.ts",
+  "extension": ".ts",
+  "size_bytes": 18562,
+  "line_count": 607,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Use resolveTelegramThreadSpec to handle both forum groups AND DM topics",
+      "Group sender access must remain explicit (groupAllowFrom/per-group allowFrom only).",
+      "DM pairing store entries are not a group authorization source.",
+      "Resolve the thread ID for Telegram forum topics. For non-forum groups, returns undefined even if messageThreadId is present (reply threads in regular groups should not create separate sessions). For forum groups, returns the topic ID (or General topic ID=1 if unspecified).",
+      "Non-forum groups: ignore message_thread_id (reply threads are not real topics)",
+      "Forum groups: use the topic ID, defaulting to General topic",
+      "Build thread params for Telegram API calls (messages, media). IMPORTANT: Thread IDs behave differently based on chat type: - DMs (private chats): Include message_thread_id when present (DM topics) - Forum topics: Skip thread_id=1 (General topic), include others - Regular groups: Thread IDs are ignored by Telegram General forum topic (id=1) must be treated like a regular supergroup send: Telegram rejects sendMessage/sendMedia with message_thread_id=1 (\"thread not found\"). @param thread - Thread specification with ID and scope @returns API params object or undefined if thread_id should be omitted",
+      "Telegram rejects message_thread_id=1 for General forum topic",
+      "Build thread params for typing indicators (sendChatAction). Empirically, General topic (id=1) needs message_thread_id for typing to appear.",
+      "Resolve the direct-message peer identifier for Telegram routing/session keys. In some Telegram DM deliveries (for example certain business/chat bridge flows), `chat.id` can differ from the actual sender user id. Prefer sender id when present so per-peer DM scopes isolate users correctly.",
+      "Build parentPeer for forum topic binding inheritance. When a message comes from a forum topic, the peer ID includes the topic suffix (e.g., `-1001234567890:topic:99`). To allow bindings configured for the base group ID to match, we provide the parent group as `parentPeer` so the routing layer can fall back to it when the exact peer doesn't match."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path"
+    ]
+  },
+  "exports": [
+    "buildSenderLabel",
+    "buildSenderName",
+    "resolveTelegramStreamMode",
+    "buildGroupLabel",
+    "resolveTelegramMediaPlaceholder",
+    "resolveTelegramForumThreadId",
+    "resolveTelegramThreadSpec",
+    "buildTelegramGroupFrom",
+    "expandTextLinks",
+    "resolveTelegramReplyId",
+    "describeReplyTarget",
+    "extractTelegramLocation",
+    "normalizeForwardedContext",
+    "getTelegramTextParts",
+    "buildTypingThreadParams",
+    "buildTelegramParentPeer",
+    "hasBotMention",
+    "resolveTelegramDirectPeerId",
+    "buildTelegramThreadParams",
+    "buildTelegramGroupPeerId"
+  ],
+  "imports": {
+    "internal": [
+      "../bot-access.js",
+      "./types.js"
+    ],
+    "external": [
+      "@grammyjs/types",
+      "openclaw/plugin-sdk/channel-runtime",
+      "openclaw/plugin-sdk/config-runtime",
+      "openclaw/plugin-sdk/conversation-runtime",
+      "openclaw/plugin-sdk/routing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolveTelegramGroupAllowFromContext",
+      "line": 21,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "resolveTelegramForumThreadId",
+      "line": 85,
+      "doc": "Resolve the thread ID for Telegram forum topics.   For non-forum groups, returns undefined even if messageThreadId is pr",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveTelegramThreadSpec",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildTelegramThreadParams",
+      "line": 138,
+      "doc": "Build thread params for Telegram API calls (messages, media).     IMPORTANT: Thread IDs behave differently based on chat",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildTypingThreadParams",
+      "line": 160,
+      "doc": "Build thread params for typing indicators (sendChatAction).   Empirically, General topic (id=1) needs message_thread_id ",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveTelegramStreamMode",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildTelegramGroupPeerId",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveTelegramDirectPeerId",
+      "line": 185,
+      "doc": "Resolve the direct-message peer identifier for Telegram routing keys.     In some Telegram DM deliveries (for example ce",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildTelegramGroupFrom",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildTelegramParentPeer",
+      "line": 207,
+      "doc": "Build parentPeer for forum topic binding inheritance.   When a message comes from a forum topic, the peer ID includes th",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildSenderName",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveTelegramMediaPlaceholder",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildSenderLabel",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "buildGroupLabel",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "getTelegramTextParts",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isTelegramMentionWordChar",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasStandaloneTelegramMention",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "hasBotMention",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "expandTextLinks",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "resolveTelegramReplyId",
+      "line": 368,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "describeReplyTarget",
+      "line": 388,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "normalizeForwardedUserLabel",
+      "line": 452,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeForwardedChatLabel",
+      "line": 463,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildForwardedContextFromUser",
+      "line": 471,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildForwardedContextFromHiddenName",
+      "line": 490,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildForwardedContextFromChat",
+      "line": 507,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "resolveForwardOrigin",
+      "line": 535,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "normalizeForwardedContext",
+      "line": 573,
+      "doc": "",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "extractTelegramLocation",
+      "line": 580,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "TelegramThreadSpec",
+      "line": 16,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TelegramTextEntity",
+      "line": 283,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TelegramTextLinkEntity",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TelegramReplyTarget",
+      "line": 379,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "TelegramForwardedContext",
+      "line": 438,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    }
+  ],
+  "complexity_score": 95,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}
