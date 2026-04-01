@@ -260,6 +260,82 @@ The v2026.3.28 release is a major pain point:
 
 ---
 
+## Security & Enterprise Deep Dive
+
+A targeted analysis across all 24,697 issues reveals **1,171 security-related** and **517 enterprise-related** issues, with 50 issues spanning both categories.
+
+### Security Issues: 1,171 Total (427 Open)
+
+| Sub-Category | Total | Open | Closed |
+|---|---:|---:|---:|
+| Allowlist / Policy | 242 | 98 | 144 |
+| Command / Code Injection | 155 | 66 | 89 |
+| Authentication Bypass / Failures | 117 | 47 | 70 |
+| Audit / Compliance | 108 | 40 | 68 |
+| SSRF / Network Policy | 68 | 25 | 43 |
+| Permission / RBAC | 68 | 23 | 45 |
+| Encryption / TLS | 59 | 21 | 38 |
+| Supply Chain / Plugin Security | 38 | 14 | 24 |
+| API Key / Secret Leaks | 28 | 10 | 18 |
+| PII / Data Protection | 23 | 6 | 17 |
+| Credential Management | 13 | 6 | 7 |
+| Sandbox Escape / Bypass | 3 | 3 | 0 |
+
+#### Notable Open Security Issues
+
+- **Allowlist enforcement** is the dominant security concern (98 open). Plugins, exec commands, and group policies are silently blocked or misconfigured by allowlist logic. Examples: `plugins.allow` silently blocks stock channel plugins; `groupPolicy` allowlist with no groups defined allows ALL WhatsApp groups instead of none.
+- **SSRF policy** blocks legitimate internal API calls (Telegram file CDN, BlueBubbles private IP, fake-IP proxy environments) — 25 open.
+- **Supply chain risks**: third-party plugins ship fully obfuscated code with background daemons (#58108); build-time plugin deps bypass lockfile (#58286); proposals for `skill.md` security auditing (#57552) and untrusted skill warnings (#57535).
+- **Credential leaks**: Claude MAX OAuth credentials leak to non-Anthropic providers (#58486); token auth misclassified as OAuth causing 401 errors (#57956).
+- **Command injection** via `config.openFile` / `OPENCLAW_CONFIG_PATH` (#57827).
+- **Sandbox escapes**: 3 open issues, all unresolved — caller-provided tools can shadow built-in tools bypassing server-side execution (#57232).
+- **v2026.3.28 scope enforcement** (`operator.write`) breaks /v1 API clients that can't send custom headers (#58487).
+
+### Enterprise Issues: 517 Total (245 Open)
+
+| Sub-Category | Total | Open | Closed |
+|---|---:|---:|---:|
+| Rate Limiting / Quotas | 173 | 77 | 96 |
+| Cost / Token Tracking | 153 | 67 | 86 |
+| Observability / Monitoring | 52 | 29 | 23 |
+| Backup / Disaster Recovery | 45 | 31 | 14 |
+| Audit / Compliance / Governance | 23 | 9 | 14 |
+| Scalability / Performance | 18 | 10 | 8 |
+| Role-Based Access / RBAC | 16 | 6 | 10 |
+| Multi-User / Multi-Workspace | 13 | 8 | 5 |
+| Policy Enforcement | 8 | 3 | 5 |
+| Kubernetes / Container Orchestration | 6 | 3 | 3 |
+| SSO / Identity | 4 | 0 | 4 |
+| Self-Hosting / On-Prem | 3 | 2 | 1 |
+
+#### Notable Open Enterprise Issues
+
+- **Rate limit handling** is the top enterprise pain point (77 open). 429 errors cause infinite retry loops (#58069, #57656), model fallback doesn't trigger on quota exceeded (#58442, #58212), and rate-limit cooldowns block other models on shared auth profiles (#55941).
+- **Cost/token tracking** is heavily requested (67 open). Token usage reported as zero in session files (#56670); requests for per-model/day usage dashboards (#56460), rate-limit header logging (#55934), and per-run token usage on WebSocket events (#57404).
+- **Backup reliability** is poor (31 open). Cron exec timeout silently kills backup steps (#57963); `backup create --verify` fails with symlinks (#57515); `doctor --fix` generates thousands of clobbered backup files (#56450).
+- **Observability gaps** (29 open). Missing tool call audit logging (#55801), plugin load/health status not logged (#55803), and no tool policy "which rule matched" tracing (#55801).
+- **Kubernetes/container issues**: v2026.3.28 OOM-crashes on startup while previous version passes same canary (#57303); heap exhaustion after extended uptime (#57349).
+- **Multi-workspace**: Slack multi-workspace outbound works but inbound DM replies never reach OpenClaw (#58523).
+- **Explicit enterprise feature request** (#56310): "enterprise application improvements suggestion."
+- **Self-hosting**: configurable file permissions (chmod 0o640/0o750) for multi-user setups (#56263).
+
+### Enterprise Readiness Assessment
+
+| Capability | Status | Key Gaps |
+|---|---|---|
+| **Authentication** | Partial | Auth profile failover unreliable; credential leaks across providers; no built-in health monitoring |
+| **Authorization / RBAC** | Minimal | 16 total issues; no granular role system; `operator.write` scope enforcement is breaking existing clients |
+| **SSO / Identity** | Not Ready | Only 4 issues (all closed); no native SAML/OIDC/LDAP support |
+| **Rate Limit Resilience** | Broken | Model fallback chains fail on 429; infinite retry loops; rate limits cascade across auth profiles |
+| **Cost Management** | Not Available | Token usage tracking is zeroed out; no billing dashboard; no budget/quota controls |
+| **Observability** | Minimal | No structured audit logging; missing tool execution tracing; plugin health not surfaced |
+| **Backup / DR** | Fragile | Silent failures; symlink corruption; doctor --fix creates more problems |
+| **Multi-Tenancy** | Not Supported | 13 issues; no tenant isolation; file permissions not configurable |
+| **Kubernetes / HA** | Experimental | OOM crashes on current version; no documented HA deployment pattern |
+| **Compliance** | Not Addressed | No PII redaction (6 open); no audit trail (9 open); no policy enforcement framework |
+
+---
+
 ## Key Findings
 
 ### 1. Gateway Is the #1 Bug Surface (652 open bugs)
@@ -285,6 +361,12 @@ The community wants multi-agent orchestration (134 open), ChatGPT-like UI (225 o
 
 ### 8. 1,420 Regressions — Release Quality Concern
 The `regression` label on 1,420 issues signals a fundamental release quality problem. The project would benefit from better regression testing, staged rollouts, and a more conservative release cadence.
+
+### 9. Security Surface Is Significant (1,171 Issues, 427 Open)
+Allowlist enforcement failures (98 open), command injection vectors, SSRF false positives blocking legitimate traffic, supply chain risks from obfuscated third-party plugins, and credential leaks across providers represent a serious security posture gap. All 3 sandbox escape issues remain unresolved.
+
+### 10. Enterprise Readiness Is Far Off (517 Issues, 245 Open)
+The platform lacks fundamental enterprise capabilities: no SSO/SAML/LDAP, no RBAC beyond basic scope enforcement, no cost/billing dashboard (token tracking is broken), fragile backup/DR, no multi-tenancy, and Kubernetes deployments OOM-crash on current versions. Rate limit handling — arguably the most critical enterprise concern — is actively broken with infinite retry loops across multiple components.
 
 ---
 
