@@ -1,0 +1,158 @@
+{
+  "path": "packages/agentmesh-integrations/pydantic-ai-governance/src/pydantic_ai_governance/toolset.py",
+  "extension": ".py",
+  "size_bytes": 5434,
+  "line_count": 164,
+  "documentation": {
+    "file_docstring": "GovernanceToolset \u2014 apply governance to all tools in a PydanticAI agent.\n\nWraps PydanticAI's toolset pattern to intercept every tool call\nwith policy checks before execution.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Use with PydanticAI agent",
+      "1. Tool allowlist",
+      "2. Call count limit",
+      "3. Content check on arguments",
+      "4. Semantic intent classification",
+      "All checks passed"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernanceViolation: Raised when a governance policy is violated.",
+      "GovernanceToolset: Toolset wrapper that applies governance policy to all tools.\n\nDesigned to work w",
+      "reset: Reset call counter (call between requests).",
+      "check_tool_call: Check if a tool call is allowed by policy.\n\nRuns all governance checks: allowlis",
+      "_record: Record a violation in the audit trail."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "GovernanceViolation",
+    "check_tool_call",
+    "reset",
+    "GovernanceToolset"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "typing",
+      "pydantic_ai_governance.audit",
+      "pydantic_ai_governance.intent",
+      "pydantic_ai_governance.policy"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 25,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "audit",
+        "on_violation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 62,
+      "doc": "Reset call counter (call between requests).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_tool_call",
+      "line": 66,
+      "doc": "Check if a tool call is allowed by policy.\n\nRuns all governance checks: allowlist, call count, content,\nand semantic intent classification.\n\nArgs:\n    tool_name: Name of the tool being called.\n    arguments: Tool call arguments.\n    agent_id: Optional agent identifier for audit.\n\nReturns:\n    PolicyCheckResult indicating if the call is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "arguments",
+        "agent_id"
+      ],
+      "returns": "PolicyCheckResult"
+    },
+    {
+      "name": "_record",
+      "line": 150,
+      "doc": "Record a violation in the audit trail.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result",
+        "tool_name",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernanceViolation",
+      "line": 22,
+      "doc": "Raised when a governance policy is violated.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernanceToolset",
+      "line": 30,
+      "doc": "Toolset wrapper that applies governance policy to all tools.\n\nDesigned to work with PydanticAI's toolset/WrapperToolset pattern.\nIntercepts tool calls with policy checks, semantic intent classification,\nand audit logging.\n\nExample:\n    from pydantic_ai_governance import GovernancePolicy, GovernanceToolset\n\n    policy = GovernancePolicy(\n        max_tool_calls_per_request=10,\n        blocked_patterns=[(\"rm -rf\", PatternType.SUBSTRING)],\n    )\n    toolset = GovernanceToolset(policy=policy)\n\n    # Use with PydanticAI agent\n    result = toolset.check_tool_call(\"search\", {\"query\": \"hello\"})\n    assert result.allowed",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

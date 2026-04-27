@@ -1,0 +1,180 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/main.py",
+  "extension": ".py",
+  "size_bytes": 12900,
+  "line_count": 412,
+  "documentation": {
+    "file_docstring": "IATP Sidecar Proxy - Main Application\n\nThis is the main entry point for the IATP Sidecar Proxy.\nIt can be run directly with: uvicorn iatp.main:app --host 0.0.0.0 --port 8081\n\nThe sidecar acts as a gateway that:\n1. Intercepts all requests to/from the agent\n2. Validates requests using the built-in Policy Engine\n3. Handles failures using the Recovery Engine (scak)\n4. Enforces privacy and security policies\n5. Records all events in the Flight Recorder for distributed tracing",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Configure logging",
+      "Configuration from environment variables",
+      "Initialize engines and validators",
+      "Build the manifest from environment",
+      "Create FastAPI application",
+      "Add CORS middleware",
+      "=============================================================================",
+      "ENDPOINTS",
+      "=============================================================================",
+      "1. GENERATE TRACE ID",
+      "2. PARSE PAYLOAD",
+      "3. POLICY ENGINE CHECK",
+      "4. SECURITY VALIDATOR CHECK",
+      "5. CHECK IF WARNING/OVERRIDE NEEDED",
+      "Log the request",
+      "6. FORWARD TO UPSTREAM AGENT",
+      "Parse response",
+      "Log response",
+      "Return with tracing headers",
+      "7. TIMEOUT - TRIGGER RECOVERY",
+      "GENERAL ERROR - TRIGGER RECOVERY",
+      "=============================================================================",
+      "MAIN ENTRY POINT",
+      "============================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "get_manifest: Create capability manifest from environment configuration.",
+      "lifespan: Application lifespan - startup and shutdown.",
+      "health_check: Health check endpoint.",
+      "get_capabilities: IATP Handshake Endpoint.\n\nReturns this agent's capability manifest for trust neg",
+      "proxy_task: The Main Gateway - Intercepts and validates all requests.\n\nFlow:\n1. Generate/val",
+      "get_trace: Retrieve flight recorder logs for a specific trace ID.\n\nUseful for debugging and",
+      "get_metrics: Get sidecar metrics and statistics."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "test class/function patterns",
+      "special file: main.py"
+    ]
+  },
+  "exports": [
+    "get_manifest"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "os",
+      "contextlib",
+      "typing",
+      "httpx",
+      "fastapi",
+      "fastapi.middleware.cors",
+      "fastapi.responses",
+      "iatp.models",
+      "iatp.policy_engine",
+      "iatp.recovery",
+      "iatp.security",
+      "iatp.telemetry",
+      "time",
+      "uvicorn"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_manifest",
+      "line": 64,
+      "doc": "Create capability manifest from environment configuration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "CapabilityManifest"
+    },
+    {
+      "name": "lifespan",
+      "line": 89,
+      "doc": "Application lifespan - startup and shutdown.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asynccontextmanager"
+      ],
+      "args": [
+        "app"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 127,
+      "doc": "Health check endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_capabilities",
+      "line": 139,
+      "doc": "IATP Handshake Endpoint.\n\nReturns this agent's capability manifest for trust negotiation.\nExternal agents call this to understand what this agent can do\nand what its security/privacy posture is.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "proxy_task",
+      "line": 152,
+      "doc": "The Main Gateway - Intercepts and validates all requests.\n\nFlow:\n1. Generate/validate trace ID\n2. Parse and validate the payload\n3. Run Policy Engine checks\n4. Run Security Validator checks\n5. Forward to upstream agent\n6. Handle failures with Recovery Engine (scak)\n7. Log everything to Flight Recorder\n\nHeaders:\n- X-User-Override: Set to \"true\" to bypass security warnings\n- X-Agent-Trace-ID: Optional trace ID for distributed tracing",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request",
+        "x_user_override",
+        "x_agent_trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trace",
+      "line": 374,
+      "doc": "Retrieve flight recorder logs for a specific trace ID.\n\nUseful for debugging and distributed tracing across agent calls.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 387,
+      "doc": "Get sidecar metrics and statistics.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

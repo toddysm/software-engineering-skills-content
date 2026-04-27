@@ -1,0 +1,305 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/trust/cards.py",
+  "extension": ".py",
+  "size_bytes": 10656,
+  "line_count": 308,
+  "documentation": {
+    "file_docstring": "Trusted Agent Cards\n\nAgent cards for discovery and verification with cryptographic signing.\nBased on learnings from A2A Protocol integration review.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Basic info",
+      "Identity (public info only)",
+      "Trust metadata",
+      "Cryptographic signature over card content",
+      "Additional metadata",
+      "Verify using embedded public key",
+      "This requires reconstructing a minimal identity for verification",
+      "Revocation check always runs (not cached \u2014 revocations are instant)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustedAgentCard: Agent card for discovery and verification.\n\nCards are cryptographically signed t",
+      "CardRegistry: Registry for trusted agent cards.\n\nProvides discovery and caching of verified ca",
+      "_get_signable_content: Get deterministic content for signing.",
+      "sign: Cryptographically sign this card with the given identity.\n\nThe signature covers ",
+      "verify_signature: Verify the card's signature is valid.\n\nArgs:\n    identity: Optional identity to ",
+      "from_identity: Create a signed card from an identity.\n\nArgs:\n    identity: The identity to crea",
+      "to_dict: Serialize the card to a plain dictionary.\n\nIncludes identity and signature field",
+      "from_dict: Deserialize a card from a dictionary.\n\nPerforms safe access on all keys so missi",
+      "__init__: Initialise the card registry.\n\nArgs:\n    cache_ttl_seconds: Time-to-live in seco",
+      "register: Register a card after verifying its signature.\n\nArgs:\n    card: The card to regi"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "clear_cache",
+    "from_identity",
+    "register",
+    "revocation_list",
+    "verify_signature",
+    "sign",
+    "to_dict",
+    "is_verified",
+    "TrustedAgentCard",
+    "get",
+    "list_cards",
+    "CardRegistry",
+    "from_dict",
+    "find_by_capability"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "json",
+      "agentmesh.identity.agent_id",
+      "agentmesh.identity.revocation",
+      "cryptography.hazmat.primitives.asymmetric",
+      "base64"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_get_signable_content",
+      "line": 47,
+      "doc": "Get deterministic content for signing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "sign",
+      "line": 59,
+      "doc": "Cryptographically sign this card with the given identity.\n\nThe signature covers the card's core content to prevent tampering.\nAfter signing, the card can be verified by anyone with the public key.\n\nArgs:\n    identity: The identity to sign with (must have private key)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_signature",
+      "line": 76,
+      "doc": "Verify the card's signature is valid.\n\nArgs:\n    identity: Optional identity to verify against. If not provided,\n             uses the public key embedded in the card.\n\nReturns:\n    True if signature is valid, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "from_identity",
+      "line": 110,
+      "doc": "Create a signed card from an identity.\n\nArgs:\n    identity: The identity to create a card for\n\nReturns:\n    A signed TrustedAgentCard",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 128,
+      "doc": "Serialize the card to a plain dictionary.\n\nIncludes identity and signature fields only when they are\npopulated.\n\nReturns:\n    Dictionary representation suitable for JSON serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 155,
+      "doc": "Deserialize a card from a dictionary.\n\nPerforms safe access on all keys so missing values fall back to\nsensible defaults.\n\nArgs:\n    data: Dictionary previously produced by :meth:`to_dict` or\n        an equivalent external source.\n\nReturns:\n    A ``TrustedAgentCard`` instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 194,
+      "doc": "Initialise the card registry.\n\nArgs:\n    cache_ttl_seconds: Time-to-live in seconds for the\n        verification cache. Defaults to 900 (15 minutes).\n    revocation_list: Optional revocation list to check during\n        verification. When set, revoked agent DIDs fail\n        ``is_verified()`` even if their signatures are valid.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cache_ttl_seconds",
+        "revocation_list"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 213,
+      "doc": "Register a card after verifying its signature.\n\nArgs:\n    card: The card to register\n\nReturns:\n    True if registered successfully, False if verification failed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "card"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get",
+      "line": 232,
+      "doc": "Get a registered card by agent DID.\n\nArgs:\n    agent_did: The agent's decentralized identifier.\n\nReturns:\n    The ``TrustedAgentCard``, or ``None`` if not registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revocation_list",
+      "line": 244,
+      "doc": "The attached revocation list, if any.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revocation_list",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "revocation_list.setter"
+      ],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_verified",
+      "line": 253,
+      "doc": "Check if a card is verified (with caching).\n\nUses TTL-based caching to avoid repeated verification.\nReturns False if the agent DID is on the revocation list,\neven if the cryptographic signature is valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "clear_cache",
+      "line": 279,
+      "doc": "Clear the verification cache.\n\nSubsequent calls to :meth:`is_verified` will re-verify\nsignatures from scratch.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_cards",
+      "line": 287,
+      "doc": "List all registered agent cards.\n\nReturns:\n    List of every ``TrustedAgentCard`` in the registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "find_by_capability",
+      "line": 295,
+      "doc": "Find registered cards that advertise a specific capability.\n\nArgs:\n    capability: Capability string to search for.\n\nReturns:\n    List of ``TrustedAgentCard`` instances whose\n    ``capabilities`` list contains the given string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustedAgentCard",
+      "line": 19,
+      "doc": "Agent card for discovery and verification.\n\nCards are cryptographically signed to prevent impersonation.\nBased on A2A Protocol's agent card extension pattern.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CardRegistry",
+      "line": 185,
+      "doc": "Registry for trusted agent cards.\n\nProvides discovery and caching of verified cards.\nOptionally integrates with a ``RevocationList`` to reject cards\nwhose agent DID has been revoked.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

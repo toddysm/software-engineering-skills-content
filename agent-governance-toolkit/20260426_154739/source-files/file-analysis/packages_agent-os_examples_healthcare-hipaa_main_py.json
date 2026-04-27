@@ -1,0 +1,673 @@
+{
+  "path": "packages/agent-os/examples/healthcare-hipaa/main.py",
+  "extension": ".py",
+  "size_bytes": 29159,
+  "line_count": 854,
+  "documentation": {
+    "file_docstring": "Medical Chart Review Agent - HIPAA Compliant\n============================================\n\nProduction-grade AI agent for medical chart review with full HIPAA compliance.\n\nFeatures:\n- PHI detection and protection (18 HIPAA identifiers)\n- Role-based access control (RBAC)\n- Verification for clinical accuracy\n- Tamper-evident audit logging\n- Automatic de-identification\n- Break-the-glass emergency access\n- Malpractice protection via audit trails\n\nBenchmarkable: \"Reviewed 1,200 charts, 0 PHI breaches, 99.2% accuracy\"",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================",
+      "SAFE LOGGING HELPER",
+      "============================================================",
+      "============================================================",
+      "HIPAA CONFIGURATION",
+      "============================================================",
+      "18 HIPAA Identifiers",
+      "Clinical terminology for contradiction detection",
+      "Role permissions",
+      "Approved destinations for PHI",
+      "============================================================",
+      "DATA MODELS",
+      "============================================================",
+      "============================================================",
+      "HIPAA AUDIT LOGGER",
+      "============================================================",
+      "Create blockchain-style hash chain",
+      "============================================================",
+      "PHI PROTECTION",
+      "============================================================",
+      "============================================================",
+      "CLINICAL VERIFICATION",
+      "============================================================",
+      "Check for known contradictions",
+      "Check medication-allergy interactions",
+      "Simulate consensus",
+      "Filter to high-confidence findings",
+      "In production, this calls medical LLM APIs",
+      "============================================================",
+      "ACCESS CONTROL",
+      "============================================================",
+      "Check if user is active",
+      "Get role permissions",
+      "Check resource access",
+      "Log successful access",
+      "Log emergency override",
+      "============================================================",
+      "MAIN AGENT",
+      "============================================================",
+      "Initialize components",
+      "Storage",
+      "Metrics",
+      "Step 1: Check access",
+      "Step 2: Get chart",
+      "Step 3: Clinical verification",
+      "Step 4: Prepare output based on role",
+      "Full PHI access for clinical roles",
+      "De-identified for non-clinical",
+      "Return full chart access",
+      "============================================================",
+      "DEMO",
+      "============================================================",
+      "Register users",
+      "Add patient",
+      "Add chart data"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_redact: Redact a sensitive value for safe logging.\n\nReplaces sensitive data with a stabl",
+      "User: Healthcare system user.",
+      "Patient: Patient record.",
+      "ChartEntry: Medical chart entry.",
+      "MedicalChart: Complete patient medical chart.",
+      "ReviewFinding: Chart review finding.",
+      "AuditEntry: HIPAA audit log entry.",
+      "HIPAAAuditLog: Tamper-evident HIPAA-compliant audit logging.\nRequired for breach investigations",
+      "PHIProtector: Detect and protect Protected Health Information.",
+      "ClinicalVerifier: Verification for clinical accuracy.\nCatches contradictions that could indicate e"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "main/entry-point function detected",
+      "special file: main.py"
+    ]
+  },
+  "exports": [
+    "PHIProtector",
+    "de_identify",
+    "ChartEntry",
+    "verify_integrity",
+    "AccessController",
+    "add_chart_entry",
+    "add_patient",
+    "get_user_activity",
+    "ClinicalVerifier",
+    "get_metrics",
+    "log",
+    "AuditEntry",
+    "check_access",
+    "HIPAAAuditLog",
+    "AccessLevel",
+    "get_patient_access_history",
+    "get_audit_trail",
+    "is_phi_free",
+    "Patient",
+    "MedicalChart",
+    "emergency_override",
+    "User",
+    "MedicalChartReviewAgent",
+    "register_user",
+    "detect_phi",
+    "ReviewFinding"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "hashlib",
+      "json",
+      "re",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "collections",
+      "uuid",
+      "hashlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_redact",
+      "line": 38,
+      "doc": "Redact a sensitive value for safe logging.\n\nReplaces sensitive data with a stable hash-based identifier.\nThe original data never appears in output \u2014 only a truncated\nSHA-256 digest is used for cross-reference correlation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value",
+        "visible_chars"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "demo",
+      "line": 742,
+      "doc": "Demonstrate the medical chart review agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 236,
+      "doc": "Create tamper-evident audit entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_id",
+        "patient_id",
+        "action",
+        "resource",
+        "outcome",
+        "access_level",
+        "reason"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "verify_integrity",
+      "line": 267,
+      "doc": "Verify audit log has not been tampered with.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_patient_access_history",
+      "line": 284,
+      "doc": "Get all access to a patient's records.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patient_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_user_activity",
+      "line": 288,
+      "doc": "Get user activity within time window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_id",
+        "hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_phi",
+      "line": 307,
+      "doc": "Detect all PHI in text.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "de_identify",
+      "line": 319,
+      "doc": "De-identify text by replacing PHI with placeholders.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "is_phi_free",
+      "line": 327,
+      "doc": "Check if text contains no PHI.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_chart",
+      "line": 345,
+      "doc": "Verify chart for contradictions and errors.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "chart"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_chart_to_text",
+      "line": 385,
+      "doc": "Convert chart to searchable text.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "chart"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_check_allergy_interaction",
+      "line": 398,
+      "doc": "Check for medication-allergy interactions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "med",
+        "allergy"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_get_model_consensus",
+      "line": 412,
+      "doc": "Simulate consensus scoring.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "text",
+        "findings"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 427,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_access",
+      "line": 431,
+      "doc": "Check if user has access to resource.\nReturns: (allowed, reason)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user",
+        "patient_id",
+        "resource",
+        "action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "emergency_override",
+      "line": 469,
+      "doc": "Break-the-glass emergency access.\nGrants temporary access but triggers alerts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user",
+        "patient_id",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_resource_type",
+      "line": 493,
+      "doc": "Map resource to type category.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "resource"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 527,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_user",
+      "line": 552,
+      "doc": "Register a healthcare system user.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_patient",
+      "line": 556,
+      "doc": "Add patient to system.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patient"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_chart_entry",
+      "line": 561,
+      "doc": "Add entry to patient chart with access check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patient_id",
+        "entry",
+        "user"
+      ],
+      "returns": null
+    },
+    {
+      "name": "review_chart",
+      "line": 576,
+      "doc": "Review patient chart with full HIPAA compliance.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "patient_id",
+        "user",
+        "reason"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_format_clinical_review",
+      "line": 639,
+      "doc": "Format review with full PHI for clinical staff.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "chart",
+        "findings"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_format_deidentified_review",
+      "line": 655,
+      "doc": "Format de-identified review for non-clinical staff.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "chart",
+        "findings"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "emergency_access",
+      "line": 671,
+      "doc": "Break-the-glass emergency access.\nBypasses normal access controls but triggers alerts.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "patient_id",
+        "user",
+        "emergency_reason"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_audit_trail",
+      "line": 710,
+      "doc": "Get HIPAA audit trail for patient.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patient_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 725,
+      "doc": "Get agent metrics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AccessLevel",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "User",
+      "line": 146,
+      "doc": "Healthcare system user.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Patient",
+      "line": 157,
+      "doc": "Patient record.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ChartEntry",
+      "line": 172,
+      "doc": "Medical chart entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MedicalChart",
+      "line": 185,
+      "doc": "Complete patient medical chart.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReviewFinding",
+      "line": 196,
+      "doc": "Chart review finding.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuditEntry",
+      "line": 208,
+      "doc": "HIPAA audit log entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HIPAAAuditLog",
+      "line": 226,
+      "doc": "Tamper-evident HIPAA-compliant audit logging.\nRequired for breach investigations and compliance audits.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PHIProtector",
+      "line": 301,
+      "doc": "Detect and protect Protected Health Information.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ClinicalVerifier",
+      "line": 336,
+      "doc": "Verification for clinical accuracy.\nCatches contradictions that could indicate errors.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AccessController",
+      "line": 422,
+      "doc": "Role-based access control with break-the-glass.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MedicalChartReviewAgent",
+      "line": 515,
+      "doc": "Production HIPAA-compliant medical chart review agent.\n\nPipeline:\n1. Verify user access rights\n2. Retrieve chart with PHI protection\n3. Clinical verification\n4. Generate findings with audit trail\n5. De-identify output for non-clinical users",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 88,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

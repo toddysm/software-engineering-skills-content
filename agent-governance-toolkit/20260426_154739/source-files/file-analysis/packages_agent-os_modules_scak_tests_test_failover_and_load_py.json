@@ -1,0 +1,666 @@
+{
+  "path": "packages/agent-os/modules/scak/tests/test_failover_and_load.py",
+  "extension": ".py",
+  "size_bytes": 14068,
+  "line_count": 440,
+  "documentation": {
+    "file_docstring": "Tests for failover, health monitoring, and load testing.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Make calls until circuit opens",
+      "Force circuit open",
+      "Force circuit open",
+      "Check multiple times",
+      "Check both",
+      "Start monitoring",
+      "Let it run briefly",
+      "Stop monitoring",
+      "Track health states",
+      "Register components with mocked checks",
+      "Make primary return unhealthy",
+      "Need to fail multiple times to reach unhealthy threshold",
+      "Should failover to backup",
+      "Initially make primary fail, causing failover to backup",
+      "Fail primary multiple times to reach unhealthy",
+      "Now make primary healthy again AND backup fail",
+      "Fail backup to trigger failback",
+      "Should failback to primary (since backup is now unhealthy)",
+      "Simulate failover",
+      "Fail 20% of the time",
+      "Check latency metrics are calculated",
+      "p99 should be >= p95 >= median",
+      "Initially empty"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestCircuitBreaker: Test circuit breaker pattern.",
+      "TestHealthMonitor: Test health monitoring.",
+      "TestFailoverManager: Test failover management.",
+      "TestLoadTester: Test load testing framework.",
+      "breaker: Create circuit breaker.",
+      "test_circuit_closed_success: Test circuit stays closed on success.",
+      "test_circuit_opens_on_failures: Test circuit opens after threshold failures.",
+      "test_circuit_uses_fallback_when_open: Test fallback is used when circuit open.",
+      "test_circuit_rejects_without_fallback: Test circuit rejects calls when open and no fallback.",
+      "test_get_stats: Test getting circuit breaker stats."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "tester",
+    "TestHealthMonitor",
+    "TestCircuitBreaker",
+    "test_get_stats",
+    "test_register_backup",
+    "test_list_tests",
+    "breaker",
+    "test_get_failover_stats",
+    "monitor",
+    "manager",
+    "TestFailoverManager",
+    "TestLoadTester"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "asyncio",
+      "src.kernel.failover",
+      "src.kernel.load_testing",
+      "datetime",
+      "datetime"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "breaker",
+      "line": 26,
+      "doc": "Create circuit breaker.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_closed_success",
+      "line": 35,
+      "doc": "Test circuit stays closed on success.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "breaker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_opens_on_failures",
+      "line": 47,
+      "doc": "Test circuit opens after threshold failures.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "breaker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_uses_fallback_when_open",
+      "line": 67,
+      "doc": "Test fallback is used when circuit open.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "breaker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_rejects_without_fallback",
+      "line": 86,
+      "doc": "Test circuit rejects calls when open and no fallback.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "breaker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_stats",
+      "line": 100,
+      "doc": "Test getting circuit breaker stats.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "breaker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "monitor",
+      "line": 117,
+      "doc": "Create health monitor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_component",
+      "line": 125,
+      "doc": "Test registering component for monitoring.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "monitor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_healthy_component",
+      "line": 140,
+      "doc": "Test checking healthy component.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "monitor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_unhealthy_component",
+      "line": 153,
+      "doc": "Test component becomes unhealthy after threshold.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "monitor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_system_health_aggregation",
+      "line": 174,
+      "doc": "Test aggregated system health.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "monitor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_continuous_monitoring",
+      "line": 198,
+      "doc": "Test starting and stopping monitoring.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "monitor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "manager",
+      "line": 221,
+      "doc": "Create failover manager.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_backup",
+      "line": 246,
+      "doc": "Test registering backup component.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_failover_on_primary_failure",
+      "line": 255,
+      "doc": "Test automatic failover when primary fails.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_failback_when_primary_recovers",
+      "line": 273,
+      "doc": "Test failback to primary when it recovers AND backup fails.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_failover_stats",
+      "line": 301,
+      "doc": "Test getting failover statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "tester",
+      "line": 321,
+      "doc": "Create load tester.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ramp_up_load_test",
+      "line": 326,
+      "doc": "Test ramp-up load profile.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tester"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spike_load_test",
+      "line": 350,
+      "doc": "Test spike load profile.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tester"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_endurance_load_test",
+      "line": 366,
+      "doc": "Test endurance load profile.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tester"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_error_rate_tracking",
+      "line": 382,
+      "doc": "Test tracking error rate.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tester"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_latency_percentiles",
+      "line": 408,
+      "doc": "Test latency percentile calculation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tester"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_tests",
+      "line": 432,
+      "doc": "Test listing completed tests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tester"
+      ],
+      "returns": null
+    },
+    {
+      "name": "successful_call",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "failing_call",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "main_call",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "fallback_call",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "main_call",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "healthy_check",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "unhealthy_check",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "primary_check",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "backup_check",
+      "line": 235,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "target_function",
+      "line": 330,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "target_function",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "target_function",
+      "line": 368,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "target_function",
+      "line": 386,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "target_function",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCircuitBreaker",
+      "line": 22,
+      "doc": "Test circuit breaker pattern.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHealthMonitor",
+      "line": 113,
+      "doc": "Test health monitoring.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFailoverManager",
+      "line": 217,
+      "doc": "Test failover management.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLoadTester",
+      "line": 317,
+      "doc": "Test load testing framework.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 12,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

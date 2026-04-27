@@ -1,0 +1,428 @@
+{
+  "path": "packages/agent-os/src/agent_os/context_budget.py",
+  "extension": ".py",
+  "size_bytes": 9843,
+  "line_count": 305,
+  "documentation": {
+    "file_docstring": "Context Budget Scheduler \u2014 token budget as a kernel primitive.\n\nMakes the \"Scale by Subtraction\" philosophy (90 % lookup, 10 % reasoning)\nconcrete and enforced.  The kernel owns the budget; agents cannot exceed it.\n\nCloses #207.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Signals",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Data structures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Budget Exceeded Error",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Context Budget Scheduler",
+      "---------------------------------------------------------------------------",
+      "Default minimum context sizes per priority (tokens)",
+      "-- Allocation -----------------------------------------------------------",
+      "Scale by priority",
+      "Ensure at least the minimum (or whatever is left),",
+      "but never exceed an explicit max_tokens cap.",
+      "-- Usage tracking -------------------------------------------------------",
+      "Check thresholds",
+      "-- Queries --------------------------------------------------------------",
+      "-- Signal system --------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentSignal: Kernel signals for context budget enforcement.",
+      "ContextWindow: An allocated context window for an agent task.",
+      "ContextPriority: Task priority levels for context allocation.",
+      "UsageRecord: Tracks actual token usage by an agent.",
+      "BudgetExceeded: Raised when an agent exceeds its context budget.",
+      "ContextScheduler: Kernel primitive that governs how context budget is allocated.\n\nLike CPU schedul",
+      "allocate: Allocate a context window for *agent_id*.\n\nThe scheduler decides the actual size",
+      "record_usage: Record token usage for an active allocation.\n\nEmits SIGWARN or SIGSTOP as thresh",
+      "release: Release an allocation and move it to history.",
+      "utilization: Global pool utilization (0.0 \u2013 1.0)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "remaining",
+    "lookup_ratio",
+    "release",
+    "ContextScheduler",
+    "get_health_report",
+    "available_tokens",
+    "utilization",
+    "record_usage",
+    "ContextPriority",
+    "AgentSignal",
+    "get_usage",
+    "active_count",
+    "UsageRecord",
+    "BudgetExceeded",
+    "reasoning_ratio",
+    "allocate",
+    "active_agents",
+    "total_used",
+    "ContextWindow",
+    "on_signal"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "lookup_ratio",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "reasoning_ratio",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "total_used",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "remaining",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "utilization",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "budget",
+        "used"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "total_budget",
+        "lookup_ratio",
+        "warn_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "allocate",
+      "line": 159,
+      "doc": "Allocate a context window for *agent_id*.\n\nThe scheduler decides the actual size based on remaining pool\ncapacity and the task priority.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "task",
+        "priority",
+        "max_tokens"
+      ],
+      "returns": "ContextWindow"
+    },
+    {
+      "name": "record_usage",
+      "line": 207,
+      "doc": "Record token usage for an active allocation.\n\nEmits SIGWARN or SIGSTOP as thresholds are crossed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "lookup_tokens",
+        "reasoning_tokens"
+      ],
+      "returns": "UsageRecord"
+    },
+    {
+      "name": "release",
+      "line": 239,
+      "doc": "Release an allocation and move it to history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_usage",
+      "line": 248,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "active_agents",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "active_count",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_available_tokens",
+      "line": 259,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "available_tokens",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "utilization",
+      "line": 268,
+      "doc": "Global pool utilization (0.0 \u2013 1.0).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_health_report",
+      "line": 273,
+      "doc": "Return a summary of scheduler state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_signal",
+      "line": 296,
+      "doc": "Register a handler for *signal*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_emit",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentSignal",
+      "line": 23,
+      "doc": "Kernel signals for context budget enforcement.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ContextWindow",
+      "line": 36,
+      "doc": "An allocated context window for an agent task.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ContextPriority",
+      "line": 55,
+      "doc": "Task priority levels for context allocation.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "UsageRecord",
+      "line": 65,
+      "doc": "Tracks actual token usage by an agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BudgetExceeded",
+      "line": 93,
+      "doc": "Raised when an agent exceeds its context budget.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ContextScheduler",
+      "line": 118,
+      "doc": "Kernel primitive that governs how context budget is allocated.\n\nLike CPU scheduling but for token budgets.  Enforces the 90/10\n(lookup/reasoning) split and emits SIGSTOP when an agent goes\nover budget.\n\nParameters\n----------\ntotal_budget : int\n    Global token pool (shared across all active agents).\nlookup_ratio : float\n    Fraction of each allocation devoted to lookup (default 0.90).\nwarn_threshold : float\n    Fraction of budget at which SIGWARN fires (default 0.85).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 0.8,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

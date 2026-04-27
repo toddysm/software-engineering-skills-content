@@ -1,0 +1,276 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/advisory.py",
+  "extension": ".py",
+  "size_bytes": 7790,
+  "line_count": 233,
+  "documentation": {
+    "file_docstring": "Optional advisory layer \u2014 classifier-based defense-in-depth.\n\nRuns AFTER deterministic policy rules pass. Can only ADD restrictions\n(block or flag) \u2014 never override a deterministic deny. The deterministic\nlayer remains the trust boundary; the advisory layer is defense-in-depth.\n\nKey constraints:\n- Runs only when deterministic rules return ``allow``\n- Can tighten (block, flag_for_review) but never loosen\n- Failures default to ``allow`` (deterministic layer is canonical)\n- All decisions logged with ``deterministic: false`` in audit trail\n\nUsage::\n\n    from agentmesh.governance.advisory import AdvisoryCheck, CallbackAdvisory\n\n    def my_classifier(context):\n        if looks_suspicious(context):\n            return AdvisoryDecision(action=\"block\", reason=\"Suspicious pattern\")\n        return AdvisoryDecision(action=\"allow\")\n\n    advisory = CallbackAdvisory(my_classifier)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AdvisoryDecision: Result of an advisory check.\n\nAttributes:\n    action: One of ``\"allow\"``, ``\"blo",
+      "AdvisoryCheck: Abstract base class for advisory classifiers.",
+      "CallbackAdvisory: Advisory check backed by a custom callback function.\n\nArgs:\n    callback: Functi",
+      "HttpAdvisory: Advisory check via HTTP classifier endpoint.\n\nPosts context as JSON, expects ``{",
+      "PatternAdvisory: Advisory check using regex pattern matching.\n\nScans string values in context for",
+      "CompositeAdvisory: Chains multiple advisory checks. First non-allow result wins.\n\nArgs:\n    checks:",
+      "check: Evaluate context and return an advisory decision.\n\nArgs:\n    context: Policy eva",
+      "_extract_text: Recursively extract string values from nested dicts/lists."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AdvisoryDecision",
+    "check",
+    "AdvisoryCheck",
+    "PatternAdvisory",
+    "HttpAdvisory",
+    "CompositeAdvisory",
+    "CallbackAdvisory"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "abc",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "json",
+      "urllib.request",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "check",
+      "line": 63,
+      "doc": "Evaluate context and return an advisory decision.\n\nArgs:\n    context: Policy evaluation context (same dict passed to PolicyEngine).\n\nReturns:\n    An ``AdvisoryDecision``. Return ``action=\"allow\"`` to pass through.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "AdvisoryDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback",
+        "name",
+        "on_error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "AdvisoryDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "url",
+        "name",
+        "timeout_seconds",
+        "headers",
+        "on_error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "AdvisoryDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patterns",
+        "name",
+        "action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "AdvisoryDecision"
+    },
+    {
+      "name": "_extract_text",
+      "line": 205,
+      "doc": "Recursively extract string values from nested dicts/lists.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "obj",
+        "depth"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "checks"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 228,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "AdvisoryDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AdvisoryDecision",
+      "line": 41,
+      "doc": "Result of an advisory check.\n\nAttributes:\n    action: One of ``\"allow\"``, ``\"block\"``, ``\"flag_for_review\"``.\n    reason: Human-readable explanation.\n    confidence: Classifier confidence (0.0\u20131.0). Informational only.\n    classifier: Name of the classifier that made the decision.\n    deterministic: Always False \u2014 marks this as non-deterministic.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AdvisoryCheck",
+      "line": 59,
+      "doc": "Abstract base class for advisory classifiers.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CallbackAdvisory",
+      "line": 74,
+      "doc": "Advisory check backed by a custom callback function.\n\nArgs:\n    callback: Function receiving context dict, returning AdvisoryDecision.\n    name: Classifier name for audit trail. Default: \"callback\".\n    on_error: Action when callback fails. Default: \"allow\" (fail-open).",
+      "is_public": true,
+      "bases": [
+        "AdvisoryCheck"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HttpAdvisory",
+      "line": 111,
+      "doc": "Advisory check via HTTP classifier endpoint.\n\nPosts context as JSON, expects ``{\"action\": \"allow|block|flag_for_review\", ...}``.\n\nArgs:\n    url: Classifier endpoint URL.\n    name: Classifier name. Default: \"http\".\n    timeout_seconds: Request timeout. Default: 5.\n    headers: Optional HTTP headers (auth tokens, etc.).\n    on_error: Action on failure. Default: \"allow\".",
+      "is_public": true,
+      "bases": [
+        "AdvisoryCheck"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PatternAdvisory",
+      "line": 170,
+      "doc": "Advisory check using regex pattern matching.\n\nScans string values in context for patterns (e.g., jailbreak phrases,\nPII patterns). Lightweight, no external dependencies.\n\nArgs:\n    patterns: List of (regex_pattern, reason) tuples.\n    name: Classifier name. Default: \"pattern\".\n    action: Action when pattern matches. Default: \"flag_for_review\".",
+      "is_public": true,
+      "bases": [
+        "AdvisoryCheck"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CompositeAdvisory",
+      "line": 218,
+      "doc": "Chains multiple advisory checks. First non-allow result wins.\n\nArgs:\n    checks: List of AdvisoryCheck instances to evaluate in order.",
+      "is_public": true,
+      "bases": [
+        "AdvisoryCheck"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 18,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

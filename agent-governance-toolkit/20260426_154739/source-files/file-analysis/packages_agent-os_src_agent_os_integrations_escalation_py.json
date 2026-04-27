@@ -1,0 +1,611 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/escalation.py",
+  "extension": ".py",
+  "size_bytes": 20964,
+  "line_count": 582,
+  "documentation": {
+    "file_docstring": "Human-in-the-Loop Escalation for Governance Policies.\n\nAdds an ``ESCALATE`` decision tier between ALLOW and DENY. When a policy\nrequires human approval, the agent is **suspended** and an approval request\nis routed to a configurable backend (in-memory queue, webhook, or custom\nhandler).  A timeout with configurable default action ensures the system\nnever blocks indefinitely.\n\nUsage:\n    from agent_os.integrations.escalation import (\n        EscalationHandler,\n        EscalationPolicy,\n        EscalationRequest,\n        EscalationDecision,\n        InMemoryApprovalQueue,\n    )\n\n    queue = InMemoryApprovalQueue()\n    handler = EscalationHandler(backend=queue, timeout_seconds=300)\n    policy = EscalationPolicy(integration, handler=handler)\n\n    result = policy.evaluate(\"tool_call\", context, input_data)\n    if result.decision == EscalationDecision.PENDING:\n        # Agent is suspended \u2014 await human decision\n        queue.approve(result.request_id, approver=\"admin@corp.com\")\n        final = policy.resolve(result.request_id)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Agent is suspended \u2014 await human decision",
+      "Quorum tracking: list of (approver, decision, timestamp) votes",
+      "Per-agent escalation timestamps for fatigue detection",
+      "Prune old timestamps",
+      "Fatigue check",
+      "Record timestamp for fatigue tracking",
+      "Quorum evaluation",
+      "Not enough votes yet \u2014 treat as pending/timeout",
+      "Timeout \u2014 apply default",
+      "Check if this denial was due to human approval requirement",
+      "Hard deny (not an escalation scenario)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "EscalationDecision: Possible outcomes of an escalation evaluation.",
+      "DefaultTimeoutAction: Action to take when a human doesn't respond within the SLA.",
+      "QuorumConfig: Configuration for M-of-N approval quorum.\n\nWhen set, an escalation requires at l",
+      "EscalationRequest: A request for human approval of an agent action.\n\nAttributes:\n    request_id: Un",
+      "ApprovalBackend: Abstract interface for escalation approval backends.",
+      "InMemoryApprovalQueue: Thread-safe in-memory approval queue.\n\nSuitable for testing, single-process depl",
+      "WebhookApprovalBackend: Approval backend that sends webhook notifications for escalations.\n\nStores state",
+      "EscalationHandler: Manages escalation lifecycle: submit, wait, resolve.\n\nArgs:\n    backend: The app",
+      "EscalationResult: Result of an escalation policy evaluation.",
+      "EscalationPolicy: Wraps a BaseIntegration with human-in-the-loop escalation.\n\nWhen ``require_human"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "list_pending",
+    "deny",
+    "EscalationPolicy",
+    "EscalationResult",
+    "InMemoryApprovalQueue",
+    "evaluate_and_wait",
+    "get_decision",
+    "DefaultTimeoutAction",
+    "wait_for_decision",
+    "EscalationDecision",
+    "approve",
+    "ApprovalBackend",
+    "QuorumConfig",
+    "resolve",
+    "EscalationHandler",
+    "EscalationRequest",
+    "evaluate",
+    "submit",
+    "handler",
+    "escalate",
+    "WebhookApprovalBackend"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "abc",
+      "logging",
+      "threading",
+      "uuid",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "base",
+      "urllib.request",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit",
+      "line": 124,
+      "doc": "Submit an escalation request for human review.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abc.abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_decision",
+      "line": 128,
+      "doc": "Retrieve the current state of an escalation request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abc.abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "approve",
+      "line": 132,
+      "doc": "Approve an escalation request. Returns True if found and updated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abc.abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request_id",
+        "approver"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "deny",
+      "line": 136,
+      "doc": "Deny an escalation request. Returns True if found and updated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abc.abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request_id",
+        "approver"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_pending",
+      "line": 140,
+      "doc": "List all pending escalation requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abc.abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_decision",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "approve",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "approver"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "deny",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "approver"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_pending",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wait_for_decision",
+      "line": 200,
+      "doc": "Block until a decision is made or timeout expires.\n\nReturns:\n    The final decision, or ``PENDING`` if timeout was reached.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "timeout"
+      ],
+      "returns": "EscalationDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "webhook_url",
+        "headers"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_notify",
+      "line": 242,
+      "doc": "Fire-and-forget webhook notification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_decision",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "approve",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "approver"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "deny",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "approver"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_pending",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "backend",
+        "timeout_seconds",
+        "default_action",
+        "on_escalate",
+        "quorum",
+        "fatigue_window_seconds",
+        "fatigue_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_fatigue",
+      "line": 324,
+      "doc": "Return True if the agent is triggering escalations too rapidly.\n\nWhen fatigue detection is enabled, auto-DENY prevents an agent\nfrom overwhelming human reviewers with a flood of requests (the\napproval-fatigue attack described in Ona/Veto research).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "escalate",
+      "line": 342,
+      "doc": "Create and submit an escalation request.\n\nIf fatigue detection is enabled and the agent has exceeded the\nthreshold, the request is immediately auto-denied.\n\nReturns:\n    The ``EscalationRequest`` \u2014 PENDING normally, DENY if fatigued.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "action",
+        "reason",
+        "context_snapshot"
+      ],
+      "returns": "EscalationRequest"
+    },
+    {
+      "name": "resolve",
+      "line": 398,
+      "doc": "Check or wait for a resolution.\n\nFor ``InMemoryApprovalQueue``, this blocks up to ``timeout_seconds``.\nFor other backends, this polls once and returns the current state.\n\nWhen quorum is configured, the decision is evaluated against\nquorum thresholds instead of accepting a single vote.\n\nReturns:\n    The final decision. If the timeout expires, applies the\n    ``default_action`` and returns that.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": "EscalationDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 476,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "integration",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 488,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "EscalationHandler"
+    },
+    {
+      "name": "evaluate",
+      "line": 491,
+      "doc": "Evaluate a policy check with escalation support.\n\nIf the policy would deny due to ``require_human_approval``,\nthis creates an escalation request instead of blocking.\n\nFor all other deny reasons (blocked patterns, timeouts, etc.),\nthe action is denied immediately \u2014 escalation only applies\nto the human-approval gate.\n\nReturns:\n    An ``EscalationResult`` with the decision and optional\n    escalation request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context",
+        "input_data"
+      ],
+      "returns": "EscalationResult"
+    },
+    {
+      "name": "resolve",
+      "line": 560,
+      "doc": "Wait for and return the human decision on an escalation.\n\nDelegates to the handler's resolve method, which blocks or\npolls depending on the backend.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": "EscalationDecision"
+    },
+    {
+      "name": "evaluate_and_wait",
+      "line": 568,
+      "doc": "Evaluate and, if escalated, block until resolved.\n\nConvenience method that combines ``evaluate()`` and ``resolve()``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context",
+        "input_data"
+      ],
+      "returns": "EscalationResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "EscalationDecision",
+      "line": 48,
+      "doc": "Possible outcomes of an escalation evaluation.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DefaultTimeoutAction",
+      "line": 58,
+      "doc": "Action to take when a human doesn't respond within the SLA.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "QuorumConfig",
+      "line": 66,
+      "doc": "Configuration for M-of-N approval quorum.\n\nWhen set, an escalation requires at least ``required_approvals``\nALLOW votes from distinct approvers before the action is permitted.\nA single DENY from any approver is enough to deny immediately\nunless ``required_denials`` is set.\n\nAttributes:\n    required_approvals: Minimum ALLOW votes needed (M).\n    total_approvers: Total approver pool size (N).  Informational.\n    required_denials: Number of DENY votes to reject (default 1).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EscalationRequest",
+      "line": 92,
+      "doc": "A request for human approval of an agent action.\n\nAttributes:\n    request_id: Unique identifier for this escalation.\n    agent_id: ID of the agent whose action needs approval.\n    action: Description of the action being escalated.\n    reason: Why escalation was triggered.\n    context_snapshot: Serialisable snapshot of the execution context.\n    created_at: When the escalation was created.\n    resolved_at: When a human responded (or timeout).\n    decision: Final decision from the human (or timeout default).\n    resolved_by: Identifier of the human who resolved.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ApprovalBackend",
+      "line": 120,
+      "doc": "Abstract interface for escalation approval backends.",
+      "is_public": true,
+      "bases": [
+        "abc.ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InMemoryApprovalQueue",
+      "line": 144,
+      "doc": "Thread-safe in-memory approval queue.\n\nSuitable for testing, single-process deployments, and development.\nFor production, implement a backend that uses Redis, a database,\nor a webhook-based notification service.",
+      "is_public": true,
+      "bases": [
+        "ApprovalBackend"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "WebhookApprovalBackend",
+      "line": 216,
+      "doc": "Approval backend that sends webhook notifications for escalations.\n\nStores state in-memory but fires an HTTP POST to the configured URL\nwhen a new escalation is submitted. The receiving system is responsible\nfor calling back via the ``approve``/``deny`` methods (e.g., via an\nAPI endpoint).\n\nArgs:\n    webhook_url: URL to POST escalation notifications to.\n    headers: Optional HTTP headers (e.g., auth tokens).",
+      "is_public": true,
+      "bases": [
+        "ApprovalBackend"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EscalationHandler",
+      "line": 286,
+      "doc": "Manages escalation lifecycle: submit, wait, resolve.\n\nArgs:\n    backend: The approval backend to use.\n    timeout_seconds: How long to wait for a human decision.\n    default_action: What to do if the timeout expires.\n    on_escalate: Optional callback fired when an escalation is created.\n    quorum: Optional quorum configuration for M-of-N approval.\n        When set, approvals/denials are counted against quorum\n        thresholds before a final decision is reached.\n    fatigue_window_seconds: Rolling window (in seconds) for fatigue\n        detection.  Defaults to 60 (one minute).\n    fatigue_threshold: Maximum number of escalations per agent within\n        the fatigue window.  If exceeded, new escalations are\n        auto-denied.  ``None`` disables fatigue detection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "EscalationResult",
+      "line": 450,
+      "doc": "Result of an escalation policy evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EscalationPolicy",
+      "line": 461,
+      "doc": "Wraps a BaseIntegration with human-in-the-loop escalation.\n\nWhen ``require_human_approval`` is True in the policy, instead of\nimmediately denying the action, this wrapper **suspends** execution\nand routes an approval request to the configured handler.\n\nThis is the ``ESCALATE`` tier between ALLOW and DENY.\n\nArgs:\n    integration: The governance integration to wrap.\n    handler: The escalation handler managing approvals.\n    policy_name: Name for audit logging.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 70,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

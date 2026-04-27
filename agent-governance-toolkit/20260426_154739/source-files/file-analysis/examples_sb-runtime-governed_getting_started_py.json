@@ -1,0 +1,196 @@
+{
+  "path": "examples/sb-runtime-governed/getting_started.py",
+  "extension": ".py",
+  "size_bytes": 12638,
+  "line_count": 327,
+  "documentation": {
+    "file_docstring": "sb-runtime Governed Example \u2014 Getting Started\n\nDemonstrates the distinctive architectural claim of the sb-runtime integration:\na single Cedar policy produces semantically-equivalent signed receipts\nregardless of the sandbox layer that wraps the agent process. The sandbox\nbackend is recorded in the signed payload so auditors can see which layer\nran (sb-runtime's own Landlock + seccomp, nono, OpenShell, or none), but\nsignature verification and policy-digest pinning are identical across all\nbackends.\n\nThree scenarios run against the same policy and same operator key:\n\n    1. Standalone sb-runtime (Ring 3)\n           sandbox_backend = \"sb_runtime_builtin\"\n           sb-runtime's own Landlock + seccomp owns the sandbox.\n\n    2. sb-runtime + nono (Ring 2)\n           sandbox_backend = \"nono\"\n           A nono capability set wraps the process; sb-runtime contributes\n           only Cedar evaluation + receipt signing.\n\n    3. sb-runtime + OpenShell (Ring 2)\n           sandbox_backend = \"openshell\"\n           An OpenShell container boundary; sb-runtime contributes only\n           Cedar + receipts.\n\nAll 18 receipts (6 actions x 3 scenarios) verify against the same operator\npublic key. The demo then tampers with the `sandbox_backend` field in one\nreceipt to prove that the backend choice is covered by the Ed25519\nsignature, not just sidecar metadata.\n\nUsage:\n    pip install -e packages/agentmesh-integrations/sb-runtime-skill/\n    python examples/sb-runtime-governed/getting_started.py\n\nBackground:\n    - Integration doc: docs/integrations/sb-runtime.md (merged as PR #1202)\n    - Provider shim:   packages/agentmesh-integrations/sb-runtime-skill/ (merged as PR #1203)\n    - Receipt format:  draft-farley-acta-signed-receipts-02\n    - Offline verifier: npx @veritasacta/verify (Apache-2.0, zero dependencies)",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import the skill from the in-tree package. Works without a pip install,",
+      "matching the openshell-governed example's convention.",
+      "One tool call series exercised under each sandbox backend. Three allowed,",
+      "three denied, deliberately identical to the openshell-governed example's",
+      "action list for cross-example comparison.",
+      "Show the sandbox_backend field in a sample payload so its presence",
+      "is unambiguous to the reader of the demo output.",
+      "Pick a receipt from the nono scenario and flip it to claim sb_runtime_builtin"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "run_scenario: Run the same six actions through a ScopeBlindExtension... wait, wrong\nclass: thr",
+      "verify_all_receipts: Verify every receipt from every scenario against the same public key.\n\nDemonstra",
+      "demonstrate_tampering: Flip `sandbox_backend` in one receipt, confirm verification fails.\n\nThis is the ",
+      "demonstrate_chain_linkage: Confirm successive receipts within a scenario link via previousReceiptHash.\n\nThe",
+      "print_verify_instructions: Emit the exact commands an auditor would use to verify externally.",
+      "write_receipts_to_disk: Write every receipt plus the operator public key to disk under out_dir.\n\nLayout:"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "demonstrate_tampering",
+    "print_verify_instructions",
+    "demonstrate_chain_linkage",
+    "write_receipts_to_disk",
+    "main",
+    "run_scenario",
+    "ScenarioResult",
+    "verify_all_receipts",
+    "print_scenario_summary"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "sys",
+      "dataclasses",
+      "pathlib",
+      "cryptography.hazmat.primitives",
+      "sb_runtime_agentmesh.skill",
+      "sb_runtime_agentmesh.receipts"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "run_scenario",
+      "line": 104,
+      "doc": "Run the same six actions through a ScopeBlindExtension... wait, wrong\nclass: through GovernanceSkill \u2014 configured for one specific sandbox\nbackend. Collect the emitted receipts. Return for cross-verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "backend",
+        "ring",
+        "operator_signer"
+      ],
+      "returns": "ScenarioResult"
+    },
+    {
+      "name": "print_scenario_summary",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "r"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_all_receipts",
+      "line": 148,
+      "doc": "Verify every receipt from every scenario against the same public key.\n\nDemonstrates the central claim: the verification path is identical\nregardless of which sandbox backend produced the receipt. The operator\npublishes one public key; auditors verify any receipt against it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results",
+        "operator_signer"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "demonstrate_tampering",
+      "line": 172,
+      "doc": "Flip `sandbox_backend` in one receipt, confirm verification fails.\n\nThis is the integrity claim the `sandbox_backend` field makes. The\nfield is inside the Ed25519 signature scope, not carried alongside it,\nso an attacker claiming a Ring 3 hardened run actually used `none`\n(no sandbox) would be detected at verify time.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results",
+        "operator_signer"
+      ],
+      "returns": null
+    },
+    {
+      "name": "demonstrate_chain_linkage",
+      "line": 203,
+      "doc": "Confirm successive receipts within a scenario link via previousReceiptHash.\n\nThe chain is tamper-evident because each subsequent receipt binds to\nthe SHA-256 of the prior envelope. Modifying any earlier receipt\nbreaks the chain from that point forward at verify time.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_verify_instructions",
+      "line": 222,
+      "doc": "Emit the exact commands an auditor would use to verify externally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "operator_signer",
+        "out_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "write_receipts_to_disk",
+      "line": 239,
+      "doc": "Write every receipt plus the operator public key to disk under out_dir.\n\nLayout:\n    out_dir/\n        operator-public.pem\n        standalone/{000.json, 001.json, ...}\n        nono/{000.json, ...}\n        openshell/{000.json, ...}",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results",
+        "operator_signer",
+        "out_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ScenarioResult",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

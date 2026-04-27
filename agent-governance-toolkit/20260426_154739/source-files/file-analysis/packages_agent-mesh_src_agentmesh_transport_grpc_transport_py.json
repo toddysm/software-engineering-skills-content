@@ -1,0 +1,325 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/transport/grpc_transport.py",
+  "extension": ".py",
+  "size_bytes": 11400,
+  "line_count": 356,
+  "documentation": {
+    "file_docstring": "gRPC transport for AgentMesh communication.\n\nProvides high-performance RPC-based communication with protobuf-style\nmessage schemas defined as Python dataclasses (no protobuf compilation\nrequired).\n\nRequires the ``grpcio`` and ``grpcio-tools`` libraries::\n\n    pip install agentmesh-platform[grpc]",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Copyright (c) Agent-Mesh Contributors. All rights reserved.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Protobuf-style message schemas (pure Python dataclasses)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Serialisation helpers",
+      "---------------------------------------------------------------------------",
+      "Convert enums to their string values",
+      "---------------------------------------------------------------------------",
+      "GRPCTransport",
+      "---------------------------------------------------------------------------",
+      "-- Connection lifecycle --------------------------------------------------",
+      "Verify the channel is usable",
+      "-- Generic send / receive ------------------------------------------------",
+      "Encode as a generic JSON-wrapped unary call",
+      "In a real implementation this would invoke a stub method;",
+      "here we push to the internal queue for testability.",
+      "-- Typed RPC helpers -----------------------------------------------------",
+      "In a full implementation this would await the server response.",
+      "-- Handler registration --------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "_require_grpc: Raise if the grpcio library is not installed.",
+      "TrustDimension: The five trust dimensions in AgentMesh.",
+      "TrustRequest: Request to query or update trust scores.\n\nArgs:\n    agent_did: DID of the agent ",
+      "TrustResponse: Response containing trust scores.\n\nArgs:\n    agent_did: DID of the agent the sco",
+      "HandshakeRequest: Request to initiate a trust handshake.\n\nArgs:\n    initiator_did: DID of the init",
+      "HandshakeResponse: Response to a trust handshake request.\n\nArgs:\n    accepted: Whether the handshak",
+      "PolicyCheckRequest: Request to check governance policy compliance.\n\nArgs:\n    agent_did: DID of the ",
+      "PolicyCheckResponse: Response to a governance policy check.\n\nArgs:\n    allowed: Whether the action is",
+      "_dataclass_to_dict: Convert a dataclass to a JSON-safe dictionary.",
+      "GRPCTransport: gRPC transport for AgentMesh agent-to-agent communication.\n\nUses grpcio under th"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "PolicyCheckRequest",
+    "TrustRequest",
+    "register_handler",
+    "TrustDimension",
+    "HandshakeRequest",
+    "TrustResponse",
+    "HandshakeResponse",
+    "PolicyCheckResponse",
+    "GRPCTransport"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "json",
+      "logging",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing",
+      "base",
+      "grpc",
+      "grpc",
+      "dataclasses"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_require_grpc",
+      "line": 41,
+      "doc": "Raise if the grpcio library is not installed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_dataclass_to_dict",
+      "line": 184,
+      "doc": "Convert a dataclass to a JSON-safe dictionary.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "obj"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "connect",
+      "line": 221,
+      "doc": "Open a gRPC channel to the remote endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disconnect",
+      "line": 239,
+      "doc": "Close the gRPC channel.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "send",
+      "line": 252,
+      "doc": "Send a message over the gRPC channel.\n\nSerialises the payload as JSON and transmits it as a unary call.\n\nArgs:\n    topic: RPC method / topic name.\n    payload: Message data.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "receive",
+      "line": 270,
+      "doc": "Receive the next message from the internal queue.\n\nArgs:\n    timeout: Maximum seconds to wait.\n\nReturns:\n    Message payload dictionary.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request_trust",
+      "line": 288,
+      "doc": "Send a TrustRequest and receive a TrustResponse.\n\nArgs:\n    request: Trust query request.\n\nReturns:\n    Trust response with scores.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "TrustResponse"
+    },
+    {
+      "name": "initiate_handshake",
+      "line": 304,
+      "doc": "Send a HandshakeRequest and receive a HandshakeResponse.\n\nArgs:\n    request: Handshake initiation request.\n\nReturns:\n    Handshake response.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "HandshakeResponse"
+    },
+    {
+      "name": "check_policy",
+      "line": 319,
+      "doc": "Send a PolicyCheckRequest and receive a PolicyCheckResponse.\n\nArgs:\n    request: Policy check request.\n\nReturns:\n    Policy check response.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "PolicyCheckResponse"
+    },
+    {
+      "name": "register_handler",
+      "line": 336,
+      "doc": "Register a server-side handler for an RPC topic.\n\nArgs:\n    topic: RPC method / topic name.\n    handler: Async callable that processes incoming requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "handler"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustDimension",
+      "line": 55,
+      "doc": "The five trust dimensions in AgentMesh.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustRequest",
+      "line": 66,
+      "doc": "Request to query or update trust scores.\n\nArgs:\n    agent_did: DID of the agent whose trust is being queried.\n    requester_did: DID of the requesting agent.\n    dimensions: Specific trust dimensions to query. Empty means all.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustResponse",
+      "line": 83,
+      "doc": "Response containing trust scores.\n\nArgs:\n    agent_did: DID of the agent the scores belong to.\n    scores: Mapping of dimension name to score (0-1000).\n    overall_score: Weighted composite score.\n    verified: Whether the scores are cryptographically verified.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HandshakeRequest",
+      "line": 102,
+      "doc": "Request to initiate a trust handshake.\n\nArgs:\n    initiator_did: DID of the initiating agent.\n    target_did: DID of the target agent.\n    protocol_version: Handshake protocol version.\n    nonce: Random nonce for replay protection.\n    capabilities: Requested capability scopes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HandshakeResponse",
+      "line": 122,
+      "doc": "Response to a trust handshake request.\n\nArgs:\n    accepted: Whether the handshake was accepted.\n    session_id: Session identifier for the established connection.\n    trust_score: Mutual trust score after handshake.\n    granted_capabilities: Capabilities granted to the initiator.\n    reason: Rejection reason if not accepted.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyCheckRequest",
+      "line": 142,
+      "doc": "Request to check governance policy compliance.\n\nArgs:\n    agent_did: DID of the agent performing the action.\n    action: The action being requested.\n    resource: The resource being accessed.\n    context: Additional context for policy evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyCheckResponse",
+      "line": 161,
+      "doc": "Response to a governance policy check.\n\nArgs:\n    allowed: Whether the action is permitted.\n    policies_evaluated: Names of policies that were evaluated.\n    violations: List of policy violations, if any.\n    audit_id: Identifier for the audit trail entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GRPCTransport",
+      "line": 201,
+      "doc": "gRPC transport for AgentMesh agent-to-agent communication.\n\nUses grpcio under the hood and exposes typed RPC methods for trust\nqueries, handshakes, and policy checks.\n\nArgs:\n    config: Transport configuration.",
+      "is_public": true,
+      "bases": [
+        "Transport"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 27,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

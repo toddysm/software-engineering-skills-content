@@ -1,0 +1,295 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/src/agents/baseline_agent.py",
+  "extension": ".py",
+  "size_bytes": 20556,
+  "line_count": 526,
+  "documentation": {
+    "file_docstring": "Baseline Agent - The \"Steel Man\" Reflective Tool-User\n\nThis represents a state-of-the-art reflective agent that:\n1. Has access to system state (like `kubectl get all`)\n2. Can reflect on failures and retry (up to 3 turns)\n3. Can ask for clarification when parameters are missing\n4. Uses reasoning to infer context from available information\n\nThis is the \"fair fight\" baseline - not a strawman, but a competent agent\nthat represents current industry best practices (e.g., ReAct with reflection).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import the shared infrastructure API",
+      "Failure analysis",
+      "Performance metrics",
+      "Clarification",
+      "Token costs (simulated)",
+      "Turn 1: Initial attempt with reasoning",
+      "If initial attempt needs clarification, return early",
+      "Reflection loop (up to MAX_REFLECTION_TURNS)",
+      "Reflect on why previous attempt failed",
+      "Retry with updated understanding",
+      "Finalize result",
+      "Step 1: Get system state for context (this is the agent's \"awareness\")",
+      "Step 2: Parse command and infer intent",
+      "Step 3: Try to resolve parameters",
+      "Step 4: Execute the action",
+      "For actions that need a service",
+      "Try to find service in command",
+      "Found explicitly in command",
+      "VULNERABILITY: Use last accessed service (might be stale!)",
+      "Need clarification",
+      "Add replicas for scale operations",
+      "Try to find deployment ID",
+      "Unknown intent",
+      "Check each service",
+      "Check if service name is in command",
+      "If environment is also mentioned, use that to disambiguate",
+      "If only one service with this name, use it",
+      "Multiple services with same name, check environment hints",
+      "Check for pronouns like \"it\" or \"the service\"",
+      "These are ambiguous - we'll return None and rely on context",
+      "Return first deployment (might not be the right one!)",
+      "Check if parameters is None (couldn't resolve)",
+      "Map action to API call",
+      "Analyze result",
+      "Detect hallucination (using stale context)",
+      "Check if we used stale context (didn't match current focus)",
+      "Analyze the error and form a reflection"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ReflectionStep: Represents one step in the reflection loop.",
+      "BaselineAgentResult: Result from baseline agent execution.",
+      "BaselineAgent: The Steel Man Baseline Agent - Reflective Tool-User\n\nArchitecture:\n- Maintains c",
+      "__init__: Initialize with access to infrastructure API.",
+      "execute_request: Execute a user request using reflection and tool access.\n\nArgs:\n    user_command",
+      "_attempt_execution: Attempt to execute the user command.\n\nThis simulates the agent's reasoning proce",
+      "_parse_command: Parse user command to determine intent.\n\nThis uses simple keyword matching. A re",
+      "_resolve_parameters: Try to resolve parameters for the action.\n\nThe Baseline Agent's Strategy:\n1. Che",
+      "_find_service_in_command: Try to find a service ID from the command text.\n\nLooks for service names or IDs ",
+      "_extract_number: Extract a number from text (for replica counts, etc.)"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "BaselineAgent",
+    "get_statistics",
+    "ReflectionStep",
+    "BaselineAgentResult",
+    "execute_request"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "sys",
+      "os",
+      "src.core.tools",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "Initialize with access to infrastructure API.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "api"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_request",
+      "line": 98,
+      "doc": "Execute a user request using reflection and tool access.\n\nArgs:\n    user_command: Natural language command from user\n    context: Session context with user info and history\n    allow_clarification: Whether agent can ask user for clarification\n\nReturns:\n    BaselineAgentResult with execution details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_command",
+        "context",
+        "allow_clarification"
+      ],
+      "returns": "BaselineAgentResult"
+    },
+    {
+      "name": "_attempt_execution",
+      "line": 162,
+      "doc": "Attempt to execute the user command.\n\nThis simulates the agent's reasoning process:\n1. Query system state for context\n2. Parse the command and infer intent\n3. Try to resolve missing parameters\n4. Execute the action",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_command",
+        "context",
+        "reflection_steps",
+        "allow_clarification"
+      ],
+      "returns": "BaselineAgentResult"
+    },
+    {
+      "name": "_parse_command",
+      "line": 213,
+      "doc": "Parse user command to determine intent.\n\nThis uses simple keyword matching. A real agent would use an LLM.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "command"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_resolve_parameters",
+      "line": 240,
+      "doc": "Try to resolve parameters for the action.\n\nThe Baseline Agent's Strategy:\n1. Check if service is explicitly named in command\n2. If not, use context.last_service_accessed (STALE STATE RISK!)\n3. If still missing, look for services mentioned in reflection\n4. If still missing, ask for clarification\n\nThis is where the baseline agent is vulnerable to the \"Stale State\" scenario.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "intent",
+        "command",
+        "context",
+        "system_state",
+        "reflection_steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_find_service_in_command",
+      "line": 337,
+      "doc": "Try to find a service ID from the command text.\n\nLooks for service names or IDs mentioned in the command.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "command",
+        "services"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_number",
+      "line": 377,
+      "doc": "Extract a number from text (for replica counts, etc.)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_find_deployment_in_state",
+      "line": 383,
+      "doc": "Find a deployment ID from system state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_execute_action",
+      "line": 391,
+      "doc": "Execute the determined action.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "parameters",
+        "context",
+        "system_state"
+      ],
+      "returns": "BaselineAgentResult"
+    },
+    {
+      "name": "_reflect_on_failure",
+      "line": 468,
+      "doc": "Reflect on why the previous attempt failed.\n\nThis simulates the agent thinking about what went wrong and\nadjusting its strategy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "previous_result",
+        "context"
+      ],
+      "returns": "ReflectionStep"
+    },
+    {
+      "name": "get_statistics",
+      "line": 500,
+      "doc": "Get performance statistics across all executions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ReflectionStep",
+      "line": 35,
+      "doc": "Represents one step in the reflection loop.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BaselineAgentResult",
+      "line": 47,
+      "doc": "Result from baseline agent execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BaselineAgent",
+      "line": 71,
+      "doc": "The Steel Man Baseline Agent - Reflective Tool-User\n\nArchitecture:\n- Maintains context by querying system state\n- Uses reasoning to infer missing parameters\n- Reflects on failures and retries (up to 3 turns)\n- Can ask user for clarification\n\nThis represents a \"good\" baseline that doesn't just guess blindly,\nbut uses available tools and reasoning to make informed decisions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 107,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

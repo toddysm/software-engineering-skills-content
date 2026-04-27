@@ -1,0 +1,454 @@
+{
+  "path": "packages/agent-os/modules/control-plane/tests/test_time_travel.py",
+  "extension": ".py",
+  "size_bytes": 18155,
+  "line_count": 514,
+  "documentation": {
+    "file_docstring": "Tests for Time-Travel Debugging feature",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Capture snapshots at different times",
+      "Wait a bit",
+      "Get state at time between snapshots",
+      "Should get first snapshot (closest before target)",
+      "Add some test data to flight recorder",
+      "Create replay session",
+      "Add test data",
+      "Replay last 5 minutes",
+      "Add test data",
+      "Create step-by-step session",
+      "Step through events",
+      "May be None if only one event",
+      "Add test data",
+      "Capture some snapshots",
+      "Attach flight recorder",
+      "Create agent and execute actions",
+      "Replay",
+      "Test with time-travel disabled",
+      "Execute actions",
+      "Replay with callback",
+      "Callback should have been called for each event",
+      "Add some events",
+      "Add events",
+      "Query time range",
+      "1. Start trace (verdict=pending)",
+      "2. Log success (verdict=allowed)",
+      "3. Verify integrity passes",
+      "4. Manually tamper with verdict in SQLite",
+      "5. Verify integrity now FAILS",
+      "Tamper: flip blocked -> allowed",
+      "Tamper: change the result",
+      "Never call log_success/log_violation \u2014 entry stays pending"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestTimeTravelDebugger: Test the TimeTravelDebugger class",
+      "TestControlPlaneTimeTravel: Test time-travel integration with AgentControlPlane",
+      "TestFlightRecorderTimeTravel: Test FlightRecorder time-travel support methods",
+      "TestFlightRecorderVerdictTamperDetection: Regression tests for audit chain integrity (verdict tamper detection).\n\nThe Flig",
+      "test_initialization: Test time-travel debugger initialization",
+      "test_capture_state_snapshot: Test capturing state snapshots",
+      "test_get_state_at_time: Test retrieving state at a specific time",
+      "test_create_replay_session: Test creating a replay session",
+      "test_replay_time_window: Test replaying a time window",
+      "test_step_by_step_replay: Test step-by-step replay mode"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestControlPlaneTimeTravel",
+    "test_replay_with_callback",
+    "test_time_travel_statistics",
+    "test_initialization",
+    "TestFlightRecorderTimeTravel",
+    "test_get_log",
+    "callback",
+    "test_enable_time_travel",
+    "test_verdict_tamper_detected_after_violation",
+    "test_result_tamper_detected",
+    "test_time_travel_disabled",
+    "test_export_replay_session",
+    "test_get_state_at_time",
+    "test_step_by_step_replay",
+    "test_get_session_progress",
+    "test_statistics",
+    "test_get_replay_summary",
+    "test_replay_agent_history",
+    "test_capture_state_snapshot",
+    "test_get_events_in_time_range",
+    "test_untampered_pending_entry_valid",
+    "test_create_replay_session",
+    "test_replay_time_window",
+    "TestFlightRecorderVerdictTamperDetection",
+    "TestTimeTravelDebugger",
+    "test_interleaved_traces_integrity",
+    "test_verdict_tamper_detected_after_success"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "json",
+      "time",
+      "tempfile",
+      "datetime",
+      "agent_control_plane",
+      "agent_control_plane.agent_kernel",
+      "agent_control_plane.flight_recorder",
+      "sqlite3",
+      "sqlite3",
+      "sqlite3"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_initialization",
+      "line": 28,
+      "doc": "Test time-travel debugger initialization",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capture_state_snapshot",
+      "line": 36,
+      "doc": "Test capturing state snapshots",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_state_at_time",
+      "line": 50,
+      "doc": "Test retrieving state at a specific time",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_replay_session",
+      "line": 74,
+      "doc": "Test creating a replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_time_window",
+      "line": 103,
+      "doc": "Test replaying a time window",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_step_by_step_replay",
+      "line": 123,
+      "doc": "Test step-by-step replay mode",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_session_progress",
+      "line": 158,
+      "doc": "Test getting replay session progress",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_replay_summary",
+      "line": 180,
+      "doc": "Test getting replay summary",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_replay_session",
+      "line": 202,
+      "doc": "Test exporting replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_statistics",
+      "line": 219,
+      "doc": "Test time-travel statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_enable_time_travel",
+      "line": 237,
+      "doc": "Test enabling time-travel in control plane",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_agent_history",
+      "line": 249,
+      "doc": "Test replaying agent history through control plane",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capture_state_snapshot",
+      "line": 276,
+      "doc": "Test capturing state snapshots through control plane",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_time_travel_disabled",
+      "line": 293,
+      "doc": "Test that time-travel methods fail when disabled",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_time_travel_statistics",
+      "line": 302,
+      "doc": "Test getting time-travel statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_with_callback",
+      "line": 320,
+      "doc": "Test replaying with a callback function",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_log",
+      "line": 352,
+      "doc": "Test getting complete audit log",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_events_in_time_range",
+      "line": 369,
+      "doc": "Test getting events in time range",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verdict_tamper_detected_after_success",
+      "line": 395,
+      "doc": "Tampering with verdict from 'allowed' to 'blocked' must be caught.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verdict_tamper_detected_after_violation",
+      "line": 428,
+      "doc": "Tampering with verdict from 'blocked' to 'allowed' must be caught.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_result_tamper_detected",
+      "line": 454,
+      "doc": "Tampering with the result field must also be caught.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_interleaved_traces_integrity",
+      "line": 480,
+      "doc": "Interleaved start_trace/log calls must not break integrity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_untampered_pending_entry_valid",
+      "line": 499,
+      "doc": "A trace that is never resolved (stays pending) should pass integrity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "callback",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "event"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestTimeTravelDebugger",
+      "line": 25,
+      "doc": "Test the TimeTravelDebugger class",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestControlPlaneTimeTravel",
+      "line": 234,
+      "doc": "Test time-travel integration with AgentControlPlane",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFlightRecorderTimeTravel",
+      "line": 349,
+      "doc": "Test FlightRecorder time-travel support methods",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFlightRecorderVerdictTamperDetection",
+      "line": 388,
+      "doc": "Regression tests for audit chain integrity (verdict tamper detection).\n\nThe FlightRecorder must detect post-hoc modifications to verdict fields\nvia the ``content_hash`` stored alongside each audit entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 10,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

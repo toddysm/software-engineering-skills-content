@@ -1,0 +1,249 @@
+{
+  "path": "packages/agentmesh-integrations/template-agentmesh/template_agentmesh/trust.py",
+  "extension": ".py",
+  "size_bytes": 8780,
+  "line_count": 257,
+  "documentation": {
+    "file_docstring": "Trust layer for agent governance.\n\nThis module provides the core trust primitives: agent identity, action gating,\nand trust score tracking. It has zero external dependencies and can be tested\nwithout the target framework SDK installed.\n\nRename this module and customize it for your framework. The three extension\npoints are:\n\n1. AgentProfile \u2014 add framework-specific fields (e.g., model name, tool list)\n2. ActionGuard.check() \u2014 add framework-specific validation logic\n3. TrustTracker \u2014 adjust reward/penalty or add persistence",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Hard block",
+      "Status check",
+      "Trust threshold (per-action or global)",
+      "Capability check"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentProfile: Identity and trust state for a governed agent.\n\nAttributes:\n    did: Decentraliz",
+      "ActionResult: Outcome of a trust-gated action check.\n\nAttributes:\n    allowed: Whether the act",
+      "ActionGuard: Trust-gated action enforcement.\n\nChecks agent trust score, status, and capabilit",
+      "TrustTracker: Records agent outcomes and adjusts trust scores.\n\nUses asymmetric reward/penalty",
+      "has_capability: Check whether this agent has a single capability.",
+      "has_all_capabilities: Check whether this agent has every capability in the list.",
+      "has_any_capability: Check whether this agent has at least one capability in the list.",
+      "to_dict: Serialize to a plain dictionary for logging or JSON export.",
+      "check: Evaluate whether an agent may perform an action.\n\nChecks are applied in order: b",
+      "record_success: Reward an agent for a successful action.\n\nArgs:\n    agent: The agent to reward. "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ActionResult",
+    "has_any_capability",
+    "check",
+    "record_success",
+    "to_dict",
+    "has_all_capabilities",
+    "get_history",
+    "has_capability",
+    "record_failure",
+    "TrustTracker",
+    "ActionGuard",
+    "AgentProfile"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "has_capability",
+      "line": 45,
+      "doc": "Check whether this agent has a single capability.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_all_capabilities",
+      "line": 49,
+      "doc": "Check whether this agent has every capability in the list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_any_capability",
+      "line": 53,
+      "doc": "Check whether this agent has at least one capability in the list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 78,
+      "doc": "Serialize to a plain dictionary for logging or JSON export.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_trust_score",
+        "sensitive_actions",
+        "blocked_actions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 115,
+      "doc": "Evaluate whether an agent may perform an action.\n\nChecks are applied in order: blocked list, agent status, trust\nthreshold, then capabilities. The first failing check produces\nthe denial reason.\n\nArgs:\n    agent: The agent requesting the action.\n    action: Name of the action to evaluate.\n    required_capabilities: Capabilities the agent must possess.\n        If ``None``, no capability check is performed.\n\nReturns:\n    An ``ActionResult`` indicating whether the action is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "action",
+        "required_capabilities"
+      ],
+      "returns": "ActionResult"
+    },
+    {
+      "name": "__init__",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reward",
+        "penalty"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_success",
+      "line": 204,
+      "doc": "Reward an agent for a successful action.\n\nArgs:\n    agent: The agent to reward. Its ``trust_score`` is modified\n        in place.\n    action: Name of the action that succeeded.\n\nReturns:\n    The agent's new trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "action"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "record_failure",
+      "line": 225,
+      "doc": "Penalize an agent for a failed action.\n\nArgs:\n    agent: The agent to penalize. Its ``trust_score`` is modified\n        in place.\n    action: Name of the action that failed.\n\nReturns:\n    The agent's new trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "action"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_history",
+      "line": 246,
+      "doc": "Return trust history, optionally filtered by agent DID.\n\nArgs:\n    did: If provided, return only entries for this agent.\n\nReturns:\n    List of history records (copies, not references).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentProfile",
+      "line": 26,
+      "doc": "Identity and trust state for a governed agent.\n\nAttributes:\n    did: Decentralized identifier in ``did:mesh:`` format.\n    name: Human-readable agent name.\n    capabilities: Verified capabilities this agent possesses.\n    trust_score: Trust level on a 0-1000 scale. Default 500 (neutral).\n    status: Lifecycle state \u2014 ``active``, ``suspended``, or ``revoked``.\n    metadata: Arbitrary key-value pairs for framework-specific data.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ActionResult",
+      "line": 59,
+      "doc": "Outcome of a trust-gated action check.\n\nAttributes:\n    allowed: Whether the action is permitted.\n    agent_did: DID of the agent that was checked.\n    action: Name of the action that was evaluated.\n    reason: Human-readable explanation (populated on denial).\n    trust_score: Agent's trust score at evaluation time.\n    timestamp: Unix timestamp of the evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ActionGuard",
+      "line": 90,
+      "doc": "Trust-gated action enforcement.\n\nChecks agent trust score, status, and capabilities before allowing an\naction. Supports per-action minimum trust thresholds for sensitive\noperations and a hard-block list for forbidden actions.\n\nArgs:\n    min_trust_score: Global minimum trust score required (0-1000).\n    sensitive_actions: Mapping of action names to their elevated\n        trust thresholds. Overrides ``min_trust_score`` per action.\n    blocked_actions: Actions that are always denied regardless of\n        trust score.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrustTracker",
+      "line": 186,
+      "doc": "Records agent outcomes and adjusts trust scores.\n\nUses asymmetric reward/penalty: small reward for success, large penalty\nfor failure. This matches the pattern in ``crewai-agentmesh``.\n\nScores are clamped to [0, 1000].\n\nArgs:\n    reward: Points added on success. Default 10.\n    penalty: Points subtracted on failure. Default 50.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/benchmarks.py",
+  "extension": ".py",
+  "size_bytes": 17059,
+  "line_count": 478,
+  "documentation": {
+    "file_docstring": "CMVK Benchmark Suite\n\nFramework for benchmarking single-model vs multi-model verification accuracy.\nThis creates the infrastructure for benchmarks - actual results require running\nwith real LLM API calls.\n\nUsage:\n    python -m cmvk.benchmarks.run --models gpt-4,claude-sonnet-4,gemini-pro",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Return deterministic mock response based on prompt hash",
+      "Get response from each model",
+      "Apply consensus method",
+      "Calculate drift between responses",
+      "High drift = disagreement = low confidence",
+      "Models disagree significantly",
+      "Models agree - check correctness",
+      "Use first response as representative (they all agree)",
+      "Handle numeric",
+      "Handle string",
+      "Handle lists/arrays",
+      "Fallback: exact match",
+      "Simple normalized edit distance approximation",
+      "(For production, use proper Levenshtein or embedding similarity)",
+      "Exact match",
+      "Numeric tolerance",
+      "String containment (ground truth in response)",
+      "Group by category",
+      "Would need task info to group properly",
+      "Calculate latency",
+      "Demo: Run benchmark with mock data"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TaskCategory: Categories of benchmark tasks.",
+      "BenchmarkTask: A single benchmark task.",
+      "ModelResponse: Response from a single model.",
+      "VerificationResult: Result of verifying a task.",
+      "BenchmarkResults: Aggregate benchmark results.",
+      "ConsensusMethod: Methods for reaching consensus across models.",
+      "CMVKBenchmark: Benchmark framework for CMVK verification.\n\nThis class provides infrastructure f",
+      "create_sample_tasks: Create sample benchmark tasks for testing.",
+      "__init__: Initialize benchmark.\n\nArgs:\n    models: List of model names to use\n    model_fn",
+      "_mock_model_fn: Mock model function for testing the framework."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "BenchmarkResults",
+    "ModelResponse",
+    "save_results",
+    "ConsensusMethod",
+    "run_single_model",
+    "BenchmarkTask",
+    "CMVKBenchmark",
+    "run_multi_model",
+    "load_tasks",
+    "TaskCategory",
+    "aggregate_results",
+    "VerificationResult",
+    "create_sample_tasks"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "pathlib",
+      "typing",
+      "numpy"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_sample_tasks",
+      "line": 410,
+      "doc": "Create sample benchmark tasks for testing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "n"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 96,
+      "doc": "Initialize benchmark.\n\nArgs:\n    models: List of model names to use\n    model_fn: Function(model_name, prompt) -> response\n             If None, uses mock responses for testing\n    consensus_method: How to combine model responses\n    drift_threshold: Threshold for drift-based consensus",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "models",
+        "model_fn",
+        "consensus_method",
+        "drift_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_mock_model_fn",
+      "line": 119,
+      "doc": "Mock model function for testing the framework.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "model_name",
+        "prompt"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "load_tasks",
+      "line": 124,
+      "doc": "Load benchmark tasks from JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_single_model",
+      "line": 141,
+      "doc": "Run benchmark with a single model.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tasks",
+        "model"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_multi_model",
+      "line": 169,
+      "doc": "Run benchmark with multiple models using CMVK consensus.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tasks"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_consensus",
+      "line": 204,
+      "doc": "Apply consensus method to multiple model responses.\n\nThis is where the CMVK algorithm is applied.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "responses",
+        "ground_truth"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_majority_vote_consensus",
+      "line": 219,
+      "doc": "Simple majority voting.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "responses",
+        "ground_truth"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_unanimous_consensus",
+      "line": 235,
+      "doc": "Require all models to agree.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "responses",
+        "ground_truth"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_drift_consensus",
+      "line": 248,
+      "doc": "CMVK drift-based consensus.\n\nAlgorithm:\n1. Convert responses to vectors (embeddings or numeric)\n2. Calculate pairwise drift between all responses\n3. If max drift > threshold, responses disagree \u2192 flag for review\n4. If responses agree, check against ground truth",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "responses",
+        "ground_truth"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_calculate_pairwise_drift",
+      "line": 294,
+      "doc": "Calculate drift between all pairs of responses.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "responses"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_response_drift",
+      "line": 308,
+      "doc": "Calculate drift between two responses.\n\nFor numeric responses: normalized absolute difference\nFor string responses: Levenshtein-based similarity\nFor structured: recursive comparison",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response_a",
+        "response_b"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_string_drift",
+      "line": 335,
+      "doc": "Calculate drift between strings using character-level comparison.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "a",
+        "b"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_check_correctness",
+      "line": 349,
+      "doc": "Check if response matches ground truth.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response",
+        "ground_truth"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "aggregate_results",
+      "line": 365,
+      "doc": "Aggregate results into summary statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "results",
+        "config"
+      ],
+      "returns": "BenchmarkResults"
+    },
+    {
+      "name": "save_results",
+      "line": 395,
+      "doc": "Save results to JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "results",
+        "path"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TaskCategory",
+      "line": 27,
+      "doc": "Categories of benchmark tasks.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BenchmarkTask",
+      "line": 36,
+      "doc": "A single benchmark task.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ModelResponse",
+      "line": 47,
+      "doc": "Response from a single model.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VerificationResult",
+      "line": 56,
+      "doc": "Result of verifying a task.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BenchmarkResults",
+      "line": 68,
+      "doc": "Aggregate benchmark results.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ConsensusMethod",
+      "line": 80,
+      "doc": "Methods for reaching consensus across models.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CMVKBenchmark",
+      "line": 88,
+      "doc": "Benchmark framework for CMVK verification.\n\nThis class provides infrastructure for running benchmarks.\nActual model calls must be provided via the `model_fn` parameter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 69,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

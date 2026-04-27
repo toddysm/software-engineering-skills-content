@@ -1,0 +1,334 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/crewai_adapter.py",
+  "extension": ".py",
+  "size_bytes": 19699,
+  "line_count": 467,
+  "documentation": {
+    "file_docstring": "CrewAI Integration\n\nWraps CrewAI crews and agents with Agent OS governance.\n\nUsage:\n    from agent_os.integrations import CrewAIKernel\n\n    kernel = CrewAIKernel()\n    governed_crew = kernel.wrap(my_crew)\n\n    # Now all crew executions go through Agent OS\n    result = governed_crew.kickoff()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Now all crew executions go through Agent OS",
+      "Patterns used to detect potential PII / secrets in memory writes",
+      "Wrap individual agents and their tools",
+      "Wrap individual agents and their tools",
+      "Wrap individual tools for per-call interception",
+      "Deep hooks at agent level",
+      "\u2500\u2500 Deep Integration Hooks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Validate step input against policy",
+      "PII / secrets check",
+      "Blocked patterns check",
+      "Convenience function"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CrewAIKernel: CrewAI adapter for Agent OS.\n\nSupports:\n- Crew (kickoff, kickoff_async)\n- Indivi",
+      "wrap: Quick wrapper for CrewAI crews",
+      "wrap: Wrap a CrewAI crew with governance.\n\nIntercepts:\n- kickoff() / kickoff_async()\n-",
+      "unwrap: Get original crew from wrapped version",
+      "_intercept_task_steps: Hook into individual step execution within a task.\n\nIf the agent exposes a ``ste",
+      "_intercept_crew_memory: Intercept memory writes for a CrewAI agent's shared memory.\n\nCrewAI agents may h",
+      "_detect_crew_delegation: Detect when a CrewAI agent delegates work to another agent.\n\nWraps the ``delegat",
+      "GovernedCrewAICrew: CrewAI crew wrapped with Agent OS governance",
+      "governed_delegate: Governed wrapper around CrewAI agent delegation.\n\nIntercepts delegation calls be",
+      "kickoff: Governed kickoff"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "governed_execute",
+    "governed_run",
+    "CrewAIKernel",
+    "governed_save",
+    "governed_step",
+    "governed_delegate",
+    "wrap",
+    "kickoff",
+    "GovernedCrewAICrew",
+    "unwrap"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "functools",
+      "logging",
+      "re",
+      "datetime",
+      "typing",
+      "base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "wrap",
+      "line": 464,
+      "doc": "Quick wrapper for CrewAI crews",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "crew",
+        "policy"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "deep_hooks_enabled"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 66,
+      "doc": "Wrap a CrewAI crew with governance.\n\nIntercepts:\n- kickoff() / kickoff_async()\n- Individual agent executions\n- Individual tool calls within agents\n- Task completions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "crew"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 258,
+      "doc": "Get original crew from wrapped version",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_crew"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_intercept_task_steps",
+      "line": 265,
+      "doc": "Hook into individual step execution within a task.\n\nIf the agent exposes a ``step`` or ``_execute_step`` method, it is\nwrapped so that each intermediate step is logged and validated\nagainst governance policy.\n\nArgs:\n    agent: The CrewAI agent being governed.\n    agent_name: Human-readable agent name for logging.\n    crew_name: Human-readable crew name for logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "agent_name",
+        "crew_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_intercept_crew_memory",
+      "line": 329,
+      "doc": "Intercept memory writes for a CrewAI agent's shared memory.\n\nCrewAI agents may have a ``memory`` or ``shared_memory`` attribute.\nThis method wraps the memory's write / save methods with governance\nvalidation that checks for PII, secrets, and blocked patterns.\n\nArgs:\n    agent: The CrewAI agent being governed.\n    ctx: Execution context for audit logging.\n    agent_name: Human-readable agent name for logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_detect_crew_delegation",
+      "line": 402,
+      "doc": "Detect when a CrewAI agent delegates work to another agent.\n\nWraps the ``delegate_work`` or ``execute_task`` related delegation\nmethods to track and govern delegation chains.\n\nArgs:\n    agent: The CrewAI agent being governed.\n    ctx: Execution context for audit logging.\n    agent_name: Human-readable agent name for logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_delegate",
+      "line": 423,
+      "doc": "Governed wrapper around CrewAI agent delegation.\n\nIntercepts delegation calls between agents, tracks delegation\ndepth, and enforces the maximum delegation limit defined in\nthe active policy.\n\nArgs:\n    *args: Positional arguments forwarded to the original delegate.\n    **kwargs: Keyword arguments forwarded to the original delegate.\n\nReturns:\n    The result from the delegated agent.\n\nRaises:\n    PolicyViolationError: If the delegation depth exceeds the policy limit.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "kickoff",
+      "line": 95,
+      "doc": "Governed kickoff",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "inputs"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "kickoff_async",
+      "line": 118,
+      "doc": "Governed async kickoff",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "inputs"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_wrap_tool",
+      "line": 141,
+      "doc": "Wrap a CrewAI tool's _run method with governance interception.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool",
+        "agent_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_agent",
+      "line": 193,
+      "doc": "Add governance hooks to individual agent and its tools.\n\nWhen ``deep_hooks_enabled`` is ``True`` on the kernel, this\nalso applies step-level execution interception, memory write\nvalidation, and delegation detection.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__getattr__",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_step",
+      "line": 287,
+      "doc": "Governed wrapper around a CrewAI task step.\n\nIntercepts individual step calls within a task, validates\ninputs against the active policy, and records each step\nin the audit trail before delegating to the original method.\n\nArgs:\n    *args: Positional arguments forwarded to the original step.\n    **kwargs: Keyword arguments forwarded to the original step.\n\nReturns:\n    The result from the original step method.\n\nRaises:\n    PolicyViolationError: If the step input violates the active policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_run",
+      "line": 152,
+      "doc": "Governed wrapper around a CrewAI tool's run method.\n\nIntercepts the tool call, runs pre-execution policy checks,\nrecords the invocation in the audit log, and delegates\nto the original _run implementation.\n\nArgs:\n    *args: Positional arguments forwarded to the original tool.\n    **kwargs: Keyword arguments forwarded to the original tool.\n\nReturns:\n    The result from the original tool's run method.\n\nRaises:\n    PolicyViolationError: If the tool call violates the active policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "governed_save",
+      "line": 356,
+      "doc": "Governed wrapper around CrewAI memory save operations.\n\nValidates content before it is written to crew memory,\nchecking for PII patterns and policy-blocked content.\nRecords every save attempt in the memory audit log.\n\nArgs:\n    *args: Positional arguments forwarded to the original save.\n    **kwargs: Keyword arguments forwarded to the original save.\n\nReturns:\n    The result from the original memory save method.\n\nRaises:\n    PolicyViolationError: If the content contains PII or blocked patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_execute",
+      "line": 212,
+      "doc": "Governed wrapper around a CrewAI agent's task execution.\n\nIntercepts each task execution call, applies pre-execution\npolicy checks, and delegates to the original execute method.\n\nArgs:\n    task: The CrewAI Task object to execute.\n    *args: Additional positional arguments.\n    **kwargs: Additional keyword arguments.\n\nReturns:\n    The task execution result from the underlying agent.\n\nRaises:\n    PolicyViolationError: If the execution violates the active policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "task"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CrewAIKernel",
+      "line": 44,
+      "doc": "CrewAI adapter for Agent OS.\n\nSupports:\n- Crew (kickoff, kickoff_async)\n- Individual agents within crews\n- Task execution monitoring\n- Individual tool call interception (allowed_tools, blocked_patterns)\n- Deep hooks: step-by-step task execution, memory interception,\n  and sub-agent delegation detection (when ``deep_hooks_enabled`` is True).",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedCrewAICrew",
+      "line": 86,
+      "doc": "CrewAI crew wrapped with Agent OS governance",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 49,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

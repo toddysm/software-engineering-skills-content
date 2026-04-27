@@ -1,0 +1,686 @@
+{
+  "path": "packages/agent-os/tests/test_async_evaluator.py",
+  "extension": ".py",
+  "size_bytes": 20451,
+  "line_count": 557,
+  "documentation": {
+    "file_docstring": "Tests for the async-safe and thread-safe policy evaluator.\n\nValidates concurrency guarantees including:\n* asyncio coroutine safety\n* threading safety via ThreadPoolExecutor\n* read-write lock correctness under concurrent load\n* batch evaluation\n* policy reload under concurrent reads\n* statistics tracking\n* error handling in concurrent scenarios",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ConcurrencyStats unit tests",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ReadWriteLock unit tests",
+      "---------------------------------------------------------------------------",
+      "Attempting to acquire read in a separate thread should block.",
+      "Thread should still be blocked",
+      "---------------------------------------------------------------------------",
+      "Basic async evaluation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Thread-safe synchronous evaluation",
+      "---------------------------------------------------------------------------",
+      "All should be denied (token_count > 1000 for every context)",
+      "---------------------------------------------------------------------------",
+      "Asyncio concurrent evaluation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Batch evaluation",
+      "---------------------------------------------------------------------------",
+      "token_count <= 1000 \u2192 allow (default); > 1000 \u2192 deny",
+      "items 0..1000 get default allow (token_count not GT 1000)",
+      "---------------------------------------------------------------------------",
+      "Policy reload under concurrent reads",
+      "---------------------------------------------------------------------------",
+      "After reload the old \"allow_safe_tool\" rule is gone",
+      "The new rule matches",
+      "Pre-evaluate to confirm baseline",
+      "Launch several reads then a reload then more reads",
+      "Gather all \u2014 some reads may see old or new policies",
+      "No exceptions should have been raised",
+      "---------------------------------------------------------------------------",
+      "Statistics tracking",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Error handling in concurrent scenarios",
+      "---------------------------------------------------------------------------",
+      "Monkey-patch evaluate to raise",
+      "evaluation_count still increments (it's in the finally block)",
+      "First call fails",
+      "Second call succeeds \u2014 lock was properly released"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_policy_doc: Create a minimal policy document with two rules.",
+      "evaluator: A synchronous evaluator loaded with a test policy.",
+      "async_evaluator: An async evaluator wrapping the synchronous evaluator.",
+      "test_multiple_readers: Multiple readers can hold the lock concurrently.",
+      "test_writer_excludes_readers: A writer blocks new readers until it releases.",
+      "test_evaluate_allow_default: Evaluating a benign context returns the default allow.",
+      "test_evaluate_deny_rule: A high token count triggers the deny rule.",
+      "test_evaluate_allow_rule: A safe tool triggers the explicit allow rule.",
+      "test_evaluator_property: The ``evaluator`` property exposes the wrapped evaluator.",
+      "test_thread_pool_safety: 10+ threads evaluating simultaneously produce correct results."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_as_dict",
+    "TestStatsTracking",
+    "test_writer_excludes_readers",
+    "TestConcurrencyStats",
+    "TestAsyncEvaluate",
+    "test_sync_error_increments_stats",
+    "test_defaults",
+    "TestBatchEvaluation",
+    "flaky_evaluate",
+    "test_average_evaluation_time_zero_division",
+    "TestPolicyReload",
+    "test_sync_evaluation_count",
+    "TestEvaluateSync",
+    "TestErrorHandling",
+    "test_thread_pool_safety",
+    "test_thread_pool_mixed",
+    "try_read",
+    "test_average_evaluation_time",
+    "test_multiple_readers",
+    "TestAsyncConcurrency",
+    "test_sync_evaluate_deny",
+    "test_initial_stats",
+    "TestReadWriteLock",
+    "test_sync_evaluate_allow",
+    "async_evaluator",
+    "evaluator",
+    "sometimes_fail"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "tempfile",
+      "textwrap",
+      "concurrent.futures",
+      "pathlib",
+      "typing",
+      "unittest.mock",
+      "pytest",
+      "agent_os.policies.async_evaluator",
+      "agent_os.policies.evaluator",
+      "agent_os.policies.schema",
+      "threading"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_policy_doc",
+      "line": 48,
+      "doc": "Create a minimal policy document with two rules.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "default_action"
+      ],
+      "returns": "PolicyDocument"
+    },
+    {
+      "name": "evaluator",
+      "line": 86,
+      "doc": "A synchronous evaluator loaded with a test policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "PolicyEvaluator"
+    },
+    {
+      "name": "async_evaluator",
+      "line": 92,
+      "doc": "An async evaluator wrapping the synchronous evaluator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "evaluator"
+      ],
+      "returns": "AsyncPolicyEvaluator"
+    },
+    {
+      "name": "test_defaults",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_average_evaluation_time_zero_division",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_average_evaluation_time",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_as_dict",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_readers",
+      "line": 141,
+      "doc": "Multiple readers can hold the lock concurrently.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_writer_excludes_readers",
+      "line": 149,
+      "doc": "A writer blocks new readers until it releases.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_allow_default",
+      "line": 179,
+      "doc": "Evaluating a benign context returns the default allow.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_deny_rule",
+      "line": 186,
+      "doc": "A high token count triggers the deny rule.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_allow_rule",
+      "line": 193,
+      "doc": "A safe tool triggers the explicit allow rule.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluator_property",
+      "line": 199,
+      "doc": "The ``evaluator`` property exposes the wrapped evaluator.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_evaluate_allow",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_evaluate_deny",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thread_pool_safety",
+      "line": 219,
+      "doc": "10+ threads evaluating simultaneously produce correct results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thread_pool_mixed",
+      "line": 235,
+      "doc": "Threads with mixed allow/deny contexts all return correctly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_many_concurrent_evaluations",
+      "line": 262,
+      "doc": "50+ concurrent async tasks produce correct results.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_mixed_decisions",
+      "line": 273,
+      "doc": "Concurrent tasks with different outcomes resolve correctly.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_returns_ordered_results",
+      "line": 304,
+      "doc": "Batch evaluation returns one result per context in order.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_empty",
+      "line": 321,
+      "doc": "Batch evaluation with empty list returns empty list.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_large",
+      "line": 326,
+      "doc": "Batch evaluation handles 100 items.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reload_policies",
+      "line": 344,
+      "doc": "Reload replaces the policy set.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reload_increments_stats",
+      "line": 375,
+      "doc": "Each reload bumps the reload counter.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reload_during_concurrent_reads",
+      "line": 387,
+      "doc": "Reads complete or wait while a reload is in progress.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluation_count",
+      "line": 424,
+      "doc": "Each evaluation increments the counter.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_total_and_average_time",
+      "line": 432,
+      "doc": "Total and average time are positive after evaluations.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_evaluation_count",
+      "line": 439,
+      "doc": "Synchronous evaluations also update stats.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats_after_batch",
+      "line": 446,
+      "doc": "Batch evaluation increments count for each context.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initial_stats",
+      "line": 453,
+      "doc": "Fresh evaluator has zeroed stats.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "async_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_underlying_evaluator_exception",
+      "line": 467,
+      "doc": "When the underlying evaluator raises, error_count increments.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_error_increments_stats",
+      "line": 484,
+      "doc": "Synchronous path also tracks errors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_error_does_not_poison_lock",
+      "line": 498,
+      "doc": "After an error the evaluator remains usable.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_errors_and_successes",
+      "line": 524,
+      "doc": "Mix of failing and succeeding concurrent tasks.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "try_read",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "flaky_evaluate",
+      "line": 506,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sometimes_fail",
+      "line": 532,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestConcurrencyStats",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestReadWriteLock",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAsyncEvaluate",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvaluateSync",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAsyncConcurrency",
+      "line": 261,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBatchEvaluation",
+      "line": 303,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyReload",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestStatsTracking",
+      "line": 423,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestErrorHandling",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 45,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

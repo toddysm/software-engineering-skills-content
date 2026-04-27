@@ -1,0 +1,439 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/langchain_adapter.py",
+  "extension": ".py",
+  "size_bytes": 25415,
+  "line_count": 654,
+  "documentation": {
+    "file_docstring": "LangChain Integration\n\nWraps LangChain agents/chains with Agent OS governance.\n\nUsage:\n    from agent_os.integrations import LangChainKernel\n\n    kernel = LangChainKernel()\n    governed_chain = kernel.wrap(my_langchain_chain)\n\n    # Now all invocations go through Agent OS\n    result = governed_chain.invoke({\"input\": \"...\"})",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Now all invocations go through Agent OS",
+      "Patterns used to detect potential PII / secrets in memory writes",
+      "\u2500\u2500 Deep Integration Hooks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Allowed-tools check",
+      "Blocked-patterns check on arguments",
+      "Blocked-patterns check on tool name itself",
+      "\u2500\u2500 Memory Write Interception \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "PII / secrets detection",
+      "Policy blocked-patterns check",
+      "\u2500\u2500 Sub-agent Spawn Detection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Track delegation depth via ctx metadata",
+      "\u2500\u2500 wrap / unwrap \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Get agent ID from the object",
+      "Store original",
+      "Apply deep hooks before creating the wrapper class",
+      "Create wrapper class",
+      "Pre-check",
+      "Execute",
+      "Post-check",
+      "Passthrough for non-execution methods",
+      "Convenience function"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LangChainKernel: LangChain adapter for Agent OS.\n\nSupports:\n- Chains (invoke, ainvoke)\n- Agents (",
+      "PolicyViolationError: Raised when a LangChain agent/chain violates governance policy.",
+      "wrap: Convenience wrapper for LangChain agents and chains.\n\nArgs:\n    agent: Any LangC",
+      "__init__: Initialise the LangChain governance kernel.\n\nArgs:\n    policy: Governance policy",
+      "_intercept_tool_registry: Intercept the agent's tool registry to apply per-tool governance.\n\nAfter the age",
+      "_wrap_tool_method: Replace a single tool method with a governed wrapper.\n\nArgs:\n    tool: The LangC",
+      "_check_tool_policy: Validate a tool call against the active governance policy.\n\nRaises :class:`Polic",
+      "_record_tool_invocation: Append a tool invocation record to the audit log.",
+      "_intercept_memory: Intercept memory writes on the wrapped agent.\n\nIf the underlying object exposes ",
+      "_validate_memory_write: Check memory content for PII, secrets, and blocked patterns.\n\nRaises :class:`Pol"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "GovernedLangChainAgent",
+    "governed_sync",
+    "governed_invoke",
+    "invoke",
+    "batch",
+    "health_check",
+    "governed_save_context",
+    "wrap",
+    "stream",
+    "PolicyViolationError",
+    "LangChainKernel",
+    "run",
+    "unwrap"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "functools",
+      "logging",
+      "re",
+      "time",
+      "datetime",
+      "typing",
+      "base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "wrap",
+      "line": 634,
+      "doc": "Convenience wrapper for LangChain agents and chains.\n\nArgs:\n    agent: Any LangChain-compatible object.\n    policy: Optional governance policy (uses defaults when ``None``).\n    timeout_seconds: Default timeout in seconds (default 300).\n\nReturns:\n    A governed proxy around *agent*.\n\nExample:\n    >>> from agent_os.integrations.langchain_adapter import wrap\n    >>> governed = wrap(my_chain, policy=GovernancePolicy(max_tokens=5000))\n    >>> result = governed.invoke({\"input\": \"hello\"})",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent",
+        "policy",
+        "timeout_seconds"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 50,
+      "doc": "Initialise the LangChain governance kernel.\n\nArgs:\n    policy: Governance policy to enforce. When ``None`` the default\n        ``GovernancePolicy`` is used.\n    timeout_seconds: Default timeout in seconds for async operations\n        (default 300).\n    deep_hooks_enabled: When ``True`` (default), the kernel will\n        apply deep integration hooks \u2014 tool registry interception,\n        memory write validation, and sub-agent spawn detection \u2014\n        during :meth:`wrap`.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "timeout_seconds",
+        "deep_hooks_enabled"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_intercept_tool_registry",
+      "line": 80,
+      "doc": "Intercept the agent's tool registry to apply per-tool governance.\n\nAfter the agent is wrapped this method inspects its ``tools``\nattribute.  Each tool's ``_run`` and ``_arun`` methods are replaced\nwith governed wrappers that:\n\n* Check the tool name against ``blocked_patterns`` in the active\n  policy before every invocation.\n* Track each invocation (tool name, arguments, timestamp) in\n  :attr:`_tool_invocations`.\n* Respect the ``allowed_tools`` allowlist when configured.\n\nArgs:\n    agent: The underlying LangChain agent / runnable.\n    ctx: The :class:`ExecutionContext` for governance checks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_tool_method",
+      "line": 110,
+      "doc": "Replace a single tool method with a governed wrapper.\n\nArgs:\n    tool: The LangChain tool object.\n    tool_name: Human-readable tool name for logging/audit.\n    method_name: The attribute to patch (``\"_run\"`` or ``\"_arun\"``).\n    ctx: Execution context.\n    is_async: Whether the target method is a coroutine.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool",
+        "tool_name",
+        "method_name",
+        "ctx",
+        "is_async"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_tool_policy",
+      "line": 150,
+      "doc": "Validate a tool call against the active governance policy.\n\nRaises :class:`PolicyViolationError` if the tool is not allowed or\nif its arguments match a blocked pattern.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "args",
+        "kwargs",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record_tool_invocation",
+      "line": 179,
+      "doc": "Append a tool invocation record to the audit log.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "args",
+        "kwargs"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_intercept_memory",
+      "line": 195,
+      "doc": "Intercept memory writes on the wrapped agent.\n\nIf the underlying object exposes a ``memory`` attribute with a\n``save_context`` method, that method is replaced with a governed\nwrapper that:\n\n* Validates the data being written against PII / secret patterns.\n* Checks data against ``blocked_patterns`` in the active policy.\n* Logs every memory write to :attr:`_memory_audit_log`.\n\nArgs:\n    agent: The underlying LangChain agent / chain.\n    ctx: The :class:`ExecutionContext` for governance checks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_memory_write",
+      "line": 240,
+      "doc": "Check memory content for PII, secrets, and blocked patterns.\n\nRaises :class:`PolicyViolationError` if the content being written\nto memory matches any PII pattern or blocked policy pattern.\n\nArgs:\n    inputs: The input dict being stored.\n    outputs: The output dict being stored.\n    ctx: Execution context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "inputs",
+        "outputs",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_detect_agent_spawning",
+      "line": 272,
+      "doc": "Wrap ``invoke`` calls to detect and govern sub-agent delegation.\n\nMonitors the agent's ``invoke`` method (if present on the original\nobject) for delegation patterns.  Each invocation increments a\ndepth counter and is checked against the policy's\n``max_tool_calls`` as a proxy for maximum delegation depth.\n\nDelegation chains are recorded in :attr:`_delegation_chains`.\n\nArgs:\n    agent: The underlying LangChain agent / runnable.\n    ctx: The :class:`ExecutionContext` for governance checks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 321,
+      "doc": "Wrap a LangChain chain, agent, or runnable with governance.\n\nCreates a proxy object that intercepts all execution methods\n(``invoke``, ``ainvoke``, ``run``, ``batch``, ``stream``) and\napplies pre-/post-execution policy checks.\n\nWhen :attr:`deep_hooks_enabled` is ``True`` (the default) the\nfollowing additional hooks are applied:\n\n* **Tool registry interception** \u2014 each tool's ``_run`` / ``_arun``\n  is wrapped with governance checks.\n* **Memory write interception** \u2014 ``memory.save_context`` is\n  validated for PII and blocked patterns.\n* **Sub-agent spawn detection** \u2014 ``invoke`` calls are monitored\n  for delegation depth.\n\nThe wrapping strategy uses a dynamically created inner class so that\nattribute access for non-execution methods (e.g. ``name``,\n``verbose``) is transparently forwarded to the original object.\n\nArgs:\n    agent: Any LangChain-compatible object that exposes ``invoke``,\n        ``run``, ``batch``, or ``stream`` methods.\n\nReturns:\n    A ``GovernedLangChainAgent`` proxy whose execution calls are\n    subject to governance.\n\nRaises:\n    PolicyViolationError: Raised at execution time if input or\n        output violates the active policy.\n\nExample:\n    >>> kernel = LangChainKernel(policy=GovernancePolicy(\n    ...     blocked_patterns=[\"DROP TABLE\"]\n    ... ))\n    >>> governed = kernel.wrap(my_chain)\n    >>> result = governed.invoke({\"input\": \"safe query\"})",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 598,
+      "doc": "Retrieve the original unwrapped LangChain object.\n\nArgs:\n    governed_agent: A governed wrapper returned by :meth:`wrap`.\n\nReturns:\n    The original LangChain chain, agent, or runnable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "health_check",
+      "line": 609,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_save_context",
+      "line": 221,
+      "doc": "Governed wrapper around ``memory.save_context``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "inputs",
+        "outputs"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_invoke",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "input_data"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_async",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_sync",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 390,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "invoke",
+      "line": 395,
+      "doc": "Governed synchronous invocation.\n\nArgs:\n    input_data: Input to pass to the chain/agent.\n    **kwargs: Extra arguments forwarded to the original\n        ``invoke`` call.\n\nReturns:\n    The result from the underlying chain/agent.\n\nRaises:\n    PolicyViolationError: If the input or output violates\n        governance policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "ainvoke",
+      "line": 434,
+      "doc": "Governed asynchronous invocation.\n\nAsync counterpart of :meth:`invoke` \u2014 applies identical\npre-/post-execution policy checks with timeout support.\n\nArgs:\n    input_data: Input to pass to the chain/agent.\n    **kwargs: Extra arguments forwarded to the original\n        ``ainvoke`` call.\n\nReturns:\n    The result from the underlying chain/agent.\n\nRaises:\n    PolicyViolationError: If the input or output violates\n        governance policy.\n    asyncio.TimeoutError: If the operation exceeds the timeout.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "run",
+      "line": 483,
+      "doc": "Governed run for legacy LangChain agents.\n\nArgs:\n    *args: Positional arguments; the first is treated as\n        the input for policy checking.\n    **kwargs: Keyword arguments forwarded to the original\n        ``run`` call.\n\nReturns:\n    The result from the underlying agent.\n\nRaises:\n    PolicyViolationError: If the input or output violates\n        governance policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "batch",
+      "line": 521,
+      "doc": "Governed batch execution.\n\nEach input in the batch is individually checked against\nthe governance policy before the batch is submitted.\n\nArgs:\n    inputs: List of inputs to process.\n    **kwargs: Extra arguments forwarded to the original\n        ``batch`` call.\n\nReturns:\n    List of results from the underlying chain/agent.\n\nRaises:\n    PolicyViolationError: If any input or output in the\n        batch violates governance policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "inputs"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "stream",
+      "line": 562,
+      "doc": "Governed streaming execution.\n\nThe input is policy-checked before streaming begins.\nIndividual chunks are yielded as-is; a post-execution\ncheck runs after the stream is fully consumed.\n\nArgs:\n    input_data: Input to pass to the chain/agent.\n    **kwargs: Extra arguments forwarded to the original\n        ``stream`` call.\n\nYields:\n    Chunks from the underlying stream.\n\nRaises:\n    PolicyViolationError: If the input violates governance\n        policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__getattr__",
+      "line": 593,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "LangChainKernel",
+      "line": 38,
+      "doc": "LangChain adapter for Agent OS.\n\nSupports:\n- Chains (invoke, ainvoke)\n- Agents (run, arun)\n- Runnables (invoke, batch, stream)\n- Deep hooks: tool registry interception, memory write validation,\n  and sub-agent spawn detection (when ``deep_hooks_enabled`` is True).",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 627,
+      "doc": "Raised when a LangChain agent/chain violates governance policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedLangChainAgent",
+      "line": 387,
+      "doc": "LangChain agent wrapped with Agent OS governance",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 67,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "path": "docs/workshop/labs/lab3_full_governance_stack.py",
+  "extension": ".py",
+  "size_bytes": 7948,
+  "line_count": 246,
+  "documentation": {
+    "file_docstring": "Lab 3 \u2014 Full Governance Stack\n==============================\nIntroduction to AI Agent Governance Workshop\n\nGoal: Combine policy enforcement, cryptographic agent identity, and tamper-proof\naudit logging into a single pipeline that processes agent tool calls end-to-end.\n\nInstructions:\n1. Read through this file completely before making changes.\n2. Fill in each section marked with TODO.\n3. Run the script:   python lab3_full_governance_stack.py\n4. Compare your output to the expected output in lab-guide.md.\n\nPrerequisites:\n    pip install agent-os-kernel agentmesh-platform",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Policy that governs what the production agent may do.",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Scenarios to run through the governance pipeline.",
+      "Each entry: (tool_name, token_count, expected_allowed: bool)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Step 1 \u2014 Build the governance pipeline",
+      "---------------------------------------------------------------------------",
+      "evaluator = PolicyEvaluator()",
+      "evaluator.load_policy_yaml(POLICY_YAML)",
+      "agent = AgentIdentity.create(",
+      "name=\"ProductionAgent\",",
+      "sponsor=\"ops-team@example.com\",",
+      "capabilities=[\"read:data\", \"read:reports\"],",
+      "organization=\"Acme\",",
+      ")",
+      "scorer = RiskScorer()",
+      "audit = AuditLog()",
+      "return evaluator, agent, scorer, audit",
+      "---------------------------------------------------------------------------",
+      "Step 2 \u2014 Process a single tool call through the pipeline",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Step 3 \u2014 Inspect the audit trail",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Step 4 \u2014 Simulate tampering and verify detection",
+      "---------------------------------------------------------------------------",
+      "Example:",
+      "audit.entries[0].outcome = \"success\"   # tamper: change \"blocked\" \u2192 \"success\"",
+      "valid, error = audit.verify_integrity()",
+      "print(f\"Audit intact after tampering: {valid}\")",
+      "if error:",
+      "print(f\"  Detection message: {error}\")",
+      "---------------------------------------------------------------------------",
+      "Main flow",
+      "---------------------------------------------------------------------------",
+      "--- Run scenarios through the pipeline ---",
+      "--- Verify all results match expected outcomes ---",
+      "--- Verify audit integrity ---",
+      "--- Print audit trail ---",
+      "--- Simulate tampering ---"
+    ],
+    "todo_comments": [
+      "TODO: uncomment and complete the lines below",
+      "Remove these stubs once you've completed the TODO above:",
+      "TODO: implement the three layers described above.",
+      "TODO: Mutate audit.entries[0].outcome to a different value, then verify."
+    ],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "create_governance_pipeline: TODO: Create and return (evaluator, agent, scorer, audit_log).\n\n- evaluator: Pol",
+      "process_tool_call: TODO: Implement the three-layer governance pipeline:\n\nLayer 1 \u2014 Policy check:\n  ",
+      "print_audit_trail: Print a formatted summary of all audit entries.",
+      "simulate_tampering: TODO: Mutate one audit entry to simulate log tampering, then call\naudit.verify_i"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "simulate_tampering",
+    "process_tool_call",
+    "run_lab",
+    "print_audit_trail",
+    "create_governance_pipeline"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "agent_os.policies",
+      "agentmesh",
+      "agentmesh.governance.audit"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_governance_pipeline",
+      "line": 93,
+      "doc": "TODO: Create and return (evaluator, agent, scorer, audit_log).\n\n- evaluator: PolicyEvaluator loaded with POLICY_YAML\n- agent: AgentIdentity named \"ProductionAgent\", sponsored by\n         \"ops-team@example.com\", capabilities [\"read:data\", \"read:reports\"]\n- scorer: RiskScorer()\n- audit:  AuditLog()",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "tuple"
+    },
+    {
+      "name": "process_tool_call",
+      "line": 127,
+      "doc": "TODO: Implement the three-layer governance pipeline:\n\nLayer 1 \u2014 Policy check:\n    Evaluate {\"tool_name\": tool_name, \"token_count\": token_count}.\n    If denied \u2192 log a \"policy_violation\" audit entry and return (False, reason).\n\nLayer 2 \u2014 Trust check:\n    Get the agent's trust score.\n    If score < 400 \u2192 return (False, \"Trust score too low: <score>\").\n\nLayer 3 \u2014 Execute and log:\n    Log a \"tool_invocation\" audit entry with outcome \"success\".\n    Record a \"policy_compliant_action\" event on the scorer.\n    Return (True, \"OK\").\n\nReturn (allowed: bool, message: str).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tool_name",
+        "token_count",
+        "evaluator",
+        "agent",
+        "scorer",
+        "audit"
+      ],
+      "returns": "tuple"
+    },
+    {
+      "name": "print_audit_trail",
+      "line": 161,
+      "doc": "Print a formatted summary of all audit entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "simulate_tampering",
+      "line": 176,
+      "doc": "TODO: Mutate one audit entry to simulate log tampering, then call\naudit.verify_integrity() and print whether the tamper was detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_lab",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

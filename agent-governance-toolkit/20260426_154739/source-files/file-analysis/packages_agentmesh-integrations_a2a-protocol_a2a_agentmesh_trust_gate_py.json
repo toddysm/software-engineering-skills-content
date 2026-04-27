@@ -1,0 +1,190 @@
+{
+  "path": "packages/agentmesh-integrations/a2a-protocol/a2a_agentmesh/trust_gate.py",
+  "extension": ".py",
+  "size_bytes": 5963,
+  "line_count": 180,
+  "documentation": {
+    "file_docstring": "Trust Gate \u2014 policy enforcement for A2A task negotiations.\n\nEvaluates incoming A2A task requests against AgentMesh trust policies:\n- Minimum trust score thresholds\n- Skill-level access control\n- Rate limiting per source agent\n- DID allow/deny lists",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "1. DID required",
+      "2. Blocked DID",
+      "3. Allow list",
+      "4. Trust score",
+      "5. Rate limit",
+      "All checks passed"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustPolicy: Policy configuration for the trust gate.",
+      "TrustResult: Result of a trust evaluation.",
+      "TrustGate: Evaluates A2A task requests against trust policies.\n\nUsage:\n    gate = TrustGate",
+      "evaluate: Evaluate a task envelope against trust policies.\n\nChecks (in order):\n1. Source D",
+      "evaluate_and_gate: Evaluate and auto-fail the task if trust check fails.\n\nReturns the TrustResult. ",
+      "get_evaluation_log: Return all evaluation results.",
+      "clear_rate_limits: Clear rate limit tracking.",
+      "get_stats: Return gate statistics."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "TrustGate",
+    "evaluate_and_gate",
+    "TrustResult",
+    "TrustPolicy",
+    "clear_rate_limits",
+    "get_evaluation_log",
+    "to_dict",
+    "evaluate",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "typing",
+      "a2a_agentmesh.task"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 67,
+      "doc": "Evaluate a task envelope against trust policies.\n\nChecks (in order):\n1. Source DID is present (if required)\n2. Source DID is not blocked\n3. Source DID is in allow list (if allow list is non-empty)\n4. Trust score meets minimum (or skill-specific override)\n5. Rate limit not exceeded",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "envelope"
+      ],
+      "returns": "TrustResult"
+    },
+    {
+      "name": "evaluate_and_gate",
+      "line": 151,
+      "doc": "Evaluate and auto-fail the task if trust check fails.\n\nReturns the TrustResult. If denied, the envelope is transitioned\nto FAILED state with the denial reason.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "envelope"
+      ],
+      "returns": "TrustResult"
+    },
+    {
+      "name": "get_evaluation_log",
+      "line": 163,
+      "doc": "Return all evaluation results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_rate_limits",
+      "line": 167,
+      "doc": "Clear rate limit tracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 171,
+      "doc": "Return gate statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustPolicy",
+      "line": 23,
+      "doc": "Policy configuration for the trust gate.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustResult",
+      "line": 35,
+      "doc": "Result of a trust evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustGate",
+      "line": 51,
+      "doc": "Evaluates A2A task requests against trust policies.\n\nUsage:\n    gate = TrustGate(policy=TrustPolicy(min_trust_score=200))\n    result = gate.evaluate(task_envelope)\n    if not result.allowed:\n        task_envelope.fail(result.reason)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

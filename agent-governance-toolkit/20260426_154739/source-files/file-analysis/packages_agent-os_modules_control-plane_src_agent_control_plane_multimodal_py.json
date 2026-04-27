@@ -1,0 +1,580 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/multimodal.py",
+  "extension": ".py",
+  "size_bytes": 20598,
+  "line_count": 727,
+  "documentation": {
+    "file_docstring": "Multimodal Capabilities - Vision, Audio, and RAG Integration\n\nThis module extends agent capabilities beyond text to support vision (image analysis),\naudio processing, and Retrieval-Augmented Generation (RAG) with vector stores.\n\nResearch Foundations:\n    - \"Multimodal Agents: A Survey\" (arXiv:2404.12390, 2024)\n    - GPT-4V vision capabilities and safety considerations\n    - \"AudioLM: Language Modeling Approach to Audio\" (arXiv:2209.03143)\n    - RAG patterns from \"Retrieval-Augmented Generation for Large Language Models\" \n      (arXiv:2312.10997, 2023)\n    - Vector database integration patterns from Pinecone, Weaviate, ChromaDB docs\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Analyze image",
+      "Check safety",
+      "Safety check first",
+      "In production, would call vision model API here",
+      "For now, return governance metadata",
+      "In production, would use actual content moderation",
+      "For now, implement basic checks",
+      "Check metadata for warnings",
+      "Check file size (prevent abuse)",
+      "Transcribe audio",
+      "Check safety",
+      "Safety check",
+      "In production, would call transcription API (e.g., Whisper)",
+      "Check file size",
+      "Check duration",
+      "Add documents",
+      "Search",
+      "In-memory storage for simplified implementation",
+      "Calculate similarities (simplified cosine similarity)",
+      "Apply metadata filters if provided",
+      "Simplified similarity calculation",
+      "Sort by similarity and return top k",
+      "Dot product",
+      "Magnitudes",
+      "Query with RAG",
+      "Retrieve relevant documents",
+      "Assemble context from retrieved documents",
+      "Create RAG prompt",
+      "Track query"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ModalityType: Types of modalities supported",
+      "ImageFormat: Supported image formats",
+      "AudioFormat: Supported audio formats",
+      "VectorStoreType: Supported vector store backends",
+      "ImageInput: Image input for vision capabilities.\n\nAttributes:\n    image_data: Base64-encoded",
+      "AudioInput: Audio input for audio processing.\n\nAttributes:\n    audio_data: Base64-encoded au",
+      "MultimodalInput: Combined multimodal input.\n\nAttributes:\n    text: Optional text component\n    im",
+      "VectorDocument: Document with vector embedding for RAG.\n\nAttributes:\n    doc_id: Unique document",
+      "VisionCapability: Vision capabilities for image analysis.\n\nFeatures:\n- Image understanding and des",
+      "AudioCapability: Audio processing capabilities.\n\nFeatures:\n- Audio transcription\n- Audio generati"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AudioFormat",
+    "get_hash",
+    "get_analysis_history",
+    "search",
+    "MultimodalInput",
+    "AudioCapability",
+    "RAGPipeline",
+    "ModalityType",
+    "VisionCapability",
+    "get_document",
+    "get_supported_formats",
+    "query",
+    "check_image_safety",
+    "transcribe",
+    "VectorDocument",
+    "VectorStoreIntegration",
+    "AudioInput",
+    "delete_documents",
+    "add_documents",
+    "get_stats",
+    "get_modalities",
+    "VectorStoreType",
+    "list_documents",
+    "ImageFormat",
+    "ImageInput",
+    "check_audio_safety",
+    "get_query_history",
+    "create_multimodal_suite",
+    "analyze_image"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "base64",
+      "hashlib",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_multimodal_suite",
+      "line": 710,
+      "doc": "Create a complete multimodal capabilities suite.\n\nReturns:\n    Dictionary with vision, audio, and RAG capabilities",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_hash",
+      "line": 82,
+      "doc": "Get hash of image for caching/deduplication",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_modalities",
+      "line": 122,
+      "doc": "Get list of modalities present",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze_image",
+      "line": 182,
+      "doc": "Analyze an image with a text prompt.\n\nArgs:\n    image: Image to analyze\n    prompt: Text prompt for analysis\n    context: Additional context\n    \nReturns:\n    Analysis results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "image",
+        "prompt",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_image_safety",
+      "line": 230,
+      "doc": "Check if an image is safe for processing.\n\nThis is a governance hook. In production, would integrate\nwith content moderation APIs.\n\nArgs:\n    image: Image to check\n    \nReturns:\n    Safety check results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "image"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_supported_formats",
+      "line": 267,
+      "doc": "Get list of supported image formats",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_analysis_history",
+      "line": 271,
+      "doc": "Get history of image analyses",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 301,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "transcribe",
+      "line": 304,
+      "doc": "Transcribe audio to text.\n\nArgs:\n    audio: Audio to transcribe\n    language: Optional language hint\n    \nReturns:\n    Transcription results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audio",
+        "language"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_audio_safety",
+      "line": 346,
+      "doc": "Check if audio is safe for processing.\n\nArgs:\n    audio: Audio to check\n    \nReturns:\n    Safety check results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audio"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_supported_formats",
+      "line": 376,
+      "doc": "Get list of supported audio formats",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store_type",
+        "collection_name",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_documents",
+      "line": 427,
+      "doc": "Add documents to vector store.\n\nArgs:\n    documents: List of documents with embeddings\n    \nReturns:\n    Result with added document IDs",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "documents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "search",
+      "line": 454,
+      "doc": "Search for similar documents.\n\nArgs:\n    query_embedding: Query vector\n    top_k: Number of results to return\n    filter_metadata: Optional metadata filters\n    \nReturns:\n    List of similar documents with scores",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query_embedding",
+        "top_k",
+        "filter_metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete_documents",
+      "line": 497,
+      "doc": "Delete documents from vector store.\n\nArgs:\n    doc_ids: List of document IDs to delete\n    \nReturns:\n    Deletion results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "doc_ids"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_document",
+      "line": 527,
+      "doc": "Get a document by ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "doc_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_documents",
+      "line": 531,
+      "doc": "List documents in the collection.\n\nArgs:\n    limit: Optional limit on number of documents\n    \nReturns:\n    List of document metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 559,
+      "doc": "Get collection statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_similarity",
+      "line": 568,
+      "doc": "Calculate cosine similarity between two vectors.\nSimplified implementation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "vec1",
+        "vec2"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_matches_filters",
+      "line": 592,
+      "doc": "Check if metadata matches filters",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metadata",
+        "filters"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 627,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "vector_store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query",
+      "line": 631,
+      "doc": "Query with RAG pipeline.\n\nArgs:\n    query_text: Query text\n    query_embedding: Query vector embedding\n    top_k: Number of documents to retrieve\n    context: Additional context\n    \nReturns:\n    RAG response with retrieved documents and citations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query_text",
+        "query_embedding",
+        "top_k",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_assemble_context",
+      "line": 678,
+      "doc": "Assemble context from retrieved documents",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "retrieved_docs"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_create_rag_prompt",
+      "line": 690,
+      "doc": "Create RAG-style prompt",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_query_history",
+      "line": 705,
+      "doc": "Get query history",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ModalityType",
+      "line": 30,
+      "doc": "Types of modalities supported",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ImageFormat",
+      "line": 39,
+      "doc": "Supported image formats",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AudioFormat",
+      "line": 48,
+      "doc": "Supported audio formats",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "VectorStoreType",
+      "line": 56,
+      "doc": "Supported vector store backends",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ImageInput",
+      "line": 67,
+      "doc": "Image input for vision capabilities.\n\nAttributes:\n    image_data: Base64-encoded image or file path\n    format: Image format\n    url: Optional URL if image is remote\n    metadata: Additional metadata (size, dimensions, etc.)",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AudioInput",
+      "line": 88,
+      "doc": "Audio input for audio processing.\n\nAttributes:\n    audio_data: Base64-encoded audio or file path\n    format: Audio format\n    duration_seconds: Optional duration\n    sample_rate: Optional sample rate\n    metadata: Additional metadata",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MultimodalInput",
+      "line": 107,
+      "doc": "Combined multimodal input.\n\nAttributes:\n    text: Optional text component\n    images: List of images\n    audio: List of audio inputs\n    metadata: Additional metadata",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VectorDocument",
+      "line": 135,
+      "doc": "Document with vector embedding for RAG.\n\nAttributes:\n    doc_id: Unique document identifier\n    content: Document content (text)\n    embedding: Vector embedding (simplified as list)\n    metadata: Document metadata (source, timestamp, etc.)",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VisionCapability",
+      "line": 152,
+      "doc": "Vision capabilities for image analysis.\n\nFeatures:\n- Image understanding and description\n- Object detection and recognition\n- Safety filtering for inappropriate content\n- Content moderation\n\nNote: This is a governance wrapper. Actual vision processing\nwould integrate with GPT-4V, Claude Vision, or similar models.\n\nUsage:\n    vision = VisionCapability()\n    \n    # Analyze image\n    result = vision.analyze_image(\n        image=ImageInput(image_data=base64_img, format=ImageFormat.PNG),\n        prompt=\"Describe this image\"\n    )\n    \n    # Check safety\n    safety_check = vision.check_image_safety(image)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AudioCapability",
+      "line": 276,
+      "doc": "Audio processing capabilities.\n\nFeatures:\n- Audio transcription\n- Audio generation\n- Voice activity detection\n- Content moderation for audio\n\nNote: This is a governance wrapper. Actual audio processing\nwould integrate with Whisper, ElevenLabs, or similar services.\n\nUsage:\n    audio = AudioCapability()\n    \n    # Transcribe audio\n    result = audio.transcribe(\n        audio=AudioInput(audio_data=base64_audio, format=AudioFormat.MP3)\n    )\n    \n    # Check safety\n    safety_check = audio.check_audio_safety(audio_input)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "VectorStoreIntegration",
+      "line": 381,
+      "doc": "Integration with vector databases for RAG (Retrieval-Augmented Generation).\n\nFeatures:\n- Vector storage and retrieval\n- Semantic search\n- Hybrid search (vector + keyword)\n- Multiple backend support (Pinecone, Weaviate, ChromaDB, etc.)\n\nUsage:\n    vector_store = VectorStoreIntegration(\n        store_type=VectorStoreType.CHROMA,\n        collection_name=\"knowledge_base\"\n    )\n    \n    # Add documents\n    vector_store.add_documents([\n        VectorDocument(\n            doc_id=\"doc1\",\n            content=\"AI safety is important\",\n            embedding=[0.1, 0.2, 0.3, ...]\n        )\n    ])\n    \n    # Search\n    results = vector_store.search(\n        query_embedding=[0.1, 0.2, 0.3, ...],\n        top_k=5\n    )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RAGPipeline",
+      "line": 604,
+      "doc": "Complete RAG (Retrieval-Augmented Generation) pipeline.\n\nCombines vector store retrieval with generation for knowledge-grounded responses.\n\nFeatures:\n- Document retrieval\n- Context assembly\n- Prompt engineering for RAG\n- Citation tracking\n\nUsage:\n    rag = RAGPipeline(vector_store)\n    \n    # Query with RAG\n    response = rag.query(\n        \"What is AI safety?\",\n        query_embedding=[...],\n        top_k=3\n    )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 58,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

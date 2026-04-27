@@ -1,0 +1,96 @@
+{
+  "path": "demo/maf-integration/03_contoso_support.py",
+  "extension": ".py",
+  "size_bytes": 7203,
+  "line_count": 175,
+  "documentation": {
+    "file_docstring": "Demo 3: Contoso Support \u2014 Prompt injection detection with MAF\n\nShows how GovernancePolicyMiddleware detects and blocks prompt\ninjection attacks in customer chat messages before they reach\nthe LLM, including jailbreak attempts and instruction override.\n\nPrerequisites:\n    pip install agent-framework agent-os-kernel agentmesh-platform\n\nUsage:\n    python demo/maf-integration/03_contoso_support.py",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Prompt injection detection policies",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Jailbreak / instruction override attempts",
+      "System prompt extraction attempts",
+      "Refund fraud patterns",
+      "Audit all support interactions",
+      "NOT allowed: process_refund, modify_account, admin_override",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Create the governed support agent",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Demo",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "create_support_agent: Create a MAF support agent with injection detection.",
+      "run_demo: Demonstrate prompt injection detection."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "create_support_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "agent_framework",
+      "agent_os.integrations.maf_adapter",
+      "agent_os.policies.schema"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_support_agent",
+      "line": 113,
+      "doc": "Create a MAF support agent with injection detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Agent"
+    },
+    {
+      "name": "run_demo",
+      "line": 135,
+      "doc": "Demonstrate prompt injection detection.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 8,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

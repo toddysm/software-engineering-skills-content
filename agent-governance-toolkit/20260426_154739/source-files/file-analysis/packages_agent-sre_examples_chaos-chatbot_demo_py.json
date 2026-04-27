@@ -1,0 +1,260 @@
+{
+  "path": "packages/agent-sre/examples/chaos-chatbot/demo.py",
+  "extension": ".py",
+  "size_bytes": 14310,
+  "line_count": 394,
+  "documentation": {
+    "file_docstring": "Chaos Engineering Demo for a Chatbot Agent\n===========================================\n\nSimulates a chatbot agent, defines SLOs, injects chaos (latency spikes,\noutages, token exhaustion, context overflow), and shows how error budgets,\nburn-rate alerts, and circuit breakers respond \u2014 **no API keys required**.\n\nRun:\n    cd examples/chaos-chatbot\n    python demo.py",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Mock chatbot \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Chaos overrides",
+      "Circuit breaker",
+      "Latency",
+      "Context overflow \u2192 always fails",
+      "Error injection",
+      "Success path",
+      "\u2500\u2500 SLO setup \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Traffic simulation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Chaos scenarios \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Main \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Phase 1: Baseline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Phase 2: Chaos injection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Scenario 1 \u2014 LLM API latency spike",
+      "Scenario 2 \u2014 Partial outage (50% errors)",
+      "Scenario 3 \u2014 Token limit exhaustion",
+      "Scenario 4 \u2014 Context window overflow",
+      "\u2500\u2500 Phase 3: Circuit breaker \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Show that calls are blocked",
+      "\u2500\u2500 Phase 4: Recovery \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Summary \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MockChatbot: Simulates an LLM-backed chatbot with injectable faults.",
+      "run_traffic: Send *n* requests and record against SLIs. Returns summary stats.",
+      "run_chaos_scenario: Inject a fault, run traffic, then reset.",
+      "respond: Process a chat message and return a result dict."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "build_slo",
+    "reset_chaos",
+    "reset_circuit_breaker",
+    "respond",
+    "status_line",
+    "run_traffic",
+    "run_chaos_scenario",
+    "main",
+    "MockChatbot",
+    "indicator_table",
+    "banner"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "random",
+      "time",
+      "agent_sre",
+      "agent_sre.chaos.engine",
+      "agent_sre.slo.indicators"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "banner",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "status_line",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "indicator_table",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "build_slo",
+      "line": 173,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "run_traffic",
+      "line": 191,
+      "doc": "Send *n* requests and record against SLIs. Returns summary stats.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "bot",
+        "slo",
+        "success_sli",
+        "latency_sli",
+        "cost_sli",
+        "hallucination_sli",
+        "n",
+        "label"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "run_chaos_scenario",
+      "line": 227,
+      "doc": "Inject a fault, run traffic, then reset.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "bot",
+        "slo",
+        "success_sli",
+        "latency_sli",
+        "cost_sli",
+        "hallucination_sli",
+        "experiment",
+        "n"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "main",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "respond",
+      "line": 101,
+      "doc": "Process a chat message and return a result dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_record_error",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_chaos",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_circuit_breaker",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockChatbot",
+      "line": 81,
+      "doc": "Simulates an LLM-backed chatbot with injectable faults.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

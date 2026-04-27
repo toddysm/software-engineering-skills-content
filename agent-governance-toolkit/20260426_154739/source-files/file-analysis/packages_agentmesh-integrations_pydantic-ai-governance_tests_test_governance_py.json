@@ -1,0 +1,980 @@
+{
+  "path": "packages/agentmesh-integrations/pydantic-ai-governance/tests/test_governance.py",
+  "extension": ".py",
+  "size_bytes": 19001,
+  "line_count": 523,
+  "documentation": {
+    "file_docstring": "Tests for pydantic-ai-governance package.\n\nTests the governance policy, semantic intent classification,\ntrust scoring, audit trail, decorator, and toolset.\nNo PydanticAI dependency required \u2014 tests the governance engine directly.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500\u2500 GovernancePolicy \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500\u2500 Semantic Intent Classification \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Multiple signals: sudo (privilege), rm (destructive), /etc/passwd (system)",
+      "system_modification wins due to 0.9 weight",
+      "\u2500\u2500\u2500 Trust Scoring \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500\u2500 Audit Trail \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500\u2500 GovernanceToolset \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500\u2500 govern() Decorator \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_system_modification_etc",
+    "test_check_content_no_patterns",
+    "TestGovernanceToolset",
+    "test_compute_overall_zero",
+    "test_code_execution_eval",
+    "test_blocked_pattern",
+    "test_sync_function_tool_not_allowed",
+    "test_default_policy",
+    "test_check_trust_fails",
+    "test_semantic_intent_blocks_dangerous",
+    "test_reset_counter",
+    "TestTrustScorer",
+    "test_diff",
+    "test_compute_overall",
+    "test_record_allowed",
+    "test_allowed_call",
+    "TestTrustScore",
+    "TestSemanticIntent",
+    "test_reward_capped_at_1",
+    "test_check_content_substring_match",
+    "test_summary",
+    "test_check_content_regex_no_match",
+    "test_destructive_rm_rf",
+    "test_record_violation",
+    "test_get_score_creates_default",
+    "test_default_score",
+    "test_apply_decay",
+    "test_tool_name_context",
+    "TestGovernancePolicy",
+    "test_is_stricter_than",
+    "test_check_tool_allowed",
+    "test_record_failure",
+    "test_check_content_regex_match",
+    "test_call_count_limit",
+    "test_empty_trail",
+    "test_sync_function_blocked_pattern",
+    "test_sync_function_allowed",
+    "test_exfiltration_curl_pipe",
+    "test_benign_text",
+    "my_tool",
+    "test_check_content_glob_match",
+    "test_audit_trail_populated",
+    "test_destructive_truncate",
+    "test_sync_call_count_limit",
+    "test_multiple_patterns_first_match_wins",
+    "test_penalty_floored_at_0",
+    "test_record_success",
+    "TestAuditTrail",
+    "test_check_trust_passes",
+    "test_check_trust_dimension_threshold",
+    "test_to_dict",
+    "test_arguments_context",
+    "test_privilege_escalation_sudo",
+    "test_destructive_drop_table",
+    "test_entry_to_dict",
+    "test_audit_trail_integration",
+    "test_on_violation_callback",
+    "TestGovernDecorator",
+    "test_check_tool_no_allowlist",
+    "test_yaml_roundtrip",
+    "delete_tool",
+    "test_check_call_count",
+    "test_tool_not_in_allowlist",
+    "test_to_dict_roundtrip"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "pydantic_ai_governance.policy",
+      "pydantic_ai_governance.intent",
+      "pydantic_ai_governance.trust",
+      "pydantic_ai_governance.audit",
+      "pydantic_ai_governance.toolset",
+      "pydantic_ai_governance.decorator"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_default_policy",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_content_no_patterns",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_content_substring_match",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_content_regex_match",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_content_regex_no_match",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_content_glob_match",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_tool_allowed",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_tool_no_allowlist",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_call_count",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_stricter_than",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_diff",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_roundtrip",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_yaml_roundtrip",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_patterns_first_match_wins",
+      "line": 146,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_benign_text",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_destructive_rm_rf",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_destructive_drop_table",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_destructive_truncate",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exfiltration_curl_pipe",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_privilege_escalation_sudo",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_code_execution_eval",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_system_modification_etc",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_name_context",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_arguments_context",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_score",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compute_overall",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compute_overall_zero",
+      "line": 233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_score_creates_default",
+      "line": 250,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_success",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_failure",
+      "line": 261,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reward_capped_at_1",
+      "line": 267,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_penalty_floored_at_0",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_apply_decay",
+      "line": 280,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_trust_passes",
+      "line": 287,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_trust_fails",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_trust_dimension_threshold",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_trail",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_allowed",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_violation",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_summary",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_entry_to_dict",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_call",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_not_in_allowlist",
+      "line": 378,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_call_count_limit",
+      "line": 384,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_counter",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_semantic_intent_blocks_dangerous",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_trail_populated",
+      "line": 408,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_function_allowed",
+      "line": 421,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_function_blocked_pattern",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_function_tool_not_allowed",
+      "line": 446,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_call_count_limit",
+      "line": 457,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_trail_integration",
+      "line": 471,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_on_violation_callback",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_async_function_allowed",
+      "line": 500,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_async_function_blocked",
+      "line": 512,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "my_tool",
+      "line": 425,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx",
+        "query"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "my_tool",
+      "line": 438,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx",
+        "query"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "delete_tool",
+      "line": 450,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "my_tool",
+      "line": 461,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "my_tool",
+      "line": 476,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx",
+        "q"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "my_tool",
+      "line": 491,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ctx",
+        "text"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "my_tool",
+      "line": 504,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "ctx",
+        "query"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "my_tool",
+      "line": 518,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "ctx",
+        "cmd"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestGovernancePolicy",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSemanticIntent",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustScore",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustScorer",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditTrail",
+      "line": 308,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGovernanceToolset",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGovernDecorator",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 2,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

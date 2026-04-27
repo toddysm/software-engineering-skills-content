@@ -1,0 +1,792 @@
+{
+  "path": "packages/agent-os/tests/test_mcp_scan_cli.py",
+  "extension": ".py",
+  "size_bytes": 18206,
+  "line_count": 490,
+  "documentation": {
+    "file_docstring": "Tests for MCP Security Scanner CLI (mcp_scan.py).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Several functions imported by these tests (cmd_fingerprint, cmd_scan, cmd_report,",
+      "compare_fingerprints, compute_fingerprints, etc.) were not implemented in the"
+    ],
+    "inline_comments": [
+      "source module. Skip until the full CLI refactor lands.",
+      "---------------------------------------------------------------------------",
+      "Fixtures \u2014 reusable config dicts and temp files",
+      "---------------------------------------------------------------------------",
+      "============================================================================",
+      "Test load_config",
+      "============================================================================",
+      "============================================================================",
+      "Test parse_config",
+      "============================================================================",
+      "============================================================================",
+      "Test scan command \u2014 clean config",
+      "============================================================================",
+      "============================================================================",
+      "Test scan command \u2014 poisoned config",
+      "============================================================================",
+      "============================================================================",
+      "Test output formats",
+      "============================================================================",
+      "============================================================================",
+      "Test fingerprinting",
+      "============================================================================",
+      "Mutate description",
+      "Remove one tool",
+      "============================================================================",
+      "Test CLI integration (main entry point)",
+      "============================================================================",
+      "Save fingerprints for clean config",
+      "Modify config and compare",
+      "All reported threats should be critical"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "test_fingerprint_roundtrip: Save fingerprints and load them back \u2014 they should match.",
+      "test_fingerprint_detects_rug_pull: Changed description should be detected as a rug pull."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestLoadConfig",
+    "test_scan_detects_schema_abuse",
+    "test_scan_json_format",
+    "clean_config_file",
+    "poisoned_config_file",
+    "test_fingerprint_no_flag",
+    "test_fingerprint_detects_removed_tool",
+    "TestScanPoisoned",
+    "test_parse_tools_only_list",
+    "test_compute_fingerprints",
+    "test_fingerprint_detects_schema_change",
+    "TestCLIIntegration",
+    "test_scan_clean_no_threats",
+    "test_table_format_clean",
+    "test_markdown_format",
+    "test_scan_markdown_format",
+    "test_fingerprint_detects_rug_pull",
+    "test_fingerprint_no_changes",
+    "test_parse_tools_wrapper",
+    "test_load_invalid_json",
+    "test_fingerprint_save",
+    "test_scan_severity_filter",
+    "test_load_empty_file",
+    "test_scan_server_filter",
+    "test_scan_returns_correct_tool_count",
+    "test_fingerprint_detects_new_tool",
+    "TestOutputFormats",
+    "TestFingerprint",
+    "test_table_format_poisoned",
+    "test_scan_missing_file",
+    "test_fingerprint_compare_no_changes",
+    "test_parse_empty_dict",
+    "test_scan_tools_only_format",
+    "test_fingerprint_roundtrip",
+    "test_scan_severity_filter_warning",
+    "test_load_valid_json",
+    "test_scan_detects_threats",
+    "test_fingerprint_compare_detects_change",
+    "test_parse_standard_format",
+    "test_report_markdown",
+    "test_json_format",
+    "test_json_format_poisoned",
+    "test_scan_poisoned_returns_nonzero",
+    "test_load_missing_file",
+    "TestScanClean",
+    "test_scan_detects_hidden_comment",
+    "test_report_json",
+    "test_main_no_args_returns_zero",
+    "tools_only_config_file",
+    "TestParseConfig",
+    "test_markdown_format_poisoned",
+    "test_scan_clean_returns_zero"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "pytest",
+      "json",
+      "os",
+      "tempfile",
+      "pathlib",
+      "agent_os.cli.mcp_scan",
+      "agent_os.mcp_security"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "clean_config_file",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "tmp_path"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "poisoned_config_file",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "tmp_path"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "tools_only_config_file",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "tmp_path"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "test_load_valid_json",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_missing_file",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_invalid_json",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_empty_file",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_standard_format",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_tools_only_list",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_tools_wrapper",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_empty_dict",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_clean_no_threats",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_returns_correct_tool_count",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_detects_threats",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_detects_hidden_comment",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_detects_schema_abuse",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_server_filter",
+      "line": 239,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_severity_filter_warning",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_table_format_clean",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_table_format_poisoned",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_json_format",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_json_format_poisoned",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_markdown_format",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_markdown_format_poisoned",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compute_fingerprints",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_roundtrip",
+      "line": 313,
+      "doc": "Save fingerprints and load them back \u2014 they should match.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_no_changes",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_detects_rug_pull",
+      "line": 328,
+      "doc": "Changed description should be detected as a rug pull.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_detects_schema_change",
+      "line": 345,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_detects_removed_tool",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_detects_new_tool",
+      "line": 373,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_no_args_returns_zero",
+      "line": 393,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_clean_returns_zero",
+      "line": 396,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_poisoned_returns_nonzero",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "poisoned_config_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_json_format",
+      "line": 404,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_markdown_format",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_missing_file",
+      "line": 415,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_save",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_compare_no_changes",
+      "line": 428,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_compare_detects_change",
+      "line": 437,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_no_flag",
+      "line": 456,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_markdown",
+      "line": 461,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_json",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_tools_only_format",
+      "line": 472,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools_only_config_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_server_filter",
+      "line": 476,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "clean_config_file",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_severity_filter",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "poisoned_config_file",
+        "capsys"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestLoadConfig",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestParseConfig",
+      "line": 173,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScanClean",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScanPoisoned",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOutputFormats",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFingerprint",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCLIIntegration",
+      "line": 392,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 15,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

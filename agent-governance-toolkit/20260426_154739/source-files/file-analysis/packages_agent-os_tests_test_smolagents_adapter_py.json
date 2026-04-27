@@ -1,0 +1,953 @@
+{
+  "path": "packages/agent-os/tests/test_smolagents_adapter.py",
+  "extension": ".py",
+  "size_bytes": 17768,
+  "line_count": 504,
+  "documentation": {
+    "file_docstring": "Tests for HuggingFace smolagents governance adapter.\n\nNo real smolagents dependency required \u2014 uses mock Tool/Agent objects.\n\nRun with: python -m pytest tests/test_smolagents_adapter.py -v --tb=short",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Fake smolagents objects (no real smolagents dependency)",
+      "=============================================================================",
+      "=============================================================================",
+      "PolicyConfig tests",
+      "=============================================================================",
+      "=============================================================================",
+      "Kernel init",
+      "=============================================================================",
+      "=============================================================================",
+      "Tool-call governance (before_tool_call)",
+      "=============================================================================",
+      "Allowed",
+      "Not allowed",
+      "=============================================================================",
+      "After-tool governance",
+      "=============================================================================",
+      "=============================================================================",
+      "Human approval",
+      "=============================================================================",
+      "=============================================================================",
+      "Wrap / Unwrap",
+      "=============================================================================",
+      "The forward method should now be governed",
+      "Before wrapping, forward is a regular method",
+      "After wrapping, forward is governed (still works)",
+      "After unwrapping, forward should work as original (no governance)",
+      "If unwrap restored the original, tool_call_count stays 0",
+      "=============================================================================",
+      "Audit log & stats",
+      "=============================================================================",
+      "=============================================================================",
+      "Reset",
+      "=============================================================================",
+      "=============================================================================",
+      "Health check",
+      "=============================================================================",
+      "=============================================================================",
+      "Graceful import handling",
+      "=============================================================================",
+      "=============================================================================",
+      "PolicyViolationError",
+      "=============================================================================",
+      "=============================================================================",
+      "Edge cases",
+      "============================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FakeTool: Mimics a smolagents.Tool with name, description, inputs, output_type, and forwar",
+      "FakeToolbox: Mimics smolagents Toolbox which has a .tools dict.",
+      "FakeAgent: Mimics a smolagents CodeAgent or ToolCallingAgent.",
+      "test_wrap_agent_with_dict_toolbox: Agent with toolbox as plain dict (no .tools attribute).",
+      "test_wrap_agent_without_toolbox: Agent with no toolbox attribute should wrap without error.",
+      "test_kernel_works_without_smolagents: The kernel itself should be usable even without smolagents installed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_budget_field",
+    "test_string_tool_args_content_filter",
+    "TestWrapUnwrap",
+    "test_no_approval_for_non_sensitive_tool",
+    "test_kernel_works_without_smolagents",
+    "test_default_policy",
+    "test_check_available_raises_when_missing",
+    "test_no_logging_when_disabled",
+    "test_violation_handler_called",
+    "TestHumanApproval",
+    "FakeToolbox",
+    "test_approve_pending_call",
+    "test_allowed_tools_whitelist",
+    "test_deny_nonexistent_returns_false",
+    "test_empty_audit_log",
+    "test_content_filter_blocks_pattern",
+    "test_approve_nonexistent_returns_false",
+    "test_wrap_agent_without_toolbox",
+    "test_allow_normal_call",
+    "TestAfterToolCall",
+    "test_defaults",
+    "test_reset_clears_counters",
+    "test_wrap_records_audit_event",
+    "test_wrapped_tool_blocked_raises",
+    "test_tool_call_limit",
+    "test_block_output_with_pattern",
+    "test_stats_structure",
+    "test_initial_counters",
+    "test_content_filter_case_insensitive",
+    "test_degraded_after_violation",
+    "test_block_dict_output_with_pattern",
+    "test_error_attributes",
+    "test_default_severity",
+    "run",
+    "test_all_tools_need_approval_when_no_sensitive_list",
+    "test_unwrap_restores_original",
+    "test_block_blocked_tool",
+    "test_after_tool_call_nonstring_passthrough",
+    "TestPolicyViolationError",
+    "test_human_approval_fields",
+    "test_approval_required_for_sensitive_tool",
+    "test_healthy_status",
+    "test_timeout",
+    "test_pass_through_clean_result",
+    "test_audit_log_records_calls",
+    "TestAuditAndStats",
+    "TestBeforeToolCall",
+    "test_custom",
+    "TestReset",
+    "TestSmolagentsKernelInit",
+    "FakeAgent",
+    "test_convenience_kwargs",
+    "TestImportHandling",
+    "test_deny_pending_call",
+    "test_wrapped_tool_forward_is_governed",
+    "test_multiple_violations_collected",
+    "TestPolicyConfig",
+    "TestEdgeCases",
+    "test_budget_limit",
+    "FakeTool",
+    "forward",
+    "test_explicit_policy",
+    "test_wrap_agent_with_dict_toolbox",
+    "test_has_smolagents_flag_is_bool",
+    "TestHealthCheck",
+    "test_wrap_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "time",
+      "dataclasses",
+      "typing",
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.smolagents_adapter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "forward",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "test_defaults",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_human_approval_fields",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_field",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_policy",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_explicit_policy",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_convenience_kwargs",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initial_counters",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_audit_log",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allow_normal_call",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_block_blocked_tool",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_tools_whitelist",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_content_filter_blocks_pattern",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_content_filter_case_insensitive",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_call_limit",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_limit",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_timeout",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_string_tool_args_content_filter",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pass_through_clean_result",
+      "line": 223,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_block_output_with_pattern",
+      "line": 228,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_block_dict_output_with_pattern",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_required_for_sensitive_tool",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_approval_for_non_sensitive_tool",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_tools_need_approval_when_no_sensitive_list",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approve_pending_call",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_pending_call",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approve_nonexistent_returns_false",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_nonexistent_returns_false",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_agent",
+      "line": 303,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrapped_tool_forward_is_governed",
+      "line": 311,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrapped_tool_blocked_raises",
+      "line": 321,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unwrap_restores_original",
+      "line": 329,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_agent_with_dict_toolbox",
+      "line": 346,
+      "doc": "Agent with toolbox as plain dict (no .tools attribute).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_agent_without_toolbox",
+      "line": 356,
+      "doc": "Agent with no toolbox attribute should wrap without error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_records_calls",
+      "line": 371,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats_structure",
+      "line": 380,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_handler_called",
+      "line": 389,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_clears_counters",
+      "line": 406,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_healthy_status",
+      "line": 422,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_degraded_after_violation",
+      "line": 429,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_has_smolagents_flag_is_bool",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_available_raises_when_missing",
+      "line": 446,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_works_without_smolagents",
+      "line": 451,
+      "doc": "The kernel itself should be usable even without smolagents installed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_error_attributes",
+      "line": 463,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_severity",
+      "line": 470,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_violations_collected",
+      "line": 481,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_logging_when_disabled",
+      "line": 487,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_after_tool_call_nonstring_passthrough",
+      "line": 493,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_records_audit_event",
+      "line": 498,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FakeTool",
+      "line": 33,
+      "doc": "Mimics a smolagents.Tool with name, description, inputs, output_type, and forward.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FakeToolbox",
+      "line": 46,
+      "doc": "Mimics smolagents Toolbox which has a .tools dict.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FakeAgent",
+      "line": 53,
+      "doc": "Mimics a smolagents CodeAgent or ToolCallingAgent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyConfig",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSmolagentsKernelInit",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBeforeToolCall",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAfterToolCall",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHumanApproval",
+      "line": 248,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestWrapUnwrap",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditAndStats",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestReset",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHealthCheck",
+      "line": 421,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestImportHandling",
+      "line": 442,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyViolationError",
+      "line": 462,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 480,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 8,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

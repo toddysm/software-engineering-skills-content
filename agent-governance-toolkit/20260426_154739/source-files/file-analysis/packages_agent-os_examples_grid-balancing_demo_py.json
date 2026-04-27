@@ -1,0 +1,531 @@
+{
+  "path": "packages/agent-os/examples/grid-balancing/demo.py",
+  "extension": ".py",
+  "size_bytes": 17255,
+  "line_count": 509,
+  "documentation": {
+    "file_docstring": "Grid Balancing Demo - Autonomous Energy Trading\n\nThis demo showcases:\n- Agent Message Bus (AMB) for high-throughput communication\n- Inter-Agent Trust Protocol (IATP) for signed contracts\n- Mute Agent pattern (dispatch only on valid contract)\n- Policy enforcement at kernel level\n\nUsage:\n    python demo.py --agents 100 --scenario price_spike",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Simulated imports - in production these come from agent-os",
+      "from agent_os.amb import AgentMessageBus",
+      "from agent_os.iatp import TrustProtocol, SignedContract",
+      "Notify subscribers",
+      "Simulated prediction with noise",
+      "Subscribe to price signals",
+      "Only bid if we can discharge and price is attractive",
+      "Calculate optimal bid",
+      "Add small randomness to prevent all bids being identical",
+      "Subscribe to dispatch commands",
+      "1. Verify signature (IATP)",
+      "2. Check policy: max discharge",
+      "3. Check energy available",
+      "4. Execute dispatch",
+      "Log dispatch",
+      "5. Send ACK",
+      "Sort by price",
+      "Create DERs and agents",
+      "1. Broadcast price signal",
+      "Simulate time for bids to come in",
+      "2. Collect bids",
+      "3. Award contracts",
+      "4. Execute dispatches",
+      "Calculate metrics",
+      "Summary for demo"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DERType: Types of Distributed Energy Resources",
+      "MessageType: Types of messages on the grid",
+      "GridMessage: Message format for the Agent Message Bus",
+      "AgentMessageBus: Simulated Agent Message Bus (AMB)\n\nIn production, this would be backed by Redis ",
+      "DER: Distributed Energy Resource",
+      "ForecastAgent: Forecast Agent - Predicts energy production/consumption\n\nPublishes forecasts to ",
+      "TraderAgent: Trader Agent - Bids on energy contracts\n\nListens for price signals, submits bids",
+      "DispatchAgent: Dispatch Agent - Controls actual energy dispatch\n\nMUTE AGENT: Only acts when val",
+      "GridOperator: Grid Operator - Broadcasts price signals and collects bids\n\nSimulates the ISO/RT",
+      "GridSimulation: Complete grid simulation with 100 DERs"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "on_bid",
+    "publish",
+    "ForecastAgent",
+    "DispatchAgent",
+    "sign",
+    "MessageType",
+    "broadcast_price_signal",
+    "GridMessage",
+    "get_throughput",
+    "DERType",
+    "submit_bid",
+    "AgentMessageBus",
+    "subscribe",
+    "TraderAgent",
+    "publish_forecast",
+    "award_contracts",
+    "predict_solar_output",
+    "can_discharge",
+    "main",
+    "verify",
+    "accept_contract",
+    "on_price_signal",
+    "DER",
+    "available_energy",
+    "GridSimulation",
+    "on_dispatch",
+    "run_price_spike_scenario",
+    "GridOperator"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "random",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "uuid",
+      "argparse"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 474,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "sign",
+      "line": 57,
+      "doc": "Sign message with agent's key (simulated IATP)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify",
+      "line": 62,
+      "doc": "Verify signature (simulated)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish",
+      "line": 81,
+      "doc": "Publish message to topic",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "subscribe",
+      "line": 92,
+      "doc": "Subscribe to topic",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_throughput",
+      "line": 98,
+      "doc": "Messages per second",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "available_energy",
+      "line": 115,
+      "doc": "Energy available for discharge (kWh)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "can_discharge",
+      "line": 120,
+      "doc": "Check if DER can discharge",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 132,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "der",
+        "bus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "predict_solar_output",
+      "line": 137,
+      "doc": "Predict solar output for next N hours",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish_forecast",
+      "line": 147,
+      "doc": "Publish forecast to AMB",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "der",
+        "bus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_price_signal",
+      "line": 182,
+      "doc": "React to grid operator price signal",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit_bid",
+      "line": 191,
+      "doc": "Submit a bid to the grid",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "price",
+        "grid_requirement"
+      ],
+      "returns": null
+    },
+    {
+      "name": "accept_contract",
+      "line": 217,
+      "doc": "Accept a contract if it matches our bid",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "contract"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "der",
+        "bus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_dispatch",
+      "line": 246,
+      "doc": "Handle dispatch command\n\nMUTE AGENT PATTERN:\n- Returns ACK if contract valid and dispatch successful\n- Returns NULL (no response) if invalid",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_bid",
+      "line": 307,
+      "doc": "Collect bids",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "broadcast_price_signal",
+      "line": 312,
+      "doc": "Broadcast price signal to all agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "price",
+        "required_kw"
+      ],
+      "returns": null
+    },
+    {
+      "name": "award_contracts",
+      "line": 327,
+      "doc": "Award contracts to lowest bidders",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required_kw"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 362,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "num_ders"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_price_spike_scenario",
+      "line": 391,
+      "doc": "Scenario: Grid operator needs 500 kW reduction\n\n1. Operator broadcasts price signal\n2. Traders submit bids\n3. Operator awards contracts\n4. Dispatch agents execute",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required_kw"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "DERType",
+      "line": 30,
+      "doc": "Types of Distributed Energy Resources",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MessageType",
+      "line": 37,
+      "doc": "Types of messages on the grid",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GridMessage",
+      "line": 48,
+      "doc": "Message format for the Agent Message Bus",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentMessageBus",
+      "line": 67,
+      "doc": "Simulated Agent Message Bus (AMB)\n\nIn production, this would be backed by Redis or ZeroMQ\nwith proper pub/sub and priority lanes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DER",
+      "line": 105,
+      "doc": "Distributed Energy Resource",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ForecastAgent",
+      "line": 125,
+      "doc": "Forecast Agent - Predicts energy production/consumption\n\nPublishes forecasts to AMB topic: grid/forecast",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TraderAgent",
+      "line": 164,
+      "doc": "Trader Agent - Bids on energy contracts\n\nListens for price signals, submits bids, negotiates contracts.\nUses IATP to sign binding agreements.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DispatchAgent",
+      "line": 228,
+      "doc": "Dispatch Agent - Controls actual energy dispatch\n\nMUTE AGENT: Only acts when valid IATP-signed contract received.\nReturns NULL if contract is invalid or policy violated.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GridOperator",
+      "line": 293,
+      "doc": "Grid Operator - Broadcasts price signals and collects bids\n\nSimulates the ISO/RTO that coordinates the grid.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GridSimulation",
+      "line": 357,
+      "doc": "Complete grid simulation with 100 DERs",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 40,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

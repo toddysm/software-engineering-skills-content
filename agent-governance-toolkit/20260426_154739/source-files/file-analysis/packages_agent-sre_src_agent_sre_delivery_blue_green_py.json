@@ -1,0 +1,317 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/delivery/blue_green.py",
+  "extension": ".py",
+  "size_bytes": 10075,
+  "line_count": 299,
+  "documentation": {
+    "file_docstring": "Blue-green deployment strategy for AI agents.\n\nManages dual-environment deployments with deploy, validate, switch, and rollback\nlifecycle. Supports health checks and rollback on validation failure.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Drain the current active",
+      "Activate the inactive",
+      "Wait for in-flight requests to complete",
+      "Complete drain \u2192 inactive",
+      "Drain current",
+      "Reactivate previous",
+      "Complete drain"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "Environment: Deployment environment identifier.",
+      "EnvironmentState: Current state of a deployment environment.",
+      "AgentEnvironment: Represents a single deployment environment for an agent.",
+      "BlueGreenConfig: Configuration for blue-green deployment behavior.",
+      "BlueGreenEvent: An event emitted during a blue-green deployment lifecycle.",
+      "BlueGreenManager: Manages blue-green deployments for AI agents.\n\nMaintains two environments (blue ",
+      "get_active: Return the currently active environment.",
+      "get_inactive: Return the standby (inactive) environment.",
+      "deploy: Deploy a new agent version to the inactive environment.\n\nArgs:\n    version: The ",
+      "validate: Run health check on the inactive environment.\n\nArgs:\n    health_check_fn: A call"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_inactive",
+    "deploy",
+    "BlueGreenEvent",
+    "switch",
+    "BlueGreenManager",
+    "to_dict",
+    "EnvironmentState",
+    "get_status",
+    "get_active",
+    "rollback",
+    "Environment",
+    "validate",
+    "BlueGreenConfig",
+    "AgentEnvironment"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "datetime",
+      "enum",
+      "typing",
+      "pydantic",
+      "collections.abc"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "environment",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_emit",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "environment",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_env",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "AgentEnvironment"
+    },
+    {
+      "name": "_set_env",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "env"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_active",
+      "line": 118,
+      "doc": "Return the currently active environment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AgentEnvironment"
+    },
+    {
+      "name": "get_inactive",
+      "line": 122,
+      "doc": "Return the standby (inactive) environment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AgentEnvironment"
+    },
+    {
+      "name": "deploy",
+      "line": 129,
+      "doc": "Deploy a new agent version to the inactive environment.\n\nArgs:\n    version: The agent version string to deploy.\n\nReturns:\n    The updated inactive environment in DEPLOYING state.\n\nRaises:\n    RuntimeError: If the inactive environment is not in INACTIVE state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "version"
+      ],
+      "returns": "AgentEnvironment"
+    },
+    {
+      "name": "validate",
+      "line": 161,
+      "doc": "Run health check on the inactive environment.\n\nArgs:\n    health_check_fn: A callable that returns True if the environment is healthy.\n\nReturns:\n    True if validation passed, False otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "health_check_fn"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "switch",
+      "line": 204,
+      "doc": "Switch traffic from the active to the inactive environment.\n\nThe current active environment transitions to DRAINING, and the inactive\nenvironment becomes ACTIVE.\n\nReturns:\n    The newly active environment.\n\nRaises:\n    RuntimeError: If the inactive environment has not been validated as healthy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AgentEnvironment"
+    },
+    {
+      "name": "rollback",
+      "line": 254,
+      "doc": "Switch back to the previous active environment.\n\nReturns:\n    The restored active environment.\n\nRaises:\n    RuntimeError: If there is no previous environment to rollback to.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AgentEnvironment"
+    },
+    {
+      "name": "get_status",
+      "line": 288,
+      "doc": "Return the status of both environments.\n\nReturns:\n    Dictionary with blue, green, and active_environment keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "Environment",
+      "line": 26,
+      "doc": "Deployment environment identifier.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EnvironmentState",
+      "line": 33,
+      "doc": "Current state of a deployment environment.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentEnvironment",
+      "line": 43,
+      "doc": "Represents a single deployment environment for an agent.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BlueGreenConfig",
+      "line": 54,
+      "doc": "Configuration for blue-green deployment behavior.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BlueGreenEvent",
+      "line": 63,
+      "doc": "An event emitted during a blue-green deployment lifecycle.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "BlueGreenManager",
+      "line": 86,
+      "doc": "Manages blue-green deployments for AI agents.\n\nMaintains two environments (blue and green) and orchestrates the deploy \u2192\nvalidate \u2192 switch lifecycle with automatic rollback on failure.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

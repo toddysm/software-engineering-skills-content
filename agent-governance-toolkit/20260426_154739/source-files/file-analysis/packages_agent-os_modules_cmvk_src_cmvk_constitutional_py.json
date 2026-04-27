@@ -1,0 +1,724 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/constitutional.py",
+  "extension": ".py",
+  "size_bytes": 31781,
+  "line_count": 904,
+  "documentation": {
+    "file_docstring": "Constitutional Validator for CMVK\n\nThis module provides a Constitutional Validator that checks AI outputs against\nnatural language safety rules (principles). Inspired by Anthropic's Constitutional AI,\nthis allows defining human-readable rules that are evaluated against outputs.\n\nKey Features:\n    - Define principles in natural language (not regex or code)\n    - Evaluate outputs against multiple principles\n    - Support for custom principle sets (safety, ethics, brand, regulatory)\n    - Async and sync interfaces\n    - Pluggable LLM backends for evaluation\n    - Detailed violation reports with explanations\n\nExample Usage:\n\n    from cmvk.constitutional import (\n        ConstitutionalValidator,\n        Principle,\n        PrincipleSet,\n        SAFETY_PRINCIPLES,\n    )\n\n    # Create validator with built-in safety principles\n    validator = ConstitutionalValidator(principles=SAFETY_PRINCIPLES)\n\n    # Check an output\n    result = validator.validate(\"Here's how to hack a computer...\")\n\n    if not result.passed:\n        for violation in result.violations:\n            print(f\"Violated: {violation.principle.name}\")\n            print(f\"Reason: {violation.explanation}\")\n\n    # Define custom principles\n    brand_principles = PrincipleSet(\n        name=\"brand\",\n        principles=[\n            Principle(\n                name=\"professional_tone\",\n                description=\"Responses must maintain a professional tone\",\n                severity=\"medium\"\n            ),\n            Principle(\n                name=\"no_competitor_mentions\",\n                description=\"Never mention competitor products by name\",\n                severity=\"high\"\n            ),\n        ]\n    )\n\n    validator = ConstitutionalValidator(principles=brand_principles)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create validator with built-in safety principles",
+      "Check an output",
+      "Define custom principles",
+      "============================================================================",
+      "Built-in Principle Sets",
+      "============================================================================",
+      "============================================================================",
+      "Violation Types",
+      "============================================================================",
+      "============================================================================",
+      "Evaluator Interface",
+      "============================================================================",
+      "Keyword patterns for common violations",
+      "No pattern match - assume no violation (conservative for rule-based)",
+      "Include examples if available",
+      "Try to extract JSON from response",
+      "Fallback: simple keyword detection",
+      "Fall back to sync",
+      "============================================================================",
+      "Main Validator",
+      "============================================================================",
+      "Basic usage with built-in safety principles",
+      "With custom evaluator",
+      "Async validation",
+      "Determine if passed (no critical or high violations)",
+      "============================================================================",
+      "Convenience Functions",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Severity: Severity level for principle violations.",
+      "Principle: A single constitutional principle.\n\nPrinciples are natural language rules that o",
+      "PrincipleSet: A named collection of principles.\n\nAttributes:\n    name: Name of this principle ",
+      "Violation: A detected principle violation.\n\nAttributes:\n    principle: The principle that w",
+      "ValidationResult: Result of validating an output against principles.\n\nAttributes:\n    passed: Whet",
+      "PrincipleEvaluator: Protocol for principle evaluation backends.\n\nImplementations can use different L",
+      "RuleBasedEvaluator: Simple rule-based evaluator using pattern matching.\n\nThis is a fallback evaluato",
+      "LLMEvaluator: LLM-based principle evaluator.\n\nUses an LLM to evaluate whether outputs violate ",
+      "ConstitutionalValidator: Constitutional Validator for checking AI outputs against principles.\n\nThis valid",
+      "validate_safety: Quick validation against safety principles.\n\nArgs:\n    output: Text to validate\n"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ValidationResult",
+    "validate_financial",
+    "high_violations",
+    "Severity",
+    "Principle",
+    "to_dict",
+    "validate_medical",
+    "critical_violations",
+    "create_validator_from_yaml",
+    "PrincipleSet",
+    "from_dict",
+    "add_principle",
+    "PrincipleEvaluator",
+    "validate_safety",
+    "get_stats",
+    "remove_principle",
+    "blocking_violations",
+    "get_by_name",
+    "LLMEvaluator",
+    "Violation",
+    "validate",
+    "RuleBasedEvaluator",
+    "evaluate",
+    "merge",
+    "principle_set",
+    "get_by_category",
+    "ConstitutionalValidator",
+    "principles"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "abc",
+      "dataclasses",
+      "enum",
+      "typing",
+      "datetime",
+      "json",
+      "re",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "validate_safety",
+      "line": 856,
+      "doc": "Quick validation against safety principles.\n\nArgs:\n    output: Text to validate\n    context: Optional context\n    \nReturns:\n    ValidationResult",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "output",
+        "context"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_medical",
+      "line": 871,
+      "doc": "Quick validation against medical principles.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "output",
+        "context"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_financial",
+      "line": 878,
+      "doc": "Quick validation against financial principles.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "output",
+        "context"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "create_validator_from_yaml",
+      "line": 885,
+      "doc": "Create a validator from YAML configuration.\n\nYAML format:\n    name: my_principles\n    description: Custom principles\n    principles:\n      - name: rule_1\n        description: First rule description\n        severity: high\n        category: safety",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "yaml_str"
+      ],
+      "returns": "ConstitutionalValidator"
+    },
+    {
+      "name": "__lt__",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__hash__",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "to_dict",
+      "line": 106,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__iter__",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__len__",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_by_name",
+      "line": 139,
+      "doc": "Get a principle by name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_by_category",
+      "line": 146,
+      "doc": "Get all principles in a category.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "category"
+      ],
+      "returns": null
+    },
+    {
+      "name": "merge",
+      "line": 150,
+      "doc": "Merge with another principle set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 163,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 173,
+      "doc": "Create from dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 344,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "critical_violations",
+      "line": 376,
+      "doc": "Get only critical severity violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "high_violations",
+      "line": 381,
+      "doc": "Get only high severity violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "blocking_violations",
+      "line": 386,
+      "doc": "Get violations that should block the output (critical + high).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 391,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 415,
+      "doc": "Evaluate if an output violates a principle.\n\nArgs:\n    output: The text to evaluate\n    principle: The principle to check against\n    context: Optional context about the conversation/task\n    \nReturns:\n    Tuple of (is_violation, confidence, explanation)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_async",
+      "line": 434,
+      "doc": "Async version of evaluate.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 470,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 477,
+      "doc": "Evaluate using pattern matching.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_async",
+      "line": 498,
+      "doc": "Async version (just wraps sync for rule-based).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 543,
+      "doc": "Initialize with model functions.\n\nArgs:\n    model_fn: Sync function that takes prompt and returns response\n    async_model_fn: Optional async version",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "model_fn",
+        "async_model_fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_build_prompt",
+      "line": 558,
+      "doc": "Build the evaluation prompt.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_parse_response",
+      "line": 584,
+      "doc": "Parse LLM response into structured result.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 604,
+      "doc": "Evaluate using LLM.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_async",
+      "line": 616,
+      "doc": "Async evaluate using LLM.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "principle",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 662,
+      "doc": "Initialize the validator.\n\nArgs:\n    principles: Principles to validate against\n    evaluator: Evaluation backend (defaults to RuleBasedEvaluator)\n    min_confidence: Minimum confidence to consider a violation\n    fail_on_evaluator_error: If True, treat evaluator errors as violations",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "principles",
+        "evaluator",
+        "min_confidence",
+        "fail_on_evaluator_error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "principles",
+      "line": 691,
+      "doc": "Get the list of principles.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "principle_set",
+      "line": 696,
+      "doc": "Get the principle set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PrincipleSet"
+    },
+    {
+      "name": "add_principle",
+      "line": 700,
+      "doc": "Add a principle to the validator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "principle"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_principle",
+      "line": 704,
+      "doc": "Remove a principle by name. Returns True if found and removed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "validate",
+      "line": 712,
+      "doc": "Validate an output against principles.\n\nArgs:\n    output: The text to validate\n    context: Optional context about the conversation/task\n    principles: Optional subset of principles to check (defaults to all)\n    \nReturns:\n    ValidationResult with any violations found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "context",
+        "principles"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_async",
+      "line": 770,
+      "doc": "Async validate an output against principles.\n\nArgs:\n    output: The text to validate\n    context: Optional context\n    principles: Optional subset of principles\n    parallel: If True, evaluate principles in parallel\n    \nReturns:\n    ValidationResult with any violations found",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "output",
+        "context",
+        "principles",
+        "parallel"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "get_stats",
+      "line": 841,
+      "doc": "Get validator statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_principle",
+      "line": 793,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "principle"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "Severity",
+      "line": 70,
+      "doc": "Severity level for principle violations.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Principle",
+      "line": 83,
+      "doc": "A single constitutional principle.\n\nPrinciples are natural language rules that outputs must comply with.\nThey are evaluated by an LLM to determine if the output violates them.\n\nAttributes:\n    name: Short identifier for the principle\n    description: Natural language description of the rule\n    severity: How serious a violation of this principle is\n    category: Optional category for grouping (e.g., \"safety\", \"ethics\")\n    examples: Optional list of (input, is_violation, explanation) tuples",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PrincipleSet",
+      "line": 118,
+      "doc": "A named collection of principles.\n\nAttributes:\n    name: Name of this principle set\n    principles: List of principles in this set\n    description: Optional description of what this set covers\n    version: Version string for tracking changes",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Violation",
+      "line": 327,
+      "doc": "A detected principle violation.\n\nAttributes:\n    principle: The principle that was violated\n    confidence: Confidence that this is a violation (0.0 to 1.0)\n    explanation: Human-readable explanation of why this is a violation\n    evidence: The specific text/content that triggered the violation\n    suggested_revision: Optional suggested revision to fix the violation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ValidationResult",
+      "line": 356,
+      "doc": "Result of validating an output against principles.\n\nAttributes:\n    passed: Whether the output passed all critical/high severity principles\n    violations: List of detected violations\n    output_text: The original text that was validated\n    principles_checked: Number of principles that were checked\n    timestamp: When the validation was performed\n    metadata: Additional metadata from the validation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PrincipleEvaluator",
+      "line": 407,
+      "doc": "Protocol for principle evaluation backends.\n\nImplementations can use different LLMs or even rule-based systems\nto evaluate whether an output violates a principle.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RuleBasedEvaluator",
+      "line": 444,
+      "doc": "Simple rule-based evaluator using pattern matching.\n\nThis is a fallback evaluator that uses regex patterns and keywords.\nIt's fast but less sophisticated than LLM-based evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LLMEvaluator",
+      "line": 508,
+      "doc": "LLM-based principle evaluator.\n\nUses an LLM to evaluate whether outputs violate principles.\nThis is more sophisticated and can understand nuance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ConstitutionalValidator",
+      "line": 637,
+      "doc": "Constitutional Validator for checking AI outputs against principles.\n\nThis validator checks outputs against a set of natural language principles\nand reports violations. It can use different evaluation backends.\n\nExample:\n    # Basic usage with built-in safety principles\n    validator = ConstitutionalValidator(principles=SAFETY_PRINCIPLES)\n    result = validator.validate(\"Some AI output...\")\n    \n    if not result.passed:\n        print(f\"Found {len(result.violations)} violations\")\n    \n    # With custom evaluator\n    validator = ConstitutionalValidator(\n        principles=SAFETY_PRINCIPLES,\n        evaluator=LLMEvaluator(model_fn=my_llm_call)\n    )\n    \n    # Async validation\n    result = await validator.validate_async(\"Some AI output...\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 84,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

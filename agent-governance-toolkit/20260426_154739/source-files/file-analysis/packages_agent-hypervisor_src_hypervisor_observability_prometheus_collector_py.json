@@ -1,0 +1,202 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/observability/prometheus_collector.py",
+  "extension": ".py",
+  "size_bytes": 9442,
+  "line_count": 248,
+  "documentation": {
+    "file_docstring": "Prometheus metrics collector for Hypervisor ring transitions.\n\nSubscribes to the HypervisorEventBus and maintains in-memory counters\nfor ring-related events (transitions, breaches, elevations). Metrics\nfollow the ``agent_hypervisor_ring_*`` prefix convention.\n\nNo external dependencies \u2014 works standalone or exports to the\n``agent-sre`` PrometheusExporter via dependency injection.\n\nUsage::\n\n    from hypervisor.observability import RingMetricsCollector, HypervisorEventBus\n\n    bus = HypervisorEventBus()\n    collector = RingMetricsCollector(bus)\n\n    # ... hypervisor operates, ring events flow through the bus ...\n\n    snapshot = collector.collect()\n    # {\"agent_hypervisor_ring_transitions_total\": {\"ring.assigned\": 5, ...}, ...}\n\n    # Optional: export to agent-sre PrometheusExporter\n    from agent_sre.integrations.prometheus import PrometheusExporter\n    prom = PrometheusExporter()\n    collector.export_to_prometheus(prom)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "... hypervisor operates, ring events flow through the bus ...",
+      "{\"agent_hypervisor_ring_transitions_total\": {\"ring.assigned\": 5, ...}, ...}",
+      "Optional: export to agent-sre PrometheusExporter",
+      "Ring event types that represent transitions",
+      "---------------------------------------------------------------------------",
+      "Metric name constants",
+      "---------------------------------------------------------------------------",
+      "Counters: (event_type_value, agent_did, session_id) -> count",
+      "Breach counter: (agent_did, session_id) -> count",
+      "Current ring per agent: agent_did -> ring_value (int)",
+      "Elevation tracking: agent_did -> start timestamp",
+      "Last elevation duration: agent_did -> seconds (float)",
+      "Total events processed",
+      "Subscribe to all ring events",
+      "Track current ring from payload",
+      "Track elevation timing",
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------",
+      "Transition counters",
+      "Breach counters",
+      "Current ring gauge",
+      "Elevation duration gauge",
+      "Also export any currently-active elevations"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PrometheusExporterProtocol: Protocol for Prometheus exporters \u2014 avoids hard dep on agent-sre.",
+      "RingMetricsCollector: Collects Prometheus-compatible metrics from hypervisor ring events.\n\nSubscribes ",
+      "_handle_event: Process a ring-related event from the bus.",
+      "collect: Return a snapshot of all metrics as a framework-agnostic dict.\n\nReturns:\n    Dic",
+      "export_to_prometheus: Write all current metrics into a Prometheus-compatible exporter.\n\nArgs:\n    expo",
+      "reset: Reset all counters (for testing)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "RingMetricsCollector",
+    "export_to_prometheus",
+    "PrometheusExporterProtocol",
+    "set_gauge",
+    "reset",
+    "inc_counter",
+    "collect"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "collections",
+      "typing",
+      "hypervisor.observability.event_bus"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "set_gauge",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "value",
+        "labels",
+        "help_text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "inc_counter",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "value",
+        "labels",
+        "help_text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_event",
+      "line": 121,
+      "doc": "Process a ring-related event from the bus.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 158,
+      "doc": "Return a snapshot of all metrics as a framework-agnostic dict.\n\nReturns:\n    Dictionary with metric names as keys and nested dicts/values:\n\n    - ``agent_hypervisor_ring_transitions_total``:\n      ``{(event_type, agent, session): count}``\n    - ``agent_hypervisor_ring_breaches_total``:\n      ``{(agent, session): count}``\n    - ``agent_hypervisor_ring_current``:\n      ``{agent: ring_value}``\n    - ``agent_hypervisor_ring_elevation_duration_seconds``:\n      ``{agent: seconds}``",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_to_prometheus",
+      "line": 181,
+      "doc": "Write all current metrics into a Prometheus-compatible exporter.\n\nArgs:\n    exporter: Any object implementing :class:`PrometheusExporterProtocol`\n        (e.g. ``agent_sre.integrations.prometheus.PrometheusExporter``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 241,
+      "doc": "Reset all counters (for testing).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PrometheusExporterProtocol",
+      "line": 54,
+      "doc": "Protocol for Prometheus exporters \u2014 avoids hard dep on agent-sre.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RingMetricsCollector",
+      "line": 80,
+      "doc": "Collects Prometheus-compatible metrics from hypervisor ring events.\n\nSubscribes to the ``HypervisorEventBus`` for ring transition and breach\nevents. Maintains in-memory counters and gauges that can be exported\nto any :class:`PrometheusExporterProtocol`-compatible exporter.\n\nAttributes:\n    _bus: The event bus this collector is subscribed to.\n    _transition_counts: Counter per ``(event_type, agent_did, session_id)``.\n    _breach_counts: Counter per ``(agent_did, session_id)``.\n    _current_rings: Current ring gauge per ``agent_did``.\n    _elevation_start: Timestamp when an agent entered elevated state.\n    _elevation_durations: Last known elevation duration per ``agent_did``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "business_logic"
+    ]
+  }
+}

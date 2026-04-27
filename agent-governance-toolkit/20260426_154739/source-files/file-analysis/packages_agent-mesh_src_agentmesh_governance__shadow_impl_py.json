@@ -1,0 +1,810 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/_shadow_impl.py",
+  "extension": ".py",
+  "size_bytes": 19113,
+  "line_count": 550,
+  "documentation": {
+    "file_docstring": "Standalone shadow mode and rollout implementation.\n\nThis module provides a self-contained implementation that requires only\nthe Python standard library.  It is used as a fallback by\n``agentmesh.governance.shadow`` when ``agent_sre`` is not installed.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DeploymentStrategy: Rollout strategy types.",
+      "RolloutState: Current state of a rollout.",
+      "AnalysisCriterion: A metric check for rollout step analysis.",
+      "RolloutStep: A single step in a progressive rollout.",
+      "RollbackCondition: Condition that triggers automatic rollback.",
+      "SimulatedAction: An action to simulate in shadow mode.",
+      "ShadowComparison: Result of comparing current vs. candidate agent outputs.",
+      "ShadowResult: Unified shadow result for delivery comparisons and policy evaluations.",
+      "ShadowSession: A governance shadow-mode evaluation session.",
+      "ShadowMode: Hybrid shadow mode for delivery preview and governance evaluation."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "start",
+    "resume",
+    "DeploymentStrategy",
+    "result",
+    "latency_delta_ms",
+    "should_rollback",
+    "end_session",
+    "to_dict",
+    "compare",
+    "cost_delta_usd",
+    "is_ready_for_production",
+    "current_step",
+    "RollbackCondition",
+    "match_rate",
+    "current_weight",
+    "analyze_step",
+    "ShadowComparison",
+    "replay_batch",
+    "progress_percent",
+    "ShadowResult",
+    "pause",
+    "get_session",
+    "avg_similarity",
+    "start_session",
+    "RolloutState",
+    "is_passing",
+    "ShadowSession",
+    "avg_cost_delta_usd",
+    "total_requests",
+    "get_divergence_report",
+    "promote",
+    "check_rollback",
+    "ShadowMode",
+    "avg_latency_delta_ms",
+    "rollback",
+    "advance",
+    "RolloutEvent",
+    "evaluate",
+    "confidence_score",
+    "AnalysisCriterion",
+    "RolloutStep",
+    "finish",
+    "CanaryRollout",
+    "set_similarity_function",
+    "SimulatedAction"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "uuid",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "collections.abc"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "evaluate",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "should_rollback",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "latency_delta_ms",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "cost_delta_usd",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "to_dict",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "total_requests",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "match_rate",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "avg_similarity",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "avg_latency_delta_ms",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "avg_cost_delta_usd",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "confidence_score",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "finish",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_engine",
+        "similarity_threshold",
+        "max_comparisons"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_similarity_function",
+      "line": 282,
+      "doc": "Set custom similarity function \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compare",
+      "line": 286,
+      "doc": "Record a comparison \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "current_output",
+        "candidate_output",
+        "current_latency_ms",
+        "candidate_latency_ms",
+        "current_cost_usd",
+        "candidate_cost_usd"
+      ],
+      "returns": "ShadowComparison"
+    },
+    {
+      "name": "result",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ShadowResult"
+    },
+    {
+      "name": "is_passing",
+      "line": 303,
+      "doc": "Check delivery preview results \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_confidence"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "finish",
+      "line": 307,
+      "doc": "Complete a delivery preview session \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "ShadowResult"
+    },
+    {
+      "name": "start_session",
+      "line": 311,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_dids",
+        "policy_names"
+      ],
+      "returns": "ShadowSession"
+    },
+    {
+      "name": "evaluate",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "production_decision"
+      ],
+      "returns": "ShadowResult"
+    },
+    {
+      "name": "replay_batch",
+      "line": 378,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "actions",
+        "production_decisions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "end_session",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": "ShadowSession"
+    },
+    {
+      "name": "get_session",
+      "line": 402,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_divergence_report",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_ready_for_production",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 446,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "steps",
+        "rollback_conditions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "current_step",
+      "line": 475,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "current_weight",
+      "line": 481,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "progress_percent",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "start",
+      "line": 491,
+      "doc": "Begin the rollout \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "advance",
+      "line": 495,
+      "doc": "Move to the next step \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_rollback",
+      "line": 499,
+      "doc": "Check rollback conditions \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "analyze_step",
+      "line": 503,
+      "doc": "Check step analysis criteria \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "rollback",
+      "line": 507,
+      "doc": "Roll back \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "pause",
+      "line": 511,
+      "doc": "Pause the rollout \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resume",
+      "line": 515,
+      "doc": "Resume a paused rollout \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "promote",
+      "line": 519,
+      "doc": "Immediately promote \u2014 not available in Public Preview.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 523,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "DeploymentStrategy",
+      "line": 23,
+      "doc": "Rollout strategy types.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RolloutState",
+      "line": 31,
+      "doc": "Current state of a rollout.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AnalysisCriterion",
+      "line": 45,
+      "doc": "A metric check for rollout step analysis.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RolloutStep",
+      "line": 66,
+      "doc": "A single step in a progressive rollout.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RollbackCondition",
+      "line": 86,
+      "doc": "Condition that triggers automatic rollback.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SimulatedAction",
+      "line": 105,
+      "doc": "An action to simulate in shadow mode.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ShadowComparison",
+      "line": 120,
+      "doc": "Result of comparing current vs. candidate agent outputs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ShadowResult",
+      "line": 153,
+      "doc": "Unified shadow result for delivery comparisons and policy evaluations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ShadowSession",
+      "line": 244,
+      "doc": "A governance shadow-mode evaluation session.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ShadowMode",
+      "line": 259,
+      "doc": "Hybrid shadow mode for delivery preview and governance evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RolloutEvent",
+      "line": 438,
+      "doc": "An event during a rollout.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CanaryRollout",
+      "line": 455,
+      "doc": "Staged rollout \u2014 not available in Public Preview.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 52,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

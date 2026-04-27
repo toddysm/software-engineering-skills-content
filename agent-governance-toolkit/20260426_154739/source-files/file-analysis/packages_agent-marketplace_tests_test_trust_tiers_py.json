@@ -1,0 +1,732 @@
+{
+  "path": "packages/agent-marketplace/tests/test_trust_tiers.py",
+  "extension": ".py",
+  "size_bytes": 12466,
+  "line_count": 353,
+  "documentation": {
+    "file_docstring": "Tests for plugin trust tiers.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Trust tier resolution",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Tier config",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Capability filtering",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Initial score computation",
+      "---------------------------------------------------------------------------",
+      "Even with all bonuses, score should not exceed 1000",
+      "---------------------------------------------------------------------------",
+      "PluginTrustStore",
+      "---------------------------------------------------------------------------",
+      "Reload from disk",
+      "---------------------------------------------------------------------------",
+      "CLI trust command",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Top-level import smoke test",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_manifest: Create a PluginManifest with sensible defaults.",
+      "TestGetTrustTier: Tests for get_trust_tier().",
+      "TestGetTierConfig: Tests for get_tier_config().",
+      "TestFilterCapabilities: Tests for filter_capabilities().",
+      "TestComputeInitialScore: Tests for compute_initial_score().",
+      "TestPluginTrustStore: Tests for PluginTrustStore.",
+      "TestTrustCLICommand: Tests for the 'plugin trust' CLI command.",
+      "test_trust_tier_imports: Trust tier symbols are importable from the top-level package.",
+      "test_trust_command_default_score: Trust command shows default score for unknown plugin.",
+      "test_trust_command_with_existing_score: Trust command shows correct tier for a stored score."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_trust_command_default_score",
+    "test_revoked_lower_bound",
+    "test_budget_increases_with_tier",
+    "test_trust_command_with_existing_score",
+    "TestPluginTrustStore",
+    "test_verified_lower_bound",
+    "test_unknown_tier_raises",
+    "test_persistence_survives_reload",
+    "test_capabilities_bonus",
+    "test_trusted_lower_bound",
+    "test_revoked_upper_bound",
+    "test_default_score",
+    "test_record_event_clamps",
+    "test_corrupt_store_resets",
+    "test_verified_upper_bound",
+    "test_empty_capabilities",
+    "test_set_and_get_score",
+    "TestFilterCapabilities",
+    "TestTrustCLICommand",
+    "test_score_clamped_to_max",
+    "test_events_recorded_in_store",
+    "test_negative_score_raises",
+    "test_all_tiers_have_configs",
+    "test_record_event_adjusts_score",
+    "test_probationary_upper_bound",
+    "test_record_event_positive_delta",
+    "test_short_description_penalty",
+    "test_unknown_capabilities_pass_through",
+    "test_revoked_has_zero_budget",
+    "TestComputeInitialScore",
+    "test_verified_has_full_access",
+    "test_trusted_upper_bound",
+    "TestGetTrustTier",
+    "TestGetTierConfig",
+    "test_probationary_lower_bound",
+    "test_standard_lower_bound",
+    "test_trust_tier_imports",
+    "test_over_max_score_raises",
+    "test_all_bonuses_combined",
+    "test_score_clamped_high",
+    "test_signed_plugin_bonus",
+    "test_standard_upper_bound",
+    "test_get_tier",
+    "test_revoked_strips_restricted",
+    "test_verified_allows_all",
+    "test_score_clamped_low",
+    "test_standard_allows_network",
+    "test_base_score_unsigned_no_caps"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "pathlib",
+      "pytest",
+      "click.testing",
+      "agent_marketplace.manifest",
+      "agent_marketplace.trust_tiers",
+      "agent_marketplace",
+      "agent_marketplace.cli_commands",
+      "agent_marketplace.cli_commands"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_manifest",
+      "line": 31,
+      "doc": "Create a PluginManifest with sensible defaults.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "test_trust_tier_imports",
+      "line": 333,
+      "doc": "Trust tier symbols are importable from the top-level package.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_lower_bound",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_upper_bound",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_probationary_lower_bound",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_probationary_upper_bound",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_standard_lower_bound",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_standard_upper_bound",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trusted_lower_bound",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trusted_upper_bound",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_lower_bound",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_upper_bound",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_negative_score_raises",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_over_max_score_raises",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_tiers_have_configs",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_has_zero_budget",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_has_full_access",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_increases_with_tier",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_tier_raises",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_standard_allows_network",
+      "line": 132,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_allows_all",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_strips_restricted",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_capabilities_pass_through",
+      "line": 145,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_capabilities",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_tier_raises",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_base_score_unsigned_no_caps",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signed_plugin_bonus",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capabilities_bonus",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_short_description_penalty",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_bonuses_combined",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_clamped_to_max",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_score",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_and_get_score",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_clamped_low",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_clamped_high",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_event_adjusts_score",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_event_positive_delta",
+      "line": 237,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_event_clamps",
+      "line": 243,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_tier",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_persistence_survives_reload",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_corrupt_store_resets",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_events_recorded_in_store",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_command_default_score",
+      "line": 293,
+      "doc": "Trust command shows default score for unknown plugin.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_command_with_existing_score",
+      "line": 308,
+      "doc": "Trust command shows correct tier for a stored score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestGetTrustTier",
+      "line": 49,
+      "doc": "Tests for get_trust_tier().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGetTierConfig",
+      "line": 96,
+      "doc": "Tests for get_tier_config().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFilterCapabilities",
+      "line": 129,
+      "doc": "Tests for filter_capabilities().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestComputeInitialScore",
+      "line": 162,
+      "doc": "Tests for compute_initial_score().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginTrustStore",
+      "line": 209,
+      "doc": "Tests for PluginTrustStore.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustCLICommand",
+      "line": 290,
+      "doc": "Tests for the 'plugin trust' CLI command.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 13,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

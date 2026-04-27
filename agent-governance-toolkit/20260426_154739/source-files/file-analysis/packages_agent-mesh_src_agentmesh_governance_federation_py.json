@@ -1,0 +1,698 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/federation.py",
+  "extension": ".py",
+  "size_bytes": 37554,
+  "line_count": 1072,
+  "documentation": {
+    "file_docstring": "Cross-Organizational Federation Governance.\n\nEnables mutual policy enforcement, org-level trust establishment,\nand policy delegation between organizations.\n\nWhen agents from different organizations interact, the federation\nengine evaluates **both** the caller's and callee's org policies,\nchecks for bilateral trust agreements, and resolves policy\ndelegations \u2014 ensuring the most restrictive decision wins.\n\nCloses: https://github.com/microsoft/agent-governance-toolkit/issues/93",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Policy Categories \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Org Policy Model \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Constraints",
+      "Org allowlist / blocklist",
+      "\u2500\u2500 Org Trust Agreement \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Policy Delegation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Federation Decision \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Persistence Interface \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 In-Memory Federation Store \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 CRUD: Org Policies \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 CRUD: Trust Agreements \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 CRUD: Delegations \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Federation Engine \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Primary evaluation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 1. Same-org shortcut \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 2. Load org policies \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 3. Check blocklists \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 4. Look up trust agreements \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 5. Check trust score \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 6. Evaluate org policies (mutual enforcement) \u2500\u2500",
+      "Caller org policy",
+      "Check for delegations from caller to callee",
+      "If caller denies but the category is delegated,",
+      "override to allow",
+      "No caller policy \u2192 fail-closed",
+      "Callee org policy",
+      "\u2500\u2500 7. Merge: most restrictive wins \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 File-based Federation Store \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Load org policies",
+      "Load trust agreements",
+      "Convert category strings to enums",
+      "Load delegations",
+      "\u2500\u2500 Expression evaluator (reuses PolicyRule patterns) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "OR",
+      "AND",
+      "Equality: field == 'value'",
+      "Boolean",
+      "\u2500\u2500 Public API \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PolicyCategory: Extensible taxonomy of governance categories.\n\nThese categories scope what aspec",
+      "OrgPolicyRule: A single rule within an organization policy.\n\nAttributes:\n    name: Unique rule ",
+      "DataClassification: Data classification levels for org policy constraints.",
+      "OrgPolicy: Organization-level policy document.\n\nExtends the governance pattern to organizat",
+      "OrgPolicyDecision: Result of evaluating an org-level policy.\n\nAttributes:\n    allowed: Whether the ",
+      "OrgTrustAgreement: Bilateral trust agreement between two organizations.\n\nEstablishes that org A and",
+      "PolicyDelegation: Policy delegation: org A accepts org B's governance attestation\nfor specific cat",
+      "FederationDecision: Result of a cross-organizational federation evaluation.\n\nAttributes:\n    allowed",
+      "FederationStore: Interface for federation data persistence.\n\nImplementations may be file-based, S",
+      "InMemoryFederationStore: Simple in-memory federation store for development and testing.\n\nFor production, "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "OrgTrustAgreement",
+    "OrgPolicy",
+    "revoke_trust_agreement",
+    "OrgPolicyDecision",
+    "revoke_delegation",
+    "FileFederationStore",
+    "covers_orgs",
+    "DataClassification",
+    "add_org_policy",
+    "FederationDecision",
+    "is_active",
+    "revoke",
+    "remove_org_policy",
+    "OrgPolicyRule",
+    "check_constraints",
+    "PolicyDelegation",
+    "add_trust_agreement",
+    "to_yaml",
+    "get_delegations",
+    "evaluate",
+    "FederationStore",
+    "add_delegation",
+    "list_org_policies",
+    "InMemoryFederationStore",
+    "list_trust_agreements",
+    "FederationEngine",
+    "get_org_policy",
+    "get_trust_agreements",
+    "list_delegations",
+    "from_yaml",
+    "PolicyCategory",
+    "covers_category"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "uuid",
+      "datetime",
+      "enum",
+      "pathlib",
+      "typing",
+      "yaml",
+      "pydantic",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_eval_expression",
+      "line": 1006,
+      "doc": "Evaluate a simple policy expression.\n\nSupports the same syntax as ``PolicyRule._eval_expression``:\n- ``field == 'value'``\n- ``field`` (boolean truthy)\n- ``expr1 and expr2``\n- ``expr1 or expr2``",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "expr",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_get_nested",
+      "line": 1045,
+      "doc": "Resolve a dot-notated path against a dict.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "obj",
+        "path"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "evaluate",
+      "line": 82,
+      "doc": "Evaluate rule condition against context.\n\nUses the same simple expression evaluation as the core\n``PolicyRule``.  Supports ``==``, boolean attributes,\n``and``/``or`` compound conditions.\n\nArgs:\n    context: Runtime context dict.\n\nReturns:\n    ``True`` if enabled and the condition matches.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "evaluate",
+      "line": 179,
+      "doc": "Evaluate all rules against the given context.\n\nRules are sorted by priority (lower first = higher priority).\nThe first matching rule wins.\n\nArgs:\n    context: Runtime context dict.\n\nReturns:\n    An ``OrgPolicyDecision`` with the matched rule and action.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "OrgPolicyDecision"
+    },
+    {
+      "name": "from_yaml",
+      "line": 217,
+      "doc": "Load an OrgPolicy from a YAML string.\n\nArgs:\n    yaml_content: Raw YAML string.\n\nReturns:\n    A fully-constructed ``OrgPolicy``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "yaml_content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_yaml",
+      "line": 233,
+      "doc": "Serialize this OrgPolicy to a YAML string.\n\nReturns:\n    YAML-formatted policy document.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "is_active",
+      "line": 329,
+      "doc": "Check if this agreement is active (not expired or revoked).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "covers_orgs",
+      "line": 337,
+      "doc": "Check if this agreement covers the given org pair.\n\nIf ``mutual`` is ``True``, order doesn't matter.\nIf ``False``, only org_a trusts org_b (directional).\n\nArgs:\n    org_a: Caller org ID.\n    org_b: Callee org ID.\n\nReturns:\n    ``True`` if the pair is covered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "org_a",
+        "org_b"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "covers_category",
+      "line": 354,
+      "doc": "Check if a governance category is covered.\n\nArgs:\n    category: The category to check.\n\nReturns:\n    ``True`` if the category is covered by this agreement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "category"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "revoke",
+      "line": 367,
+      "doc": "Revoke this agreement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_active",
+      "line": 420,
+      "doc": "Check if delegation is active and not expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "covers_category",
+      "line": 428,
+      "doc": "Check if this delegation covers a category.\n\nArgs:\n    category: The category to check.\n\nReturns:\n    ``True`` if the category is delegated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "category"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_constraints",
+      "line": 439,
+      "doc": "Verify that the context satisfies delegation constraints.\n\nEach constraint key must be present in the context with a\nmatching value.\n\nArgs:\n    context: Runtime context dict.\n\nReturns:\n    ``True`` if all constraints are satisfied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_org_policy",
+      "line": 497,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "org_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_agreements",
+      "line": 498,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "org_a",
+        "org_b"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_delegations",
+      "line": 501,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_org",
+        "target_org"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 516,
+      "doc": "Initialize empty in-memory stores for policies, agreements, and delegations.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_org_policy",
+      "line": 524,
+      "doc": "Register or update an org policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_org_policy",
+      "line": 532,
+      "doc": "Remove an org policy.  Returns True if found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "org_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_org_policy",
+      "line": 539,
+      "doc": "Retrieve an org policy by org ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "org_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_org_policies",
+      "line": 543,
+      "doc": "List all registered org policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_trust_agreement",
+      "line": 549,
+      "doc": "Register a trust agreement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agreement"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revoke_trust_agreement",
+      "line": 562,
+      "doc": "Revoke a trust agreement by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agreement_id",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_trust_agreements",
+      "line": 577,
+      "doc": "Find active trust agreements covering the given org pair.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "org_a",
+        "org_b"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_trust_agreements",
+      "line": 587,
+      "doc": "List all trust agreements (active and revoked).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_delegation",
+      "line": 593,
+      "doc": "Register a policy delegation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "delegation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revoke_delegation",
+      "line": 605,
+      "doc": "Revoke a delegation by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "delegation_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_delegations",
+      "line": 613,
+      "doc": "Find active delegations from source to target org.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_org",
+        "target_org"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_delegations",
+      "line": 625,
+      "doc": "List all delegations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 651,
+      "doc": "Initialize the federation engine with the given store.\n\nArgs:\n    store: Federation data store. Defaults to a new\n        ``InMemoryFederationStore`` if not provided.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 665,
+      "doc": "Evaluate a cross-organizational interaction.\n\nSteps:\n1. Same-org shortcut \u2014 bypass federation if same org.\n2. Check blocklists on both sides.\n3. Look up active trust agreements.\n4. Evaluate caller org policy (caller-side constraints).\n5. Evaluate callee org policy (callee-side constraints).\n6. Apply policy delegations (skip rules for delegated\n   categories).\n7. Merge decisions \u2014 most restrictive wins.\n\nArgs:\n    caller_org_id: Organization ID of the calling agent.\n    callee_org_id: Organization ID of the called agent.\n    caller_trust_score: Trust score of the calling agent.\n    context: Runtime context dict.\n\nReturns:\n    A ``FederationDecision`` with the merged result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "caller_org_id",
+        "callee_org_id",
+        "caller_trust_score",
+        "context"
+      ],
+      "returns": "FederationDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 939,
+      "doc": "Initialize and load federation data from the given directory.\n\nArgs:\n    directory: Path to the federation config directory containing\n        ``org_policies/``, ``trust_agreements.yaml``, and\n        ``delegations.yaml``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load",
+      "line": 951,
+      "doc": "Load federation data from the directory.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyCategory",
+      "line": 35,
+      "doc": "Extensible taxonomy of governance categories.\n\nThese categories scope what aspects of governance one organization\nmay delegate to another.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OrgPolicyRule",
+      "line": 56,
+      "doc": "A single rule within an organization policy.\n\nAttributes:\n    name: Unique rule identifier.\n    description: Human-readable description.\n    category: Governance category this rule belongs to.\n    condition: Condition expression (same syntax as PolicyRule).\n    action: Action when the condition matches.\n    priority: Evaluation priority (lower = higher priority).\n    enabled: Whether this rule is active.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DataClassification",
+      "line": 108,
+      "doc": "Data classification levels for org policy constraints.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OrgPolicy",
+      "line": 117,
+      "doc": "Organization-level policy document.\n\nExtends the governance pattern to organizational boundaries.  Each\norg can define rules that apply to **all** interactions involving\nits agents \u2014 both as caller and callee.\n\nAttributes:\n    org_id: Unique organization identifier.\n    org_name: Human-readable organization name.\n    version: Policy version string.\n    description: Optional description.\n    rules: Ordered list of org-level policy rules.\n    default_action: Fallback action when no rule matches.\n    max_data_classification: Highest data classification\n        allowed for cross-org transfers.\n    required_min_trust_score: Minimum trust score required\n        for any agent interacting with this org's agents.\n    allowed_partner_orgs: Explicit allowlist of partner org\n        IDs.  Empty list means ''trust agreements only''.\n    blocked_orgs: Explicit blocklist of org IDs.\n    created_at: When this policy was created.\n    updated_at: When this policy was last modified.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OrgPolicyDecision",
+      "line": 243,
+      "doc": "Result of evaluating an org-level policy.\n\nAttributes:\n    allowed: Whether the action is permitted.\n    action: The action taken.\n    matched_rule: Name of the matched rule (if any).\n    org_id: Organization that produced this decision.\n    reason: Human-readable explanation.\n    category: Governance category of the matched rule.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OrgTrustAgreement",
+      "line": 266,
+      "doc": "Bilateral trust agreement between two organizations.\n\nEstablishes that org A and org B trust each other (or one-way)\nfor specific governance categories, subject to constraints.\n\nAttributes:\n    agreement_id: Unique identifier for this agreement.\n    org_a_id: First organization.\n    org_b_id: Second organization.\n    trust_categories: Which governance categories this\n        agreement covers.\n    min_trust_score: Minimum agent trust score required for\n        cross-org interaction under this agreement.\n    mutual: If ``True``, enforcement is bidirectional.\n        If ``False``, only org_a trusts org_b.\n    max_data_classification: Highest data classification\n        allowed under this agreement.\n    created_at: When this agreement was established.\n    expires_at: When this agreement expires.  ``None`` means\n        no expiration.\n    revoked: Whether this agreement has been revoked.\n    revocation_reason: Reason for revocation, if applicable.\n    verification_method: How this agreement was verified\n        (e.g., ``\"manual\"``, ``\"iatp_attestation\"``).",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyDelegation",
+      "line": 376,
+      "doc": "Policy delegation: org A accepts org B's governance attestation\nfor specific categories.\n\nThis enables one org to say: ''I trust that org B's governance\nis sufficient for PII handling \u2014 I don't need to re-evaluate\nPII rules for their agents.''\n\nAttributes:\n    delegation_id: Unique identifier.\n    source_org_id: Organization that delegates authority.\n    target_org_id: Organization that receives delegation.\n    delegated_categories: Governance categories being\n        delegated.\n    constraints: Additional constraints on the delegation\n        (e.g., ``{\"region\": \"EU\"}`` restricts PII delegation\n        to EU data only).\n    created_at: When created.\n    expires_at: When this delegation expires.\n    active: Whether this delegation is active.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FederationDecision",
+      "line": 461,
+      "doc": "Result of a cross-organizational federation evaluation.\n\nAttributes:\n    allowed: Whether the cross-org interaction is permitted.\n    caller_decision: Decision from the caller org's policy.\n    callee_decision: Decision from the callee org's policy.\n    trust_agreement_id: ID of the applicable trust agreement.\n    delegations_applied: IDs of delegations that were honored.\n    reason: Human-readable summary.\n    trace: Step-by-step trace of the evaluation logic.\n    evaluated_at: Timestamp of evaluation.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FederationStore",
+      "line": 491,
+      "doc": "Interface for federation data persistence.\n\nImplementations may be file-based, SQL-backed, or in-memory.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "InMemoryFederationStore",
+      "line": 509,
+      "doc": "Simple in-memory federation store for development and testing.\n\nFor production, implement ``FederationStore`` against a\ndatabase or distributed config store.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FederationEngine",
+      "line": 633,
+      "doc": "Cross-organizational federation governance engine.\n\nProvides **mutual enforcement**: when agents from different\norganizations interact, both the caller's and callee's org\npolicies are evaluated.  The most restrictive decision wins.\n\nThe engine also handles:\n- Trust agreement lookup and validation\n- Policy delegation (org A accepts org B's governance\n  attestation for category X)\n- Graceful fail-closed semantics (missing policy \u2192 deny)\n\nArgs:\n    store: Federation data store.  Defaults to\n        ``InMemoryFederationStore()`` for development.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FileFederationStore",
+      "line": 920,
+      "doc": "File-based federation store that loads from a directory.\n\nExpected directory structure::\n\n    federation/\n    \u251c\u2500\u2500 org_policies/\n    \u2502   \u251c\u2500\u2500 org_a.yaml\n    \u2502   \u2514\u2500\u2500 org_b.yaml\n    \u251c\u2500\u2500 trust_agreements.yaml\n    \u2514\u2500\u2500 delegations.yaml\n\nFalls back to in-memory storage for trust agreements and\ndelegations if the YAML files are not present.\n\nArgs:\n    directory: Path to the federation config directory.",
+      "is_public": true,
+      "bases": [
+        "InMemoryFederationStore"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 116,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

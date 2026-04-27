@@ -1,0 +1,334 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/tool_registry.py",
+  "extension": ".py",
+  "size_bytes": 14915,
+  "line_count": 452,
+  "documentation": {
+    "file_docstring": "Tool Registry - Dynamic Tool Management and Discovery\n\nThe Tool Registry enables dynamic registration and discovery of tools for agents,\nsupporting extensibility beyond the hardcoded ActionType enum. This addresses\nthe need for flexible tool ecosystems similar to LangChain's 100+ integrations.\n\nResearch Foundations:\n    - Plugin architecture patterns for extensible systems\n    - Service registry patterns from microservices architecture\n    - Tool abstraction inspired by \"Multimodal Agents: A Survey\" (arXiv:2404.12390)\n    - Dynamic capability discovery for agent systems\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Register a tool",
+      "Discover tools",
+      "Execute a tool",
+      "Auto-generate schema from function signature if not provided",
+      "Compute content hash for integrity verification",
+      "Verify tool integrity before execution",
+      "Validate parameters against schema",
+      "Check required parameters",
+      "Type checking would go here (simplified for now)",
+      "In production, use jsonschema library for full validation",
+      "This would register standard tools",
+      "Intentionally left minimal to show the pattern"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ToolType: Categories of tools available to agents",
+      "ToolSchema: JSON Schema definition for tool parameters",
+      "Tool: A tool that can be used by agents.\n\nAttributes:\n    tool_id: Unique identifier f",
+      "ToolRegistry: Central registry for dynamic tool management.\n\nFeatures:\n- Register tools dynami",
+      "create_standard_tool_registry: Create a tool registry with standard built-in tools.\n\nReturns:\n    ToolRegistry ",
+      "_compute_handler_hash: Compute a SHA-256 content hash of a callable's source code.\n\nReturns an empty st",
+      "register_tool: Register a new tool in the registry.\n\nArgs:\n    name: Tool name (must be unique)",
+      "unregister_tool: Remove a tool from the registry.\n\nArgs:\n    tool_id_or_name: Tool ID or name\n   ",
+      "get_tool: Get a tool by ID or name",
+      "get_tools_by_type: Get all tools of a specific type"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "create_standard_tool_registry",
+    "ToolSchema",
+    "unregister_tool",
+    "Tool",
+    "get_all_tools",
+    "execute_tool",
+    "validate_parameters",
+    "verify_tool_integrity",
+    "register_tool",
+    "ToolType",
+    "search_tools",
+    "ToolRegistry",
+    "get_integrity_violations",
+    "get_tools_by_type",
+    "get_tool"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "hashlib",
+      "inspect",
+      "logging",
+      "textwrap",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_standard_tool_registry",
+      "line": 440,
+      "doc": "Create a tool registry with standard built-in tools.\n\nReturns:\n    ToolRegistry with common tools pre-registered",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "ToolRegistry"
+    },
+    {
+      "name": "__init__",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_compute_handler_hash",
+      "line": 123,
+      "doc": "Compute a SHA-256 content hash of a callable's source code.\n\nReturns an empty string if source is unavailable (e.g. built-in\nor C-extension functions).  Callers should treat an empty hash\nas \"unverifiable\" rather than silently trusting the handler.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "handler"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "register_tool",
+      "line": 141,
+      "doc": "Register a new tool in the registry.\n\nArgs:\n    name: Tool name (must be unique)\n    description: What the tool does\n    tool_type: Category of the tool\n    handler: Function to execute the tool\n    parameter_schema: JSON schema for parameters (auto-generated if None)\n    requires_approval: Whether execution requires approval\n    risk_level: Risk score 0.0-1.0\n    metadata: Additional metadata\n    \nReturns:\n    tool_id: Unique identifier for the registered tool\n    \nRaises:\n    ValueError: If tool name already exists",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description",
+        "tool_type",
+        "handler",
+        "parameter_schema",
+        "requires_approval",
+        "risk_level",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "unregister_tool",
+      "line": 205,
+      "doc": "Remove a tool from the registry.\n\nArgs:\n    tool_id_or_name: Tool ID or name\n    \nReturns:\n    True if tool was removed, False if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_id_or_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_tool",
+      "line": 229,
+      "doc": "Get a tool by ID or name",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_id_or_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_tools_by_type",
+      "line": 234,
+      "doc": "Get all tools of a specific type",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_all_tools",
+      "line": 239,
+      "doc": "Get all registered tools",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_tool",
+      "line": 243,
+      "doc": "Execute a registered tool.\n\nArgs:\n    tool_id_or_name: Tool ID or name\n    parameters: Tool parameters\n    \nReturns:\n    Result dictionary with 'success', 'result', or 'error' keys",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_id_or_name",
+        "parameters"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_parameters",
+      "line": 310,
+      "doc": "Validate parameters against tool schema.\n\nReturns:\n    {\"valid\": bool, \"errors\": List[str]}",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_id_or_name",
+        "parameters"
+      ],
+      "returns": null
+    },
+    {
+      "name": "search_tools",
+      "line": 341,
+      "doc": "Search tools by name or description.\n\nArgs:\n    query: Search string\n    \nReturns:\n    List of matching tools",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_tool_integrity",
+      "line": 361,
+      "doc": "Verify that a tool's handler has not been modified since registration.\n\nCompares the current SHA-256 hash of the handler's source code\nagainst the hash recorded at registration time.\n\nReturns:\n    {\"verified\": bool, \"reason\": str, \"registered_hash\": str, \"current_hash\": str}",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_id_or_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_integrity_violations",
+      "line": 404,
+      "doc": "Return all recorded integrity violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_tool_id",
+      "line": 408,
+      "doc": "Resolve a tool name to its ID, or return ID if already an ID",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_id_or_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_schema_from_handler",
+      "line": 414,
+      "doc": "Auto-generate a basic schema from function signature",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "handler"
+      ],
+      "returns": "ToolSchema"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ToolType",
+      "line": 32,
+      "doc": "Categories of tools available to agents",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolSchema",
+      "line": 47,
+      "doc": "JSON Schema definition for tool parameters",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Tool",
+      "line": 56,
+      "doc": "A tool that can be used by agents.\n\nAttributes:\n    tool_id: Unique identifier for the tool\n    name: Human-readable name\n    description: What the tool does\n    tool_type: Category of the tool\n    handler: Function that executes the tool\n    parameter_schema: JSON schema for parameters\n    requires_approval: Whether tool execution requires human approval\n    risk_level: Risk score (0.0-1.0, higher = more risky)\n    content_hash: SHA-256 hash of the tool handler's source code at\n        registration time.  Used to detect tampering or aliasing.\n    metadata: Additional tool metadata",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolRegistry",
+      "line": 86,
+      "doc": "Central registry for dynamic tool management.\n\nFeatures:\n- Register tools dynamically at runtime\n- Discover available tools by type or capability\n- Validate tool parameters against schemas\n- Support for multi-modal tools (text, vision, audio)\n- Integration point for external tool providers\n\nUsage:\n    registry = ToolRegistry()\n    \n    # Register a tool\n    registry.register_tool(\n        name=\"web_search\",\n        description=\"Search the web for information\",\n        tool_type=ToolType.SEARCH,\n        handler=search_handler,\n        parameter_schema=search_schema\n    )\n    \n    # Discover tools\n    tools = registry.get_tools_by_type(ToolType.SEARCH)\n    \n    # Execute a tool\n    result = registry.execute_tool(\"web_search\", {\"query\": \"AI safety\"})",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 53,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

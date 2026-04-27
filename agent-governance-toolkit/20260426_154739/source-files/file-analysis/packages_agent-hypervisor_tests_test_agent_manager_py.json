@@ -1,0 +1,961 @@
+{
+  "path": "packages/agent-hypervisor/tests/test_agent_manager.py",
+  "extension": ".py",
+  "size_bytes": 24964,
+  "line_count": 566,
+  "documentation": {
+    "file_docstring": "Tests for core agent management functions in Hypervisor (core.py).\n\nCovers: create_session, join_session, activate_session, terminate_session,\nget_session, verify_behavior, active_sessions, and error handling.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ManagedSession",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "create_session",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "join_session",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "join_session \u2014 integration adapters",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "activate_session",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "terminate_session",
+      "---------------------------------------------------------------------------",
+      "Record a delta so hash chain root is non-empty",
+      "---------------------------------------------------------------------------",
+      "get_session / _get_session",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "active_sessions",
+      "---------------------------------------------------------------------------",
+      "Terminate s1",
+      "s2 still handshaking",
+      "---------------------------------------------------------------------------",
+      "verify_behavior",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Resource cleanup / edge cases",
+      "---------------------------------------------------------------------------",
+      "Record delta to produce a hash chain root",
+      "commit is called only if hash_chain_root is non-None",
+      "---------------------------------------------------------------------------",
+      "Active index tracking",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "monitor_sessions",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "hypervisor: A plain Hypervisor with no integration adapters.",
+      "test_join_with_zero_sigma_no_nexus: Zero sigma with no Nexus adapter \u2192 eff_score stays 0 \u2192 sandbox.",
+      "test_nexus_conservative_min: When both sigma_raw and Nexus sigma given, uses min.",
+      "test_verify_nonexistent_session_raises: verify_behavior only accesses session when drift triggers slash.",
+      "test_full_lifecycle: End-to-end: create \u2192 join \u2192 activate \u2192 terminate."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestCreateSession",
+    "test_get_nonexistent_returns_none",
+    "TestJoinSession",
+    "TestEdgeCases",
+    "TestActiveSessions",
+    "test_internal_get_raises_on_missing",
+    "TestTerminateSession",
+    "hypervisor",
+    "config_no_audit",
+    "TestJoinSessionWithAdapters",
+    "TestActiveIndex",
+    "TestManagedSession",
+    "TestMonitorSessions",
+    "TestActivateSession",
+    "TestGetSession",
+    "TestVerifyBehavior",
+    "config",
+    "TestResourceCleanup"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "unittest.mock",
+      "pytest",
+      "hypervisor.core",
+      "hypervisor.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "hypervisor",
+      "line": 30,
+      "doc": "A plain Hypervisor with no integration adapters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": "Hypervisor"
+    },
+    {
+      "name": "config",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": "SessionConfig"
+    },
+    {
+      "name": "config_no_audit",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": "SessionConfig"
+    },
+    {
+      "name": "test_managed_session_has_subsystems",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_creates_session",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_session_stored_internally",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_multiple_sessions",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_with_high_sigma",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_with_low_sigma_gets_sandbox",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_multiple_agents",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_nonexistent_session_raises",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_with_non_reversible_actions_forces_strong",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_with_reversible_actions_keeps_eventual",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_with_zero_sigma_no_nexus",
+      "line": 147,
+      "doc": "Zero sigma with no Nexus adapter \u2192 eff_score stays 0 \u2192 sandbox.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_resolves_sigma",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_conservative_min",
+      "line": 173,
+      "doc": "When both sigma_raw and Nexus sigma given, uses min.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_iatp_manifest_dict",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_iatp_manifest_object",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activate_after_join",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activate_nonexistent_raises",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activate_without_participants_raises",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_active_session",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hv",
+        "cfg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminate_archives",
+      "line": 259,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminate_returns_hash_when_audit_enabled",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminate_no_audit_returns_none",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config_no_audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminate_nonexistent_raises",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminate_releases_bonds",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_existing",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_nonexistent_returns_none",
+      "line": 297,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_internal_get_raises_on_missing",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_initially",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_includes_handshaking",
+      "line": 313,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_excludes_archived",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mixed_states",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_adapter_returns_none",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drift_below_threshold",
+      "line": 351,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drift_triggers_slash",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drift_slash_reports_to_nexus",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_nonexistent_session_raises",
+      "line": 412,
+      "doc": "verify_behavior only accesses session when drift triggers slash.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_gc_called_on_terminate",
+      "line": 434,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_commitment_stored_when_audit_enabled",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_session_capacity_limit",
+      "line": 459,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_duplicate_agent_join_raises",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hypervisor_default_init",
+      "line": 472,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hypervisor_with_max_exposure",
+      "line": 479,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_lifecycle",
+      "line": 483,
+      "doc": "End-to-end: create \u2192 join \u2192 activate \u2192 terminate.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_active_ids_tracks_creation",
+      "line": 503,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_active_ids_removed_on_terminate",
+      "line": 507,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_active_ids_consistent_with_active_sessions",
+      "line": 514,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_monitor_empty",
+      "line": 530,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_monitor_healthy_agents",
+      "line": 534,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_monitor_flags_low_score",
+      "line": 541,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_monitor_skips_terminated",
+      "line": 549,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_monitor_multiple_sessions",
+      "line": 557,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "hypervisor",
+        "config"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestManagedSession",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCreateSession",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestJoinSession",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestJoinSessionWithAdapters",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestActivateSession",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTerminateSession",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGetSession",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestActiveSessions",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVerifyBehavior",
+      "line": 341,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestResourceCleanup",
+      "line": 433,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestActiveIndex",
+      "line": 502,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMonitorSessions",
+      "line": 529,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 3,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

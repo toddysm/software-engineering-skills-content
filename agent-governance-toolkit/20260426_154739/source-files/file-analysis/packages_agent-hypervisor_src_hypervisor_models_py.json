@@ -1,0 +1,293 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/models.py",
+  "extension": ".py",
+  "size_bytes": 10009,
+  "line_count": 277,
+  "documentation": {
+    "file_docstring": "Core data models for the Agent Hypervisor.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Agent ID: DID format (did:method:id) or simple alphanumeric identifiers.",
+      "Restrict to safe characters \u2014 no @, no consecutive special chars.",
+      "Aliases for backward compatibility"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ConsistencyMode: Session consistency mode. Strong requires consensus; Eventual uses gossip.",
+      "ExecutionRing: Hardware-inspired execution privilege rings.\n\nRing 0 (Root): Hypervisor config &",
+      "ReversibilityLevel: How reversible an action is.",
+      "SessionState: Lifecycle state of a Shared Session.",
+      "_validate_identifier: Validate an identifier string (agent DID, action ID, etc.).",
+      "_validate_api_path: Validate an API path string.",
+      "SessionConfig: Configuration for a new Shared Session.",
+      "SessionParticipant: An agent participating in a session.",
+      "ActionDescriptor: Describes an action from an IATP Capability Manifest.",
+      "from_eff_score: Derive ring level from effective reputation score."
+    ]
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "model/schema path",
+      "special file: models.py"
+    ]
+  },
+  "exports": [
+    "risk_weight",
+    "SessionState",
+    "from_eff_score",
+    "ConsistencyMode",
+    "ReversibilityLevel",
+    "SessionParticipant",
+    "risk_weight_range",
+    "ExecutionRing",
+    "ActionDescriptor",
+    "default_risk_weight",
+    "required_ring",
+    "SessionConfig"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "re",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "hypervisor.constants"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_validate_identifier",
+      "line": 106,
+      "doc": "Validate an identifier string (agent DID, action ID, etc.).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value",
+        "field_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_api_path",
+      "line": 123,
+      "doc": "Validate an API path string.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value",
+        "field_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_eff_score",
+      "line": 62,
+      "doc": "Derive ring level from effective reputation score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "eff_score",
+        "has_consensus"
+      ],
+      "returns": "ExecutionRing"
+    },
+    {
+      "name": "risk_weight_range",
+      "line": 80,
+      "doc": "Return the (min, max) risk weight \u03c9 for this reversibility level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "default_risk_weight",
+      "line": 90,
+      "doc": "Return the default \u03c9 for this level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__post_init__",
+      "line": 146,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "risk_weight",
+      "line": 263,
+      "doc": "Compute \u03c9 from reversibility level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "required_ring",
+      "line": 268,
+      "doc": "Determine minimum ring required for this action.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ExecutionRing"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConsistencyMode",
+      "line": 39,
+      "doc": "Session consistency mode. Strong requires consensus; Eventual uses gossip.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionRing",
+      "line": 46,
+      "doc": "Hardware-inspired execution privilege rings.\n\nRing 0 (Root): Hypervisor config & penalty \u2014 requires SRE Witness.\nRing 1 (Privileged): Non-reversible actions \u2014 requires eff_score > 0.95 + consensus.\nRing 2 (Standard): Reversible actions \u2014 requires eff_score > 0.60.\nRing 3 (Sandbox): Read-only / research \u2014 default for unknown agents.",
+      "is_public": true,
+      "bases": [
+        "int",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReversibilityLevel",
+      "line": 72,
+      "doc": "How reversible an action is.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SessionState",
+      "line": 96,
+      "doc": "Lifecycle state of a Shared Session.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SessionConfig",
+      "line": 136,
+      "doc": "Configuration for a new Shared Session.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SessionParticipant",
+      "line": 185,
+      "doc": "An agent participating in a session.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ActionDescriptor",
+      "line": 223,
+      "doc": "Describes an action from an IATP Capability Manifest.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 48,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

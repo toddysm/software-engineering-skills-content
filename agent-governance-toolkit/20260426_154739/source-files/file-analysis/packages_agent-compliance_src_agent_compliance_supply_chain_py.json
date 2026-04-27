@@ -1,0 +1,318 @@
+{
+  "path": "packages/agent-compliance/src/agent_compliance/supply_chain.py",
+  "extension": ".py",
+  "size_bytes": 17626,
+  "line_count": 463,
+  "documentation": {
+    "file_docstring": "Supply chain security guards for AI agent dependency management.\n\nDetects supply chain poisoning attempts including:\n- Freshly published package versions (< 7 days)\n- Unpinned dependency versions (^ or ~ ranges)\n- Typosquatting on popular package names\n- Sudden maintainer changes\n- Suspicious release patterns",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Popular packages list for typosquatting detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Data classes",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "Strip inline comments and environment markers",
+      "Split on version specifier operators",
+      "No version specifier at all",
+      "---------------------------------------------------------------------------",
+      "SupplyChainGuard",
+      "---------------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "requirements.txt",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "package.json",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "pyproject.toml (simple parser \u2013 stdlib only)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Cargo.toml (simple parser \u2013 stdlib only)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Freshness (offline)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Freshness (live \u2013 optional network)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Typosquatting",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Directory scan",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Lockfile drift",
+      "------------------------------------------------------------------",
+      "requirements.txt style"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SupplyChainFinding: A supply chain risk finding.",
+      "SupplyChainConfig: Configuration for supply chain checks.",
+      "_similarity: Return SequenceMatcher ratio between two strings.",
+      "_parse_requirements_line: Parse a single requirements.txt line into (name, version_spec).\n\nReturns ``None`",
+      "SupplyChainGuard: Detects supply chain poisoning in agent dependencies.",
+      "check_requirements: Check a requirements.txt file for supply chain risks.",
+      "check_package_json: Check a package.json for unpinned versions.",
+      "check_pyproject: Check pyproject.toml for loose version constraints.",
+      "check_cargo_toml: Check Cargo.toml for unpinned versions.",
+      "check_freshness: Check if a package version was published within the freshness window.\n\nDoes NOT "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "check_cargo_toml",
+    "check_package_json",
+    "check_freshness",
+    "SupplyChainFinding",
+    "SupplyChainGuard",
+    "scan_lockfile_drift",
+    "check_pyproject",
+    "scan_directory",
+    "SupplyChainConfig",
+    "check_freshness_live",
+    "check_requirements",
+    "check_typosquatting"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "re",
+      "dataclasses",
+      "datetime",
+      "difflib",
+      "pathlib",
+      "typing",
+      "urllib.request",
+      "urllib.error"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_similarity",
+      "line": 77,
+      "doc": "Return SequenceMatcher ratio between two strings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "a",
+        "b"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_parse_requirements_line",
+      "line": 82,
+      "doc": "Parse a single requirements.txt line into (name, version_spec).\n\nReturns ``None`` for blank lines, comments, and options.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "line"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_requirements",
+      "line": 121,
+      "doc": "Check a requirements.txt file for supply chain risks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_package_json",
+      "line": 151,
+      "doc": "Check a package.json for unpinned versions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_pyproject",
+      "line": 181,
+      "doc": "Check pyproject.toml for loose version constraints.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_cargo_toml",
+      "line": 222,
+      "doc": "Check Cargo.toml for unpinned versions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_freshness",
+      "line": 260,
+      "doc": "Check if a package version was published within the freshness window.\n\nDoes NOT call external APIs \u2014 compares against a provided timestamp.\nFor actual freshness checks, use ``check_freshness_live()``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "package",
+        "version",
+        "publish_time",
+        "ecosystem"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_freshness_live",
+      "line": 294,
+      "doc": "Check version freshness against live registry (PyPI, npm).\n\nCalls PyPI JSON API or npm registry.\nReturns finding if version < freshness_days old.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "package",
+        "version",
+        "ecosystem"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_typosquatting",
+      "line": 344,
+      "doc": "Check if package name is suspiciously similar to a popular package.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "package",
+        "ecosystem"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_directory",
+      "line": 380,
+      "doc": "Scan a directory for all dependency files and check each.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_lockfile_drift",
+      "line": 403,
+      "doc": "Check if lockfile is in sync with manifest.\n\nCompares package names in the manifest against those in the\nlockfile and flags any that are missing from the lock.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest_path",
+        "lock_path"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SupplyChainFinding",
+      "line": 48,
+      "doc": "A supply chain risk finding.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SupplyChainConfig",
+      "line": 59,
+      "doc": "Configuration for supply chain checks.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SupplyChainGuard",
+      "line": 111,
+      "doc": "Detects supply chain poisoning in agent dependencies.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 66,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

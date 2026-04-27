@@ -1,0 +1,430 @@
+{
+  "path": "packages/agent-os/src/agent_os/policies/backends.py",
+  "extension": ".py",
+  "size_bytes": 24642,
+  "line_count": 670,
+  "documentation": {
+    "file_docstring": "External policy backends for Agent-OS governance.\n\nProvides a pluggable interface for evaluating policies written in\nexternal policy languages (OPA/Rego, Cedar) alongside the native\nYAML/JSON PolicyDocument engine.\n\nUsage:\n    from agent_os.policies.backends import OPABackend, CedarBackend\n\n    evaluator = PolicyEvaluator()\n    evaluator.load_policies(\"policies/\")\n\n    # Add OPA/Rego policies\n    evaluator.add_backend(OPABackend(rego_path=\"policies/agent.rego\"))\n\n    # Add Cedar policies\n    evaluator.add_backend(CedarBackend(policy_path=\"policies/agent.cedar\"))\n\n    # evaluate() checks YAML rules first, then external backends\n    decision = evaluator.evaluate(context)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Add OPA/Rego policies",
+      "Add Cedar policies",
+      "evaluate() checks YAML rules first, then external backends",
+      "\u2500\u2500 Protocol \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 OPA/Rego Backend \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Eagerly load rego content from file",
+      "Parse defaults",
+      "\u2500\u2500 Cedar Backend \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Eagerly load policy content from file",
+      "Eagerly load entities from file",
+      "Detect available engines",
+      "Normalize to Cedar entity format",
+      "Map tool_name to Cedar action",
+      "Parse all permit/forbid statements",
+      "Cedar semantics: default deny, any forbid overrides permit",
+      "Statement applies to this action",
+      "\u2500\u2500 Cedar helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Match permit(...) or forbid(...) blocks including multiline",
+      "Extract action constraint: action == Action::\"SomeThing\""
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ExternalPolicyBackend: Interface for external policy evaluation backends.\n\nImplementations translate be",
+      "BackendDecision: Normalized result from an external policy backend.",
+      "OPABackend: Evaluate OPA/Rego policies for Agent-OS.\n\nSupports three modes:\n  1. **Remote OP",
+      "CedarBackend: Evaluate Cedar policies for Agent-OS.\n\nCedar is AWS's authorization policy langu",
+      "_tool_to_cedar_action: Map a toolkit tool_name to a Cedar action identifier.\n\nConverts snake_case tool ",
+      "_parse_cedar_statements: Parse Cedar permit/forbid statements from policy content.\n\nReturns a list of dic",
+      "name: Human-readable backend name (e.g., ``\"opa\"``, ``\"cedar\"``).",
+      "evaluate: Evaluate the external policy against the given context.\n\nArgs:\n    context: Exec",
+      "_evaluate_builtin: Built-in simple Rego evaluator for common patterns.",
+      "_build_cedar_request: Build a Cedar authorization request from execution context."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ExternalPolicyBackend",
+    "name",
+    "OPABackend",
+    "CedarBackend",
+    "BackendDecision",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "shutil",
+      "subprocess",
+      "tempfile",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "re",
+      "urllib.request",
+      "cedarpy",
+      "cedarpy"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_tool_to_cedar_action",
+      "line": 629,
+      "doc": "Map a toolkit tool_name to a Cedar action identifier.\n\nConverts snake_case tool names to PascalCase Cedar actions:\n``file_read`` \u2192 ``FileRead``, ``execute_code`` \u2192 ``ExecuteCode``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tool_name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_parse_cedar_statements",
+      "line": 638,
+      "doc": "Parse Cedar permit/forbid statements from policy content.\n\nReturns a list of dicts with keys: effect, action_constraint.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 54,
+      "doc": "Human-readable backend name (e.g., ``\"opa\"``, ``\"cedar\"``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "evaluate",
+      "line": 58,
+      "doc": "Evaluate the external policy against the given context.\n\nArgs:\n    context: Execution context dict with fields like\n        ``tool_name``, ``agent_id``, ``token_count``, etc.\n\nReturns:\n    A ``BackendDecision`` with the result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "mode",
+        "opa_url",
+        "rego_path",
+        "rego_content",
+        "package",
+        "query",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "evaluate",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_evaluate_remote",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_evaluate_local",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_evaluate_cli",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_evaluate_builtin",
+      "line": 271,
+      "doc": "Built-in simple Rego evaluator for common patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_eval_condition",
+      "line": 321,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "condition",
+        "ctx"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_resolve_path",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "path",
+        "data"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 401,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_path",
+        "policy_content",
+        "entities_path",
+        "entities",
+        "schema_path",
+        "mode",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_cedarpy",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "bool"
+    },
+    {
+      "name": "name",
+      "line": 440,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "evaluate",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_build_cedar_request",
+      "line": 476,
+      "doc": "Build a Cedar authorization request from execution context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_cedarpy",
+      "line": 499,
+      "doc": "Evaluate via cedarpy Python bindings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_evaluate_cli",
+      "line": 526,
+      "doc": "Evaluate via cedar CLI subprocess.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    },
+    {
+      "name": "_evaluate_builtin",
+      "line": 574,
+      "doc": "Built-in Cedar pattern evaluator for common permit/forbid rules.\n\nParses simple Cedar policy patterns:\n  - permit(principal, action == Action::\"X\", resource);\n  - forbid(principal, action == Action::\"X\", resource);\n  - permit(principal, action, resource);  // catch-all allow",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "BackendDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ExternalPolicyBackend",
+      "line": 45,
+      "doc": "Interface for external policy evaluation backends.\n\nImplementations translate between the toolkit's execution context\nand an external policy language (OPA/Rego, Cedar, etc.), returning\na normalized decision.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "BackendDecision",
+      "line": 72,
+      "doc": "Normalized result from an external policy backend.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "OPABackend",
+      "line": 87,
+      "doc": "Evaluate OPA/Rego policies for Agent-OS.\n\nSupports three modes:\n  1. **Remote OPA server** \u2014 POST to ``http://host:8181/v1/data/...``\n  2. **Local ``opa eval`` CLI** \u2014 subprocess call\n  3. **Built-in fallback** \u2014 parses simple Rego patterns without external deps\n\nArgs:\n    mode: ``\"remote\"`` or ``\"local\"`` (default).\n    opa_url: Base URL for remote OPA server.\n    rego_path: Path to a ``.rego`` file.\n    rego_content: Inline Rego policy string.\n    package: Rego package name for query construction.\n    query: Explicit Rego query (overrides package-based construction).\n    timeout_seconds: Max evaluation time.\n\nExample:\n    >>> backend = OPABackend(rego_content='''\n    ... package agentos\n    ... default allow = false\n    ... allow { input.tool_name != \"file_delete\" }\n    ... ''')\n    >>> decision = backend.evaluate({\"tool_name\": \"file_read\"})\n    >>> decision.allowed\n    True",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CedarBackend",
+      "line": 359,
+      "doc": "Evaluate Cedar policies for Agent-OS.\n\nCedar is AWS's authorization policy language. This backend lets\nenterprises that standardize on Cedar reuse their existing policies\nfor agent governance.\n\nSupports three modes:\n  1. **cedarpy** \u2014 Python bindings to the Rust Cedar engine (fastest)\n  2. **CLI** \u2014 ``cedar`` CLI subprocess\n  3. **Built-in** \u2014 simple pattern matcher for common Cedar patterns\n\nArgs:\n    policy_path: Path to a ``.cedar`` policy file.\n    policy_content: Inline Cedar policy string.\n    entities_path: Path to Cedar entities JSON file.\n    entities: Entities list for authorization context.\n    schema_path: Path to Cedar schema file.\n    mode: ``\"auto\"`` tries cedarpy \u2192 CLI \u2192 builtin.\n    timeout_seconds: Max evaluation time.\n\nExample:\n    >>> backend = CedarBackend(policy_content='''\n    ... permit(\n    ...     principal,\n    ...     action == Action::\"ReadData\",\n    ...     resource\n    ... );\n    ... forbid(\n    ...     principal,\n    ...     action == Action::\"DeleteFile\",\n    ...     resource\n    ... );\n    ... ''')\n    >>> decision = backend.evaluate({\n    ...     \"tool_name\": \"read_data\",\n    ...     \"agent_id\": \"agent-1\",\n    ... })\n    >>> decision.allowed\n    True",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 89,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/alerts/dedup.py",
+  "extension": ".py",
+  "size_bytes": 6276,
+  "line_count": 188,
+  "documentation": {
+    "file_docstring": "Alert deduplication and storm protection.\n\nProvides AlertDeduplicator for suppressing duplicate alerts within a time window,\nAlertBatcher for batching alerts into digest notifications, and alert_fingerprint\nfor generating dedup keys from alert fields.\n\nCloses #52.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "-- public API ----------------------------------------------------------",
+      "RESOLVED alerts always pass and clear state",
+      "-- public API ----------------------------------------------------------",
+      "Group by severity",
+      "List up to first 10 titles"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "alert_fingerprint: Generate a dedup fingerprint from alert fields.\n\nArgs:\n    alert: The alert to f",
+      "AlertDeduplicator: Suppress duplicate alerts within a configurable time window.\n\nThread-safe.  Aler",
+      "AlertBatcher: Batch multiple alerts into digest notifications.\n\nAlerts are accumulated until e",
+      "should_send: Return True if *alert* is novel and should be delivered.",
+      "record: Record that *alert* was sent (update window timestamp).",
+      "get_stats: Return deduplication statistics.",
+      "clear: Reset all dedup state.",
+      "add: Add an alert to the current batch.",
+      "is_ready: Return True when the batch should be flushed.",
+      "flush: Return all batched alerts and clear the batch."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record",
+    "flush",
+    "clear",
+    "AlertBatcher",
+    "add",
+    "get_digest",
+    "size",
+    "AlertDeduplicator",
+    "is_ready",
+    "alert_fingerprint",
+    "should_send",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "threading",
+      "time",
+      "typing",
+      "agent_sre.alerts",
+      "collections.abc"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "alert_fingerprint",
+      "line": 26,
+      "doc": "Generate a dedup fingerprint from alert fields.\n\nArgs:\n    alert: The alert to fingerprint.\n    fields: Tuple of Alert attribute names to include in fingerprint.\n\nReturns:\n    Hex-digest string uniquely identifying this alert's dedup group.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "alert",
+        "fields"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "window_seconds",
+        "group_by"
+      ],
+      "returns": null
+    },
+    {
+      "name": "should_send",
+      "line": 67,
+      "doc": "Return True if *alert* is novel and should be delivered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "alert"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record",
+      "line": 86,
+      "doc": "Record that *alert* was sent (update window timestamp).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "alert"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 95,
+      "doc": "Return deduplication statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "clear",
+      "line": 104,
+      "doc": "Reset all dedup state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "batch_window_seconds",
+        "max_batch_size"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add",
+      "line": 133,
+      "doc": "Add an alert to the current batch.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "alert"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_ready",
+      "line": 140,
+      "doc": "Return True when the batch should be flushed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "flush",
+      "line": 149,
+      "doc": "Return all batched alerts and clear the batch.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_digest",
+      "line": 157,
+      "doc": "Return a human-readable digest of batched alerts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "size",
+      "line": 185,
+      "doc": "Number of alerts currently in the batch.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AlertDeduplicator",
+      "line": 44,
+      "doc": "Suppress duplicate alerts within a configurable time window.\n\nThread-safe.  Alerts with the same fingerprint (derived from *group_by*\nfields) are suppressed if they arrive within *window_seconds* of the\nprevious send.  RESOLVED alerts always pass through and clear the\nwindow for their fingerprint.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AlertBatcher",
+      "line": 112,
+      "doc": "Batch multiple alerts into digest notifications.\n\nAlerts are accumulated until either the *batch_window_seconds* expires\nor *max_batch_size* is reached, at which point the batch is considered\nready for flushing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "database",
+      "api"
+    ]
+  }
+}

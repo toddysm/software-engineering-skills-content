@@ -1,0 +1,573 @@
+{
+  "path": "packages/agent-os/modules/caas/src/caas/api/server.py",
+  "extension": ".py",
+  "size_bytes": 42481,
+  "line_count": 1328,
+  "documentation": {
+    "file_docstring": "REST API for Context-as-a-Service.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Initialize FastAPI app",
+      "Initialize components",
+      "Virtual File System for SDLC agents",
+      "Trust Gateway with enterprise-grade security",
+      "Note: context_extractor is created per-request with user-specified decay settings",
+      "Read file content",
+      "Generate document ID",
+      "Process the document",
+      "Add source metadata if provided",
+      "Auto-detect document type",
+      "Auto-tune weights",
+      "Add timestamp",
+      "Store document",
+      "Add to corpus analyzer",
+      "Create context extractor with requested settings",
+      "Extract context",
+      "Estimate tokens (rough approximation)",
+      "Perform structure analysis",
+      "If it's a canned response, include the actual response",
+      "===========================",
+      "Tiered Context Endpoints",
+      "===========================",
+      "===========================",
+      "Conversation Manager Endpoints (Sliding Window / FIFO)",
+      "===========================",
+      "===========================",
+      "Trust Gateway Endpoints",
+      "===========================",
+      "============================================================================",
+      "Virtual File System Endpoints",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "root: Root endpoint.",
+      "health_check: Health check endpoint.",
+      "ingest_document: Ingest a document for processing.\n\nThe service will:\n1. Process the raw content\n",
+      "list_documents: List all documents or filter by type.\n\nArgs:\n    doc_type: Optional document typ",
+      "get_document: Get detailed information about a specific document.\n\nArgs:\n    document_id: The ",
+      "get_context: Get optimized context from a document.\n\nThis endpoint returns the most relevant ",
+      "analyze_document: Analyze a document's structure and content.\n\nArgs:\n    document_id: The document",
+      "analyze_corpus: Analyze the entire corpus of documents.\n\nReturns insights about:\n- Document type",
+      "delete_document: Delete a document.\n\nArgs:\n    document_id: The document ID\n\nReturns:\n    Deletio",
+      "search_documents: Search documents by content or metadata with time-based decay ranking.\n\nWhen tim"
+    ]
+  },
+  "purpose": {
+    "primary_role": "api",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "api/endpoint path",
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [],
+    "external": [
+      "uuid",
+      "datetime",
+      "typing",
+      "fastapi",
+      "fastapi.responses",
+      "caas.models",
+      "caas.ingestion",
+      "caas.detection",
+      "caas.tuning",
+      "caas.storage",
+      "caas.triad",
+      "caas.routing",
+      "caas.conversation",
+      "caas.gateway",
+      "caas.vfs",
+      "uvicorn"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "root",
+      "line": 79,
+      "doc": "Root endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 116,
+      "doc": "Health check endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "ingest_document",
+      "line": 122,
+      "doc": "Ingest a document for processing.\n\nThe service will:\n1. Process the raw content\n2. Auto-detect the document type and structure\n3. Auto-tune weights for sections\n4. Detect or use provided source type for source attribution tracking\n5. Store the processed document\n\nSource Attribution Support:\n- source_type: Explicitly specify source type (official_docs, team_chat, practical_logs, etc.)\n- source_url: Optional URL to the original source\n\nArgs:\n    file: The file to ingest\n    format: The file format (pdf, html, code)\n    title: Optional title for the document\n    source_type: Optional source type for citation tracking\n    source_url: Optional URL to the original source\n\nReturns:\n    Processed document information",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "file",
+        "format",
+        "title",
+        "source_type",
+        "source_url"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_documents",
+      "line": 208,
+      "doc": "List all documents or filter by type.\n\nArgs:\n    doc_type: Optional document type filter\n\nReturns:\n    List of documents",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "doc_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_document",
+      "line": 240,
+      "doc": "Get detailed information about a specific document.\n\nArgs:\n    document_id: The document ID\n\nReturns:\n    Document details",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "document_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_context",
+      "line": 275,
+      "doc": "Get optimized context from a document.\n\nThis endpoint returns the most relevant context based on:\n- Auto-tuned section weights\n- Time-based decay (prioritizes recent content)\n- Optional query for focused extraction\n- Token limits\n- Source citations for transparency (source attribution)\n- Conflict detection between official and practical sources\n\nSource Attribution Philosophy:\n- Provides REAL answers, not just OFFICIAL ones\n- When official docs conflict with practical experience, shows both\n- Includes transparent citations (e.g., \"from Slack conversation\")\n- Example: \"Officially, limit is 100. However, team reports crashes after 50.\"\n\nTime Decay Formula: Score = Base_Weight * (1 / (1 + days_elapsed * decay_rate))\nResult: Recent documents rank higher than old documents, even with lower similarity.\n\nArgs:\n    document_id: The document ID\n    request: Context request parameters (includes enable_time_decay, decay_rate, enable_citations, detect_conflicts)\n\nReturns:\n    Optimized context with time-weighted relevance, citations, and conflict detection",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "document_id",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze_document",
+      "line": 343,
+      "doc": "Analyze a document's structure and content.\n\nArgs:\n    document_id: The document ID\n\nReturns:\n    Analysis results",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "document_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze_corpus",
+      "line": 369,
+      "doc": "Analyze the entire corpus of documents.\n\nReturns insights about:\n- Document type distribution\n- Common section patterns\n- Average weights\n- Optimization suggestions\n\nReturns:\n    Corpus analysis results",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "delete_document",
+      "line": 387,
+      "doc": "Delete a document.\n\nArgs:\n    document_id: The document ID\n\nReturns:\n    Deletion status",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "document_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "search_documents",
+      "line": 405,
+      "doc": "Search documents by content or metadata with time-based decay ranking.\n\nWhen time decay is enabled (default):\n- Recent documents are ranked higher than old documents\n- Formula: relevance_score = match_score * decay_factor\n- Example: Yesterday's 80% match beats Last Year's 95% match\n\nArgs:\n    q: The search query\n    enable_time_decay: Apply time-based decay to ranking (default: True)\n    decay_rate: Rate of decay, higher = faster decay (default: 1.0)\n\nReturns:\n    Matching documents sorted by time-weighted relevance",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "q",
+        "enable_time_decay",
+        "decay_rate"
+      ],
+      "returns": null
+    },
+    {
+      "name": "route_query",
+      "line": 453,
+      "doc": "Route a query to the appropriate model tier using deterministic heuristics.\n\nThe Heuristic Router Philosophy:\nUse Deterministic Heuristics, not AI Classifiers. We can solve 80% of routing \nwith simple logic that takes 0ms. The goal isn't 100% routing accuracy. \nThe goal is instant response time for the trivial stuff, preserving the \n\"Big Brain\" budget for the hard stuff.\n\nRouting Rules (in priority order):\n1. Greetings (\"Hi\", \"Thanks\") \u2192 CANNED response (zero cost, instant)\n2. Smart keywords (\"Summarize\", \"Analyze\", \"Compare\") \u2192 SMART model (GPT-4o)\n3. Short queries (< 50 chars) \u2192 FAST model (GPT-4o-mini)\n4. Long queries \u2192 SMART model (better safe than sorry)\n\nModel Tiers:\n- CANNED: Pre-defined responses for greetings (zero cost, 0ms latency)\n- FAST: Fast model like GPT-4o-mini (low cost, ~200ms latency)\n- SMART: Smart model like GPT-4o (high cost, ~500ms+ latency)\n\nArgs:\n    request: RouteRequest with the query to route\n\nReturns:\n    RoutingDecision with tier, reason, confidence, and suggested model",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_hot_context",
+      "line": 502,
+      "doc": "Add hot context - the current situation.\n\nHot context represents what is happening RIGHT NOW:\n- Current conversation messages\n- Open VS Code tabs\n- Error logs streaming in real-time\n- Active debugging session\n\nPolicy: \"Attention Head\" - Hot context overrides everything.\n\nArgs:\n    request: AddContextRequest with content, metadata, and priority\n\nReturns:\n    Created item ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_warm_context",
+      "line": 537,
+      "doc": "Add warm context - the user persona.\n\nWarm context represents WHO THE USER IS:\n- LinkedIn profile\n- Medium articles\n- GitHub bio\n- Coding style preferences\n- Favorite libraries\n- Communication style\n\nPolicy: \"Always On Filter\" - Warm context is persistent and colors\nhow the AI speaks to you.\n\nArgs:\n    request: AddContextRequest with content, metadata, and priority\n\nReturns:\n    Created item ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_cold_context",
+      "line": 575,
+      "doc": "Add cold context - the historical archive.\n\nCold context represents WHAT HAPPENED IN THE PAST:\n- Old tickets from last year\n- Closed PRs\n- Historical design docs\n- Legacy system documentation\n- Archived meeting notes\n\nPolicy: \"On Demand Only\" - Cold context is NEVER automatically included.\nIt's only fetched when the user explicitly asks for history.\n\nArgs:\n    request: AddContextRequest with content, metadata, and priority\n\nReturns:\n    Created item ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_context_triad",
+      "line": 612,
+      "doc": "Get the complete tiered context.\n\nThe tiered context follows these policies:\n1. Hot Context: ALWAYS included (unless explicitly disabled)\n   - The Situation: what's happening right now\n   - Policy: \"Attention Head\" - overrides everything\n\n2. Warm Context: ALWAYS ON (unless explicitly disabled)\n   - The Persona: who you are\n   - Policy: \"Filter\" - colors how AI speaks to you\n\n3. Cold Context: ON DEMAND ONLY (requires explicit query)\n   - The Archive: what happened last year\n   - Policy: Never let cold data pollute the hot window\n\nArgs:\n    request: Tiered context request with layer flags and query\n\nReturns:\n    Context from requested layers",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_triad_state",
+      "line": 660,
+      "doc": "Get the current state of the tiered context.\n\nReturns:\n    Current tiered context state with item counts",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "clear_hot_context",
+      "line": 677,
+      "doc": "Clear all hot context items.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "clear_warm_context",
+      "line": 684,
+      "doc": "Clear all warm context items.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "clear_cold_context",
+      "line": 691,
+      "doc": "Clear all cold context items.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "clear_all_context",
+      "line": 698,
+      "doc": "Clear all context layers.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "add_conversation_turn",
+      "line": 709,
+      "doc": "Add a conversation turn to the history using Sliding Window (FIFO).\n\nThe Brutal Squeeze Philosophy:\nInstead of asking an AI to summarize conversation history (which costs money \nand loses nuance), we use a brutal \"Sliding Window\" approach:\n- Keep the last 10 turns perfectly intact\n- Delete turn 11 (FIFO - First In First Out)\n- No summarization = No lossy compression\n\nWhy this works:\n- Users rarely refer back to what they said 20 minutes ago\n- They constantly refer to the exact code snippet they pasted 30 seconds ago\n- Summary = Lossy Compression (loses specific error codes, exact wording)\n- Chopping = Lossless Compression (of the recent past)\n\nExample:\nTurn 1: \"I tried X and it failed with error code 500\"\nWith Summarization: \"User attempted troubleshooting\" (ERROR CODE LOST!)\nWith Chopping: After 10 new turns, this is deleted entirely\n               But turns 2-11 are perfectly intact with all details\n\nArgs:\n    request: AddTurnRequest with user_message, ai_response, and metadata\n\nReturns:\n    Created turn ID and current conversation statistics",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_conversation_history",
+      "line": 758,
+      "doc": "Get the conversation history (last N turns).\n\nReturns the history in FIFO order (oldest to newest).\nAll turns are perfectly intact - no summarization, no loss.\n\nThe Sliding Window ensures:\n1. Recent precision: Last N turns are perfectly intact\n2. Zero summarization cost: No AI calls needed\n3. No information loss: What's kept is lossless\n4. Predictable behavior: Always know what's in context\n\nPhilosophy: In a frugal architecture, we value Recent Precision over Vague History.\n\nArgs:\n    format_text: If True, return formatted text; if False, return structured data\n    include_metadata: Whether to include metadata in text format\n\nReturns:\n    Conversation history (formatted or structured)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "format_text",
+        "include_metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_conversation_statistics",
+      "line": 807,
+      "doc": "Get statistics about the conversation history.\n\nReturns:\n    Statistics including current turns, deleted turns, and timestamps",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_recent_turns",
+      "line": 836,
+      "doc": "Get the N most recent conversation turns.\n\nArgs:\n    n: Number of recent turns to retrieve (default: 5)\n\nReturns:\n    Recent conversation turns",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "n"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_turn_response",
+      "line": 859,
+      "doc": "Update the AI response for a specific turn.\n\nUseful when you add a turn with just the user message\nand want to update it with the AI response later.\n\nArgs:\n    turn_id: The ID of the turn to update\n    request: UpdateTurnRequest with the AI response\n\nReturns:\n    Update status",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "turn_id",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_conversation",
+      "line": 890,
+      "doc": "Clear all conversation history.\n\nNote: The total_turns_ever counter is preserved to track\nhow many turns have been processed across the lifetime.\n\nReturns:\n    Deletion status",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "gateway_status",
+      "line": 916,
+      "doc": "Get Trust Gateway status and deployment information.\n\nThe Trust Gateway addresses the \"Middleware Gap\" by providing an\nenterprise-grade, on-premises / private cloud router that CISOs can trust.\n\nPhilosophy:\nNo Enterprise CISO will send proprietary data to a random middleware startup.\nThe Trust Gateway can be deployed within your own infrastructure, ensuring:\n- Data never leaves your environment\n- Full audit trail for compliance\n- Zero third-party data sharing\n- Enterprise-grade security controls\n\nReturns:\n    Trust Gateway deployment information and security status",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "gateway_route_request",
+      "line": 948,
+      "doc": "Route a request through the Trust Gateway with enterprise security controls.\n\nThe Trust Gateway provides:\n1. On-Premises / Private Cloud deployment\n2. Zero data leakage (data never leaves your infrastructure)\n3. Full audit trail for compliance\n4. Configurable security policies\n5. Authentication and authorization\n6. Data classification and encryption\n\nThis endpoint validates the request against security policies, performs\nheuristic routing, and logs all activity for compliance.\n\nExample Use Case:\nEnterprise CISO requirement: \"We cannot send our proprietary financial data\nto an external middleware service.\" Solution: Deploy Trust Gateway in your\nown infrastructure. All routing decisions happen locally with zero external calls.\n\nArgs:\n    request: RouteRequest with the query to route\n    user_id: User ID making the request (for authentication)\n    data_classification: Classification level (public, internal, confidential, secret)\n\nReturns:\n    Routing decision with security context and audit trail",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request",
+        "user_id",
+        "data_classification"
+      ],
+      "returns": null
+    },
+    {
+      "name": "gateway_deployment_info",
+      "line": 992,
+      "doc": "Get detailed Trust Gateway deployment and security information.\n\nReturns comprehensive information about:\n- Deployment mode (on-prem, private cloud, hybrid, air-gapped)\n- Security level and policies\n- Data retention settings\n- Encryption status\n- Compliance mode\n- Trust guarantees\n\nReturns:\n    Detailed deployment and security configuration",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "gateway_audit_logs",
+      "line": 1028,
+      "doc": "Retrieve Trust Gateway audit logs for compliance and security monitoring.\n\nAudit logs include:\n- All routing decisions\n- Request validation events\n- Security policy changes\n- Data access events\n- User authentication attempts\n\nThis endpoint supports filtering by:\n- Event type (e.g., \"request_routed\", \"policy_changed\")\n- User ID\n- Time range (ISO format timestamps)\n\nExample Use Cases:\n- Compliance audits (GDPR, HIPAA, SOC2)\n- Security incident investigation\n- User activity monitoring\n- Policy change tracking\n\nArgs:\n    event_type: Filter by event type\n    user_id: Filter by user ID\n    start_time: Start of time range (ISO format)\n    end_time: End of time range (ISO format)\n\nReturns:\n    Filtered audit log entries",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "event_type",
+        "user_id",
+        "start_time",
+        "end_time"
+      ],
+      "returns": null
+    },
+    {
+      "name": "gateway_validate_request",
+      "line": 1088,
+      "doc": "Validate a request against Trust Gateway security policies.\n\nThis endpoint checks:\n- Authentication requirements\n- User authorization (allowed users list)\n- IP address restrictions\n- Data classification requirements\n- Encryption requirements\n\nUseful for pre-flight validation before sending actual requests.\n\nArgs:\n    query: The query to validate\n    user_id: User ID making the request\n    ip_address: IP address of the requester\n    data_classification: Data classification level\n\nReturns:\n    Validation result with status, warnings, and violations",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "query",
+        "user_id",
+        "ip_address",
+        "data_classification"
+      ],
+      "returns": null
+    },
+    {
+      "name": "gateway_clear_audit_logs",
+      "line": 1135,
+      "doc": "Clear Trust Gateway audit logs.\n\nNote: This operation itself is logged before clearing.\nRequires proper authorization in production environments.\n\nArgs:\n    user_id: User ID requesting the clear operation\n\nReturns:\n    Clear operation status",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "user_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_vfs_file",
+      "line": 1160,
+      "doc": "Create a new file in the Virtual File System.\n\nAllows SDLC agents to create files in shared project state.\nAll agents can see files created by other agents.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "read_vfs_file",
+      "line": 1191,
+      "doc": "Read a file from the Virtual File System.\n\nAgents can read files created or modified by other agents,\nensuring shared visibility of project state.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_vfs_file",
+      "line": 1209,
+      "doc": "Update an existing file in the Virtual File System.\n\nAgents can update files and other agents will immediately see\nthe changes. Edit history is maintained for auditability.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete_vfs_file",
+      "line": 1242,
+      "doc": "Delete a file from the Virtual File System.\n\nRemoves a file from the shared project state.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "path",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_vfs_files",
+      "line": 1258,
+      "doc": "List files in a directory within the Virtual File System.\n\nAgents can browse the project structure to understand\nwhat files exist and have been created by other agents.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "path",
+        "recursive"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_vfs_file_history",
+      "line": 1274,
+      "doc": "Get the edit history of a file.\n\nShows all edits made to a file, including which agents\nmade changes and when. Useful for understanding how a\nfile evolved through multi-agent collaboration.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_vfs_state",
+      "line": 1302,
+      "doc": "Get the complete Virtual File System state.\n\nReturns the entire file system state, useful for debugging\nor snapshotting the current project state.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 76,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,446 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/interfaces/protocol_interfaces.py",
+  "extension": ".py",
+  "size_bytes": 11139,
+  "line_count": 387,
+  "documentation": {
+    "file_docstring": "Protocol Interfaces - Integration Points for iatp, cmvk, and caas\n\nThis module defines the interfaces for integrating with the allowed\nLayer 2 protocols:\n- iatp: Inter-Agent Transport Protocol (message security)\n- cmvk: Cryptographic Message Verification Kit (verification)\n- caas: Context-as-a-Service (context routing)\n\nLayer 3: The Framework\n- These interfaces allow optional integration with Layer 2 protocols\n- Implementations are injected at runtime, not hard-coded",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "Message Security Interface (for iatp integration)",
+      "============================================================================",
+      "Use iatp to secure the message",
+      "============================================================================",
+      "Verification Interface (for cmvk integration)",
+      "============================================================================",
+      "Use cmvk for verification",
+      "============================================================================",
+      "Context Routing Interface (for caas integration)",
+      "============================================================================",
+      "Use caas for routing"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SecurityLevel: Security levels for message passing",
+      "SecureMessage: A secured message with optional encryption and signature",
+      "SecurityValidationResult: Result of security validation",
+      "MessageSecurityInterface: Abstract interface for message security (iatp integration).\n\nThis interface defi",
+      "VerificationType: Types of verification",
+      "VerificationRequest: Request for verification",
+      "VerificationResult: Result of verification",
+      "VerificationInterface: Abstract interface for cryptographic verification (cmvk integration).\n\nThis inte",
+      "RoutingStrategy: Routing strategies for context",
+      "ContextMetadata: Metadata about a context"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ContextRoutingInterface",
+    "register_agent_keys",
+    "route_context",
+    "VerificationResult",
+    "VerificationRequest",
+    "SecurityLevel",
+    "register_handler",
+    "validate_message",
+    "secure_message",
+    "verify_chain",
+    "create_proof",
+    "get_supported_verification_types",
+    "SecurityValidationResult",
+    "get_handler_status",
+    "ContextMetadata",
+    "unregister_handler",
+    "verify",
+    "MessageSecurityInterface",
+    "get_routing_statistics",
+    "get_supported_strategies",
+    "RouteResult",
+    "SecureMessage",
+    "VerificationInterface",
+    "VerificationType",
+    "RoutingStrategy",
+    "get_supported_security_levels",
+    "RoutingContext"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "secure_message",
+      "line": 82,
+      "doc": "Secure a message for transmission.\n\nArgs:\n    message: The message payload to secure\n    sender_id: ID of the sending agent\n    recipient_id: ID of the receiving agent\n    security_level: Desired security level\n    \nReturns:\n    SecureMessage with appropriate security applied",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message",
+        "sender_id",
+        "recipient_id",
+        "security_level"
+      ],
+      "returns": "SecureMessage"
+    },
+    {
+      "name": "validate_message",
+      "line": 104,
+      "doc": "Validate a received secure message.\n\nArgs:\n    secure_message: The message to validate\n    \nReturns:\n    SecurityValidationResult with validation details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "secure_message"
+      ],
+      "returns": "SecurityValidationResult"
+    },
+    {
+      "name": "register_agent_keys",
+      "line": 117,
+      "doc": "Register an agent's public key for verification.\n\nArgs:\n    agent_id: ID of the agent\n    public_key: Agent's public key\n    key_type: Type of key (default: ed25519)\n    \nReturns:\n    True if registration was successful",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id",
+        "public_key",
+        "key_type"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_supported_security_levels",
+      "line": 136,
+      "doc": "Get supported security levels",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_proof",
+      "line": 195,
+      "doc": "Create a verification proof for data.\n\nArgs:\n    data: The data to create proof for\n    verification_type: Type of verification to use\n    \nReturns:\n    Proof bytes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "data",
+        "verification_type"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "verify",
+      "line": 213,
+      "doc": "Verify data against a proof.\n\nArgs:\n    request: The verification request\n    \nReturns:\n    VerificationResult with verification details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "VerificationResult"
+    },
+    {
+      "name": "verify_chain",
+      "line": 226,
+      "doc": "Verify a chain of data items.\n\nArgs:\n    data_chain: List of data items\n    proofs: List of corresponding proofs\n    \nReturns:\n    List of verification results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "data_chain",
+        "proofs"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_supported_verification_types",
+      "line": 243,
+      "doc": "Get supported verification types",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "route_context",
+      "line": 314,
+      "doc": "Route context to an appropriate handler.\n\nArgs:\n    context: The context to route\n    available_handlers: List of available handler IDs\n    strategy: Routing strategy to use\n    \nReturns:\n    RouteResult with target and metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "context",
+        "available_handlers",
+        "strategy"
+      ],
+      "returns": "RouteResult"
+    },
+    {
+      "name": "register_handler",
+      "line": 334,
+      "doc": "Register a context handler.\n\nArgs:\n    handler_id: ID of the handler\n    capabilities: List of content types/tags the handler can process\n    capacity: Maximum concurrent contexts\n    metadata: Optional handler metadata\n    \nReturns:\n    True if registration was successful",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "handler_id",
+        "capabilities",
+        "capacity",
+        "metadata"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "unregister_handler",
+      "line": 356,
+      "doc": "Unregister a context handler.\n\nArgs:\n    handler_id: ID of the handler to unregister\n    \nReturns:\n    True if unregistration was successful",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "handler_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_handler_status",
+      "line": 369,
+      "doc": "Get status of a registered handler.\n\nArgs:\n    handler_id: ID of the handler\n    \nReturns:\n    Handler status dictionary",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "handler_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_routing_statistics",
+      "line": 381,
+      "doc": "Get routing statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_supported_strategies",
+      "line": 385,
+      "doc": "Get supported routing strategies",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SecurityLevel",
+      "line": 28,
+      "doc": "Security levels for message passing",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SecureMessage",
+      "line": 37,
+      "doc": "A secured message with optional encryption and signature",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SecurityValidationResult",
+      "line": 51,
+      "doc": "Result of security validation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MessageSecurityInterface",
+      "line": 61,
+      "doc": "Abstract interface for message security (iatp integration).\n\nThis interface defines how to secure inter-agent messages.\nImplementations can use iatp or any other security protocol.\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import MessageSecurityInterface\n    \n    class IATPMessageSecurity(MessageSecurityInterface):\n        def secure_message(self, message, security_level):\n            # Use iatp to secure the message\n            ...\n    \n    control_plane.register_message_security(IATPMessageSecurity())\n    ```",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "VerificationType",
+      "line": 145,
+      "doc": "Types of verification",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "VerificationRequest",
+      "line": 154,
+      "doc": "Request for verification",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VerificationResult",
+      "line": 164,
+      "doc": "Result of verification",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VerificationInterface",
+      "line": 174,
+      "doc": "Abstract interface for cryptographic verification (cmvk integration).\n\nThis interface defines how to verify data integrity and authenticity.\nImplementations can use cmvk or any other verification system.\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import VerificationInterface\n    \n    class CMVKVerifier(VerificationInterface):\n        def verify(self, request):\n            # Use cmvk for verification\n            ...\n    \n    control_plane.register_verifier(CMVKVerifier())\n    ```",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RoutingStrategy",
+      "line": 252,
+      "doc": "Routing strategies for context",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ContextMetadata",
+      "line": 262,
+      "doc": "Metadata about a context",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RoutingContext",
+      "line": 273,
+      "doc": "Context for routing decisions",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RouteResult",
+      "line": 283,
+      "doc": "Result of a routing operation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ContextRoutingInterface",
+      "line": 293,
+      "doc": "Abstract interface for context routing (caas integration).\n\nThis interface defines how to route context to appropriate handlers.\nImplementations can use caas or any other context routing system.\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import ContextRoutingInterface\n    \n    class CAASRouter(ContextRoutingInterface):\n        def route_context(self, context, available_handlers):\n            # Use caas for routing\n            ...\n    \n    control_plane.register_context_router(CAASRouter())\n    ```",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

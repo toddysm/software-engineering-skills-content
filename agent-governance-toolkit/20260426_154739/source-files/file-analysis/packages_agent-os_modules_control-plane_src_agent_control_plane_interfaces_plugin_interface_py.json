@@ -1,0 +1,667 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/interfaces/plugin_interface.py",
+  "extension": ".py",
+  "size_bytes": 14533,
+  "line_count": 497,
+  "documentation": {
+    "file_docstring": "Plugin Interfaces - Abstract Base Classes for Pluggable Components\n\nThis module defines the interfaces for pluggable components that can be\ninjected at runtime without hard dependencies. This enables:\n1. Custom validators (instead of hard-coded mute_agent)\n2. Custom executors (sandboxing, remote execution, etc.)\n3. Custom context routers (for different routing strategies)\n4. Custom policy providers (for different policy sources)\n\nLayer 3: The Framework\n- Components are injected at runtime via config or dependency injection\n- No hard imports of specific implementations",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Validator capabilities",
+      "Executor capabilities",
+      "Context routing capabilities",
+      "Policy provider capabilities",
+      "Dependencies",
+      "Runtime info",
+      "Configuration schema (JSON Schema format)",
+      "Type variable for generic plugin results",
+      "Custom validation logic",
+      "Register with control plane",
+      "Execute in Docker container",
+      "Route using CAAS",
+      "Fetch policies from database",
+      "Check for compliance violations"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PluginCapability: Capabilities that a plugin may support",
+      "PluginMetadata: Metadata about a plugin implementation",
+      "PluginInterface: Base interface for all plugins",
+      "ValidationResult: Result of a validation operation",
+      "ValidatorInterface: Abstract interface for request validators.\n\nValidators check requests before exe",
+      "CapabilityValidatorInterface: Extended interface for capability-based validators (Mute Agent pattern).\n\nThese ",
+      "ExecutionResult: Result of an execution operation",
+      "ExecutorInterface: Abstract interface for action executors.\n\nExecutors handle the actual execution ",
+      "RoutingDecision: Result of a routing decision",
+      "ContextRouterInterface: Abstract interface for context routers.\n\nContext routers decide how to route req"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "PluginInterface",
+    "ValidationResult",
+    "ExecutionResult",
+    "supervise",
+    "PolicyProviderInterface",
+    "route",
+    "remove_monitored_agent",
+    "define_capability",
+    "ValidatorInterface",
+    "get_policies",
+    "delete_policy",
+    "shutdown",
+    "validate_request",
+    "initialize",
+    "PolicyDefinition",
+    "PluginMetadata",
+    "can_execute",
+    "get_rejection_log",
+    "add_monitored_agent",
+    "get_null_response",
+    "CapabilityValidatorInterface",
+    "RoutingDecision",
+    "ExecutorInterface",
+    "execute",
+    "get_execution_history",
+    "update_policy",
+    "PluginCapability",
+    "validate_parameters",
+    "SupervisorInterface",
+    "get_agent_capabilities",
+    "metadata",
+    "rollback",
+    "get_routing_statistics",
+    "get_validation_log",
+    "get_violation_history",
+    "add_policy",
+    "refresh",
+    "health_check",
+    "register_target",
+    "configure",
+    "ContextRouterInterface",
+    "get_monitored_agents",
+    "unregister_target"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "metadata",
+      "line": 86,
+      "doc": "Return metadata about this plugin",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PluginMetadata"
+    },
+    {
+      "name": "configure",
+      "line": 90,
+      "doc": "Configure the plugin with runtime settings",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "initialize",
+      "line": 94,
+      "doc": "Initialize the plugin (called after configuration)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "shutdown",
+      "line": 98,
+      "doc": "Shutdown the plugin (called before unload)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 102,
+      "doc": "Perform a health check",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_request",
+      "line": 147,
+      "doc": "Validate an execution request.\n\nArgs:\n    request: The execution request to validate\n    context: Optional additional context\n    \nReturns:\n    ValidationResult with approval/denial and details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request",
+        "context"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_parameters",
+      "line": 164,
+      "doc": "Lightweight parameter validation without full request.\n\nArgs:\n    action_type: Type of action\n    parameters: Parameters to validate\n    \nReturns:\n    ValidationResult",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type",
+        "parameters"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "get_validation_log",
+      "line": 181,
+      "doc": "Get log of validation decisions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "define_capability",
+      "line": 197,
+      "doc": "Define a capability for an agent.\n\nArgs:\n    agent_id: ID of the agent\n    capability_name: Name of the capability\n    allowed_actions: List of allowed action types\n    parameter_schema: JSON schema for valid parameters\n    validator: Optional custom validation function",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id",
+        "capability_name",
+        "allowed_actions",
+        "parameter_schema",
+        "validator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_capabilities",
+      "line": 218,
+      "doc": "Get all capabilities defined for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_null_response",
+      "line": 223,
+      "doc": "Get the NULL response message for out-of-scope requests",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_rejection_log",
+      "line": 228,
+      "doc": "Get log of rejected (out-of-scope) requests",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 266,
+      "doc": "Execute an approved request.\n\nArgs:\n    request: The execution request\n    context: Optional execution context (timeouts, resources, etc.)\n    \nReturns:\n    ExecutionResult with output and metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request",
+        "context"
+      ],
+      "returns": "ExecutionResult"
+    },
+    {
+      "name": "can_execute",
+      "line": 283,
+      "doc": "Check if this executor can handle the given action type",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "rollback",
+      "line": 287,
+      "doc": "Rollback a previous execution if supported.\n\nArgs:\n    execution_id: ID of the execution to rollback\n    \nReturns:\n    True if rollback was successful",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "execution_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_execution_history",
+      "line": 299,
+      "doc": "Get execution history",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "route",
+      "line": 340,
+      "doc": "Route a request to an appropriate target.\n\nArgs:\n    request: The request to route\n    available_targets: List of available target IDs\n    context: Optional routing context\n    \nReturns:\n    RoutingDecision with target and metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request",
+        "available_targets",
+        "context"
+      ],
+      "returns": "RoutingDecision"
+    },
+    {
+      "name": "register_target",
+      "line": 359,
+      "doc": "Register a routing target with its capabilities",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target_id",
+        "capabilities",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_target",
+      "line": 368,
+      "doc": "Unregister a routing target",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_routing_statistics",
+      "line": 372,
+      "doc": "Get routing statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_policies",
+      "line": 410,
+      "doc": "Get applicable policies.\n\nArgs:\n    agent_id: Optional filter by agent\n    action_type: Optional filter by action type\n    \nReturns:\n    List of applicable policy definitions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_policy",
+      "line": 427,
+      "doc": "Add a new policy",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "update_policy",
+      "line": 431,
+      "doc": "Update an existing policy",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_id",
+        "updates"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "delete_policy",
+      "line": 435,
+      "doc": "Delete a policy",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "refresh",
+      "line": 439,
+      "doc": "Refresh policies from source",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "supervise",
+      "line": 465,
+      "doc": "Run supervision cycle and return violations.\n\nArgs:\n    execution_log: Recent execution history\n    audit_log: Recent audit entries\n    \nReturns:\n    List of detected violations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "execution_log",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_monitored_agents",
+      "line": 483,
+      "doc": "Get list of agent IDs being monitored",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_monitored_agent",
+      "line": 487,
+      "doc": "Add an agent to monitoring",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_monitored_agent",
+      "line": 491,
+      "doc": "Remove an agent from monitoring",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_violation_history",
+      "line": 495,
+      "doc": "Get history of detected violations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PluginCapability",
+      "line": 25,
+      "doc": "Capabilities that a plugin may support",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginMetadata",
+      "line": 54,
+      "doc": "Metadata about a plugin implementation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PluginInterface",
+      "line": 81,
+      "doc": "Base interface for all plugins",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ValidationResult",
+      "line": 113,
+      "doc": "Result of a validation operation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ValidatorInterface",
+      "line": 121,
+      "doc": "Abstract interface for request validators.\n\nValidators check requests before execution and can:\n- Approve or deny requests\n- Provide reasons for denial\n- Suggest corrective actions\n\nThis replaces hard-coded validators like MuteAgentValidator.\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import ValidatorInterface\n    \n    class CustomValidator(ValidatorInterface):\n        def validate_request(self, request, context):\n            # Custom validation logic\n            ...\n    \n    # Register with control plane\n    control_plane.register_validator(CustomValidator())\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityValidatorInterface",
+      "line": 186,
+      "doc": "Extended interface for capability-based validators (Mute Agent pattern).\n\nThese validators implement the \"Scale by Subtraction\" philosophy:\n- Agents are restricted to defined capabilities\n- Out-of-scope requests return NULL/silence\n- Fail-fast behavior prevents hallucination",
+      "is_public": true,
+      "bases": [
+        "ValidatorInterface"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionResult",
+      "line": 234,
+      "doc": "Result of an execution operation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExecutorInterface",
+      "line": 244,
+      "doc": "Abstract interface for action executors.\n\nExecutors handle the actual execution of approved requests.\nDifferent executors can provide different execution environments\n(sandboxed, remote, distributed, etc.).\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import ExecutorInterface\n    \n    class DockerExecutor(ExecutorInterface):\n        def execute(self, request, context):\n            # Execute in Docker container\n            ...\n    \n    control_plane.register_executor(\"code_execution\", DockerExecutor())\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RoutingDecision",
+      "line": 309,
+      "doc": "Result of a routing decision",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ContextRouterInterface",
+      "line": 317,
+      "doc": "Abstract interface for context routers.\n\nContext routers decide how to route requests based on content,\nagent capabilities, load, or other factors.\n\nThis allows integration with caas (Context-as-a-Service).\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import ContextRouterInterface\n    \n    class CAASRouter(ContextRouterInterface):\n        def route(self, request, available_agents):\n            # Route using CAAS\n            ...\n    \n    control_plane.register_router(CAASRouter())\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyDefinition",
+      "line": 378,
+      "doc": "Definition of a policy",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyProviderInterface",
+      "line": 389,
+      "doc": "Abstract interface for policy providers.\n\nPolicy providers supply policy rules from different sources\n(files, databases, remote services, etc.).\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import PolicyProviderInterface\n    \n    class DatabasePolicyProvider(PolicyProviderInterface):\n        def get_policies(self, agent_id):\n            # Fetch policies from database\n            ...\n    \n    control_plane.register_policy_provider(DatabasePolicyProvider())\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SupervisorInterface",
+      "line": 444,
+      "doc": "Abstract interface for supervisor agents.\n\nSupervisors monitor agent behavior and can intervene when\nviolations are detected. This enables recursive governance.\n\nExample Usage:\n    ```python\n    from agent_control_plane.interfaces import SupervisorInterface\n    \n    class ComplianceSupervisor(SupervisorInterface):\n        def supervise(self, execution_log, audit_log):\n            # Check for compliance violations\n            ...\n    \n    control_plane.register_supervisor(ComplianceSupervisor())\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

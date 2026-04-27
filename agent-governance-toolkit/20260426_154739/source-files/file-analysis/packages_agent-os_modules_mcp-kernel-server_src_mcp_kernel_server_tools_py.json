@@ -1,0 +1,589 @@
+{
+  "path": "packages/agent-os/modules/mcp-kernel-server/src/mcp_kernel_server/tools.py",
+  "extension": ".py",
+  "size_bytes": 42816,
+  "line_count": 1174,
+  "documentation": {
+    "file_docstring": "MCP Tools for Agent OS Kernel.\n\nExposes CMVK, IATP, code safety, and governed execution as MCP-compatible tools.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Policy rules for code safety",
+      "SQL Destructive Operations",
+      "File Operations",
+      "Secrets",
+      "Privilege Escalation",
+      "Code Execution",
+      "System Destructive",
+      "Compile regex patterns",
+      "Check each rule",
+      "Determine overall safety",
+      "Build result",
+      "Add alternative if blocked",
+      "Simulate CMVK verification (in production, calls actual models)",
+      "This is a stateless operation - no session state maintained",
+      "Models to verify against",
+      "In production: Call each model API",
+      "responses = [await call_model(m, claim) for m in models]",
+      "For demo: Generate deterministic mock responses",
+      "Simulate model responses (in production, actual API calls)",
+      "Calculate pairwise drift scores",
+      "Drift = 0.0 (identical) to 1.0 (completely different)",
+      "In production: Use embedding similarity or semantic comparison",
+      "drift = cosine_distance(embed(r_i), embed(r_j))",
+      "For demo: deterministic based on hash",
+      "Drift-based decision",
+      "High drift = disagreement = low confidence",
+      "Action policies (in production, loaded from config)",
+      "Policy check (stateless - all info in request)",
+      "Execute action (in production, dispatches to actual handlers)",
+      "Check read_only policy",
+      "Check requires_approval",
+      "Check no_pii policy",
+      "Generate signature",
+      "Trust level scores",
+      "Minimum scores required",
+      "Agent registry (in production, fetched from network)",
+      "Fetch manifest (simulated - real impl fetches from /.well-known/agent-manifest)",
+      "Calculate trust score",
+      "Check trust level",
+      "Check required scopes",
+      "Check PII restrictions",
+      "Verification passed",
+      "In production, this would HTTP GET /.well-known/agent-manifest",
+      "Return simulated manifest for demo",
+      "Modifiers",
+      "Severity penalties",
+      "In-memory reputation store (production uses distributed store)",
+      "Determine trust level from score",
+      "Perform static analysis first",
+      "Generate mock multi-model reviews (production calls real APIs)",
+      "Vary results per model to simulate disagreement",
+      "Calculate consensus",
+      "Build recommendations",
+      "SQL injection",
+      "eval usage",
+      "innerHTML",
+      "Missing error handling",
+      "Division by zero potential",
+      "Synchronous file operations",
+      "N+1 query pattern",
+      "In-memory audit log (production uses external store)",
+      "Keep last 1000 entries",
+      "Filter entries",
+      "Apply limit",
+      "Calculate stats"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ToolResult: Standard result from MCP tool execution.",
+      "VerifyCodeSafetyTool: Code Safety Verification as MCP Tool.\n\nChecks if code is safe to execute by runn",
+      "CMVKVerifyTool: CMVK \u2014 Verification Kernel as MCP Tool.\n\nVerifies claims across multiple models ",
+      "KernelExecuteTool: Governed Execution through Agent OS Kernel.\n\nExecutes actions with policy enforc",
+      "IATPSignTool: Inter-Agent Trust Protocol signing as MCP Tool.\n\nSigns agent outputs with crypto",
+      "IATPVerifyTool: IATP Trust Verification as MCP Tool.\n\nVerifies trust relationship with a remote ",
+      "IATPReputationTool: IATP Reputation Query/Slash as MCP Tool.\n\nQuery or modify agent reputation in th",
+      "CMVKReviewCodeTool: CMVK Code Review as MCP Tool.\n\nPerforms multi-model code review for security, bu",
+      "GetAuditLogTool: Audit Log Retrieval as MCP Tool.\n\nRetrieves the Agent OS audit trail for complia",
+      "execute: Verify code safety."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "IATPReputationTool",
+    "ToolResult",
+    "IATPVerifyTool",
+    "CMVKReviewCodeTool",
+    "CMVKVerifyTool",
+    "VerifyCodeSafetyTool",
+    "KernelExecuteTool",
+    "IATPSignTool",
+    "GetAuditLogTool",
+    "log_entry"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "dataclasses",
+      "typing",
+      "datetime",
+      "hashlib",
+      "json",
+      "re",
+      "hashlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 200,
+      "doc": "Verify code safety.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "__init__",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 296,
+      "doc": "Execute verification.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_verify_claim",
+      "line": 316,
+      "doc": "Perform verification using drift-based consensus.\n\nAlgorithm:\n1. Query each model with the claim\n2. Calculate pairwise drift between responses\n3. If max drift > threshold, flag disagreement\n4. Return consensus response with confidence score\n\nIn production, this calls actual LLM APIs.\nThis implementation provides the interface and algorithm structure.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "claim",
+        "context",
+        "threshold"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_interpret_result",
+      "line": 389,
+      "doc": "Generate human-readable interpretation of verification result.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verified",
+        "confidence",
+        "max_drift"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 448,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 452,
+      "doc": "Execute action with kernel governance.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_check_policies",
+      "line": 493,
+      "doc": "Check if action is allowed under given policies.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "params",
+        "policies"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_execute_action",
+      "line": 518,
+      "doc": "Execute the action (stub - real implementation dispatches to handlers).",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "params",
+        "context"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 563,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 566,
+      "doc": "Sign content with IATP attestation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_generate_signature",
+      "line": 592,
+      "doc": "Generate IATP signature (simplified - production uses proper crypto).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "agent_id",
+        "capabilities"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 655,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 660,
+      "doc": "Verify trust with remote agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_fetch_manifest",
+      "line": 740,
+      "doc": "Fetch manifest from agent (simulated).",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_trust_score",
+      "line": 766,
+      "doc": "Calculate trust score from manifest.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 838,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 843,
+      "doc": "Execute reputation action.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_query_reputation",
+      "line": 862,
+      "doc": "Query agent reputation.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_slash_reputation",
+      "line": 888,
+      "doc": "Slash agent reputation.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "reason",
+        "severity",
+        "evidence"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "__init__",
+      "line": 953,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 956,
+      "doc": "Execute code review.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    },
+    {
+      "name": "_static_analysis",
+      "line": 1014,
+      "doc": "Perform basic static analysis.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code",
+        "language",
+        "focus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1122,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_entry",
+      "line": 1126,
+      "doc": "Add entry to audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 1134,
+      "doc": "Retrieve audit log entries.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "arguments"
+      ],
+      "returns": "ToolResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ToolResult",
+      "line": 18,
+      "doc": "Standard result from MCP tool execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VerifyCodeSafetyTool",
+      "line": 26,
+      "doc": "Code Safety Verification as MCP Tool.\n\nChecks if code is safe to execute by running it through\nthe Agent OS policy engine. This is the primary integration\npoint for Claude Desktop to verify generated code.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CMVKVerifyTool",
+      "line": 257,
+      "doc": "CMVK \u2014 Verification Kernel as MCP Tool.\n\nVerifies claims across multiple models to detect hallucinations\nand blind spots through structured disagreement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "KernelExecuteTool",
+      "line": 401,
+      "doc": "Governed Execution through Agent OS Kernel.\n\nExecutes actions with policy enforcement, signal handling,\nand audit logging. Stateless - all context in request.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IATPSignTool",
+      "line": 528,
+      "doc": "Inter-Agent Trust Protocol signing as MCP Tool.\n\nSigns agent outputs with cryptographic attestation for\ntrust propagation across agent networks.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IATPVerifyTool",
+      "line": 598,
+      "doc": "IATP Trust Verification as MCP Tool.\n\nVerifies trust relationship with a remote agent, checking:\n- Capability manifest\n- Attestation signature\n- Trust level requirements\n- Policy compatibility",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IATPReputationTool",
+      "line": 791,
+      "doc": "IATP Reputation Query/Slash as MCP Tool.\n\nQuery or modify agent reputation in the network.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CMVKReviewCodeTool",
+      "line": 917,
+      "doc": "CMVK Code Review as MCP Tool.\n\nPerforms multi-model code review for security, bugs, and best practices.\nThis is optimized for code analysis rather than general claim verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GetAuditLogTool",
+      "line": 1087,
+      "doc": "Audit Log Retrieval as MCP Tool.\n\nRetrieves the Agent OS audit trail for compliance and debugging.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 122,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

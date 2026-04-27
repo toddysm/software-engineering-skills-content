@@ -1,0 +1,285 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/src/core/mock_state.py",
+  "extension": ".py",
+  "size_bytes": 9664,
+  "line_count": 322,
+  "documentation": {
+    "file_docstring": "MockState - Simulates Time and User History for Testing\n\nThis module provides utilities for simulating:\n1. Time-based context decay (stale pointer detection)\n2. User session history\n3. Context focus with TTL (Time-To-Live)\n\nThese are critical for testing the \"Stale Pointer\" scenario from the PRD:\n- User views Service-A logs 10 minutes ago\n- User says \"restart it\"\n- Should the context still point to Service-A?\n\nThe Mute Agent uses TTL on graph edges to expire stale context,\nwhile the Interactive Agent may incorrectly use old context.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Time-To-Live for context focus (in seconds)",
+      "Whether to enforce strict TTL (expire context after TTL)",
+      "Simulated time speed multiplier (1.0 = real time, 10.0 = 10x faster)",
+      "Create state tracker",
+      "User views Service A",
+      "Time passes (simulate 10 minutes)",
+      "Is Service A still the current focus?",
+      "Check if context is stale",
+      "Update focus for certain event types",
+      "Context has expired",
+      "Convenience functions for common scenarios",
+      "User views Service A",
+      "Time passes",
+      "User views Service B",
+      "Service was being deployed"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ContextEventType: Types of events that affect user context.",
+      "ContextEvent: An event in the user's session history.\n\nEach event potentially changes what the",
+      "MockStateConfig: Configuration for MockState behavior.",
+      "MockState: MockState - Simulates time-based context and user history\n\nThis class helps test",
+      "create_stale_pointer_scenario: Create a \"Stale Pointer\" scenario from the PRD.\n\nScenario:\n1. User views Service",
+      "create_zombie_resource_scenario: Create a \"Zombie Resource\" scenario from the PRD.\n\nScenario:\n- Deployment failed",
+      "__init__: Initialize MockState.\n\nArgs:\n    config: Configuration for state behavior",
+      "add_event: Add an event to the session history.\n\nThis updates the current focus if the even",
+      "advance_time: Advance the simulated time.\n\nArgs:\n    seconds: Seconds to advance\n    minutes: ",
+      "get_current_focus: Get the current focus service, respecting TTL.\n\nReturns:\n    Service ID if focus"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MockStateConfig",
+    "advance_time",
+    "get_current_focus",
+    "ContextEventType",
+    "add_event",
+    "is_context_stale",
+    "reset",
+    "create_stale_pointer_scenario",
+    "ContextEvent",
+    "get_last_access",
+    "MockState",
+    "get_recent_events",
+    "get_time_since_last_focus",
+    "create_zombie_resource_scenario"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_stale_pointer_scenario",
+      "line": 251,
+      "doc": "Create a \"Stale Pointer\" scenario from the PRD.\n\nScenario:\n1. User views Service A logs\n2. Time passes (10 minutes)\n3. User views Service B logs\n4. User says \"restart it\"\n\nExpected:\n- Interactive Agent may use Service A (stale!)\n- Mute Agent should use Service B (current focus)\n\nArgs:\n    service_a: First service ID (default: \"svc-a\")\n    service_b: Second service ID (default: \"svc-b\")\n    time_gap_minutes: Minutes between service accesses (default: 10.0)\n\nReturns:\n    MockState configured for this scenario",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "service_a",
+        "service_b",
+        "time_gap_minutes"
+      ],
+      "returns": "MockState"
+    },
+    {
+      "name": "create_zombie_resource_scenario",
+      "line": 291,
+      "doc": "Create a \"Zombie Resource\" scenario from the PRD.\n\nScenario:\n- Deployment failed 50% through\n- Service is in PARTIAL state\n- User says \"rollback\"\n\nExpected:\n- Interactive Agent tries rollback, fails, reflects, tries force=True (dangerous!)\n- Mute Agent: Graph shows no rollback edge for PARTIAL state, only nuke/force_delete\n\nArgs:\n    service_id: Service in zombie state (default: \"svc-partial\")\n\nReturns:\n    MockState configured for this scenario",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "service_id"
+      ],
+      "returns": "MockState"
+    },
+    {
+      "name": "__init__",
+      "line": 89,
+      "doc": "Initialize MockState.\n\nArgs:\n    config: Configuration for state behavior",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_event",
+      "line": 102,
+      "doc": "Add an event to the session history.\n\nThis updates the current focus if the event is focus-changing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "service_id",
+        "action",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "advance_time",
+      "line": 130,
+      "doc": "Advance the simulated time.\n\nArgs:\n    seconds: Seconds to advance\n    minutes: Minutes to advance\n    hours: Hours to advance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "seconds",
+        "minutes",
+        "hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_current_focus",
+      "line": 148,
+      "doc": "Get the current focus service, respecting TTL.\n\nReturns:\n    Service ID if focus is active, None if expired or no focus",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_context_stale",
+      "line": 166,
+      "doc": "Check if the current context is stale (past TTL).\n\nReturns:\n    True if context exists but is past TTL",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_time_since_last_focus",
+      "line": 179,
+      "doc": "Get seconds since last focus was set.\n\nReturns:\n    Seconds since last focus, or None if no focus",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_last_access",
+      "line": 191,
+      "doc": "Get the last time a service was accessed.\n\nArgs:\n    service_id: Service to check\n\nReturns:\n    Datetime of last access, or None if never accessed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_recent_events",
+      "line": 206,
+      "doc": "Get recent events from history.\n\nArgs:\n    count: Number of events to return\n    event_type: Filter by event type (optional)\n\nReturns:\n    List of recent events (most recent first)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "count",
+        "event_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 228,
+      "doc": "Reset state to initial conditions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__repr__",
+      "line": 235,
+      "doc": "String representation for debugging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ContextEventType",
+      "line": 26,
+      "doc": "Types of events that affect user context.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ContextEvent",
+      "line": 35,
+      "doc": "An event in the user's session history.\n\nEach event potentially changes what the \"current focus\" is.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MockStateConfig",
+      "line": 49,
+      "doc": "Configuration for MockState behavior.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MockState",
+      "line": 61,
+      "doc": "MockState - Simulates time-based context and user history\n\nThis class helps test scenarios where context becomes stale over time.\n\nExample Usage:\n```python\n# Create state tracker\nstate = MockState()\n\n# User views Service A\nstate.add_event(ContextEventType.VIEW_LOGS, service_id=\"svc-a\")\n\n# Time passes (simulate 10 minutes)\nstate.advance_time(minutes=10)\n\n# Is Service A still the current focus?\nfocus = state.get_current_focus()  # Returns None (expired!)\n\n# Check if context is stale\nis_stale = state.is_context_stale()  # True\n```\n\nThe Mute Agent can use this to determine if graph edges should exist.\nThe Interactive Agent may incorrectly use stale context from last_accessed.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

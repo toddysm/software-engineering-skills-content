@@ -1,0 +1,303 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/observer.py",
+  "extension": ".py",
+  "size_bytes": 30952,
+  "line_count": 725,
+  "documentation": {
+    "file_docstring": "Observer Agent - Asynchronous Learning System\n\nThe Observer is a separate process that consumes telemetry events offline,\nanalyzes execution traces, determines root causes of failure/success,\nand updates the Wisdom Database with learned lessons.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import prioritization framework",
+      "Import wisdom curator",
+      "Load environment variables",
+      "Model configuration - can use more powerful models for learning",
+      "Initialize prioritization framework",
+      "Initialize wisdom curator",
+      "Initialize intent metrics",
+      "Load checkpoint",
+      "Extract JSON from response (handle markdown code blocks)",
+      "Reflect on the execution",
+      "Get all events for this conversation",
+      "Get intent from first event",
+      "Count turns",
+      "Evaluate based on intent type",
+      "Check if issue was resolved (last event success status)",
+      "Calculate context depth",
+      "Determine learning priority based on signal type",
+      "Critical failure - user reversed the action",
+      "Loss of engagement - user gave up",
+      "Success - user accepted and moved on",
+      "Evolve instructions (traditional learning)",
+      "WISDOM CURATOR: Check if this update requires human policy review",
+      "Create policy review instead of auto-applying",
+      "Track statistics",
+      "Return False because we didn't update wisdom (needs approval)",
+      "No policy violation or curator disabled - proceed with update",
+      "Update wisdom database",
+      "Update prioritization framework with safety correction",
+      "Get unprocessed events",
+      "Track conversations we've evaluated",
+      "Process each event",
+      "Handle silent signal events",
+      "Track signal statistics",
+      "Learn from signal (critical and high priority signals)",
+      "Learn user preferences from feedback",
+      "Evaluate conversations by intent when we see task_complete events",
+      "Only evaluate each conversation once (when we see its last event)",
+      "Track statistics",
+      "Flag failures for learning",
+      "Create a critique based on intent-specific failure",
+      "Create analysis for learning",
+      "Learn from intent-based failure",
+      "WISDOM CURATOR: Strategic sampling for high-level review",
+      "Learn if needed",
+      "Update checkpoint",
+      "Check for API key",
+      "Initialize observer",
+      "Process all unprocessed events"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ObserverAgent: The Observer (Shadow Learner) that learns offline from execution traces.",
+      "main: Run the observer to process accumulated events.",
+      "_extract_user_id: Extract user_id from event metadata.",
+      "_load_checkpoint: Load the last processing checkpoint.",
+      "_save_checkpoint: Save the current processing checkpoint.",
+      "reflect: Evaluate the agent's response quality.\nReturns a score (0-1) and critique.",
+      "evolve: Generate improved system instructions based on critique.",
+      "analyze_trace: Analyze a single execution trace and determine if learning is needed.\nReturns an",
+      "evaluate_conversation_by_intent: Evaluate a completed conversation using intent-specific metrics.\n\nThis is the ke",
+      "analyze_signal: Analyze a silent signal event and determine learning strategy.\n\nSilent signals a"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "reflect",
+    "learn_from_analysis",
+    "evolve",
+    "process_events",
+    "main",
+    "ObserverAgent",
+    "analyze_signal",
+    "evaluate_conversation_by_intent",
+    "analyze_trace"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "typing",
+      "datetime",
+      "openai",
+      "dotenv",
+      "telemetry",
+      "agent",
+      "prioritization",
+      "wisdom_curator",
+      "intent_detection"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 700,
+      "doc": "Run the observer to process accumulated events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "wisdom_file",
+        "stream_file",
+        "checkpoint_file",
+        "enable_prioritization",
+        "enable_intent_metrics",
+        "enable_wisdom_curator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_user_id",
+      "line": 89,
+      "doc": "Extract user_id from event metadata.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_checkpoint",
+      "line": 95,
+      "doc": "Load the last processing checkpoint.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_checkpoint",
+      "line": 105,
+      "doc": "Save the current processing checkpoint.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reflect",
+      "line": 110,
+      "doc": "Evaluate the agent's response quality.\nReturns a score (0-1) and critique.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "agent_response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evolve",
+      "line": 156,
+      "doc": "Generate improved system instructions based on critique.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "critique",
+        "query",
+        "agent_response"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "analyze_trace",
+      "line": 199,
+      "doc": "Analyze a single execution trace and determine if learning is needed.\nReturns analysis results or None if no learning needed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_conversation_by_intent",
+      "line": 230,
+      "doc": "Evaluate a completed conversation using intent-specific metrics.\n\nThis is the key method that implements the problem statement:\n- Troubleshooting: Time-to-Resolution (flag if > 3 turns)\n- Brainstorming: Depth of Context (flag if too short)\n\nArgs:\n    conversation_id: The conversation identifier\n    verbose: Print evaluation details\n    \nReturns:\n    Evaluation results with intent-specific success criteria",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze_signal",
+      "line": 326,
+      "doc": "Analyze a silent signal event and determine learning strategy.\n\nSilent signals are implicit feedback that requires immediate attention:\n- Undo: Critical failure, highest priority learning\n- Abandonment: Loss of engagement, high priority learning\n- Acceptance: Success signal, positive reinforcement\n\nReturns analysis results or None if no learning needed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "learn_from_analysis",
+      "line": 408,
+      "doc": "Update the wisdom database based on analysis.\nAlso updates prioritization framework with safety corrections.\n\nWith Wisdom Curator enabled, policy-violating updates require human approval.\n\nArgs:\n    analysis: Analysis dictionary with event, score, critique\n    verbose: Print detailed logs\n    results: Optional results dict to update statistics\n\nReturns True if wisdom was updated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "verbose",
+        "results"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "process_events",
+      "line": 494,
+      "doc": "Process all unprocessed events from the stream.\nThis is the main offline learning loop.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verbose"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ObserverAgent",
+      "line": 39,
+      "doc": "The Observer (Shadow Learner) that learns offline from execution traces.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 110,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

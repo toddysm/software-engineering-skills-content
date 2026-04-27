@@ -1,0 +1,265 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/executor.py",
+  "extension": ".py",
+  "size_bytes": 13369,
+  "line_count": 384,
+  "documentation": {
+    "file_docstring": "Execution layer for Agent Tool Registry.\n\nProvides sandboxed execution of tools using Docker containers.\nThis module handles the actual execution of registered tools, with support\nfor both local (unsafe) and Docker-based (safe) sandboxed execution.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Test Docker connection",
+      "Pull image if needed",
+      "Image not found, try to pull it",
+      "Import required modules",
+      "Get the function source",
+      "Extract just the function definition (skip decorators)",
+      "Split into lines and find where the def statement starts",
+      "Get the function definition without decorators",
+      "Dedent to remove any leading indentation",
+      "Create execution script",
+      "Create temporary directory for script",
+      "Create container with volume mount",
+      "Start container",
+      "Wait for completion with timeout",
+      "Get container status",
+      "Get logs",
+      "Parse result from logs",
+      "Check if it's a timeout",
+      "Re-raise if it's already one of our exception types",
+      "Wrap other exceptions",
+      "Clean up container",
+      "Serialize args to JSON and escape for embedding in script",
+      "Build the script with common imports",
+      "Find result between markers"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ExecutorError: Base exception for executor errors.",
+      "ExecutionTimeoutError: Raised when execution exceeds timeout.",
+      "Executor: Abstract base class for tool executors.\n\nExecutors handle the actual execution o",
+      "LocalExecutor: Executor that runs tools directly on the host machine.\n\nWARNING: This executor p",
+      "DockerExecutor: Executor that runs tools in isolated Docker containers.\n\nThis executor provides ",
+      "execute: Execute a callable function.\n\nArgs:\n    func: The callable function to execute.\n",
+      "execute: Execute a callable function directly on the host.\n\nArgs:\n    func: The callable ",
+      "__init__: Initialize Docker executor.\n\nArgs:\n    image: Docker image to use for execution.",
+      "_ensure_image: Ensure the Docker image is available, pulling if necessary.",
+      "execute: Execute a callable function in a Docker container.\n\nThe function is serialized a"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "DockerExecutor",
+    "LocalExecutor",
+    "Executor",
+    "ExecutionTimeoutError",
+    "ExecutorError",
+    "execute"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "tempfile",
+      "os",
+      "json",
+      "docker",
+      "inspect",
+      "textwrap",
+      "docker"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "execute",
+      "line": 36,
+      "doc": "Execute a callable function.\n\nArgs:\n    func: The callable function to execute.\n    args: Dictionary of arguments to pass to the function.\n    timeout: Execution timeout in seconds (None for no timeout).\n    \nReturns:\n    The result of the function execution.\n    \nRaises:\n    ExecutorError: If execution fails.\n    ExecutionTimeoutError: If execution exceeds timeout.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "func",
+        "args",
+        "timeout"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "execute",
+      "line": 66,
+      "doc": "Execute a callable function directly on the host.\n\nArgs:\n    func: The callable function to execute.\n    args: Dictionary of arguments to pass to the function.\n    timeout: Execution timeout in seconds (ignored for local execution).\n    \nReturns:\n    The result of the function execution.\n    \nRaises:\n    ExecutorError: If execution fails.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func",
+        "args",
+        "timeout"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 106,
+      "doc": "Initialize Docker executor.\n\nArgs:\n    image: Docker image to use for execution.\n    auto_pull: Whether to automatically pull the image if not available.\n    \nRaises:\n    ImportError: If docker package is not installed.\n    ExecutorError: If Docker daemon is not accessible.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "image",
+        "auto_pull"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_ensure_image",
+      "line": 146,
+      "doc": "Ensure the Docker image is available, pulling if necessary.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 159,
+      "doc": "Execute a callable function in a Docker container.\n\nThe function is serialized and executed inside an ephemeral container.\nThe container is automatically removed after execution.\n\nArgs:\n    func: The callable function to execute.\n    args: Dictionary of arguments to pass to the function.\n    timeout: Execution timeout in seconds (None for no timeout).\n    \nReturns:\n    The result of the function execution.\n    \nRaises:\n    ExecutorError: If execution fails.\n    ExecutionTimeoutError: If execution exceeds timeout.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func",
+        "args",
+        "timeout"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_create_execution_script",
+      "line": 292,
+      "doc": "Create Python script for container execution.\n\nArgs:\n    func_source: Source code of the function.\n    func_name: Name of the function.\n    args: Arguments to pass to the function.\n    \nReturns:\n    Complete Python script as string.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func_source",
+        "func_name",
+        "args"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_parse_result",
+      "line": 339,
+      "doc": "Parse execution result from container logs.\n\nArgs:\n    logs: Container logs output.\n    \nReturns:\n    The execution result.\n    \nRaises:\n    ExecutorError: If result parsing fails.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "logs"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__del__",
+      "line": 378,
+      "doc": "Clean up Docker client.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ExecutorError",
+      "line": 18,
+      "doc": "Base exception for executor errors.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionTimeoutError",
+      "line": 23,
+      "doc": "Raised when execution exceeds timeout.",
+      "is_public": true,
+      "bases": [
+        "ExecutorError"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Executor",
+      "line": 28,
+      "doc": "Abstract base class for tool executors.\n\nExecutors handle the actual execution of registered tools,\nproviding different execution environments (local, Docker, etc.).",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "LocalExecutor",
+      "line": 59,
+      "doc": "Executor that runs tools directly on the host machine.\n\nWARNING: This executor provides no sandboxing and should only be used\nwith trusted code. For untrusted code, use DockerExecutor.",
+      "is_public": true,
+      "bases": [
+        "Executor"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DockerExecutor",
+      "line": 94,
+      "doc": "Executor that runs tools in isolated Docker containers.\n\nThis executor provides sandboxed execution by running tools inside\nephemeral Docker containers. Containers are automatically cleaned up\nafter execution completes or fails.\n\nAttributes:\n    image: Docker image to use for execution (default: python:3.9-slim).\n    auto_pull: Whether to automatically pull the image if not available.",
+      "is_public": true,
+      "bases": [
+        "Executor"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

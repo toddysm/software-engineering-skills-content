@@ -1,0 +1,269 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/health.py",
+  "extension": ".py",
+  "size_bytes": 6527,
+  "line_count": 197,
+  "documentation": {
+    "file_docstring": "Health Check Endpoints for K8s Readiness/Liveness Probes\n\nThread-safe health checker with configurable component checks,\nJSON-serializable reports, and aggregate status computation.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "-- registration ------------------------------------------------------",
+      "-- probes ------------------------------------------------------------",
+      "Preserve check-reported latency if non-zero, else use measured.",
+      "-- built-in checks ---------------------------------------------------",
+      "-- helpers -----------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HealthStatus: Possible health states for a component or the overall system.",
+      "ComponentHealth: Health result for a single component.",
+      "HealthReport: Aggregate health report for all registered components.",
+      "HealthChecker: Thread-safe health checker with pluggable component checks.\n\nArgs:\n    version: ",
+      "to_dict: Return a JSON-serializable dictionary.",
+      "is_healthy: True when aggregate status is HEALTHY.",
+      "is_ready: True when the system is ready to serve (not UNHEALTHY).",
+      "register_check: Register a named health check function (thread-safe).",
+      "check_health: Run **all** registered checks and return a full report.",
+      "check_ready: Readiness probe \u2014 same as full health check."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "HealthStatus",
+    "HealthReport",
+    "check_live",
+    "is_healthy",
+    "to_dict",
+    "check_ready",
+    "register_check",
+    "HealthChecker",
+    "is_ready",
+    "check_health",
+    "ComponentHealth"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "threading",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 43,
+      "doc": "Return a JSON-serializable dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "is_healthy",
+      "line": 61,
+      "doc": "True when aggregate status is HEALTHY.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_ready",
+      "line": 65,
+      "doc": "True when the system is ready to serve (not UNHEALTHY).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_check",
+      "line": 85,
+      "doc": "Register a named health check function (thread-safe).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "check_fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_health",
+      "line": 94,
+      "doc": "Run **all** registered checks and return a full report.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthReport"
+    },
+    {
+      "name": "check_ready",
+      "line": 122,
+      "doc": "Readiness probe \u2014 same as full health check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthReport"
+    },
+    {
+      "name": "check_live",
+      "line": 126,
+      "doc": "Liveness probe \u2014 lightweight; returns HEALTHY if the process is up.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthReport"
+    },
+    {
+      "name": "_check_policy_engine",
+      "line": 139,
+      "doc": "Built-in check that validates the policy engine can create a policy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "ComponentHealth"
+    },
+    {
+      "name": "_check_audit_backend",
+      "line": 162,
+      "doc": "Built-in check stub for the audit backend.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "ComponentHealth"
+    },
+    {
+      "name": "_build_report",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "components"
+      ],
+      "returns": "HealthReport"
+    },
+    {
+      "name": "_aggregate_status",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "components"
+      ],
+      "returns": "HealthStatus"
+    }
+  ],
+  "classes": [
+    {
+      "name": "HealthStatus",
+      "line": 18,
+      "doc": "Possible health states for a component or the overall system.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ComponentHealth",
+      "line": 26,
+      "doc": "Health result for a single component.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "HealthReport",
+      "line": 35,
+      "doc": "Aggregate health report for all registered components.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HealthChecker",
+      "line": 70,
+      "doc": "Thread-safe health checker with pluggable component checks.\n\nArgs:\n    version: Application version string included in reports.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic"
+    ]
+  }
+}

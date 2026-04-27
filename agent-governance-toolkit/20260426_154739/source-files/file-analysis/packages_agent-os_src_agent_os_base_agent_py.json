@@ -1,0 +1,564 @@
+{
+  "path": "packages/agent-os/src/agent_os/base_agent.py",
+  "extension": ".py",
+  "size_bytes": 21877,
+  "line_count": 651,
+  "documentation": {
+    "file_docstring": "Base Agent Module - Reusable base classes for Agent OS agents.\n\nProvides a consistent pattern for building agents that run under\nthe Agent OS kernel with policy governance, audit logging, and\ntool integration.\n\nExample:\n    >>> from agent_os.base_agent import BaseAgent, AgentConfig\n    >>>\n    >>> class MyAgent(BaseAgent):\n    ...     async def run(self, task: str) -> ExecutionResult:\n    ...         return await self._execute(\"process\", {\"task\": task})\n    >>>\n    >>> agent = MyAgent(AgentConfig(agent_id=\"my-agent\", policies=[\"read_only\"]))\n    >>> result = await agent.run(\"hello\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "ALLOW / AUDIT \u2014 no blocking",
+      "Create audit entry",
+      "Execute through kernel with timing",
+      "Update audit entry with result",
+      "Check tool allowlist if configured",
+      "Execute through kernel",
+      "Type variable for generic agent results"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PolicyDecision: Result of policy evaluation.",
+      "EscalationRequest: A request for human review of a policy decision.\n\nAttributes:\n    action: The ac",
+      "AgentConfig: Configuration for an agent instance.\n\nAttributes:\n    agent_id: Unique identifie",
+      "AuditEntry: An entry in the agent's audit log.",
+      "BaseAgent: Abstract base class for Agent OS agents.\n\nProvides:\n- Kernel integration with po",
+      "ToolUsingAgent: Base class for agents that use registered tools from ATR.\n\nExtends BaseAgent wit",
+      "TypedResult: A typed wrapper for execution results.\n\nUseful when you want type hints on the r",
+      "approve: Mark escalation as approved.",
+      "reject: Mark escalation as rejected.",
+      "from_file: Load agent configuration from a YAML or JSON file.\n\nArgs:\n    path: Path to a .y"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "set_defer_callback",
+    "get_escalation_queue",
+    "to_dict",
+    "get_execution_stats",
+    "query_audit_log",
+    "ToolUsingAgent",
+    "list_allowed_tools",
+    "from_execution_result",
+    "approve",
+    "clear_audit_log",
+    "from_dict",
+    "policies",
+    "BaseAgent",
+    "AuditEntry",
+    "AgentConfig",
+    "agent_id",
+    "get_audit_log",
+    "EscalationRequest",
+    "from_file",
+    "reject",
+    "TypedResult",
+    "PolicyDecision"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "copy",
+      "json",
+      "os",
+      "re",
+      "sys",
+      "time",
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "uuid",
+      "agent_os.stateless",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "approve",
+      "line": 76,
+      "doc": "Mark escalation as approved.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reject",
+      "line": 80,
+      "doc": "Mark escalation as rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_file",
+      "line": 124,
+      "doc": "Load agent configuration from a YAML or JSON file.\n\nArgs:\n    path: Path to a .yaml, .yml, or .json config file\n\nReturns:\n    AgentConfig populated from the file\n\nRaises:\n    FileNotFoundError: If the file does not exist\n    ValueError: If the file extension is not supported",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "path"
+      ],
+      "returns": "AgentConfig"
+    },
+    {
+      "name": "__repr__",
+      "line": 163,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 166,
+      "doc": "Serialize configuration to a dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 177,
+      "doc": "Deserialize an AgentConfig from a dictionary.\n\nArgs:\n    data: Dictionary as produced by ``to_dict()``.\n\nReturns:\n    Reconstructed AgentConfig instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": "AgentConfig"
+    },
+    {
+      "name": "__repr__",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 228,
+      "doc": "Deserialize an AuditEntry from a dictionary.\n\nArgs:\n    data: Dictionary as produced by ``to_dict()``.\n\nReturns:\n    Reconstructed AuditEntry instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": "AuditEntry"
+    },
+    {
+      "name": "__init__",
+      "line": 276,
+      "doc": "Initialize the agent.\n\nArgs:\n    config: Agent configuration including ID, policies, and backend\n    defer_timeout: Timeout in seconds for DEFER async callbacks (default 30s)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config",
+        "defer_timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agent_id",
+      "line": 298,
+      "doc": "Get the agent's unique identifier.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "policies",
+      "line": 303,
+      "doc": "Get the agent's active policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_new_context",
+      "line": 307,
+      "doc": "Create a new execution context for a request.\n\nArgs:\n    **extra_metadata: Additional metadata to include\n\nReturns:\n    Fresh ExecutionContext with agent's default settings\n\nRaises:\n    ValueError: If any metadata value exceeds max_metadata_size_bytes",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "ExecutionContext"
+    },
+    {
+      "name": "set_defer_callback",
+      "line": 335,
+      "doc": "Register an async callback for DEFER policy decisions.\n\nArgs:\n    callback: Async callable receiving (action, params) and returning\n        a Future that resolves to a PolicyDecision.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_enforce_policy",
+      "line": 347,
+      "doc": "Handle a policy decision, including ESCALATE and DEFER.\n\nArgs:\n    decision: The PolicyDecision to enforce\n    action: Name of the action under evaluation\n    params: Parameters for the action\n    reason: Human-readable reason for the decision\n\nReturns:\n    ExecutionResult representing the enforcement outcome",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "decision",
+        "action",
+        "params",
+        "reason"
+      ],
+      "returns": "ExecutionResult"
+    },
+    {
+      "name": "_execute",
+      "line": 423,
+      "doc": "Execute an action through the kernel with policy checks.\n\nThis is the primary method for agents to perform actions.\nAll actions are:\n1. Checked against configured policies\n2. Logged for audit\n3. Executed through the kernel\n\nArgs:\n    action: Name of the action to execute\n    params: Parameters for the action\n    context: Optional custom context (uses default if None)\n\nReturns:\n    ExecutionResult with success status, data, and any errors",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "params",
+        "context"
+      ],
+      "returns": "ExecutionResult"
+    },
+    {
+      "name": "get_audit_log",
+      "line": 480,
+      "doc": "Get the agent's audit log.\n\nReturns:\n    List of audit entries as dictionaries",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_audit_log",
+      "line": 488,
+      "doc": "Clear the agent's audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_execution_stats",
+      "line": 492,
+      "doc": "Return execution time statistics from audit log entries.\n\nReturns:\n    Dictionary with avg, min, max, p99 execution times in milliseconds,\n    and the total count of timed entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query_audit_log",
+      "line": 517,
+      "doc": "Query audit log with optional filters.\n\nArgs:\n    action: Filter by action name (exact match).\n    decision: Filter by decision value (e.g. \"allow\", \"deny\").\n    since: Only include entries at or after this timestamp.\n    limit: Maximum number of entries to return.\n    offset: Number of matching entries to skip (for pagination).\n\nReturns:\n    List of matching audit entries as dictionaries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "decision",
+        "since",
+        "limit",
+        "offset"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_escalation_queue",
+      "line": 549,
+      "doc": "Get pending escalation requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 554,
+      "doc": "Run the agent's main task.\n\nSubclasses must implement this method to define the agent's\nprimary functionality.\n\nReturns:\n    ExecutionResult with the outcome of the task",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ExecutionResult"
+    },
+    {
+      "name": "__init__",
+      "line": 580,
+      "doc": "Initialize the tool-using agent.\n\nArgs:\n    config: Agent configuration\n    tools: Optional list of tool names this agent is allowed to use",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_use_tool",
+      "line": 590,
+      "doc": "Use a registered tool through the kernel.\n\nArgs:\n    tool_name: Name of the tool to use\n    params: Parameters to pass to the tool\n\nReturns:\n    ExecutionResult from tool execution",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "params"
+      ],
+      "returns": "ExecutionResult"
+    },
+    {
+      "name": "list_allowed_tools",
+      "line": 618,
+      "doc": "Get list of allowed tools, or None if all tools allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_execution_result",
+      "line": 638,
+      "doc": "Create from an ExecutionResult with optional transformation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "result",
+        "transform"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyDecision",
+      "line": 46,
+      "doc": "Result of policy evaluation.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EscalationRequest",
+      "line": 56,
+      "doc": "A request for human review of a policy decision.\n\nAttributes:\n    action: The action that triggered escalation\n    reason: Why the action was escalated\n    requested_by: Agent ID that requested the escalation\n    timestamp: When the escalation was created\n    status: Current status (pending/approved/rejected)",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentConfig",
+      "line": 95,
+      "doc": "Configuration for an agent instance.\n\nAttributes:\n    agent_id: Unique identifier for this agent instance\n    policies: List of policy names to apply (e.g., [\"read_only\", \"no_pii\"])\n    metadata: Additional metadata for the agent\n    state_backend: Optional custom state backend (defaults to in-memory)\n    max_audit_log_size: Maximum number of audit log entries to retain\n    max_metadata_size_bytes: Maximum size in bytes for metadata values",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuditEntry",
+      "line": 196,
+      "doc": "An entry in the agent's audit log.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BaseAgent",
+      "line": 250,
+      "doc": "Abstract base class for Agent OS agents.\n\nProvides:\n- Kernel integration with policy enforcement\n- Execution context management\n- Audit logging\n- Common helper methods\n\nSubclasses must implement the `run` method which defines\nthe agent's main task.\n\nExample:\n    >>> class GreeterAgent(BaseAgent):\n    ...     async def run(self, name: str) -> ExecutionResult:\n    ...         result = await self._execute(\n    ...             action=\"greet\",\n    ...             params={\"name\": name, \"output\": f\"Hello, {name}!\"}\n    ...         )\n    ...         return result\n    >>>\n    >>> agent = GreeterAgent(AgentConfig(agent_id=\"greeter\"))\n    >>> result = await agent.run(\"World\")\n    >>> print(result.data)  # \"Hello, World!\"",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolUsingAgent",
+      "line": 566,
+      "doc": "Base class for agents that use registered tools from ATR.\n\nExtends BaseAgent with tool discovery and execution capabilities.\nTools are executed through the kernel for policy enforcement.\n\nExample:\n    >>> class AnalysisAgent(ToolUsingAgent):\n    ...     async def run(self, data: str) -> ExecutionResult:\n    ...         # Use registered tools\n    ...         parsed = await self._use_tool(\"json_parser\", {\"text\": data})\n    ...         return parsed",
+      "is_public": true,
+      "bases": [
+        "BaseAgent"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TypedResult",
+      "line": 628,
+      "doc": "A typed wrapper for execution results.\n\nUseful when you want type hints on the result data.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 77,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

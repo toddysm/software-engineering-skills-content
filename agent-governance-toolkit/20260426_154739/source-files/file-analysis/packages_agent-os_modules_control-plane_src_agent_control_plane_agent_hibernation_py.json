@@ -1,0 +1,319 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/agent_hibernation.py",
+  "extension": ".py",
+  "size_bytes": 14974,
+  "line_count": 394,
+  "documentation": {
+    "file_docstring": "Agent Hibernation - State-to-Disk Serialization\n\nFeature: \"Agent Hibernation (state-to-disk)\"\nProblem: Agents sitting idle in memory cost money (if hosted) or RAM.\nSolution: Serialize the entire agent state (including caas pointer) to a JSON/Pickle file\n         and kill the process. Wake it up only when amb receives a message for it.\nResult: Scale by Subtraction - Removes the need for \"always-on\" servers. Serverless Agents.\n\nThis module provides the infrastructure to hibernate idle agents by serializing\ntheir complete state to disk and restoring them when needed.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create storage directory if it doesn't exist",
+      "HMAC key for pickle integrity verification \u2014 generated per instance.",
+      "In production, this should be persisted securely (e.g., Key Vault).",
+      "Create storage directory if it doesn't exist",
+      "Track hibernated agents",
+      "Track agent activity for idle detection",
+      "Track agent states",
+      "Convert ISO format strings back to datetime",
+      "Update agent state",
+      "Serialize agent state",
+      "Determine file path",
+      "Save to disk",
+      "Get file size",
+      "Create metadata",
+      "Track hibernated agent",
+      "Update state",
+      "Load state from disk",
+      "Deserialize state",
+      "Update tracking",
+      "Remove from hibernated agents",
+      "Skip already hibernated agents",
+      "Delete state file",
+      "Remove from tracking"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HibernationFormat: Format for serializing agent state",
+      "AgentState: State of an agent in the hibernation lifecycle",
+      "HibernatedAgentMetadata: Metadata about a hibernated agent",
+      "HibernationConfig: Configuration for agent hibernation",
+      "HibernationManager: Manages agent hibernation and wake-up operations.\n\nThis class handles:\n- Seriali",
+      "__init__: Initialize the hibernation manager.\n\nArgs:\n    config: Configuration for hiberna",
+      "serialize_agent_state: Serialize agent state to a dictionary.\n\nArgs:\n    agent_id: Unique identifier fo",
+      "deserialize_agent_state: Deserialize agent state from a dictionary.\n\nArgs:\n    state: Dictionary containi",
+      "hibernate_agent: Hibernate an agent by saving its state to disk.\n\nArgs:\n    agent_id: Unique iden",
+      "wake_agent: Wake up a hibernated agent by restoring its state from disk.\n\nArgs:\n    agent_id"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "HibernationFormat",
+    "get_statistics",
+    "record_agent_activity",
+    "HibernatedAgentMetadata",
+    "wake_agent",
+    "serialize_agent_state",
+    "AgentState",
+    "get_hibernated_agents",
+    "HibernationManager",
+    "cleanup_old_hibernated_agents",
+    "get_idle_agents",
+    "deserialize_agent_state",
+    "HibernationConfig",
+    "is_agent_hibernated",
+    "hibernate_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "json",
+      "hmac",
+      "hashlib",
+      "os",
+      "logging",
+      "pathlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 80,
+      "doc": "Initialize the hibernation manager.\n\nArgs:\n    config: Configuration for hibernation behavior",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "serialize_agent_state",
+      "line": 111,
+      "doc": "Serialize agent state to a dictionary.\n\nArgs:\n    agent_id: Unique identifier for the agent\n    agent_context: AgentContext object containing agent session data\n    caas_pointer: Optional pointer to context in caas (Context-as-a-Service)\n    additional_state: Optional additional state to serialize\n    \nReturns:\n    Dictionary containing serialized agent state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "agent_context",
+        "caas_pointer",
+        "additional_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "deserialize_agent_state",
+      "line": 145,
+      "doc": "Deserialize agent state from a dictionary.\n\nArgs:\n    state: Dictionary containing serialized agent state\n    \nReturns:\n    Dictionary with deserialized state components",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "hibernate_agent",
+      "line": 163,
+      "doc": "Hibernate an agent by saving its state to disk.\n\nArgs:\n    agent_id: Unique identifier for the agent\n    agent_context: AgentContext object to serialize\n    caas_pointer: Optional pointer to context in caas\n    additional_state: Optional additional state to save\n    \nReturns:\n    Metadata about the hibernated agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "agent_context",
+        "caas_pointer",
+        "additional_state"
+      ],
+      "returns": "HibernatedAgentMetadata"
+    },
+    {
+      "name": "wake_agent",
+      "line": 235,
+      "doc": "Wake up a hibernated agent by restoring its state from disk.\n\nArgs:\n    agent_id: Unique identifier for the agent to wake\n    \nReturns:\n    Dictionary containing the restored agent state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_agent_hibernated",
+      "line": 298,
+      "doc": "Check if an agent is currently hibernated",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_hibernated_agents",
+      "line": 302,
+      "doc": "Get list of all hibernated agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_agent_activity",
+      "line": 306,
+      "doc": "Record activity for an agent (resets idle timer)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_idle_agents",
+      "line": 312,
+      "doc": "Get list of agent IDs that have been idle for the specified duration.\n\nArgs:\n    min_idle_seconds: Minimum idle time in seconds (uses config default if None)\n    \nReturns:\n    List of agent IDs that are idle",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_idle_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cleanup_old_hibernated_agents",
+      "line": 337,
+      "doc": "Clean up hibernated agents older than the specified age.\n\nArgs:\n    max_age_days: Maximum age in days (uses config default if None)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_age_days"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_cleanup_hibernated_agent",
+      "line": 357,
+      "doc": "Remove hibernated agent and delete its state file",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 381,
+      "doc": "Get statistics about hibernation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "HibernationFormat",
+      "line": 29,
+      "doc": "Format for serializing agent state",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentState",
+      "line": 35,
+      "doc": "State of an agent in the hibernation lifecycle",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HibernatedAgentMetadata",
+      "line": 44,
+      "doc": "Metadata about a hibernated agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HibernationConfig",
+      "line": 58,
+      "doc": "Configuration for agent hibernation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HibernationManager",
+      "line": 69,
+      "doc": "Manages agent hibernation and wake-up operations.\n\nThis class handles:\n- Serialization of complete agent state to disk\n- Deserialization and restoration of agent state\n- Tracking of hibernated agents\n- Automatic cleanup of old hibernated states",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

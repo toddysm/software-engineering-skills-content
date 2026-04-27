@@ -1,0 +1,224 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/encryption/bridge.py",
+  "extension": ".py",
+  "size_bytes": 8170,
+  "line_count": 233,
+  "documentation": {
+    "file_docstring": "Encrypted trust bridge \u2014 TrustHandshake + SecureChannel integration.\n\nExtends TrustBridge.verify_peer() to optionally establish an E2E\nencrypted SecureChannel after successful authentication. The trust\nhandshake authenticates the peer (Ed25519 challenge-response + trust\nscore check), then X3DH + Double Ratchet provide forward-secret\nencrypted messaging.\n\nUsage:\n    bridge = EncryptedTrustBridge(\n        agent_did=\"did:mesh:alice\",\n        key_manager=alice_key_manager,\n    )\n    channel = await bridge.open_secure_channel(\"did:mesh:bob\", bob_bundle)\n    ciphertext = channel.send(b\"governed action\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Ensure we have a signed pre-key for receiving channels",
+      "Step 1: Trust verification",
+      "Step 2: X3DH + Double Ratchet via SecureChannel"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "EncryptedPeerSession: An active encrypted session with a verified peer.",
+      "EncryptedTrustBridge: Trust bridge that gates encrypted channels on successful handshake.\n\nAgents must",
+      "__init__: Initialize the encrypted trust bridge.\n\nArgs:\n    agent_did: This agent's DID.\n ",
+      "active_sessions: Return all active encrypted sessions, keyed by peer DID.",
+      "publish_prekey_bundle: Generate and publish this agent's pre-key bundle.\n\nArgs:\n    include_otk: Whethe",
+      "open_secure_channel: Open an E2E encrypted channel to a peer after trust verification.\n\nThe flow is:\n",
+      "accept_secure_channel: Accept an incoming encrypted channel from a verified peer.\n\nArgs:\n    peer_did: ",
+      "get_session: Get an active session with a peer.",
+      "close_session: Close an encrypted session and clear key material.\n\nReturns:\n    True if a sessi",
+      "close_all_sessions: Close all active sessions. Returns the number closed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "publish_prekey_bundle",
+    "active_sessions",
+    "EncryptedTrustBridge",
+    "accept_secure_channel",
+    "close_all_sessions",
+    "agent_did",
+    "EncryptedPeerSession",
+    "get_session",
+    "close_session"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "agentmesh.encryption.channel",
+      "agentmesh.encryption.x3dh",
+      "agentmesh.trust.bridge",
+      "agentmesh.trust.handshake"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 51,
+      "doc": "Initialize the encrypted trust bridge.\n\nArgs:\n    agent_did: This agent's DID.\n    key_manager: X3DH key manager with this agent's identity keys.\n    trust_bridge: Optional existing TrustBridge instance. If None,\n        a new one is created.\n    prekey_store: Pre-key storage backend. Defaults to in-memory.\n    min_trust_score: Minimum trust score required to open a channel.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "key_manager",
+        "trust_bridge",
+        "prekey_store",
+        "min_trust_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agent_did",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "active_sessions",
+      "line": 85,
+      "doc": "Return all active encrypted sessions, keyed by peer DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish_prekey_bundle",
+      "line": 89,
+      "doc": "Generate and publish this agent's pre-key bundle.\n\nArgs:\n    include_otk: Whether to include a one-time pre-key.\n\nReturns:\n    The public PreKeyBundle for distribution to peers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "include_otk"
+      ],
+      "returns": "PreKeyBundle"
+    },
+    {
+      "name": "open_secure_channel",
+      "line": 107,
+      "doc": "Open an E2E encrypted channel to a peer after trust verification.\n\nThe flow is:\n1. Run TrustHandshake (Ed25519 challenge-response + trust check)\n2. If verified, run X3DH key agreement\n3. Initialize Double Ratchet from shared secret\n4. Return SecureChannel ready for send/receive\n\nArgs:\n    peer_did: The peer agent's DID.\n    peer_bundle: The peer's published pre-key bundle.\n    required_trust_score: Override the default trust threshold.\n    skip_handshake: If True, skip trust verification (for testing\n        or pre-verified peers only).\n\nReturns:\n    A SecureChannel for encrypted communication.\n\nRaises:\n    PermissionError: If the peer fails trust verification.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "peer_bundle",
+        "required_trust_score",
+        "skip_handshake"
+      ],
+      "returns": "SecureChannel"
+    },
+    {
+      "name": "accept_secure_channel",
+      "line": 178,
+      "doc": "Accept an incoming encrypted channel from a verified peer.\n\nArgs:\n    peer_did: The initiating peer's DID.\n    establishment: The ChannelEstablishment from the initiator.\n    handshake_result: Optional handshake result if already verified.\n\nReturns:\n    A SecureChannel for encrypted communication.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "establishment",
+        "handshake_result"
+      ],
+      "returns": "SecureChannel"
+    },
+    {
+      "name": "get_session",
+      "line": 211,
+      "doc": "Get an active session with a peer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "close_session",
+      "line": 215,
+      "doc": "Close an encrypted session and clear key material.\n\nReturns:\n    True if a session existed and was closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "close_all_sessions",
+      "line": 228,
+      "doc": "Close all active sessions. Returns the number closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "EncryptedPeerSession",
+      "line": 34,
+      "doc": "An active encrypted session with a verified peer.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EncryptedTrustBridge",
+      "line": 43,
+      "doc": "Trust bridge that gates encrypted channels on successful handshake.\n\nAgents must pass the trust handshake (identity verification + trust\nscore threshold) before an encrypted channel is established. Peers\nthat fail the handshake never reach the key exchange step.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

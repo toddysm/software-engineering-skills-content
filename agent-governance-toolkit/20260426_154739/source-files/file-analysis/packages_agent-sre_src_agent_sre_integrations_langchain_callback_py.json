@@ -1,0 +1,608 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/langchain/callback.py",
+  "extension": ".py",
+  "size_bytes": 13357,
+  "line_count": 424,
+  "documentation": {
+    "file_docstring": "LangChain Callback Handler for Agent-SRE\n==========================================\n\nAutomatically records SLIs (Service Level Indicators) from LangChain\nchain/agent execution:\n\n- **TaskSuccessRate**: Tracks chain success/failure ratio\n- **ResponseLatency**: Measures per-chain and per-LLM-call latency\n- **CostPerTask**: Estimates cost from token usage (configurable rates)\n- **ToolCallAccuracy**: Tracks tool call success/failure ratio\n\nWorks without importing langchain \u2014 uses duck typing so it plugs into\nany LangChain ``callbacks=[...]`` list.\n\nExample:\n    >>> from agent_sre.integrations.langchain import AgentSRECallback\n    >>>\n    >>> cb = AgentSRECallback(cost_per_1k_input=0.003, cost_per_1k_output=0.015)\n    >>> chain.invoke(\"query\", config={\"callbacks\": [cb]})\n    >>>\n    >>> print(cb.task_success_rate)   # 1.0\n    >>> print(cb.total_cost_usd)     # 0.0042\n    >>> print(cb.avg_latency_ms)     # 182.5",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Records",
+      "Active runs (keyed by run_id string)",
+      "------------------------------------------------------------------",
+      "Helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "LLM callbacks",
+      "------------------------------------------------------------------",
+      "Extract token usage from response",
+      "------------------------------------------------------------------",
+      "Tool callbacks",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Chain callbacks",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "No-op handlers (required by LangChain interface)",
+      "------------------------------------------------------------------",
+      "Stubs required by BaseCallbackHandler \u2014 not yet wired to SLIs.",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "SLI Properties (computed from records)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Export",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LLMCallRecord: Record of a single LLM invocation.",
+      "ToolCallRecord: Record of a single tool invocation.",
+      "ChainRecord: Record of a chain/agent execution.",
+      "AgentSRECallback: LangChain callback handler that auto-records Agent-SRE SLIs.\n\nImplements the Lan",
+      "_run_id_str: Convert run_id (UUID or str) to string.",
+      "on_llm_start: Called when LLM starts generating.",
+      "on_llm_end: Called when LLM finishes generating.",
+      "on_llm_error: Called when LLM errors out.",
+      "on_tool_start: Called when a tool starts executing.",
+      "on_tool_end: Called when a tool finishes executing."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "on_tool_start",
+    "on_tool_error",
+    "avg_latency_ms",
+    "on_chain_start",
+    "reset",
+    "p95_latency_ms",
+    "llm_calls",
+    "get_sli_snapshot",
+    "latency_ms",
+    "total_input_tokens",
+    "ChainRecord",
+    "on_agent_action",
+    "on_chain_end",
+    "on_retry",
+    "on_chain_error",
+    "avg_cost_usd",
+    "chains",
+    "task_success_rate",
+    "on_llm_end",
+    "on_tool_end",
+    "on_agent_finish",
+    "on_llm_start",
+    "tool_accuracy",
+    "LLMCallRecord",
+    "on_llm_error",
+    "on_text",
+    "tool_calls",
+    "ToolCallRecord",
+    "total_output_tokens",
+    "on_llm_new_token",
+    "total_cost_usd",
+    "AgentSRECallback"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "latency_ms",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "latency_ms",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "latency_ms",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_run_id_str",
+      "line": 135,
+      "doc": "Convert run_id (UUID or str) to string.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "run_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_estimate_cost",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_tokens",
+        "output_tokens"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "on_llm_start",
+      "line": 149,
+      "doc": "Called when LLM starts generating.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "serialized",
+        "prompts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_end",
+      "line": 165,
+      "doc": "Called when LLM finishes generating.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_error",
+      "line": 189,
+      "doc": "Called when LLM errors out.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_tool_start",
+      "line": 209,
+      "doc": "Called when a tool starts executing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "serialized",
+        "input_str"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_tool_end",
+      "line": 223,
+      "doc": "Called when a tool finishes executing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_tool_error",
+      "line": 239,
+      "doc": "Called when a tool errors out.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_chain_start",
+      "line": 260,
+      "doc": "Called when a chain starts executing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "serialized",
+        "inputs"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_chain_end",
+      "line": 276,
+      "doc": "Called when a chain finishes executing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outputs"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_chain_error",
+      "line": 292,
+      "doc": "Called when a chain errors out.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_text",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_new_token",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_agent_action",
+      "line": 321,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_agent_finish",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "finish"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_retry",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "retry_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "task_success_rate",
+      "line": 335,
+      "doc": "Fraction of chains that completed without error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "tool_accuracy",
+      "line": 342,
+      "doc": "Fraction of tool calls that completed without error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "total_cost_usd",
+      "line": 349,
+      "doc": "Total estimated LLM cost in USD.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "avg_cost_usd",
+      "line": 354,
+      "doc": "Average cost per chain execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "total_input_tokens",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "total_output_tokens",
+      "line": 365,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "avg_latency_ms",
+      "line": 369,
+      "doc": "Average chain latency in milliseconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "p95_latency_ms",
+      "line": 377,
+      "doc": "95th percentile chain latency in milliseconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "llm_calls",
+      "line": 390,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "tool_calls",
+      "line": 394,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "chains",
+      "line": 398,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_sli_snapshot",
+      "line": 401,
+      "doc": "Return all SLI values as a dict (for recording into Agent-SRE SLO).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 417,
+      "doc": "Clear all records.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "LLMCallRecord",
+      "line": 40,
+      "doc": "Record of a single LLM invocation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolCallRecord",
+      "line": 60,
+      "doc": "Record of a single tool invocation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ChainRecord",
+      "line": 78,
+      "doc": "Record of a chain/agent execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentSRECallback",
+      "line": 95,
+      "doc": "LangChain callback handler that auto-records Agent-SRE SLIs.\n\nImplements the LangChain BaseCallbackHandler interface via duck typing\n(no langchain import required).\n\nTracks:\n- Chain success/failure \u2192 TaskSuccessRate SLI\n- LLM call latency \u2192 ResponseLatency SLI\n- Token usage \u2192 CostPerTask SLI\n- Tool call success/failure \u2192 ToolCallAccuracy SLI",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

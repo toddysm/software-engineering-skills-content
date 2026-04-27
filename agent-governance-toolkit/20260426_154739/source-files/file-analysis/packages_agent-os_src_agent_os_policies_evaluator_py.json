@@ -1,0 +1,243 @@
+{
+  "path": "packages/agent-os/src/agent_os/policies/evaluator.py",
+  "extension": ".py",
+  "size_bytes": 13180,
+  "line_count": 343,
+  "documentation": {
+    "file_docstring": "Standalone policy evaluator for Agent-OS governance.\n\nEvaluates declarative PolicyDocuments against an execution context dict,\nreturning a PolicyDecision with matched rule, action, and audit information.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Folder-scoped evaluation path",
+      "Flat evaluation (original behavior)",
+      "No governance files found \u2014 fall back to loaded policies",
+      "Filter by scope",
+      "Sort by priority descending so highest priority is checked first",
+      "No YAML rule matched \u2014 consult external backends",
+      "No rule matched \u2014 apply defaults",
+      "No rule matched \u2014 consult external backends",
+      "Defaults from most specific policy"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PolicyDecision: Result of evaluating policies against an execution context.",
+      "PolicyEvaluator: Evaluates a set of PolicyDocuments against execution contexts.\n\nSupports externa",
+      "_match_condition: Check whether a single PolicyCondition matches the context.",
+      "load_policies: Load all YAML policy files from a directory.",
+      "add_backend: Register an external policy backend (OPA, Cedar, etc.).\n\nBackends are consulted ",
+      "load_rego: Convenience: register an OPA/Rego backend.\n\nArgs:\n    rego_path: Path to a ``.re",
+      "load_cedar: Convenience: register a Cedar backend.\n\nArgs:\n    policy_path: Path to a ``.ceda",
+      "evaluate: Evaluate all loaded policy rules against the given context.\n\nIf ``root_dir`` is ",
+      "_evaluate_scoped: Evaluate using folder-level policy discovery and merge.",
+      "_evaluate_flat: Flat evaluation using the loaded policy list (original behavior)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "load_policies",
+    "PolicyEvaluator",
+    "load_rego",
+    "load_cedar",
+    "add_backend",
+    "PolicyDecision",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "re",
+      "datetime",
+      "pathlib",
+      "typing",
+      "pydantic",
+      "schema",
+      "backends",
+      "backends",
+      "discovery",
+      "merge"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_match_condition",
+      "line": 315,
+      "doc": "Check whether a single PolicyCondition matches the context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "condition",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policies",
+        "root_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_policies",
+      "line": 52,
+      "doc": "Load all YAML policy files from a directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_backend",
+      "line": 60,
+      "doc": "Register an external policy backend (OPA, Cedar, etc.).\n\nBackends are consulted in registration order when no YAML rule\nmatches. Each backend must implement ``evaluate(context) ->\nBackendDecision`` and a ``name`` property.\n\nArgs:\n    backend: An ``ExternalPolicyBackend`` implementation such as\n        ``OPABackend`` or ``CedarBackend`` from\n        ``agent_os.policies.backends``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "backend"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_rego",
+      "line": 74,
+      "doc": "Convenience: register an OPA/Rego backend.\n\nArgs:\n    rego_path: Path to a ``.rego`` file.\n    rego_content: Inline Rego policy string.\n    package: Rego package name for query construction.\n\nReturns:\n    The ``OPABackend`` instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rego_path",
+        "rego_content",
+        "package"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "load_cedar",
+      "line": 98,
+      "doc": "Convenience: register a Cedar backend.\n\nArgs:\n    policy_path: Path to a ``.cedar`` policy file.\n    policy_content: Inline Cedar policy string.\n    entities: Cedar entities for authorization context.\n\nReturns:\n    The ``CedarBackend`` instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_path",
+        "policy_content",
+        "entities"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "evaluate",
+      "line": 124,
+      "doc": "Evaluate all loaded policy rules against the given context.\n\nIf ``root_dir`` is set and context contains a ``path`` key,\nfolder-scoped policy discovery is used \u2014 governance.yaml files\nare loaded from the action path up to root and merged\nhierarchically. Otherwise, the flat policy list is evaluated.\n\nRules are sorted by priority (descending). The first matching rule\ndetermines the decision. If no YAML rule matches and external\nbackends are registered, they are consulted in order. If nothing\nmatches, the default action from the first policy (or global allow)\nis used.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "_evaluate_scoped",
+      "line": 145,
+      "doc": "Evaluate using folder-level policy discovery and merge.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "_evaluate_flat",
+      "line": 171,
+      "doc": "Flat evaluation using the loaded policy list (original behavior).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "_evaluate_rules",
+      "line": 255,
+      "doc": "Evaluate a merged rule list from folder-scoped discovery.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rules",
+        "docs",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyDecision",
+      "line": 25,
+      "doc": "Result of evaluating policies against an execution context.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyEvaluator",
+      "line": 35,
+      "doc": "Evaluates a set of PolicyDocuments against execution contexts.\n\nSupports external policy backends (OPA/Rego, Cedar) alongside the\nnative YAML/JSON engine. YAML rules are evaluated first; if no YAML\nrule matches, external backends are consulted in registration order.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 44,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

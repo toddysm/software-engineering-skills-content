@@ -1,0 +1,462 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/incidents/detector.py",
+  "extension": ".py",
+  "size_bytes": 11462,
+  "line_count": 333,
+  "documentation": {
+    "file_docstring": "Incident detection \u2014 alerting with severity levels and alert grouping.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Community Edition \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Check for duplicate",
+      "Create incident for critical/warning signals",
+      "Try correlation-based grouping first",
+      "Apply auto-responses",
+      "Use the highest severity (lowest P-number) among all signals",
+      "Apply auto-responses for all signal types"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "IncidentSeverity: Incident severity levels.",
+      "IncidentState: Incident lifecycle state.",
+      "SignalType: Types of signals that can trigger incidents.",
+      "Signal: A reliability signal that may indicate an incident.",
+      "ResponseAction: An action taken in response to an incident.",
+      "Incident: A detected reliability incident.",
+      "IncidentDetector: Detects incidents from reliability signals.\n\nCreates incidents for P1/P2 severit",
+      "severity_hint: Suggest severity based on signal type.",
+      "register_response: Register automatic response actions for a signal type.",
+      "ingest_signal: Ingest a signal and potentially create an incident.\n\nCreates incidents for P1/P2"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "all_incidents",
+    "add_action",
+    "severity_hint",
+    "register_response",
+    "ingest_signal",
+    "to_dict",
+    "Signal",
+    "add_signal",
+    "summary",
+    "Incident",
+    "IncidentSeverity",
+    "IncidentDetector",
+    "resolve",
+    "open_incidents",
+    "ResponseAction",
+    "acknowledge",
+    "investigate",
+    "IncidentState",
+    "mitigate",
+    "SignalType",
+    "duration_seconds"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "uuid",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "severity_hint",
+      "line": 59,
+      "doc": "Suggest severity based on signal type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "IncidentSeverity"
+    },
+    {
+      "name": "to_dict",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "title",
+        "severity",
+        "signals",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "duration_seconds",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "acknowledge",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "investigate",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mitigate",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "note"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_action",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type",
+        "result",
+        "executed"
+      ],
+      "returns": "ResponseAction"
+    },
+    {
+      "name": "add_signal",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "correlation_window_seconds",
+        "dedup_window_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_response",
+      "line": 181,
+      "doc": "Register automatic response actions for a signal type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal_type",
+        "actions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "ingest_signal",
+      "line": 185,
+      "doc": "Ingest a signal and potentially create an incident.\n\nCreates incidents for P1/P2 signals. P3/P4 signals are logged only.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_incident",
+      "line": 207,
+      "doc": "Create an incident from a single signal.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": "Incident"
+    },
+    {
+      "name": "_create_correlated_incident",
+      "line": 224,
+      "doc": "Create an incident from multiple correlated signals.\n\nGroups signals into a single incident, using the highest severity\namong the signals and combining their descriptions.\n\nArgs:\n    signals: List of correlated signals to merge into one incident.\n\nReturns:\n    A new ``Incident`` with aggregated severity, combined title,\n    and auto-response actions applied for all signal types.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": "Incident"
+    },
+    {
+      "name": "_is_duplicate",
+      "line": 268,
+      "doc": "Check if a similar incident was recently created.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_find_correlated",
+      "line": 279,
+      "doc": "Find pending signals correlated with the given signal.\n\nSignals are correlated if they come from the same source and\nfall within the correlation window. Only returns non-duplicate\nsignals with distinct signal types.\n\nArgs:\n    signal: The incoming signal to find correlates for.\n\nReturns:\n    List of distinct-type signals from the same source that\n    arrived within the correlation window. May be empty.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_prune_old_signals",
+      "line": 311,
+      "doc": "Remove signals outside the correlation window.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "open_incidents",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "all_incidents",
+      "line": 321,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "summary",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "IncidentSeverity",
+      "line": 15,
+      "doc": "Incident severity levels.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "IncidentState",
+      "line": 24,
+      "doc": "Incident lifecycle state.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SignalType",
+      "line": 34,
+      "doc": "Types of signals that can trigger incidents.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Signal",
+      "line": 47,
+      "doc": "A reliability signal that may indicate an incident.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ResponseAction",
+      "line": 81,
+      "doc": "An action taken in response to an incident.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Incident",
+      "line": 98,
+      "doc": "A detected reliability incident.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IncidentDetector",
+      "line": 163,
+      "doc": "Detects incidents from reliability signals.\n\nCreates incidents for P1/P2 severity signals with deduplication\nand alert grouping for correlated signals from the same source.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 41,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

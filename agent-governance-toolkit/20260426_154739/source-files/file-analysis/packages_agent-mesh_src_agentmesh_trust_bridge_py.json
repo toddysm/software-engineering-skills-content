@@ -1,0 +1,482 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/trust/bridge.py",
+  "extension": ".py",
+  "size_bytes": 13882,
+  "line_count": 418,
+  "documentation": {
+    "file_docstring": "Trust Bridge\n\nDirect passthrough bridge.\nMaintains the same API surface for compatibility.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import IATP from agent-os (the source of truth for trust protocol)",
+      "Fallback if agent-os not installed yet (for development)",
+      "Optional import \u2014 IdentityRegistry may not be available in all envs",
+      "Trust info",
+      "Capabilities",
+      "Connection info",
+      "Trust thresholds",
+      "Known peers",
+      "Handshake handler",
+      "P06: HMAC key for peer record integrity",
+      "P06: Verify record integrity before trusting cached score",
+      "Verify trust first",
+      "Translate if needed",
+      "Send via appropriate handler",
+      "Protocol translation mappings",
+      "IATP can wrap any protocol",
+      "Default: pass through",
+      "A2A task -> MCP tool call",
+      "MCP tool call -> A2A task"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PeerInfo: Information about a peer agent in the trust mesh.\n\nAttributes:\n    peer_did: Dec",
+      "TrustBridge: Basic trust bridge \u2014 direct passthrough without protocol translation.",
+      "ProtocolBridge: Basic protocol bridge \u2014 passes messages through without translation.",
+      "A2AAdapter: Adapter for Google A2A (Agent-to-Agent) protocol.",
+      "MCPAdapter: Adapter for Anthropic MCP (Model Context Protocol).",
+      "_sign_peer: Compute HMAC over peer's critical fields.",
+      "_verify_peer_integrity: Verify that a stored peer record has not been tampered with.",
+      "verify_peer: Verify a peer before communication.",
+      "is_peer_trusted: Check whether a previously verified peer meets the trust threshold.",
+      "get_peer: Get information about a known peer."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "list_tools",
+    "add_verification_footer",
+    "PeerInfo",
+    "get_trusted_peers",
+    "ProtocolBridge",
+    "A2AAdapter",
+    "get_peer",
+    "register_tool",
+    "get_protocol_for_peer",
+    "MCPAdapter",
+    "TrustBridge"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "hashlib",
+      "hmac",
+      "logging",
+      "os",
+      "handshake",
+      "modules.iatp",
+      "modules.nexus",
+      "agentmesh.identity.agent_id"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_sign_peer",
+      "line": 107,
+      "doc": "Compute HMAC over peer's critical fields.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_verify_peer_integrity",
+      "line": 112,
+      "doc": "Verify that a stored peer record has not been tampered with.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "verify_peer",
+      "line": 123,
+      "doc": "Verify a peer before communication.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "protocol",
+        "required_trust_score",
+        "required_capabilities"
+      ],
+      "returns": "HandshakeResult"
+    },
+    {
+      "name": "is_peer_trusted",
+      "line": 157,
+      "doc": "Check whether a previously verified peer meets the trust threshold.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "required_score"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_peer",
+      "line": 177,
+      "doc": "Get information about a known peer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trusted_peers",
+      "line": 181,
+      "doc": "Get all peers that are verified and meet the trust threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revoke_peer_trust",
+      "line": 189,
+      "doc": "Revoke trust for a previously verified peer.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "send_message",
+      "line": 225,
+      "doc": "Send a message to a peer, translating protocols if needed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "message",
+        "source_protocol",
+        "target_protocol"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_translate",
+      "line": 249,
+      "doc": "Translate message between protocols.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "from_protocol",
+        "to_protocol"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_a2a_to_mcp",
+      "line": 268,
+      "doc": "Convert A2A message to MCP format.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_mcp_to_a2a",
+      "line": 279,
+      "doc": "Convert MCP message to A2A format.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "add_verification_footer",
+      "line": 288,
+      "doc": "Add AgentMesh verification footer to content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "trust_score",
+        "agent_did",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_send",
+      "line": 311,
+      "doc": "Send message via protocol handler.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "message",
+        "protocol"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_protocol_for_peer",
+      "line": 319,
+      "doc": "Get the preferred communication protocol for a peer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 330,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "trust_bridge"
+      ],
+      "returns": null
+    },
+    {
+      "name": "discover_agent",
+      "line": 334,
+      "doc": "Discover an agent via A2A Agent Card.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "endpoint"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_task",
+      "line": 342,
+      "doc": "Create a task on a peer agent via the A2A protocol.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "task_type",
+        "parameters"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_task_status",
+      "line": 358,
+      "doc": "Get the current status of a task on a peer agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "task_id"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 371,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "trust_bridge"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_tool",
+      "line": 376,
+      "doc": "Register a tool with the MCP adapter.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description",
+        "input_schema",
+        "required_capability"
+      ],
+      "returns": null
+    },
+    {
+      "name": "call_tool",
+      "line": 391,
+      "doc": "Call a tool on a peer with governance enforcement.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "tool_name",
+        "arguments"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "list_tools",
+      "line": 416,
+      "doc": "List all registered tools.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PeerInfo",
+      "line": 41,
+      "doc": "Information about a peer agent in the trust mesh.\n\nAttributes:\n    peer_did: Decentralized identifier for the peer agent.\n    peer_name: Optional human-readable name for the peer.\n    protocol: Communication protocol (``\"a2a\"``, ``\"mcp\"``,\n        ``\"iatp\"``, or ``\"acp\"``).\n    trust_score: Numeric trust score from 0 to 1000.\n    trust_verified: Whether the peer has been verified.\n    last_verified: Timestamp of the most recent verification.\n    capabilities: List of capability strings the peer holds.\n    endpoint: Network endpoint URL for the peer.\n    connected_at: Timestamp when the connection was established.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustBridge",
+      "line": 74,
+      "doc": "Basic trust bridge \u2014 direct passthrough without protocol translation.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ProtocolBridge",
+      "line": 198,
+      "doc": "Basic protocol bridge \u2014 passes messages through without translation.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "A2AAdapter",
+      "line": 325,
+      "doc": "Adapter for Google A2A (Agent-to-Agent) protocol.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MCPAdapter",
+      "line": 366,
+      "doc": "Adapter for Anthropic MCP (Model Context Protocol).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 44,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

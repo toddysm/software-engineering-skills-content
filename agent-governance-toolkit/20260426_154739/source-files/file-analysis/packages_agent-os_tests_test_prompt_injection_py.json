@@ -1,0 +1,858 @@
+{
+  "path": "packages/agent-os/tests/test_prompt_injection.py",
+  "extension": ".py",
+  "size_bytes": 17779,
+  "line_count": 464,
+  "documentation": {
+    "file_docstring": "Tests for the prompt injection detection module (OWASP LLM01 / ASI01).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "DetectionResult",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "PromptInjectionDetector \u2014 Direct override detection",
+      "---------------------------------------------------------------------------",
+      "-- Direct override ----------------------------------------------------",
+      "-- Delimiter attacks --------------------------------------------------",
+      "-- Encoding attacks ---------------------------------------------------",
+      "Encode \"ignore all previous instructions\"",
+      "-- Role-play / jailbreak ----------------------------------------------",
+      "-- Context manipulation -----------------------------------------------",
+      "-- Multi-turn escalation ----------------------------------------------",
+      "-- Benign inputs (must NOT trigger) -----------------------------------",
+      "-- Edge cases ---------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Sensitivity levels",
+      "---------------------------------------------------------------------------",
+      "Delimiter attacks are MEDIUM threat with 0.7 confidence",
+      "Multi-turn patterns are MEDIUM threat \u2014 should be skipped",
+      "---------------------------------------------------------------------------",
+      "Allowlist validation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Canary token detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Batch detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Audit trail",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Fail-closed behaviour",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_detect: Shortcut: create a detector and scan a single input.",
+      "_detect_with_config: Shortcut: create a detector with custom config and scan.",
+      "TestAllowlistValidation: Verify DetectionConfig rejects overly broad allowlist entries."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_rot13_reference_detected",
+    "test_blocklist_overrides_sensitivity",
+    "test_base64_decode_reference",
+    "test_direct_override_detected",
+    "test_permissive_still_catches_high_threats",
+    "TestBatchDetection",
+    "test_clean_result_fields",
+    "test_audit_records_clean_input",
+    "test_batch_empty_list",
+    "test_strict_catches_medium_threats",
+    "test_batch_returns_correct_count",
+    "test_rejects_mixed_valid_and_invalid",
+    "test_accepts_minimum_length_entry",
+    "TestAllowlistValidation",
+    "test_delimiter_attack_detected",
+    "test_role_play_detected",
+    "test_canary_case_insensitive",
+    "test_fail_closed_still_audits",
+    "test_canary_empty_list",
+    "test_rejects_short_entry",
+    "test_audit_records_injection",
+    "test_exception_in_check_returns_critical",
+    "TestDetectionResult",
+    "test_context_manipulation_detected",
+    "test_permissive_skips_medium_threats",
+    "test_multi_turn_escalation_detected",
+    "test_canary_in_input_detected",
+    "test_rejects_empty_string",
+    "TestFailClosed",
+    "test_batch_detects_injections",
+    "test_canary_none_tokens",
+    "test_unicode_escape_detected",
+    "test_very_long_input",
+    "test_no_canary_no_detection",
+    "test_audit_log_is_copy",
+    "test_hex_escape_detected",
+    "test_mixed_language_benign",
+    "TestAuditTrail",
+    "test_batch_with_canary",
+    "test_audit_contains_source",
+    "TestSensitivityLevels",
+    "test_custom_patterns",
+    "test_injection_result_fields",
+    "test_result_default_matched_patterns",
+    "test_balanced_is_default",
+    "test_empty_allowlist_is_valid",
+    "TestPromptInjectionDetector",
+    "test_benign_input_allowed",
+    "test_rejects_whitespace_only",
+    "TestCanaryDetection",
+    "test_rejects_single_space",
+    "test_accepts_valid_entry",
+    "test_audit_records_created",
+    "test_audit_contains_hash",
+    "test_allowlist_suppresses_detection",
+    "test_audit_has_timestamp",
+    "test_empty_string",
+    "test_base64_encoded_payload"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "hashlib",
+      "unittest.mock",
+      "pytest",
+      "agent_os.prompt_injection",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_detect",
+      "line": 27,
+      "doc": "Shortcut: create a detector and scan a single input.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": "DetectionResult"
+    },
+    {
+      "name": "_detect_with_config",
+      "line": 33,
+      "doc": "Shortcut: create a detector with custom config and scan.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text",
+        "config"
+      ],
+      "returns": "DetectionResult"
+    },
+    {
+      "name": "test_clean_result_fields",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_injection_result_fields",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_result_default_matched_patterns",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_direct_override_detected",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delimiter_attack_detected",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_base64_encoded_payload",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rot13_reference_detected",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_base64_decode_reference",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hex_escape_detected",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unicode_escape_detected",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_role_play_detected",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_manipulation_detected",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multi_turn_escalation_detected",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_benign_input_allowed",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "benign_input"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_string",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_long_input",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mixed_language_benign",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_strict_catches_medium_threats",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_permissive_skips_medium_threats",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_permissive_still_catches_high_threats",
+      "line": 233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_balanced_is_default",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_overrides_sensitivity",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_suppresses_detection",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_patterns",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_empty_string",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_whitespace_only",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_short_entry",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_single_space",
+      "line": 289,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_accepts_valid_entry",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_accepts_minimum_length_entry",
+      "line": 297,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_mixed_valid_and_invalid",
+      "line": 301,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_allowlist_is_valid",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_canary_in_input_detected",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_canary_case_insensitive",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_canary_no_detection",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_canary_none_tokens",
+      "line": 341,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_canary_empty_list",
+      "line": 345,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_returns_correct_count",
+      "line": 355,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_detects_injections",
+      "line": 365,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_with_canary",
+      "line": 375,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_empty_list",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_records_created",
+      "line": 398,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_contains_source",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_contains_hash",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_records_injection",
+      "line": 416,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_records_clean_input",
+      "line": 422,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_is_copy",
+      "line": 428,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_has_timestamp",
+      "line": 435,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exception_in_check_returns_critical",
+      "line": 447,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fail_closed_still_audits",
+      "line": 457,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestDetectionResult",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPromptInjectionDetector",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSensitivityLevels",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAllowlistValidation",
+      "line": 274,
+      "doc": "Verify DetectionConfig rejects overly broad allowlist entries.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCanaryDetection",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBatchDetection",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditTrail",
+      "line": 397,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFailClosed",
+      "line": 446,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 7,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

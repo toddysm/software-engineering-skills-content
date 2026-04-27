@@ -1,0 +1,302 @@
+{
+  "path": "packages/agent-os/src/agent_os/security_skills.py",
+  "extension": ".py",
+  "size_bytes": 18184,
+  "line_count": 538,
+  "documentation": {
+    "file_docstring": "Security Skills \u2014 static analysis checks for agent code.\n\nCodifies patterns discovered during security audits into reusable\nscan functions that can run in CI, pre-commit hooks, or agent-based\ncode review workflows.\n\nEach skill returns a list of :class:`SecurityFinding` objects with\nseverity, description, and line number information.\n\nArchitecture:\n    scan_file(path)\n        \u251c\u2500 check_stub_security()      \u2014 verify/validate stubs returning True\n        \u251c\u2500 check_unsafe_pickle()      \u2014 pickle.loads without HMAC\n        \u251c\u2500 check_hardcoded_denylist() \u2014 inline security pattern lists\n        \u251c\u2500 check_unbounded_collections() \u2014 dicts/lists without size cap\n        \u251c\u2500 check_ssrf_urls()          \u2014 URLs from input without guard\n        \u251c\u2500 check_missing_circuit_breaker() \u2014 external calls without backoff\n        \u251c\u2500 check_redos_patterns()     \u2014 regex without complexity limits\n        \u251c\u2500 check_hardcoded_secrets()  \u2014 API keys, tokens in source\n        \u251c\u2500 check_trust_without_crypto() \u2014 trust decisions without signatures\n        \u2514\u2500 check_error_info_leak()    \u2014 exceptions leaking internals",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Individual skill checks",
+      "---------------------------------------------------------------------------",
+      "Skip test files and example placeholders",
+      "---------------------------------------------------------------------------",
+      "Aggregate scanner",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SecurityFinding: A single security issue found during scanning.",
+      "_find_line: Return 1-based line number of first match, or 0.",
+      "check_stub_security: Detect security functions that unconditionally return True.",
+      "check_unsafe_pickle: Detect pickle.loads without HMAC verification.",
+      "check_hardcoded_denylist: Detect hardcoded security deny-lists in source.",
+      "check_unbounded_collections: Detect security-sensitive dicts/lists without size limits.",
+      "check_ssrf_urls: Detect URLs from input used without SSRF validation.",
+      "check_missing_circuit_breaker: Detect external calls without circuit breaker.",
+      "check_redos_patterns: Detect regex patterns susceptible to catastrophic backtracking.",
+      "check_hardcoded_secrets: Detect hardcoded API keys, tokens, and secrets."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "check_hardcoded_denylist",
+    "check_missing_circuit_breaker",
+    "check_unbounded_collections",
+    "scan_file",
+    "check_hardcoded_secrets",
+    "check_error_info_leak",
+    "check_unsafe_pickle",
+    "Severity",
+    "check_trust_without_crypto",
+    "check_stub_security",
+    "check_redos_patterns",
+    "scan_directory",
+    "format_findings",
+    "check_ssrf_urls",
+    "scan_source",
+    "SecurityFinding"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "re",
+      "dataclasses",
+      "enum",
+      "pathlib",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_find_line",
+      "line": 60,
+      "doc": "Return 1-based line number of first match, or 0.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "pattern"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "check_stub_security",
+      "line": 75,
+      "doc": "Detect security functions that unconditionally return True.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_unsafe_pickle",
+      "line": 109,
+      "doc": "Detect pickle.loads without HMAC verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_hardcoded_denylist",
+      "line": 138,
+      "doc": "Detect hardcoded security deny-lists in source.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_unbounded_collections",
+      "line": 173,
+      "doc": "Detect security-sensitive dicts/lists without size limits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_ssrf_urls",
+      "line": 209,
+      "doc": "Detect URLs from input used without SSRF validation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_missing_circuit_breaker",
+      "line": 243,
+      "doc": "Detect external calls without circuit breaker.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_redos_patterns",
+      "line": 274,
+      "doc": "Detect regex patterns susceptible to catastrophic backtracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_hardcoded_secrets",
+      "line": 308,
+      "doc": "Detect hardcoded API keys, tokens, and secrets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_trust_without_crypto",
+      "line": 347,
+      "doc": "Detect trust decisions made without cryptographic verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_error_info_leak",
+      "line": 385,
+      "doc": "Detect exception details leaked to callers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_source",
+      "line": 429,
+      "doc": "Run all security skills against source code.\n\nArgs:\n    source: Raw Python source text.\n    path: Optional file path for findings metadata.\n\nReturns:\n    List of all findings across all checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_file",
+      "line": 445,
+      "doc": "Scan a single Python file.\n\nArgs:\n    file_path: Path to the .py file to scan.\n\nReturns:\n    List of findings. Empty list if file cannot be read.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "file_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_directory",
+      "line": 464,
+      "doc": "Recursively scan all Python files in a directory.\n\nArgs:\n    directory: Root directory to scan.\n    exclude_tests: Skip files with 'test' in the name.\n    exclude_patterns: Directory name patterns to skip.\n\nReturns:\n    Aggregated findings across all scanned files.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "format_findings",
+      "line": 491,
+      "doc": "Format findings as a human-readable report.\n\nArgs:\n    findings: List of SecurityFinding objects.\n\nReturns:\n    Markdown-formatted report string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "findings"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "Severity",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SecurityFinding",
+      "line": 43,
+      "doc": "A single security issue found during scanning.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,636 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/signals.py",
+  "extension": ".py",
+  "size_bytes": 16771,
+  "line_count": 493,
+  "documentation": {
+    "file_docstring": "Agent Signal Handling - POSIX-style signals for AI Agents\n\nThis module implements a signal-based control mechanism for agents,\ninspired by POSIX signals but designed for AI agent lifecycle management.\n\nUnlike AIOS (which focuses on efficiency/throughput), this focuses on\nSAFETY and CONTROL - enabling immediate intervention when agents misbehave.\n\nSignals:\n    SIGSTOP  - Pause agent execution (enter shadow mode for inspection)\n    SIGCONT  - Resume agent execution\n    SIGINT   - Graceful interrupt (complete current action, then stop)\n    SIGKILL  - Immediate termination (kernel panic on policy violation)\n    SIGTERM  - Request graceful shutdown\n    SIGUSR1  - Enter diagnostic mode\n    SIGUSR2  - Trigger checkpoint/snapshot\n\nDesign Philosophy:\n    - Kernel survives agent crashes (Kernel/User space separation)\n    - Policy violations trigger SIGKILL (0% violation tolerance)\n    - All signals are logged to Flight Recorder",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Standard control signals",
+      "Diagnostic signals",
+      "Agent-specific signals",
+      "These signals can NEVER be blocked (kernel authority)",
+      "Install default handlers",
+      "Set all dispositions to DEFAULT",
+      "Record in history (always, even if blocked)",
+      "Check if signal is blocked",
+      "Deliver the signal",
+      "On handler failure for critical signals, escalate to SIGKILL",
+      "Deliver pending signals that are now unblocked",
+      "========== Default Signal Handlers ==========",
+      "The agent loop should check is_stopped and enter shadow mode",
+      "Set a flag that the agent loop should check after current action",
+      "Raise exception to force immediate termination",
+      "Escalate to kernel panic",
+      "Escalate to kernel panic",
+      "Don't kill, but pause for intervention",
+      "========== State Queries ==========",
+      "Agent should enter shadow/inspection mode",
+      "========== Convenience Functions =========="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentSignal: POSIX-inspired signals for agent lifecycle control.\n\nThese signals provide kerne",
+      "SignalDisposition: How a signal should be handled.",
+      "SignalInfo: Information about a delivered signal.",
+      "SignalMask: Signal mask for blocking signals during critical sections.\n\nNote: SIGKILL and SI",
+      "SignalDispatcher: Signal dispatcher for agent control.\n\nThis is the kernel-space component that ma",
+      "AgentKernelPanic: Kernel panic exception for agent termination.\n\nThis exception cannot be caught b",
+      "SignalAwareAgent: Abstract base class for agents that respond to signals.\n\nThis implements the use",
+      "kill_agent: Send SIGKILL to an agent (kernel panic).",
+      "pause_agent: Send SIGSTOP to pause an agent.",
+      "resume_agent: Send SIGCONT to resume an agent."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "block",
+    "is_stopped",
+    "signal",
+    "kill_agent",
+    "to_dict",
+    "is_blocked",
+    "is_terminated",
+    "check_signals",
+    "get_signal_history",
+    "signals",
+    "unblock",
+    "AgentSignal",
+    "SignalMask",
+    "SignalAwareAgent",
+    "SignalDisposition",
+    "is_running",
+    "set_handler",
+    "block_signals",
+    "pause_agent",
+    "resume_agent",
+    "unblock_signals",
+    "on_pause",
+    "SignalDispatcher",
+    "set_disposition",
+    "SignalInfo",
+    "AgentKernelPanic",
+    "policy_violation"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "enum",
+      "typing",
+      "dataclasses",
+      "datetime",
+      "asyncio",
+      "logging",
+      "abc"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "kill_agent",
+      "line": 454,
+      "doc": "Send SIGKILL to an agent (kernel panic).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dispatcher",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "pause_agent",
+      "line": 463,
+      "doc": "Send SIGSTOP to pause an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dispatcher",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resume_agent",
+      "line": 472,
+      "doc": "Send SIGCONT to resume an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dispatcher"
+      ],
+      "returns": null
+    },
+    {
+      "name": "policy_violation",
+      "line": 481,
+      "doc": "Report a policy violation (triggers kernel panic).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dispatcher",
+        "policy_name",
+        "details",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "block",
+      "line": 110,
+      "doc": "Block a signal. Returns False if signal is unmaskable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "unblock",
+      "line": 118,
+      "doc": "Unblock a signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_blocked",
+      "line": 122,
+      "doc": "Check if a signal is blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_install_default_handlers",
+      "line": 153,
+      "doc": "Install default signal handlers.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "signal",
+      "line": 168,
+      "doc": "Send a signal to this agent.\n\nReturns True if signal was delivered, False if blocked/pending.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sig",
+        "source",
+        "reason",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_deliver",
+      "line": 204,
+      "doc": "Actually deliver a signal to its handler.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "set_handler",
+      "line": 232,
+      "doc": "Set a custom signal handler.\n\nReturns the previous handler, or None.\nNote: SIGKILL handler cannot be changed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sig",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_disposition",
+      "line": 252,
+      "doc": "Set signal disposition.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sig",
+        "disposition"
+      ],
+      "returns": null
+    },
+    {
+      "name": "block_signals",
+      "line": 259,
+      "doc": "Block multiple signals.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unblock_signals",
+      "line": 264,
+      "doc": "Unblock signals and deliver any pending.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_stop",
+      "line": 280,
+      "doc": "SIGSTOP: Pause execution, enter shadow/inspection mode.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_continue",
+      "line": 286,
+      "doc": "SIGCONT: Resume execution from paused state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_interrupt",
+      "line": 294,
+      "doc": "SIGINT: Graceful interrupt - complete current action, then stop.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_kill",
+      "line": 300,
+      "doc": "SIGKILL: Immediate termination.\n\nThis is a KERNEL PANIC for agents. Non-maskable, non-catchable.\nUsed when policy violations occur or agent is unrecoverable.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_term",
+      "line": 320,
+      "doc": "SIGTERM: Request graceful shutdown.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_policy_violation",
+      "line": 325,
+      "doc": "SIGPOLICY: Policy violation detected.\n\nThis is the 0% violation guarantee - escalate to SIGKILL.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_trust_violation",
+      "line": 342,
+      "doc": "SIGTRUST: Trust boundary crossed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_budget_exceeded",
+      "line": 355,
+      "doc": "SIGBUDGET: Resource budget exceeded.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_stopped",
+      "line": 366,
+      "doc": "Check if agent is in stopped state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_terminated",
+      "line": 371,
+      "doc": "Check if agent has been terminated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_running",
+      "line": 376,
+      "doc": "Check if agent is in running state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_signal_history",
+      "line": 380,
+      "doc": "Get signal history for debugging/auditing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 393,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "signal",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 412,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "signals",
+      "line": 417,
+      "doc": "Access the signal dispatcher.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "SignalDispatcher"
+    },
+    {
+      "name": "check_signals",
+      "line": 421,
+      "doc": "Check signal state and respond appropriately.\n\nCall this at safe points in agent execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_pause",
+      "line": 438,
+      "doc": "Called when agent is paused (SIGSTOP).\n\nOverride to implement shadow mode or inspection behavior.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 447,
+      "doc": "Main agent execution loop.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentSignal",
+      "line": 38,
+      "doc": "POSIX-inspired signals for agent lifecycle control.\n\nThese signals provide kernel-level control over agent execution,\nenabling immediate intervention without relying on the agent itself.",
+      "is_public": true,
+      "bases": [
+        "IntEnum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SignalDisposition",
+      "line": 64,
+      "doc": "How a signal should be handled.",
+      "is_public": true,
+      "bases": [
+        "IntEnum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SignalInfo",
+      "line": 73,
+      "doc": "Information about a delivered signal.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SignalMask",
+      "line": 93,
+      "doc": "Signal mask for blocking signals during critical sections.\n\nNote: SIGKILL and SIGPOLICY cannot be masked (kernel authority).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SignalDispatcher",
+      "line": 132,
+      "doc": "Signal dispatcher for agent control.\n\nThis is the kernel-space component that manages signal delivery.\nIt survives agent crashes and maintains control even when agents fail.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentKernelPanic",
+      "line": 385,
+      "doc": "Kernel panic exception for agent termination.\n\nThis exception cannot be caught by user-space agent code.\nIt indicates a fatal error that requires immediate termination.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SignalAwareAgent",
+      "line": 404,
+      "doc": "Abstract base class for agents that respond to signals.\n\nThis implements the user-space side of signal handling.\nAgents inherit from this to gain signal awareness.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

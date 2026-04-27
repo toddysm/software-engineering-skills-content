@@ -1,0 +1,360 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/anthropic_adapter.py",
+  "extension": ".py",
+  "size_bytes": 13871,
+  "line_count": 420,
+  "documentation": {
+    "file_docstring": "Anthropic Claude Integration\n\nWraps Anthropic's Messages API with Agent OS governance.\n\nUsage:\n    from agent_os.integrations.anthropic_adapter import AnthropicKernel\n\n    kernel = AnthropicKernel(policy=GovernancePolicy(\n        max_tokens=4096,\n        allowed_tools=[\"web_search\", \"code_interpreter\"],\n        blocked_patterns=[\"password\", \"api_key\"],\n    ))\n\n    governed = kernel.wrap(client)\n    # All messages.create() calls are now governed\n    response = governed.messages.create(\n        model=\"claude-sonnet-4-20250514\",\n        max_tokens=1024,\n        messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    )\n\nFeatures:\n- Pre-execution policy checks on message content\n- Tool call interception and validation\n- Token limit enforcement\n- Content filtering via blocked patterns\n- SIGKILL support (cancel running requests)\n- Full audit trail\n- Health check endpoint",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "All messages.create() calls are now governed",
+      "--- pre-execution checks ---",
+      "Validate requested tools against policy",
+      "Enforce max_tokens cap from policy",
+      "Audit log",
+      "--- execute ---",
+      "--- post-execution checks ---",
+      "Track tokens",
+      "Validate tool_use blocks in response",
+      "Post-execute bookkeeping"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_anthropic_available: Raise a helpful error when the ``anthropic`` package is missing.",
+      "AnthropicContext: Execution context for Anthropic Claude interactions.\n\nAttributes:\n    model: The",
+      "PolicyViolationError: Raised when a Claude request violates governance policy.",
+      "RequestCancelledException: Raised when a request is cancelled via SIGKILL.",
+      "AnthropicKernel: Anthropic Claude adapter for Agent OS.\n\nProvides governance for the Anthropic Me",
+      "_GovernedMessages: Proxy for ``client.messages`` that intercepts ``create()``.",
+      "GovernedAnthropicClient: Anthropic client wrapped with Agent OS governance.\n\nTransparently proxies attrib",
+      "wrap_client: Quick wrapper for Anthropic clients.\n\nArgs:\n    client: An ``anthropic.Anthropic",
+      "__init__: Initialise the Anthropic governance kernel.\n\nArgs:\n    policy: Governance policy",
+      "wrap: Wrap an Anthropic client with governance.\n\nArgs:\n    client: An ``anthropic.Anth"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "is_cancelled",
+    "GovernedAnthropicClient",
+    "wrap_client",
+    "create",
+    "cancel_request",
+    "sigkill",
+    "AnthropicKernel",
+    "AnthropicContext",
+    "health_check",
+    "get_context",
+    "get_token_usage",
+    "wrap",
+    "PolicyViolationError",
+    "RequestCancelledException",
+    "unwrap"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "base",
+      "anthropic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_anthropic_available",
+      "line": 55,
+      "doc": "Raise a helpful error when the ``anthropic`` package is missing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "wrap_client",
+      "line": 402,
+      "doc": "Quick wrapper for Anthropic clients.\n\nArgs:\n    client: An ``anthropic.Anthropic`` client instance.\n    policy: Optional governance policy.\n\nReturns:\n    A governed client.\n\nExample:\n    >>> from agent_os.integrations.anthropic_adapter import wrap_client\n    >>> governed = wrap_client(my_client)\n    >>> response = governed.messages.create(model=\"claude-sonnet-4-20250514\", ...)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "client",
+        "policy"
+      ],
+      "returns": "GovernedAnthropicClient"
+    },
+    {
+      "name": "__init__",
+      "line": 111,
+      "doc": "Initialise the Anthropic governance kernel.\n\nArgs:\n    policy: Governance policy to enforce. Uses default when ``None``.\n    max_retries: Maximum retry attempts for transient errors.\n    timeout_seconds: Default timeout for operations.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "max_retries",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 132,
+      "doc": "Wrap an Anthropic client with governance.\n\nArgs:\n    client: An ``anthropic.Anthropic`` client instance.\n\nReturns:\n    A ``GovernedAnthropicClient`` that enforces policy on all\n    ``messages.create()`` calls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client"
+      ],
+      "returns": "GovernedAnthropicClient"
+    },
+    {
+      "name": "unwrap",
+      "line": 158,
+      "doc": "Retrieve the original unwrapped Anthropic client.\n\nArgs:\n    governed_agent: A ``GovernedAnthropicClient`` or any object.\n\nReturns:\n    The original Anthropic client if applicable, otherwise\n    *governed_agent* as-is.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "cancel_request",
+      "line": 172,
+      "doc": "Cancel a request (SIGKILL equivalent).\n\nArgs:\n    request_id: Identifier of the request to cancel.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_cancelled",
+      "line": 181,
+      "doc": "Check whether a request has been cancelled.\n\nArgs:\n    request_id: The request identifier to check.\n\nReturns:\n    ``True`` if the request was previously cancelled.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "health_check",
+      "line": 192,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client",
+        "kernel",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create",
+      "line": 224,
+      "doc": "Create a message with governance enforcement.\n\nValidates message content against blocked patterns, enforces\ntool-call allowlists, checks token limits after completion,\nand records an audit trail.\n\nArgs:\n    **kwargs: Forwarded to ``client.messages.create()``.\n\nReturns:\n    The Anthropic message response.\n\nRaises:\n    PolicyViolationError: If a governance policy is violated.\n    RequestCancelledException: If the request was SIGKILL'd.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_validate_tools",
+      "line": 332,
+      "doc": "Validate tool definitions against policy allowlist.\n\nArgs:\n    tools: List of tool definitions from the request.\n\nRaises:\n    PolicyViolationError: If a tool is not in the allowed list.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client",
+        "kernel",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sigkill",
+      "line": 367,
+      "doc": "Send SIGKILL \u2014 immediately cancel a request.\n\nArgs:\n    request_id: The message ID to cancel.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_context",
+      "line": 375,
+      "doc": "Return the execution context with the full audit trail.\n\nReturns:\n    The ``AnthropicContext`` for this governed client.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AnthropicContext"
+    },
+    {
+      "name": "get_token_usage",
+      "line": 383,
+      "doc": "Return cumulative token usage statistics.\n\nReturns:\n    A dict with ``prompt_tokens``, ``completion_tokens``,\n    ``total_tokens``, and ``limit``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__getattr__",
+      "line": 397,
+      "doc": "Proxy attribute access to the underlying Anthropic client.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AnthropicContext",
+      "line": 65,
+      "doc": "Execution context for Anthropic Claude interactions.\n\nAttributes:\n    model: The model used for this session.\n    message_ids: Recorded message response IDs.\n    tool_use_calls: History of tool-use blocks returned by Claude.\n    prompt_tokens: Cumulative input tokens consumed.\n    completion_tokens: Cumulative output tokens consumed.",
+      "is_public": true,
+      "bases": [
+        "ExecutionContext"
+      ],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 83,
+      "doc": "Raised when a Claude request violates governance policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RequestCancelledException",
+      "line": 89,
+      "doc": "Raised when a request is cancelled via SIGKILL.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AnthropicKernel",
+      "line": 95,
+      "doc": "Anthropic Claude adapter for Agent OS.\n\nProvides governance for the Anthropic Messages API including policy\nenforcement, tool-call validation, token tracking, and audit logging.\n\nExample:\n    >>> kernel = AnthropicKernel(policy=GovernancePolicy(max_tokens=8192))\n    >>> governed = kernel.wrap(anthropic.Anthropic())\n    >>> response = governed.messages.create(\n    ...     model=\"claude-sonnet-4-20250514\",\n    ...     max_tokens=1024,\n    ...     messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    ... )",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "_GovernedMessages",
+      "line": 211,
+      "doc": "Proxy for ``client.messages`` that intercepts ``create()``.",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GovernedAnthropicClient",
+      "line": 349,
+      "doc": "Anthropic client wrapped with Agent OS governance.\n\nTransparently proxies attribute access to the underlying client\nwhile intercepting ``messages.create()`` for policy enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 41,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

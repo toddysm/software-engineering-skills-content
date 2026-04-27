@@ -1,0 +1,359 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/orchestrator.py",
+  "extension": ".py",
+  "size_bytes": 15181,
+  "line_count": 482,
+  "documentation": {
+    "file_docstring": "Agent Orchestrator - Multi-Agent Coordination and Communication\n\nThe Orchestrator manages coordination, communication, and workflow execution\nacross multiple agents. This addresses the gap in multi-agent support noted\nin competitive analysis.\n\nResearch Foundations:\n    - Multi-agent coordination patterns from \"Multi-Agent Systems: A Survey\" \n      (arXiv:2308.05391, 2023) - hierarchical control, message passing\n    - Agent-to-Agent communication protocols (A2A standard)\n    - Graph-based workflow execution inspired by LangGraph\n    - Fault tolerance patterns from \"Fault-Tolerant Multi-Agent Systems\" \n      (IEEE Trans. SMC, 2024)\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Register agents",
+      "Define workflow",
+      "Execute",
+      "Create a copy with dependencies",
+      "Execute based on workflow structure",
+      "This is a simplified implementation",
+      "In production, would use proper graph execution engine",
+      "Simple execution order: agents without dependencies first",
+      "Check if dependencies are satisfied",
+      "Execute this agent",
+      "In production, this would call the actual agent",
+      "Register agents",
+      "Create workflow",
+      "Add agents in order",
+      "Add supervisor"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentRole: Roles agents can play in orchestrated workflows",
+      "MessageType: Types of inter-agent messages",
+      "OrchestrationType: Patterns for agent orchestration",
+      "Message: Inter-agent message",
+      "AgentNode: A node in the orchestration graph representing an agent.\n\nAttributes:\n    agent_",
+      "WorkflowState: State of an orchestrated workflow",
+      "AgentOrchestrator: Orchestrator for multi-agent coordination and workflows.\n\nFeatures:\n- Sequential",
+      "create_rag_pipeline: Example: Create a RAG (Retrieval-Augmented Generation) pipeline.\n\nArgs:\n    orch",
+      "__init__: Initialize the orchestrator.\n\nArgs:\n    control_plane: Optional AgentControlPlan",
+      "register_agent: Register an agent for orchestration.\n\nArgs:\n    agent_id: Unique identifier\n    "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "WorkflowState",
+    "list_agents",
+    "add_agent_to_workflow",
+    "add_supervisor",
+    "OrchestrationType",
+    "register_agent",
+    "unregister_agent",
+    "AgentRole",
+    "Message",
+    "MessageType",
+    "AgentNode",
+    "create_rag_pipeline",
+    "AgentOrchestrator",
+    "list_workflows",
+    "create_workflow",
+    "get_agent_info",
+    "get_workflow_status"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "uuid",
+      "asyncio",
+      "collections"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_rag_pipeline",
+      "line": 436,
+      "doc": "Example: Create a RAG (Retrieval-Augmented Generation) pipeline.\n\nArgs:\n    orchestrator: AgentOrchestrator instance\n    \nReturns:\n    workflow_id for the created pipeline",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "orchestrator"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 129,
+      "doc": "Initialize the orchestrator.\n\nArgs:\n    control_plane: Optional AgentControlPlane for governance integration",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "control_plane"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 142,
+      "doc": "Register an agent for orchestration.\n\nArgs:\n    agent_id: Unique identifier\n    role: Agent's role\n    capabilities: List of capabilities\n    metadata: Additional metadata\n    \nReturns:\n    AgentNode representing the registered agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "role",
+        "capabilities",
+        "metadata"
+      ],
+      "returns": "AgentNode"
+    },
+    {
+      "name": "unregister_agent",
+      "line": 174,
+      "doc": "Remove an agent from the orchestrator",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "create_workflow",
+      "line": 181,
+      "doc": "Create a new workflow.\n\nArgs:\n    name: Workflow name\n    orchestration_type: How agents should be coordinated\n    \nReturns:\n    WorkflowState for the new workflow",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "orchestration_type"
+      ],
+      "returns": "WorkflowState"
+    },
+    {
+      "name": "add_agent_to_workflow",
+      "line": 210,
+      "doc": "Add an agent to a workflow.\n\nArgs:\n    workflow_id: Workflow ID\n    agent_id: Agent to add\n    dependencies: Other agents this depends on\n    \nReturns:\n    True if added successfully",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow_id",
+        "agent_id",
+        "dependencies"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "add_supervisor",
+      "line": 248,
+      "doc": "Add a supervisor agent to watch other agents.\n\nArgs:\n    supervisor_id: ID of the supervisor agent\n    watched_agents: List of agent IDs to supervise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "supervisor_id",
+        "watched_agents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "send_message",
+      "line": 269,
+      "doc": "Send a message from one agent to another.\n\nArgs:\n    from_agent: Sender agent ID\n    to_agent: Recipient agent ID\n    message_type: Type of message\n    content: Message content\n    metadata: Optional metadata\n    \nReturns:\n    The sent message",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "from_agent",
+        "to_agent",
+        "message_type",
+        "content",
+        "metadata"
+      ],
+      "returns": "Message"
+    },
+    {
+      "name": "execute_workflow",
+      "line": 302,
+      "doc": "Execute a workflow.\n\nArgs:\n    workflow_id: Workflow to execute\n    input_data: Input data for the workflow\n    timeout: Optional timeout in seconds\n    \nReturns:\n    Results dictionary",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow_id",
+        "input_data",
+        "timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_execute_agents_in_order",
+      "line": 354,
+      "doc": "Execute agents respecting dependencies.\n(Simplified topological sort execution)",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow",
+        "input_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_workflow_status",
+      "line": 391,
+      "doc": "Get the current status of a workflow",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_info",
+      "line": 407,
+      "doc": "Get information about a registered agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_agents",
+      "line": 420,
+      "doc": "List all registered agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_workflows",
+      "line": 424,
+      "doc": "List all workflows",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentRole",
+      "line": 30,
+      "doc": "Roles agents can play in orchestrated workflows",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MessageType",
+      "line": 38,
+      "doc": "Types of inter-agent messages",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OrchestrationType",
+      "line": 47,
+      "doc": "Patterns for agent orchestration",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Message",
+      "line": 57,
+      "doc": "Inter-agent message",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentNode",
+      "line": 69,
+      "doc": "A node in the orchestration graph representing an agent.\n\nAttributes:\n    agent_id: Unique identifier for the agent\n    role: Role of the agent in the workflow\n    capabilities: List of capabilities this agent provides\n    dependencies: Agent IDs this agent depends on\n    metadata: Additional agent metadata",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "WorkflowState",
+      "line": 88,
+      "doc": "State of an orchestrated workflow",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentOrchestrator",
+      "line": 100,
+      "doc": "Orchestrator for multi-agent coordination and workflows.\n\nFeatures:\n- Sequential, parallel, and hierarchical agent execution patterns\n- Inter-agent message passing and communication\n- Graph-based workflow definition (inspired by LangGraph)\n- Fault tolerance with circuit breakers and retries\n- Supervision hierarchies to prevent cascade failures\n\nUsage:\n    orchestrator = AgentOrchestrator(control_plane)\n    \n    # Register agents\n    orchestrator.register_agent(\"retriever\", AgentRole.SPECIALIST, [\"document_search\"])\n    orchestrator.register_agent(\"reasoner\", AgentRole.SPECIALIST, [\"analysis\"])\n    orchestrator.register_agent(\"supervisor\", AgentRole.SUPERVISOR, [\"oversight\"])\n    \n    # Define workflow\n    workflow = orchestrator.create_workflow(\"rag_pipeline\")\n    workflow.add_agent(\"retriever\")\n    workflow.add_agent(\"reasoner\", dependencies={\"retriever\"})\n    workflow.add_supervisor(\"supervisor\", watches=[\"retriever\", \"reasoner\"])\n    \n    # Execute\n    result = await orchestrator.execute_workflow(workflow.workflow_id, input_data)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.8,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

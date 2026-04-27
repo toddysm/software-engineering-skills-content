@@ -1,0 +1,534 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/persistence.py",
+  "extension": ".py",
+  "size_bytes": 16564,
+  "line_count": 529,
+  "documentation": {
+    "file_docstring": "Message persistence for AMB.\n\nThis module provides message persistence capabilities for durability\nand replay functionality.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Evict oldest if at capacity",
+      "Find start index if after_id specified",
+      "Create base directory",
+      "Load index from existing files",
+      "Create topic directory",
+      "Create message file",
+      "Sort by timestamp"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MessageStatus: Status of a persisted message.",
+      "PersistedMessage: A message with persistence metadata.",
+      "MessageStore: Abstract base class for message persistence stores.\n\nImplementations provide dur",
+      "InMemoryMessageStore: In-memory message store for testing and development.\n\nMessages are stored in mem",
+      "FileMessageStore: File-based message store for persistence across restarts.\n\nMessages are stored a",
+      "to_dict: Convert to dictionary for serialization.",
+      "from_dict: Create from dictionary.",
+      "store: Store a message.\n\nArgs:\n    message: Message to store\n    \nReturns:\n    Storage ",
+      "get: Get a message by ID.\n\nArgs:\n    message_id: Message ID\n    \nReturns:\n    Persist",
+      "update_status: Update message status.\n\nArgs:\n    message_id: Message ID\n    status: New status\n"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MessageStatus",
+    "PersistedMessage",
+    "to_dict",
+    "from_dict",
+    "InMemoryMessageStore",
+    "FileMessageStore",
+    "MessageStore"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "datetime",
+      "dataclasses",
+      "enum",
+      "asyncio",
+      "json",
+      "pathlib",
+      "aiofiles",
+      "aiofiles.os",
+      "amb_core.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 44,
+      "doc": "Convert to dictionary for serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 56,
+      "doc": "Create from dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "store",
+      "line": 77,
+      "doc": "Store a message.\n\nArgs:\n    message: Message to store\n    \nReturns:\n    Storage ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get",
+      "line": 90,
+      "doc": "Get a message by ID.\n\nArgs:\n    message_id: Message ID\n    \nReturns:\n    Persisted message or None",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_status",
+      "line": 103,
+      "doc": "Update message status.\n\nArgs:\n    message_id: Message ID\n    status: New status\n    error: Optional error message\n    \nReturns:\n    True if updated, False if not found",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message_id",
+        "status",
+        "error"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_by_topic",
+      "line": 123,
+      "doc": "Get messages by topic.\n\nArgs:\n    topic: Topic to query\n    status: Optional status filter\n    limit: Maximum messages to return\n    after_id: Return messages after this ID (for pagination)\n    \nReturns:\n    List of persisted messages",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "topic",
+        "status",
+        "limit",
+        "after_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "replay",
+      "line": 145,
+      "doc": "Replay messages from a topic.\n\nArgs:\n    topic: Topic to replay\n    from_timestamp: Start timestamp (inclusive)\n    to_timestamp: End timestamp (inclusive)\n    \nYields:\n    Messages in chronological order",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "topic",
+        "from_timestamp",
+        "to_timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete",
+      "line": 165,
+      "doc": "Delete a message.\n\nArgs:\n    message_id: Message ID\n    \nReturns:\n    True if deleted, False if not found",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_stats",
+      "line": 178,
+      "doc": "Get storage statistics.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 190,
+      "doc": "Initialize in-memory store.\n\nArgs:\n    max_messages: Maximum messages to store",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "store",
+      "line": 202,
+      "doc": "Store a message in memory.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get",
+      "line": 219,
+      "doc": "Get a message by ID.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_status",
+      "line": 223,
+      "doc": "Update message status.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id",
+        "status",
+        "error"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_by_topic",
+      "line": 244,
+      "doc": "Get messages by topic.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "status",
+        "limit",
+        "after_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "replay",
+      "line": 270,
+      "doc": "Replay messages from a topic.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "from_timestamp",
+        "to_timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete",
+      "line": 293,
+      "doc": "Delete a message.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_remove_internal",
+      "line": 298,
+      "doc": "Internal remove without lock.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_stats",
+      "line": 313,
+      "doc": "Get storage statistics.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 335,
+      "doc": "Initialize file store.\n\nArgs:\n    base_path: Base directory for message storage\n    max_messages_per_file: Maximum messages per file",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "base_path",
+        "max_messages_per_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_ensure_initialized",
+      "line": 349,
+      "doc": "Ensure storage directory exists and index is loaded.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_index",
+      "line": 365,
+      "doc": "Load message index from existing files.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "store",
+      "line": 385,
+      "doc": "Store a message to file.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get",
+      "line": 403,
+      "doc": "Get a message by ID.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_status",
+      "line": 419,
+      "doc": "Update message status in file.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id",
+        "status",
+        "error"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_by_topic",
+      "line": 445,
+      "doc": "Get messages by topic from files.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "status",
+        "limit",
+        "after_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "replay",
+      "line": 484,
+      "doc": "Replay messages from files.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "from_timestamp",
+        "to_timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete",
+      "line": 506,
+      "doc": "Delete a message file.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_stats",
+      "line": 521,
+      "doc": "Get storage statistics.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MessageStatus",
+      "line": 23,
+      "doc": "Status of a persisted message.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PersistedMessage",
+      "line": 33,
+      "doc": "A message with persistence metadata.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MessageStore",
+      "line": 68,
+      "doc": "Abstract base class for message persistence stores.\n\nImplementations provide durable message storage for replay,\naudit trails, and crash recovery.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InMemoryMessageStore",
+      "line": 183,
+      "doc": "In-memory message store for testing and development.\n\nMessages are stored in memory and lost on restart.",
+      "is_public": true,
+      "bases": [
+        "MessageStore"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FileMessageStore",
+      "line": 328,
+      "doc": "File-based message store for persistence across restarts.\n\nMessages are stored as JSON files in a directory structure.",
+      "is_public": true,
+      "bases": [
+        "MessageStore"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 56,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

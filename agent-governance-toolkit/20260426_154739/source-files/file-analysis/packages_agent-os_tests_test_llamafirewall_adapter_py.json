@@ -1,0 +1,698 @@
+{
+  "path": "packages/agent-os/tests/test_llamafirewall_adapter.py",
+  "extension": ".py",
+  "size_bytes": 17090,
+  "line_count": 393,
+  "documentation": {
+    "file_docstring": "Tests for the LlamaFirewall integration adapter.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "FirewallMode enum",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "FirewallVerdict enum",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "FirewallResult dataclass",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Fallback when llamafirewall is not installed",
+      "---------------------------------------------------------------------------",
+      "Should still work via agent_os path",
+      "Falls back to AGENT_OS_ONLY",
+      "Without llama, only agent_os votes \u2014 benign prompt = SAFE",
+      "---------------------------------------------------------------------------",
+      "AGENT_OS_ONLY mode",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "CHAIN_BOTH mode with mocked LlamaFirewall",
+      "---------------------------------------------------------------------------",
+      "AOS score should be higher (malicious), max is used",
+      "---------------------------------------------------------------------------",
+      "VOTE_MAJORITY mode",
+      "---------------------------------------------------------------------------",
+      "Benign prompt: agent_os won't block, llama will \u2192 SUSPICIOUS",
+      "AOS score=0.0, llama score=0.4 \u2192 average = 0.2",
+      "---------------------------------------------------------------------------",
+      "scan_code",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "available_scanners property",
+      "---------------------------------------------------------------------------",
+      "llama not installed, only agent_os",
+      "---------------------------------------------------------------------------",
+      "scan_prompt_sync",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Internal helper coverage",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_run_async: Run an async coroutine synchronously.",
+      "_mock_llama_module: Create a mock llamafirewall module."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestAgentOSOnly",
+    "TestFirewallResult",
+    "test_llama_blocks_combined_blocks",
+    "test_one_blocks_returns_suspicious",
+    "test_vote_majority_without_llama",
+    "test_vote_uses_average_score",
+    "test_all_verdicts_exist",
+    "TestFallbackBehaviour",
+    "TestHelpers",
+    "test_both_block_returns_blocked",
+    "test_sync_malicious",
+    "test_map_llama_verdict_safe",
+    "test_both_safe_returns_safe",
+    "test_agent_os_blocks_combined_blocks",
+    "test_scan_code_without_llama_returns_safe_with_warning",
+    "TestVoteMajority",
+    "test_none_block_returns_safe",
+    "test_all_modes_exist",
+    "test_chain_uses_max_score",
+    "test_chain_both_async",
+    "TestChainBoth",
+    "TestFirewallMode",
+    "test_custom_config_passed_to_detector",
+    "test_fields_populated",
+    "TestScanCode",
+    "test_all_optional_fields",
+    "TestAvailableScanners",
+    "test_mode_count",
+    "test_chain_both_falls_back_gracefully",
+    "TestFirewallVerdict",
+    "test_malicious_prompt_blocked",
+    "test_chain_both_with_llama",
+    "test_run_llamafirewall_import_error",
+    "test_llama_only_falls_back_to_agent_os",
+    "test_sync_benign",
+    "test_map_llama_verdict_malicious",
+    "test_scan_code_with_mock_llama",
+    "test_map_llama_verdict_benign",
+    "test_chain_both_without_llama",
+    "test_verdict_count",
+    "test_agent_os_only_does_not_need_llama",
+    "test_map_llama_verdict_unknown",
+    "test_agent_os_only_scanners",
+    "TestScanPromptSync",
+    "test_async_scan_prompt",
+    "test_map_llama_verdict_blocked",
+    "test_benign_prompt_safe"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "sys",
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.llamafirewall",
+      "agent_os.prompt_injection"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_run_async",
+      "line": 26,
+      "doc": "Run an async coroutine synchronously.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "coro"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_mock_llama_module",
+      "line": 31,
+      "doc": "Create a mock llamafirewall module.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "verdict",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_modes_exist",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mode_count",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_verdicts_exist",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verdict_count",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fields_populated",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_optional_fields",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_both_falls_back_gracefully",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_llama_only_falls_back_to_agent_os",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vote_majority_without_llama",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_os_only_does_not_need_llama",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_benign_prompt_safe",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_malicious_prompt_blocked",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_async_scan_prompt",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_both_safe_returns_safe",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_llama_blocks_combined_blocks",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_os_blocks_combined_blocks",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_uses_max_score",
+      "line": 223,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_both_async",
+      "line": 235,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_both_block_returns_blocked",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_one_blocks_returns_suspicious",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_none_block_returns_safe",
+      "line": 275,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vote_uses_average_score",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_code_without_llama_returns_safe_with_warning",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_code_with_mock_llama",
+      "line": 311,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_os_only_scanners",
+      "line": 328,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_both_without_llama",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_both_with_llama",
+      "line": 338,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_benign",
+      "line": 353,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sync_malicious",
+      "line": 358,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_map_llama_verdict_safe",
+      "line": 369,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_map_llama_verdict_blocked",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_map_llama_verdict_malicious",
+      "line": 375,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_map_llama_verdict_benign",
+      "line": 378,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_map_llama_verdict_unknown",
+      "line": 381,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_run_llamafirewall_import_error",
+      "line": 384,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_config_passed_to_detector",
+      "line": 390,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestFirewallMode",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFirewallVerdict",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFirewallResult",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFallbackBehaviour",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentOSOnly",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestChainBoth",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVoteMajority",
+      "line": 251,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScanCode",
+      "line": 303,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAvailableScanners",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScanPromptSync",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHelpers",
+      "line": 368,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 1,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

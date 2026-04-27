@@ -1,0 +1,212 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/budget.py",
+  "extension": ".py",
+  "size_bytes": 5338,
+  "line_count": 161,
+  "documentation": {
+    "file_docstring": "Token and cost budget enforcement as a policy rule type.\n\nTracks per-agent token and monetary spend against configurable limits\nwithin rolling time windows, and returns allow/deny decisions before\neach LLM call.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_parse_window: Convert a human-friendly window string to seconds.",
+      "BudgetConfig: Budget limits for a single enforcement scope.",
+      "BudgetDecision: Result of a budget check.",
+      "_AgentUsage: Internal mutable record for a single agent's usage.",
+      "BudgetTracker: Tracks token/cost usage per agent and enforces limits.\n\nUsage is accumulated in ",
+      "_get_usage: Return the usage record, resetting if the window has expired.",
+      "record_usage: Record that *agent_id* consumed *tokens* and *cost_usd*.",
+      "check_budget: Check whether *agent_id* may proceed with an additional call.\n\nIf *estimated_tok",
+      "get_usage: Return a snapshot of current usage for *agent_id*.",
+      "reset: Reset usage counters.\n\nIf *agent_id* is provided only that agent's counters are "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_usage",
+    "record_usage",
+    "check_budget",
+    "reset",
+    "window_seconds",
+    "BudgetTracker",
+    "BudgetDecision",
+    "BudgetConfig"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "re",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_parse_window",
+      "line": 21,
+      "doc": "Convert a human-friendly window string to seconds.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "window"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "window_seconds",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_usage",
+      "line": 74,
+      "doc": "Return the usage record, resetting if the window has expired.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "_AgentUsage"
+    },
+    {
+      "name": "record_usage",
+      "line": 88,
+      "doc": "Record that *agent_id* consumed *tokens* and *cost_usd*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tokens",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_budget",
+      "line": 96,
+      "doc": "Check whether *agent_id* may proceed with an additional call.\n\nIf *estimated_tokens* is provided, the check verifies that the\nagent would still be within budget after consuming that many tokens.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "estimated_tokens"
+      ],
+      "returns": "BudgetDecision"
+    },
+    {
+      "name": "get_usage",
+      "line": 137,
+      "doc": "Return a snapshot of current usage for *agent_id*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "reset",
+      "line": 152,
+      "doc": "Reset usage counters.\n\nIf *agent_id* is provided only that agent's counters are cleared;\notherwise all agents are reset.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "BudgetConfig",
+      "line": 32,
+      "doc": "Budget limits for a single enforcement scope.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BudgetDecision",
+      "line": 44,
+      "doc": "Result of a budget check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_AgentUsage",
+      "line": 54,
+      "doc": "Internal mutable record for a single agent's usage.",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BudgetTracker",
+      "line": 62,
+      "doc": "Tracks token/cost usage per agent and enforces limits.\n\nUsage is accumulated in a rolling window.  When the window expires\nthe counters are automatically reset on the next access.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 13,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

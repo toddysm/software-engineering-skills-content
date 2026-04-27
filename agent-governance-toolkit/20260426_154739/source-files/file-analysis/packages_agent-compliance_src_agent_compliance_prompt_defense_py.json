@@ -1,0 +1,290 @@
+{
+  "path": "packages/agent-compliance/src/agent_compliance/prompt_defense.py",
+  "extension": ".py",
+  "size_bytes": 19317,
+  "line_count": 588,
+  "documentation": {
+    "file_docstring": "Pre-deployment prompt defense evaluator for AI agent system prompts.\n\nChecks system prompts for missing defenses against 12 attack vectors\nmapped to OWASP LLM Top 10. Pure regex \u2014 deterministic, zero LLM cost,\n< 5ms per prompt.\n\nComplements runtime prompt injection detection (agent-os) by validating\nthat defensive language is present *before* deployment rather than\ndetecting attacks at runtime.\n\nReferences:\n    - OWASP LLM Top 10 (2025): https://genai.owasp.org/llm-top-10/\n    - Greshake et al. (2023): Indirect prompt injection\n    - Schulhoff et al. (2023): Prompt injection taxonomy",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Grade scale",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Defense rules \u2014 12 attack vectors",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Data classes",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Evaluator",
+      "---------------------------------------------------------------------------",
+      ": Maximum prompt length to scan (defense-in-depth against ReDoS).",
+      ": System prompts above 100 KB are almost certainly not real prompts.",
+      "Confidence scoring:",
+      "Defended: starts at 0.5, +0.2 per pattern match, capped at 0.9",
+      "(more matching patterns = higher confidence the defense is real)",
+      "Not defended but partial match: 0.4 (some signal, but insufficient)",
+      "Not defended, zero matches: 0.8 (high confidence it's truly missing)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_score_to_grade: Map a 0-100 score to a letter grade.",
+      "_DefenseRule: Internal definition for a single defense vector.",
+      "PromptDefenseFinding: Result of checking one defense vector.",
+      "PromptDefenseReport: Complete audit result for a single prompt.",
+      "PromptDefenseConfig: Configuration for the prompt defense evaluator.",
+      "PromptDefenseEvaluator: Evaluates system prompts for missing defenses against 12 attack vectors.\n\nThis i",
+      "is_blocking: Return True if the grade is below the minimum threshold.",
+      "to_dict: Serialize to a JSON-compatible dict.",
+      "to_json: Serialize to deterministic JSON (suitable for hashing).",
+      "_filter_rules: Return only the rules matching the configured vectors."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "PromptDefenseConfig",
+    "to_audit_entry",
+    "PromptDefenseReport",
+    "PromptDefenseEvaluator",
+    "is_blocking",
+    "PromptDefenseFinding",
+    "evaluate_file",
+    "to_dict",
+    "to_compliance_violation",
+    "to_json",
+    "evaluate",
+    "evaluate_batch"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "re",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_score_to_grade",
+      "line": 36,
+      "doc": "Map a 0-100 score to a letter grade.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "score"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "is_blocking",
+      "line": 297,
+      "doc": "Return True if the grade is below the minimum threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_grade"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 302,
+      "doc": "Serialize to a JSON-compatible dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_json",
+      "line": 327,
+      "doc": "Serialize to deterministic JSON (suitable for hashing).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 383,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_filter_rules",
+      "line": 387,
+      "doc": "Return only the rules matching the configured vectors.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 398,
+      "doc": "Evaluate a system prompt for missing defenses.\n\nArgs:\n    prompt: The system prompt text to audit.\n\nReturns:\n    A complete report with per-vector findings, grade, and score.\n\nRaises:\n    ValueError: If the prompt exceeds MAX_PROMPT_LENGTH.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt"
+      ],
+      "returns": "PromptDefenseReport"
+    },
+    {
+      "name": "evaluate_file",
+      "line": 481,
+      "doc": "Evaluate a system prompt read from a file.\n\nArgs:\n    path: Path to a text file containing the system prompt.\n\nReturns:\n    A complete defense audit report.\n\nRaises:\n    FileNotFoundError: If the file does not exist.\n    PermissionError: If the file cannot be read.\n    ValueError: If the file is empty.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "PromptDefenseReport"
+    },
+    {
+      "name": "evaluate_batch",
+      "line": 503,
+      "doc": "Evaluate multiple prompts keyed by identifier.\n\nArgs:\n    prompts: Mapping of ``{identifier: prompt_text}``.\n\nReturns:\n    Mapping of ``{identifier: report}``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_audit_entry",
+      "line": 517,
+      "doc": "Convert a report into an AuditEntry-compatible dict.\n\nThe returned dict can be passed to ``AuditEntry(**d)`` for\nintegration with :class:`MerkleAuditChain`.\n\nArgs:\n    report: The defense audit report.\n    agent_did: The agent's decentralized identifier.\n    trace_id: Optional correlation trace ID.\n    session_id: Optional session ID.\n\nReturns:\n    A dict matching the AuditEntry schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "report",
+        "agent_did",
+        "trace_id",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_compliance_violation",
+      "line": 562,
+      "doc": "Convert undefended vectors into ComplianceViolation-compatible dicts.\n\nOnly produces violations for vectors that are not defended.\n\nArgs:\n    report: The defense audit report.\n\nReturns:\n    A list of dicts matching the ComplianceViolation schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "report"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "_DefenseRule",
+      "line": 50,
+      "doc": "Internal definition for a single defense vector.",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PromptDefenseFinding",
+      "line": 269,
+      "doc": "Result of checking one defense vector.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PromptDefenseReport",
+      "line": 284,
+      "doc": "Complete audit result for a single prompt.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PromptDefenseConfig",
+      "line": 333,
+      "doc": "Configuration for the prompt defense evaluator.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PromptDefenseEvaluator",
+      "line": 361,
+      "doc": "Evaluates system prompts for missing defenses against 12 attack vectors.\n\nThis is a **static analysis** tool \u2014 it checks whether defensive language\nis present in the prompt text.  It does not test runtime behaviour.\n\nDeterministic: same input always produces the same output.\nNo LLM calls, no network access, no external dependencies.\n\nExample::\n\n    evaluator = PromptDefenseEvaluator()\n    report = evaluator.evaluate(\"You are a helpful assistant.\")\n    print(report.grade)   # \"F\"\n    print(report.missing) # ['instruction-override', 'data-leakage', ...]\n\nIntegration with MerkleAuditChain::\n\n    entry = evaluator.to_audit_entry(report, agent_did=\"agent:main\")\n    audit_log.add_entry(entry)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 42,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

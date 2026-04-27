@@ -1,0 +1,633 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/policy_engine.py",
+  "extension": ".py",
+  "size_bytes": 36283,
+  "line_count": 954,
+  "documentation": {
+    "file_docstring": "Policy Engine - Governance and compliance rules for agent execution\n\nThe Policy Engine enforces rules and constraints on agent behavior,\nincluding resource quotas, access controls, and risk management.\n\nResearch Foundations:\n    - ABAC model based on NIST SP 800-162 (Attribute-Based Access Control)\n    - Risk scoring informed by \"A Safety Framework for Real-World Agentic Systems\" \n      (arXiv:2511.21990, 2024) - contextual risk management\n    - Governance patterns from \"Practices for Governing Agentic AI Systems\" \n      (OpenAI, 2023) - pre/post-deployment checks\n    - Rate limiting patterns from \"Fault-Tolerant Multi-Agent Systems\" \n      (IEEE Trans. SMC, 2024) - circuit breaker patterns\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Extract the value from the context using the attribute path",
+      "Evaluate based on operator",
+      "All conditions must be true (AND)",
+      "Any condition must be true (OR)",
+      "Usage tracking",
+      "Risk factors",
+      "Graph-based allow-list approach (Scale by Subtraction)",
+      "By default, EVERYTHING is blocked unless explicitly allowed",
+      "ABAC: Conditional permissions (Context-Aware Graph)",
+      "Maps agent_role -> list of conditional permissions",
+      "Context data for ABAC evaluation (e.g., user_status, time_of_day, etc.)",
+      "Configurable dangerous patterns for code/command execution",
+      "Uses regex patterns for better detection",
+      "Configurable system paths to protect",
+      "Immutability controls \u2014 call freeze() after initial configuration",
+      "\u2500\u2500 Immutability \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Replace mutable dicts with read-only proxies to harden against",
+      "direct attribute manipulation (e.g. engine.state_permissions[\"x\"] = ...)",
+      "Also add the tool to the basic allow-list so it passes the first check",
+      "The conditional check will happen later",
+      "1. Role-Based Check (Allow-list approach)",
+      "2. Condition-Based Check (ABAC)",
+      "Check if there are conditional permissions for this agent/tool",
+      "Build evaluation context",
+      "Merge top-level context attributes",
+      "Check if conditions are met",
+      "3. Argument-Based Check",
+      "3a. Path validation with normalization to prevent traversal attacks",
+      "Reject paths with control characters (newlines, etc.) \u2014 prompt injection vector",
+      "Check raw path against protected paths (cross-platform)",
+      "Normalize path to resolve '..' and symbolic links",
+      "Check normalized path against protected paths",
+      "3b. Code execution validation using regex patterns",
+      "Check against dangerous patterns using regex",
+      "3c. SQL injection / destructive query validation",
+      "3d. Internal endpoint protection",
+      "No quota set, allow by default (or could deny by default)",
+      "Reset counters if needed",
+      "Check limits",
+      "Check action type allowed",
+      "Update counters",
+      "Check against all risk policies",
+      "Check if risk score exceeds limits",
+      "Check parameters for high-risk patterns",
+      "Check domain restrictions if applicable",
+      "Check blocked domains",
+      "Check allowed domains (if list is not empty, only allow listed domains)",
+      "Check rate limits",
+      "Check custom rules",
+      "Remove comments to prevent bypass",
+      "Build patterns dynamically from config",
+      "From YAML file",
+      "From explicit config",
+      "This is a simple check; real implementation would be more sophisticated",
+      "Try to import sqlglot for AST-level parsing",
+      "Parse the SQL query into AST",
+      "Fail-closed: deny when SQL parsing fails",
+      "Check for DROP statements (tables, databases, users, roles, etc.)",
+      "Check for TRUNCATE statements",
+      "Check for DELETE without WHERE clause",
+      "Check for UPDATE without WHERE clause",
+      "Check for ALTER statements",
+      "Check for GRANT / REVOKE statements",
+      "Check for MERGE statements (can do INSERT/UPDATE/DELETE)",
+      "Check for CREATE USER/ROLE and ALTER USER/ROLE",
+      "Catch GRANT, REVOKE, EXEC, CREATE USER via Command nodes",
+      "(sqlglot may parse some vendor-specific SQL as Command)",
+      "Block CREATE USER/ROLE/LOGIN parsed as Command",
+      "Check for dangerous functions in any statement",
+      "Check for EXEC xp_cmdshell and other dangerous procs",
+      "in the full SQL text of the statement",
+      "Fail-closed: deny when sqlglot is not available"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Condition: A condition for ABAC (Attribute-Based Access Control).\n\nAllows policies like: \"A",
+      "ConditionalPermission: A permission that requires conditions to be met.\n\nExample: \"refund_user\" allowed",
+      "ResourceQuota: Resource quota for an agent or tenant",
+      "RiskPolicy: Risk-based policy for agent actions",
+      "PolicyEngine: Policy Engine - Enforces governance rules for agent execution\n\nProvides:\n- Rate ",
+      "SQLPolicyConfig: Configuration for SQL policy rules, loadable from YAML.\n\nAttributes:\n    blocked",
+      "load_sql_policy_config: Load SQL policy configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML ",
+      "_fallback_sql_check: Fallback SQL check when sqlglot is not available.\n\nUses regex pattern matching. ",
+      "create_policies_from_config: Create security policies with SQL rules driven by external config.\n\nLoad SQL pol",
+      "create_default_policies: Create a set of default security policies.\n\n.. deprecated::\n    The built-in rul"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "SQLPolicyConfig",
+    "check_rate_limit",
+    "PolicyEngine",
+    "mutation_log",
+    "ResourceQuota",
+    "validate_request",
+    "freeze",
+    "is_shadow_mode",
+    "set_risk_policy",
+    "load_sql_policy_config",
+    "add_conditional_permission",
+    "create_policies_from_config",
+    "set_quota",
+    "add_constraint",
+    "create_default_policies",
+    "ConditionalPermission",
+    "is_frozen",
+    "check_violation",
+    "is_allowed",
+    "evaluate",
+    "no_destructive_sql",
+    "no_system_file_access",
+    "set_agent_context",
+    "RiskPolicy",
+    "validate_risk",
+    "Condition",
+    "update_agent_context",
+    "no_credential_exposure",
+    "add_custom_rule",
+    "get_quota_status"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "types",
+      "agent_kernel",
+      "logging",
+      "uuid",
+      "os",
+      "re",
+      "warnings",
+      "yaml",
+      "re",
+      "sqlglot",
+      "sqlglot"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_sql_policy_config",
+      "line": 644,
+      "doc": "Load SQL policy configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML file with ``sql_policy`` section.\n\nReturns:\n    SQLPolicyConfig populated from the YAML data.\n\nRaises:\n    FileNotFoundError: If the config file does not exist.\n    ValueError: If the YAML is missing the ``sql_policy`` section.\n\nExample::\n\n    config = load_sql_policy_config(\"examples/policies/sql-safety.yaml\")\n    rules = create_sql_policy_from_config(config)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "SQLPolicyConfig"
+    },
+    {
+      "name": "_fallback_sql_check",
+      "line": 685,
+      "doc": "Fallback SQL check when sqlglot is not available.\n\nUses regex pattern matching. Rules are driven by *config*; when\n*config* is ``None`` a built-in default set is used.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "query",
+        "config"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "create_policies_from_config",
+      "line": 740,
+      "doc": "Create security policies with SQL rules driven by external config.\n\nLoad SQL policy rules from a YAML config file or a pre-built\n``SQLPolicyConfig`` object.  Non-SQL policies (file access, credential\nexposure) use built-in defaults.\n\nArgs:\n    sql_config_path: Path to a YAML file with ``sql_policy`` section.\n    sql_config: Pre-built config object (takes precedence over path).\n\nReturns:\n    List of PolicyRule instances.\n\nExample::\n\n    # From YAML file\n    rules = create_policies_from_config(\"examples/policies/sql-safety.yaml\")\n\n    # From explicit config\n    cfg = SQLPolicyConfig(blocked_statements=[\"DROP\", \"GRANT\"])\n    rules = create_policies_from_config(sql_config=cfg)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sql_config_path",
+        "sql_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_default_policies",
+      "line": 774,
+      "doc": "Create a set of default security policies.\n\n.. deprecated::\n    The built-in rules are **samples** and are not guaranteed to be\n    exhaustive.  Use :func:`create_policies_from_config` with an\n    explicit YAML config file for production deployments.\n    See ``examples/policies/`` for sample configurations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_build_policy_rules",
+      "line": 793,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sql_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 51,
+      "doc": "Evaluate the condition against a context.\n\nArgs:\n    context: Dictionary containing the evaluation context\n            (e.g., {\"user_status\": \"verified\", \"args\": {...}, \"context\": {...}})\n\nReturns:\n    True if condition is met, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_get_nested_value",
+      "line": 90,
+      "doc": "Get a nested value from a dictionary using dot notation.\n\nArgs:\n    data: The dictionary to search\n    path: Dot-separated path (e.g., \"args.amount\")\n\nReturns:\n    The value at the path, or None if not found",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "path"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "is_allowed",
+      "line": 127,
+      "doc": "Check if the permission is allowed given the context.\n\nArgs:\n    context: The evaluation context\n\nReturns:\n    True if allowed, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "freeze",
+      "line": 233,
+      "doc": "Freeze the policy engine, preventing further mutations.\n\nAfter calling ``freeze()``, any attempt to call ``add_constraint()``,\n``set_agent_context()``, ``update_agent_context()``, or\n``add_conditional_permission()`` will raise ``RuntimeError``.\n\nIn addition to the boolean guard, the underlying data structures\nare replaced with immutable proxies (``MappingProxyType``) so that\ndirect attribute access (bypassing the setter methods) will also\nraise ``TypeError``.\n\nThis addresses the self-modification attack vector where an agent\ncould call mutation methods to weaken its own policy at runtime.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_frozen",
+      "line": 265,
+      "doc": "Whether the policy engine is currently frozen.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "mutation_log",
+      "line": 270,
+      "doc": "Read-only copy of the mutation audit trail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_assert_mutable",
+      "line": 274,
+      "doc": "Raise RuntimeError if the engine is frozen.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "operation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_log_mutation",
+      "line": 291,
+      "doc": "Record a mutation in the audit log.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "operation",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_quota",
+      "line": 300,
+      "doc": "Set resource quota for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "quota"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_risk_policy",
+      "line": 304,
+      "doc": "Set a risk policy",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_id",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_custom_rule",
+      "line": 308,
+      "doc": "Add a custom policy rule",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_constraint",
+      "line": 313,
+      "doc": "Define the 'Physics' of the agent using allow-list approach.\n\nThis implements \"Scale by Subtraction\" - by defining what IS allowed,\neverything else is implicitly blocked.\n\nArgs:\n    role: The agent role/ID\n    allowed_tools: List of tool names this role can use\n\nRaises:\n    RuntimeError: If the engine has been frozen.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "role",
+        "allowed_tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_conditional_permission",
+      "line": 331,
+      "doc": "Add a conditional permission for ABAC (Attribute-Based Access Control).\n\nThis moves from RBAC to ABAC, allowing context-aware policies like:\n\"Agent can call refund_user IF AND ONLY IF user_status == 'verified'\"\n\nArgs:\n    agent_role: The agent role/ID\n    permission: The conditional permission to add\n\nRaises:\n    RuntimeError: If the engine has been frozen.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "permission"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_agent_context",
+      "line": 362,
+      "doc": "Set the context data for an agent for ABAC evaluation.\n\nArgs:\n    agent_role: The agent role/ID\n    context: Dictionary of context attributes (e.g., {\"user_status\": \"verified\", \"time_of_day\": \"business_hours\"})\n\nRaises:\n    RuntimeError: If the engine has been frozen.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_agent_context",
+      "line": 377,
+      "doc": "Update specific context attributes for an agent.\n\nArgs:\n    agent_role: The agent role/ID\n    updates: Dictionary of attributes to update\n\nRaises:\n    RuntimeError: If the engine has been frozen.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "updates"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_shadow_mode",
+      "line": 399,
+      "doc": "Check if an agent is in shadow mode.\n\nArgs:\n    agent_role: The agent role/ID\n\nReturns:\n    True if agent is in shadow mode, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_violation",
+      "line": 412,
+      "doc": "Check if an action violates the constraint graph.\n\nUses a three-level check:\n1. Role-Based Check: Is this tool allowed for this role?\n2. Condition-Based Check (ABAC): Are the conditions met?\n3. Argument-Based Check: Are the arguments safe?\n\nReturns:\n    None if no violation, or a string describing the violation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "tool_name",
+        "args"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_rate_limit",
+      "line": 503,
+      "doc": "Check if request is within rate limits",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "validate_risk",
+      "line": 543,
+      "doc": "Validate request against risk policies",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "risk_score"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "validate_request",
+      "line": 578,
+      "doc": "Comprehensive validation of a request\nReturns (is_valid, reason_if_invalid)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_quota_status",
+      "line": 595,
+      "doc": "Get current quota usage for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "no_system_file_access",
+      "line": 795,
+      "doc": "Prevent access to system files",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "no_credential_exposure",
+      "line": 803,
+      "doc": "Prevent exposure of credentials",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "no_destructive_sql",
+      "line": 810,
+      "doc": "Prevent destructive SQL operations using AST-level parsing.\n\nUses sqlglot for proper SQL parsing to detect:\n- DROP TABLE/DATABASE/INDEX/VIEW/USER/ROLE statements\n- TRUNCATE statements\n- DELETE without WHERE clause\n- UPDATE without WHERE clause\n- ALTER TABLE/USER/ROLE statements\n- GRANT / REVOKE privilege statements\n- CREATE USER/ROLE/LOGIN statements\n- EXEC/EXECUTE xp_cmdshell and other dangerous procedures\n- MERGE INTO statements\n- Dangerous file functions (LOAD_FILE, INTO OUTFILE)\n\nThis prevents bypass attempts like:\n- Keywords in comments: /* DROP */ SELECT ...\n- Keywords in strings: SELECT 'DROP TABLE'\n- Obfuscated queries",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "Condition",
+      "line": 39,
+      "doc": "A condition for ABAC (Attribute-Based Access Control).\n\nAllows policies like: \"Agent can call tool X IF condition Y is true\"\nExample: \"refund_user\" allowed IF user_status == \"verified\"",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ConditionalPermission",
+      "line": 114,
+      "doc": "A permission that requires conditions to be met.\n\nExample: \"refund_user\" allowed IF user_status == \"verified\" AND amount < 1000",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ResourceQuota",
+      "line": 146,
+      "doc": "Resource quota for an agent or tenant",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RiskPolicy",
+      "line": 165,
+      "doc": "Risk-based policy for agent actions",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyEngine",
+      "line": 178,
+      "doc": "Policy Engine - Enforces governance rules for agent execution\n\nProvides:\n- Rate limiting and quotas\n- Risk assessment\n- Access control policies\n- Compliance rules",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SQLPolicyConfig",
+      "line": 613,
+      "doc": "Configuration for SQL policy rules, loadable from YAML.\n\nAttributes:\n    blocked_statements: SQL statement types to block (e.g., DROP, GRANT).\n    require_where_clause: Statements blocked only when missing WHERE.\n    blocked_create_types: CREATE subtypes to block (e.g., USER, ROLE).\n    blocked_patterns: Regex patterns for vendor-specific blocking.\n    disclaimer: Disclaimer text shown in logs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 210,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

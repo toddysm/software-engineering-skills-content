@@ -1,0 +1,253 @@
+{
+  "path": "packages/agent-marketplace/src/agent_marketplace/trust_tiers.py",
+  "extension": ".py",
+  "size_bytes": 8420,
+  "line_count": 268,
+  "documentation": {
+    "file_docstring": "Plugin Trust Tiers\n\nMaps agentmesh trust scoring (0-1000, five tiers) into agent-marketplace so\nplugins receive progressive capability limits based on their trust level.\n\nThe module is designed to work standalone \u2014 no hard dependency on the\nagentmesh package being installed.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Trust tier definitions (matching agentmesh conventions)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Per-tier capability configuration",
+      "---------------------------------------------------------------------------",
+      "Capabilities that require a minimum tier to be enabled",
+      "---------------------------------------------------------------------------",
+      "Public helper functions",
+      "---------------------------------------------------------------------------",
+      "Should be unreachable given the ranges cover 0-1000",
+      "---------------------------------------------------------------------------",
+      "Persistent trust store",
+      "---------------------------------------------------------------------------",
+      "-- public API --------------------------------------------------------",
+      "-- persistence -------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PluginTrustConfig: Per-tier capability limits for a plugin.",
+      "get_trust_tier: Return the tier name for a given trust score.\n\nArgs:\n    score: Integer trust sc",
+      "get_tier_config: Return the capability configuration for a tier.\n\nArgs:\n    tier: Tier name (must",
+      "filter_capabilities: Filter a list of capabilities based on the plugin's trust tier.\n\nCapabilities wi",
+      "compute_initial_score: Compute an initial trust score for a newly registered plugin.\n\nHeuristics:\n- Bas",
+      "PluginTrustStore: File-backed JSON store for plugin trust scores and event history.\n\nArgs:\n    sto",
+      "get_score: Return the current trust score for *plugin_name*.\n\nReturns 500 (``standard`` flo",
+      "set_score: Set the trust score for *plugin_name* (clamped to 0-1000).",
+      "record_event: Record a trust event and adjust the plugin's score.\n\nArgs:\n    plugin_name: Plug",
+      "get_tier: Return the current trust tier for *plugin_name*."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_score",
+    "PluginTrustStore",
+    "get_tier",
+    "get_tier_config",
+    "PluginTrustConfig",
+    "set_score",
+    "compute_initial_score",
+    "record_event",
+    "get_trust_tier",
+    "filter_capabilities"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "datetime",
+      "pathlib",
+      "typing",
+      "pydantic",
+      "agent_marketplace.manifest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_trust_tier",
+      "line": 98,
+      "doc": "Return the tier name for a given trust score.\n\nArgs:\n    score: Integer trust score in the range 0-1000.\n\nReturns:\n    Tier name (e.g. ``\"standard\"``).\n\nRaises:\n    ValueError: If *score* is outside the 0-1000 range.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "score"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_tier_config",
+      "line": 119,
+      "doc": "Return the capability configuration for a tier.\n\nArgs:\n    tier: Tier name (must be a key in :data:`TRUST_TIERS`).\n\nReturns:\n    The :class:`PluginTrustConfig` for the tier.\n\nRaises:\n    ValueError: If *tier* is not a recognised tier name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tier"
+      ],
+      "returns": "PluginTrustConfig"
+    },
+    {
+      "name": "filter_capabilities",
+      "line": 136,
+      "doc": "Filter a list of capabilities based on the plugin's trust tier.\n\nCapabilities with a higher minimum-tier requirement than the given\n*tier* are removed.\n\nArgs:\n    capabilities: Declared capability strings.\n    tier: Current trust tier name.\n\nReturns:\n    Filtered list containing only the capabilities the tier permits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "capabilities",
+        "tier"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compute_initial_score",
+      "line": 159,
+      "doc": "Compute an initial trust score for a newly registered plugin.\n\nHeuristics:\n- Base score: 500 (``standard`` floor).\n- +100 if the manifest carries a cryptographic signature.\n- +50 if the manifest declares at least one capability.\n- -50 if the manifest has no description or it is very short (<20 chars).\n\nThe result is clamped to the 0-1000 range.\n\nArgs:\n    manifest: The plugin manifest to evaluate.\n\nReturns:\n    Integer trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "manifest"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_score",
+      "line": 208,
+      "doc": "Return the current trust score for *plugin_name*.\n\nReturns 500 (``standard`` floor) if the plugin has no recorded score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "set_score",
+      "line": 215,
+      "doc": "Set the trust score for *plugin_name* (clamped to 0-1000).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_event",
+      "line": 221,
+      "doc": "Record a trust event and adjust the plugin's score.\n\nArgs:\n    plugin_name: Plugin identifier.\n    event: Short description of the event (e.g. ``\"policy_violation\"``).\n    delta: Score adjustment (positive or negative).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "event",
+        "delta"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_tier",
+      "line": 250,
+      "doc": "Return the current trust tier for *plugin_name*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_load",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_persist",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PluginTrustConfig",
+      "line": 46,
+      "doc": "Per-tier capability limits for a plugin.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginTrustStore",
+      "line": 195,
+      "doc": "File-backed JSON store for plugin trust scores and event history.\n\nArgs:\n    store_path: Path to the JSON file used for persistence.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 29,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

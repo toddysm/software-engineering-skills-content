@@ -1,0 +1,514 @@
+{
+  "path": "packages/agent-hypervisor/tests/unit/test_saga_improvements.py",
+  "extension": ".py",
+  "size_bytes": 9903,
+  "line_count": 284,
+  "documentation": {
+    "file_docstring": "Tests for saga fan-out, execution checkpoints, and declarative DSL.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Fan-Out Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "With 0 branches, 0 == 0 is True for ALL_MUST_SUCCEED (vacuously true)",
+      "\u2500\u2500 Checkpoint Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 DSL Parser Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Public Preview: all steps are sequential (fan_out ignored)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_get_checkpoint",
+    "test_validate_valid",
+    "test_parse_invalid_fan_out_policy",
+    "test_parse_missing_session_id",
+    "test_replay_plan",
+    "test_to_saga_steps",
+    "test_group_check_policy_any_empty",
+    "test_group_check_policy_empty",
+    "test_not_achieved_without_save",
+    "test_parse_fan_out_too_few_branches",
+    "test_parse_with_fan_out",
+    "steps",
+    "test_parse_fan_out_invalid_branch",
+    "TestCheckpoints",
+    "test_get_saga_checkpoints",
+    "test_validate_errors",
+    "TestSagaDSL",
+    "test_active_groups",
+    "test_parse_missing_name",
+    "test_invalidate_checkpoint",
+    "test_save_and_check",
+    "test_total_and_valid_counts",
+    "test_sequential_steps",
+    "TestFanOut",
+    "test_parse_valid_definition",
+    "test_parse_duplicate_step_ids",
+    "test_parse_empty_steps",
+    "test_goal_hash_deterministic"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "hypervisor.saga.checkpoint",
+      "hypervisor.saga.dsl",
+      "hypervisor.saga.fan_out",
+      "hypervisor.saga.state_machine"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "steps",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_succeed_policy",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_succeed_policy_fails",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_majority_policy_succeeds",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_any_policy_succeeds",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_fail_any_policy",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_group_check_policy_empty",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_group_check_policy_any_empty",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_active_groups",
+      "line": 106,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_save_and_check",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_not_achieved_without_save",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalidate_checkpoint",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_checkpoint",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_saga_checkpoints",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_plan",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_total_and_valid_counts",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_goal_hash_deterministic",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_valid_definition",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_with_fan_out",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_missing_name",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_missing_session_id",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_empty_steps",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_duplicate_step_ids",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_invalid_fan_out_policy",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_fan_out_invalid_branch",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parse_fan_out_too_few_branches",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_saga_steps",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_errors",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_valid",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sequential_steps",
+      "line": 271,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "success",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "sometimes_fail",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "always_fail",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestFanOut",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCheckpoints",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSagaDSL",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

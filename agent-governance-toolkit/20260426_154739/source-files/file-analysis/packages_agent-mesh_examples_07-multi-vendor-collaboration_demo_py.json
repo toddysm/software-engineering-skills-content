@@ -1,0 +1,478 @@
+{
+  "path": "packages/agent-mesh/examples/07-multi-vendor-collaboration/demo.py",
+  "extension": ".py",
+  "size_bytes": 12839,
+  "line_count": 405,
+  "documentation": {
+    "file_docstring": "Multi-Vendor Agent Collaboration Demo\n======================================\n\nDemonstrates trust-gated handoffs between agents from different AI vendors\n(OpenAI, Anthropic, Google) orchestrated through AgentMesh governance.\n\nNo API keys required \u2014 all vendor agents are mocked.\n\nUsage:\n    python demo.py",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Constants",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Domain types",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Trust engine",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Audit log",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Mock vendor agents",
+      "---------------------------------------------------------------------------",
+      "Simulate processing delay",
+      "---------------------------------------------------------------------------",
+      "Orchestrator",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Main demo",
+      "---------------------------------------------------------------------------",
+      "--- Setup agents ---",
+      "--- Round 1: All agents trusted ---",
+      "--- Round 2: Agent C produces poor quality ---",
+      "--- Round 3: Agent C's trust has dropped \u2014 handoff should be denied ---",
+      "--- Audit trail ---",
+      "--- Summary ---"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "AgentIdentity: Represents a vendor-specific agent registered in AgentMesh.",
+      "TrustEngine: Manages trust scores and trust-gated handoff decisions.",
+      "AuditLog: Cross-vendor audit trail for all handoffs and task outcomes.",
+      "MockVendorAgent: Simulates a vendor-specific LLM agent with configurable behaviour.",
+      "MultiVendorOrchestrator: Orchestrates trust-gated handoffs across vendor agents.",
+      "handoff: Attempt a trust-gated handoff from source to target.",
+      "run_pipeline: Run a task through an ordered pipeline of agent IDs."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "TaskOutcome",
+    "record_handoff",
+    "handoff",
+    "summary",
+    "HandoffStatus",
+    "process",
+    "update",
+    "print_trail",
+    "MockVendorAgent",
+    "Vendor",
+    "AuditEntry",
+    "TrustEngine",
+    "register",
+    "run_pipeline",
+    "main",
+    "force_outcome",
+    "verify",
+    "record_task",
+    "MultiVendorOrchestrator",
+    "AuditLog",
+    "AgentIdentity"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "random",
+      "textwrap",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_header",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_ok",
+      "line": 280,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_warn",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_info",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_scores",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "summary",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "update",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agent",
+        "outcome"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_handoff",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source",
+        "target",
+        "status",
+        "detail"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_task",
+      "line": 145,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "outcome",
+        "trust_delta",
+        "detail"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_trail",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "force_outcome",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handoff",
+      "line": 228,
+      "doc": "Attempt a trust-gated handoff from source to target.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source",
+        "target",
+        "task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_pipeline",
+      "line": 258,
+      "doc": "Run a task through an ordered pipeline of agent IDs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "pipeline"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "Vendor",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HandoffStatus",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TaskOutcome",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AuditEntry",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentIdentity",
+      "line": 77,
+      "doc": "Represents a vendor-specific agent registered in AgentMesh.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustEngine",
+      "line": 94,
+      "doc": "Manages trust scores and trust-gated handoff decisions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AuditLog",
+      "line": 120,
+      "doc": "Cross-vendor audit trail for all handoffs and task outcomes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockVendorAgent",
+      "line": 183,
+      "doc": "Simulates a vendor-specific LLM agent with configurable behaviour.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MultiVendorOrchestrator",
+      "line": 216,
+      "doc": "Orchestrates trust-gated handoffs across vendor agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

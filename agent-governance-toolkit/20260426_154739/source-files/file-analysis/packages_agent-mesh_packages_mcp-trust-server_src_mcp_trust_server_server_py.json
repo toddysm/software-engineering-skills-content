@@ -1,0 +1,304 @@
+{
+  "path": "packages/agent-mesh/packages/mcp-trust-server/src/mcp_trust_server/server.py",
+  "extension": ".py",
+  "size_bytes": 12066,
+  "line_count": 345,
+  "documentation": {
+    "file_docstring": "MCP Trust Server \u2014 AgentMesh trust management via Model Context Protocol.\n\nExposes trust tools: check_trust, get_trust_score, establish_handshake,\nverify_delegation, record_interaction, get_identity.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Configuration from environment",
+      "---------------------------------------------------------------------------",
+      "Trust dimension names (5-dimension model)",
+      "Trust tier thresholds",
+      "---------------------------------------------------------------------------",
+      "In-memory stores (replaced by Redis when STORAGE_BACKEND=redis)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Agent identity (generated once per server lifetime)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Singletons",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "FastMCP server",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Tool definitions",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "__main__ support",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_trust_level: Map numeric score to trust level label.",
+      "TrustStore: Simple in-memory trust store for agent scores and interactions.",
+      "LocalIdentity: Holds the Ed25519 identity of this MCP server instance.",
+      "check_trust: Check if an agent is trusted.\n\nReturns the agent's overall trust score, trust le",
+      "get_trust_score: Get a detailed trust score with all 5 dimensions.\n\nDimensions: competence, integ",
+      "establish_handshake: Initiate a trust handshake with a peer agent.\n\nCreates a cryptographic challenge",
+      "verify_delegation: Verify that a scope chain from *delegator_did* to *agent_did* is valid.\n\nChecks ",
+      "record_interaction: Record an interaction outcome to update trust scores.\n\nValid outcomes: ``success",
+      "get_identity: Get this agent's identity info.\n\nReturns the server's DID, public key, name, and",
+      "main: Entry point for ``python -m mcp_trust_server`` and the console script."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "get_score",
+    "verify_delegation",
+    "TrustStore",
+    "establish_handshake",
+    "get_identity",
+    "update_score",
+    "sign",
+    "main",
+    "check_trust",
+    "LocalIdentity",
+    "record_interaction",
+    "get_trust_score"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "logging",
+      "os",
+      "secrets",
+      "time",
+      "datetime",
+      "typing",
+      "cryptography.hazmat.primitives.asymmetric",
+      "cryptography.hazmat.primitives",
+      "base64",
+      "mcp.server.fastmcp"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_trust_level",
+      "line": 51,
+      "doc": "Map numeric score to trust level label.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "score"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "check_trust",
+      "line": 176,
+      "doc": "Check if an agent is trusted.\n\nReturns the agent's overall trust score, trust level, and all five\ntrust dimensions (competence, integrity, availability, predictability,\ntransparency).\n\nArgs:\n    agent_did: The DID of the agent to check (e.g. \"did:mesh:abc123\").",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_trust_score",
+      "line": 198,
+      "doc": "Get a detailed trust score with all 5 dimensions.\n\nDimensions: competence, integrity, availability, predictability,\ntransparency.  Each dimension is scored 0-1000.\n\nArgs:\n    agent_did: The DID of the agent to query.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "establish_handshake",
+      "line": 219,
+      "doc": "Initiate a trust handshake with a peer agent.\n\nCreates a cryptographic challenge, records the handshake, and returns\na signed token the peer can verify.\n\nArgs:\n    peer_did: The DID of the peer agent to handshake with.\n    capabilities: List of capability strings requested for this session.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "peer_did",
+        "capabilities"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "verify_delegation",
+      "line": 258,
+      "doc": "Verify that a scope chain from *delegator_did* to *agent_did* is valid.\n\nChecks that the agent's DID is known, the delegator's trust score is\nsufficient, and the requested capability is plausible.\n\nArgs:\n    agent_did: The DID of the agent claiming delegated authority.\n    delegator_did: The DID of the delegator (parent agent).\n    capability: The capability being delegated (e.g. \"read:data\").",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_did",
+        "delegator_did",
+        "capability"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "record_interaction",
+      "line": 293,
+      "doc": "Record an interaction outcome to update trust scores.\n\nValid outcomes: ``success``, ``failure``, ``timeout``, ``partial``.\nPositive outcomes raise trust; negative outcomes lower it.\n\nArgs:\n    peer_did: The DID of the peer agent involved.\n    outcome: Interaction result \u2014 one of success, failure, timeout, partial.\n    details: Free-text description of the interaction.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "peer_did",
+        "outcome",
+        "details"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_identity",
+      "line": 323,
+      "doc": "Get this agent's identity info.\n\nReturns the server's DID, public key, name, and capabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "main",
+      "line": 339,
+      "doc": "Entry point for ``python -m mcp_trust_server`` and the console script.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_score",
+      "line": 75,
+      "doc": "Return trust record for *agent_did*, creating a default if absent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_score",
+      "line": 88,
+      "doc": "Apply *delta* to the agent's score (overall and optionally a dimension).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "delta",
+        "dimension"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_interaction",
+      "line": 102,
+      "doc": "Persist an interaction and adjust trust accordingly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "outcome",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sign",
+      "line": 148,
+      "doc": "Return base64-encoded Ed25519 signature.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustStore",
+      "line": 67,
+      "doc": "Simple in-memory trust store for agent scores and interactions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LocalIdentity",
+      "line": 128,
+      "doc": "Holds the Ed25519 identity of this MCP server instance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

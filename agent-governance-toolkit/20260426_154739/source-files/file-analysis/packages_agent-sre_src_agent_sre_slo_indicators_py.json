@@ -1,0 +1,828 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/slo/indicators.py",
+  "extension": ".py",
+  "size_bytes": 18708,
+  "line_count": 516,
+  "documentation": {
+    "file_docstring": "Service Level Indicators for AI agent systems.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Backward-compat alias \u2014 external code that appends directly to ._measurements",
+      "still works when using the default InMemoryMeasurementStore.",
+      "--- Built-in SLIs ---",
+      "High-confidence prediction that succeeds \u2014 good calibration",
+      "Overconfident prediction that fails \u2014 calibration gap widens",
+      "--- Registry ---",
+      "Register built-ins",
+      "Use class name as key"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "TimeWindow: Standard time windows for SLI aggregation.",
+      "SLIValue: A single SLI measurement.",
+      "SLI: Base class for Service Level Indicators.\n\nAn SLI measures one aspect of agent re",
+      "TaskSuccessRate: Measures the fraction of tasks completed successfully.",
+      "ToolCallAccuracy: Measures the fraction of tool calls that selected the correct tool.",
+      "ResponseLatency: Measures response latency at a given percentile.",
+      "CostPerTask: Measures the average cost per task in USD.",
+      "PolicyCompliance: Measures adherence to Agent OS policies (100% target by default).",
+      "DelegationChainDepth: Measures scope chain depth (lower is better, inverted comparison).",
+      "HallucinationRate: Measures hallucination rate via LLM-as-judge evaluation.\n\nRecords evaluation res"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record",
+    "compliance",
+    "CalibrationDeltaSLI",
+    "ToolCallAccuracy",
+    "to_dict",
+    "SLIValue",
+    "get_type",
+    "seconds",
+    "record_latency",
+    "record_evaluation",
+    "is_good",
+    "SLIRegistry",
+    "record_prediction",
+    "record_check",
+    "record_call",
+    "register_instance",
+    "TimeWindow",
+    "ResponseLatency",
+    "record_cost",
+    "get_instances",
+    "record_depth",
+    "list_types",
+    "HallucinationRate",
+    "current_value",
+    "collect_all",
+    "register_type",
+    "record_task",
+    "values_in_window",
+    "SLI",
+    "PolicyCompliance",
+    "collect",
+    "DelegationChainDepth",
+    "CostPerTask",
+    "TaskSuccessRate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "abc",
+      "collections",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_sre.slo.persistence"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "seconds",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "is_good",
+      "line": 43,
+      "doc": "True if value meets the target (assumes target stored in metadata).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "target",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 78,
+      "doc": "Collect a new measurement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "record",
+      "line": 81,
+      "doc": "Record a measurement value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "values_in_window",
+      "line": 94,
+      "doc": "Get measurements within the current time window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "current_value",
+      "line": 103,
+      "doc": "Get the current aggregated value within the window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compliance",
+      "line": 110,
+      "doc": "Fraction of measurements meeting the target within the window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 118,
+      "doc": "Serialize to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_task",
+      "line": 146,
+      "doc": "Record a task completion.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "collect",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_call",
+      "line": 172,
+      "doc": "Record a tool call result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "correct",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "collect",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target_ms",
+        "percentile",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_latency",
+      "line": 199,
+      "doc": "Record a response latency in milliseconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "latency_ms",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "current_value",
+      "line": 204,
+      "doc": "Get the percentile latency value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target_usd",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_cost",
+      "line": 231,
+      "doc": "Record a task cost.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cost_usd",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "collect",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_check",
+      "line": 256,
+      "doc": "Record a policy check result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "compliant",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "collect",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_depth",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_depth",
+      "line": 281,
+      "doc": "Record a scope chain depth.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "depth",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "compliance",
+      "line": 285,
+      "doc": "Fraction of measurements within max depth.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_evaluation",
+      "line": 314,
+      "doc": "Record an evaluation result from the judge.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hallucinated",
+        "confidence",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "compliance",
+      "line": 327,
+      "doc": "Fraction of measurements at or below the target (lower is better).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 370,
+      "doc": "Initialise the CalibrationDeltaSLI.\n\nArgs:\n    target_delta: Maximum acceptable calibration gap (lower is better).\n                  Compliance is the fraction of measurements at or below\n                  this threshold.  Defaults to 0.05 (5 percentage points).\n    window:       Measurement window for ``values_in_window()`` and\n                  ``compliance()``.  Defaults to ``\"30d\"``.\n    store:        Optional persistence backend.  Defaults to\n                  ``InMemoryMeasurementStore`` (same behaviour as before\n                  persistence support was added).  Pass a\n                  ``SQLiteMeasurementStore`` to survive agent restarts.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target_delta",
+        "window",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "current_value",
+      "line": 394,
+      "doc": "Return the most recent aggregate calibration delta within the window.\n\nUnlike the base ``SLI.current_value()`` which averages all window\nmeasurements, CalibrationDelta tracks a *running aggregate* \u2014 so the\nmost recent recorded value IS the current aggregate.  Averaging the\nhistory would give a misleadingly high number during a well-calibrated\nconvergence phase.\n\nReturns:\n    The latest aggregate ``|mean_predicted \u2212 mean_actual_success_rate|``,\n    or ``None`` if no measurements exist in the window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_prediction",
+      "line": 412,
+      "doc": "Record one prediction and its outcome.\n\nAccumulates running sums so that each call records the *aggregate*\n``|mean_predicted_confidence \u2212 mean_actual_success_rate|`` over all\npredictions seen so far.  This makes ``current_value()`` meaningful after\njust a single call while naturally smoothing out noise over many calls.\n\nArgs:\n    predicted_confidence: Agent's stated confidence in [0, 1] before\n                          observing the outcome.\n    actual_success:       Whether the prediction/action ultimately\n                          succeeded (True) or failed (False).\n    metadata:             Optional key/value annotations stored alongside\n                          the measurement.\n\nReturns:\n    The ``SLIValue`` representing the current aggregate calibration delta.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "predicted_confidence",
+        "actual_success",
+        "metadata"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "compliance",
+      "line": 444,
+      "doc": "Fraction of recorded aggregate deltas at or below *target_delta*.\n\nA measurement is *good* when the running calibration gap (the recorded\nvalue) is \u2264 ``self.target``.  Because each recorded value is an aggregate\nover all preceding predictions, the compliance score reflects how often\nthe agent has been within the target calibration envelope throughout the\nmeasurement window.\n\nReturns:\n    A float in [0, 1], or ``None`` if no measurements exist in the window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 462,
+      "doc": "Emit the current aggregate calibration delta as a new measurement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    },
+    {
+      "name": "__init__",
+      "line": 477,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_type",
+      "line": 493,
+      "doc": "Register an SLI type for discovery.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sli_class"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_instance",
+      "line": 498,
+      "doc": "Register an SLI instance for a specific agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "sli"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_type",
+      "line": 502,
+      "doc": "Look up an SLI type by name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_instances",
+      "line": 506,
+      "doc": "Get all SLI instances for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_types",
+      "line": 510,
+      "doc": "List all registered SLI type names.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect_all",
+      "line": 514,
+      "doc": "Collect current values for all SLIs of an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TimeWindow",
+      "line": 18,
+      "doc": "Standard time windows for SLI aggregation.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SLIValue",
+      "line": 34,
+      "doc": "A single SLI measurement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SLI",
+      "line": 51,
+      "doc": "Base class for Service Level Indicators.\n\nAn SLI measures one aspect of agent reliability (e.g., task success rate,\ntool call accuracy, response latency).",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TaskSuccessRate",
+      "line": 133,
+      "doc": "Measures the fraction of tasks completed successfully.",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolCallAccuracy",
+      "line": 159,
+      "doc": "Measures the fraction of tool calls that selected the correct tool.",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ResponseLatency",
+      "line": 185,
+      "doc": "Measures response latency at a given percentile.",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CostPerTask",
+      "line": 218,
+      "doc": "Measures the average cost per task in USD.",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyCompliance",
+      "line": 243,
+      "doc": "Measures adherence to Agent OS policies (100% target by default).",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DelegationChainDepth",
+      "line": 269,
+      "doc": "Measures scope chain depth (lower is better, inverted comparison).",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HallucinationRate",
+      "line": 297,
+      "doc": "Measures hallucination rate via LLM-as-judge evaluation.\n\nRecords evaluation results from an external judge (LLM or human)\nthat scores agent outputs for factual accuracy. Lower is better.",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CalibrationDeltaSLI",
+      "line": 340,
+      "doc": "Tracks calibration drift \u2014 the gap between predicted confidence and actual success rate.\n\nAn agent is *well-calibrated* when its stated confidence for a claim matches the\nempirical success rate for that claim.  For example, a claim made with 0.80\nconfidence should succeed ~80 % of the time.  A growing |avg_predicted \u2212 success_rate|\nover successive measurements signals systematic over- or under-confidence.\n\nThe SLI records one ``SLIValue`` per ``record_prediction()`` call.  Each recorded\nvalue is the aggregate calibration delta up to that point (i.e. the running\n``|mean_predicted_confidence \u2212 mean_actual_success_rate|``).  ``current_value()``\ntherefore returns the latest aggregate delta within the measurement window.\n\nCompliance is defined as the fraction of recorded aggregates that are at or below\n*target_delta* \u2014 a lower value is better.\n\nReference:\n    PDR: Persistent Delivery Reliability for AI Agents,\n    DOI 10.5281/zenodo.19339987 \u2014 calibration_delta axis, \u00a73.\n\nExample::\n\n    sli = CalibrationDeltaSLI(target_delta=0.05)\n    # High-confidence prediction that succeeds \u2014 good calibration\n    sli.record_prediction(predicted_confidence=0.90, actual_success=True)\n    # Overconfident prediction that fails \u2014 calibration gap widens\n    sli.record_prediction(predicted_confidence=0.90, actual_success=False)\n    print(sli.current_value())  # Running |avg_pred \u2212 avg_success|",
+      "is_public": true,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SLIRegistry",
+      "line": 474,
+      "doc": "Registry for discovering and managing SLI types.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 56,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "database",
+      "api"
+    ]
+  }
+}

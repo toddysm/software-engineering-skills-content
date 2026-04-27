@@ -1,0 +1,638 @@
+{
+  "path": "packages/agent-os/modules/scak/tests/test_langchain_integration.py",
+  "extension": ".py",
+  "size_bytes": 16126,
+  "line_count": 453,
+  "documentation": {
+    "file_docstring": "Unit tests for LangChain integration components.\n\nThis test suite validates:\n1. SCAKMemory - Memory loading and context injection\n2. SCAKCallbackHandler - Laziness detection and auditing\n3. SelfCorrectingRunnable - Runtime failure handling",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Test imports",
+      "Mock LangChain before importing",
+      "Mock LangChain modules",
+      "Now import our integration",
+      "Should return both system_patch and history",
+      "System patch should be a string",
+      "History should be empty initially",
+      "Create a mock tool",
+      "Should inject context for active tools",
+      "Should save 2 messages (human + AI)",
+      "Check message types",
+      "Check message content",
+      "Add some history",
+      "Clear",
+      "Should be empty",
+      "Test various give-up patterns",
+      "Test non-give-up responses",
+      "Run callback",
+      "Should increment execution count but not give-up count",
+      "Run callback",
+      "Should increment both execution and give-up counts",
+      "Audit may or may not complete immediately (async)",
+      "Just check it was detected",
+      "Create mock base agent",
+      "Create runnable",
+      "Setup mock to succeed",
+      "Should return result",
+      "Should increment execution count",
+      "Should have called base agent",
+      "Setup mock to raise error",
+      "Should re-raise error (async path)",
+      "Should increment failure count",
+      "First call fails, second succeeds",
+      "Use a critical tool to trigger SYNC_JIT",
+      "The error message mentions \"delete_resource\" which will be extracted as tool name",
+      "Should return corrected result",
+      "Should have attempted correction",
+      "Should have called base agent twice (fail + retry)",
+      "Should return SelfCorrectingRunnable",
+      "Should add callback to base agent",
+      "Should return base agent unchanged"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestSCAKMemory: Tests for SCAKMemory component.",
+      "TestSCAKCallbackHandler: Tests for SCAKCallbackHandler component.",
+      "TestSelfCorrectingRunnable: Tests for SelfCorrectingRunnable component.",
+      "TestCreateSCAKAgent: Tests for create_scak_agent convenience function.",
+      "setUp: Set up test fixtures.",
+      "test_initialization: Test SCAKMemory initialization.",
+      "test_memory_variables: Test memory_variables property.",
+      "test_load_memory_variables_basic: Test loading memory variables with basic input.",
+      "test_load_memory_variables_with_tools: Test loading memory variables with active tools.",
+      "test_save_context: Test saving context to memory."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestSelfCorrectingRunnable",
+    "test_on_agent_finish_with_give_up",
+    "test_invoke_success",
+    "test_initialization",
+    "test_format_history_as_string",
+    "MockAsyncCallbackHandler",
+    "test_clear",
+    "test_on_agent_finish_no_give_up",
+    "MockHumanMessage",
+    "test_load_memory_variables_with_tools",
+    "test_is_give_up_signal_negative",
+    "MockAIMessage",
+    "TestSCAKMemory",
+    "test_invoke_with_sync_correction",
+    "test_classify_failure_type",
+    "test_extract_tool_from_error",
+    "test_memory_variables",
+    "test_detect_give_up_type",
+    "MockRunnable",
+    "test_is_give_up_signal_positive",
+    "test_save_context",
+    "MockBaseMemory",
+    "TestCreateSCAKAgent",
+    "setUp",
+    "test_create_scak_agent_no_correction",
+    "test_load_memory_variables_basic",
+    "MockBaseMessage",
+    "test_create_scak_agent_basic",
+    "MockSystemMessage",
+    "MockAgentFinish",
+    "MockBaseCallbackHandler",
+    "TestSCAKCallbackHandler",
+    "test_invoke_with_async_failure",
+    "test_create_scak_agent_with_callback"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "unittest",
+      "asyncio",
+      "unittest.mock",
+      "datetime",
+      "sys",
+      "os",
+      "src.integrations.langchain_integration",
+      "src.kernel.memory",
+      "src.kernel.auditor",
+      "src.kernel.triage",
+      "agent_kernel.models",
+      "agent_kernel.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "return_values"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 99,
+      "doc": "Set up test fixtures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initialization",
+      "line": 104,
+      "doc": "Test SCAKMemory initialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_variables",
+      "line": 111,
+      "doc": "Test memory_variables property.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_memory_variables_basic",
+      "line": 117,
+      "doc": "Test loading memory variables with basic input.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_memory_variables_with_tools",
+      "line": 136,
+      "doc": "Test loading memory variables with active tools.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_save_context",
+      "line": 152,
+      "doc": "Test saving context to memory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear",
+      "line": 170,
+      "doc": "Test clearing memory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_history_as_string",
+      "line": 186,
+      "doc": "Test formatting history as string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 202,
+      "doc": "Set up test fixtures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initialization",
+      "line": 207,
+      "doc": "Test SCAKCallbackHandler initialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_give_up_signal_positive",
+      "line": 214,
+      "doc": "Test give-up signal detection for positive cases.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_give_up_signal_negative",
+      "line": 234,
+      "doc": "Test give-up signal detection for negative cases.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_on_agent_finish_no_give_up",
+      "line": 251,
+      "doc": "Test callback when agent finishes without give-up signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_on_agent_finish_with_give_up",
+      "line": 267,
+      "doc": "Test callback when agent finishes with give-up signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detect_give_up_type",
+      "line": 285,
+      "doc": "Test detection of specific give-up types.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 304,
+      "doc": "Set up test fixtures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initialization",
+      "line": 317,
+      "doc": "Test SelfCorrectingRunnable initialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_success",
+      "line": 324,
+      "doc": "Test successful invocation without errors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_with_async_failure",
+      "line": 342,
+      "doc": "Test invocation with async failure (non-critical).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_with_sync_correction",
+      "line": 356,
+      "doc": "Test invocation with sync correction (critical).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_extract_tool_from_error",
+      "line": 379,
+      "doc": "Test extraction of tool name from error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_classify_failure_type",
+      "line": 393,
+      "doc": "Test classification of failure types.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_scak_agent_basic",
+      "line": 413,
+      "doc": "Test basic SCAK agent creation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_scak_agent_with_callback",
+      "line": 423,
+      "doc": "Test SCAK agent creation with callback handler.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_scak_agent_no_correction",
+      "line": 438,
+      "doc": "Test SCAK agent creation without correction.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockBaseMemory",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockBaseCallbackHandler",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockAsyncCallbackHandler",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockRunnable",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockBaseMessage",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockSystemMessage",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "MockBaseMessage"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MockHumanMessage",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "MockBaseMessage"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MockAIMessage",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "MockBaseMessage"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MockAgentFinish",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSCAKMemory",
+      "line": 96,
+      "doc": "Tests for SCAKMemory component.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestSCAKCallbackHandler",
+      "line": 199,
+      "doc": "Tests for SCAKCallbackHandler component.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestSelfCorrectingRunnable",
+      "line": 301,
+      "doc": "Tests for SelfCorrectingRunnable component.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestCreateSCAKAgent",
+      "line": 410,
+      "doc": "Tests for create_scak_agent convenience function.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 17,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

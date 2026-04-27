@@ -1,0 +1,714 @@
+{
+  "path": "packages/agent-os/modules/caas/tests/test_caching.py",
+  "extension": ".py",
+  "size_bytes": 19207,
+  "line_count": 630,
+  "documentation": {
+    "file_docstring": "Tests for Context Caching module.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create entry that's 2 hours old",
+      "Should be expired with 1 hour TTL",
+      "Should not be expired with 3 hour TTL",
+      "Add 3 entries",
+      "Add 4th entry - should evict oldest (key0)",
+      "Add 3 entries",
+      "Access key0 (moves it to end)",
+      "Add new entry - should evict key1 (now oldest)",
+      "Add old entry",
+      "Add new entry",
+      "Cleanup with 1 hour TTL",
+      "Create large context (> 1024 tokens \u2248 4096 chars)",
+      "Should have system message with cache_control",
+      "Check for cache_control in content blocks",
+      "At least one block should have cache_control",
+      "Small context (< 1024 tokens)",
+      "Should not have cache_control for small content",
+      "10,000 tokens cached",
+      "Should have significant savings (90% of tokens)",
+      "Below minimum threshold",
+      "Should have system message",
+      "Content should be combined string (not list)",
+      "50% savings for OpenAI",
+      "100% token savings for local cache",
+      "Small context (< 100 tokens)",
+      "Large enough context",
+      "Store",
+      "Lookup",
+      "Should find it",
+      "Invalidate",
+      "Should not find it anymore",
+      "Store some entries",
+      "Clear",
+      "Generate some stats",
+      "Reset",
+      "60 hits out of 100 = 60%"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestCacheConfig: Tests for CacheConfig.",
+      "TestCacheEntry: Tests for CacheEntry.",
+      "TestLRUCache: Tests for LRUCache.",
+      "TestAnthropicCacheStrategy: Tests for AnthropicCacheStrategy.",
+      "TestOpenAICacheStrategy: Tests for OpenAICacheStrategy.",
+      "TestLocalCacheStrategy: Tests for LocalCacheStrategy.",
+      "TestContextCache: Tests for ContextCache.",
+      "TestCacheStats: Tests for CacheStats.",
+      "TestCreateCache: Tests for create_cache convenience function.",
+      "test_default_config: Test default configuration values."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestCreateCache",
+    "test_access_updates_order",
+    "test_basic_put_get",
+    "test_estimate_savings_not_cached",
+    "test_estimate_savings_small_context",
+    "test_create_cache_with_enum",
+    "test_compute_key_with_metadata",
+    "test_store_and_lookup",
+    "test_prepare_messages_with_small_context",
+    "test_estimate_savings_cached",
+    "test_default_config",
+    "test_clear",
+    "TestCacheConfig",
+    "TestOpenAICacheStrategy",
+    "test_create_openai_cache",
+    "test_estimate_savings",
+    "test_cleanup_expired",
+    "TestCacheStats",
+    "test_compute_key",
+    "test_create_local_cache",
+    "test_invalidate",
+    "TestAnthropicCacheStrategy",
+    "test_entry_expiration",
+    "test_custom_config",
+    "test_create_anthropic_cache",
+    "test_provider",
+    "test_create_cache_with_config",
+    "test_prepare_messages_with_large_context",
+    "TestLRUCache",
+    "test_prepare_messages",
+    "test_get_nonexistent",
+    "test_remove",
+    "test_create_default_cache",
+    "test_lookup_miss_small_context",
+    "test_to_dict",
+    "test_reset_stats",
+    "TestLocalCacheStrategy",
+    "test_get_stats",
+    "test_create_entry",
+    "test_create_cache_with_strategy",
+    "test_lru_eviction",
+    "test_hit_rate_calculation",
+    "test_hit_rate_zero_requests",
+    "TestContextCache",
+    "TestCacheEntry"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "time",
+      "datetime",
+      "caas.caching"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_default_config",
+      "line": 28,
+      "doc": "Test default configuration values.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_config",
+      "line": 40,
+      "doc": "Test custom configuration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_entry",
+      "line": 56,
+      "doc": "Test creating a cache entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_entry_expiration",
+      "line": 73,
+      "doc": "Test entry expiration check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic_put_get",
+      "line": 95,
+      "doc": "Test basic put and get operations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_nonexistent",
+      "line": 113,
+      "doc": "Test getting a nonexistent key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_lru_eviction",
+      "line": 120,
+      "doc": "Test LRU eviction when at capacity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_access_updates_order",
+      "line": 152,
+      "doc": "Test that accessing an entry moves it to the end.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_remove",
+      "line": 184,
+      "doc": "Test removing an entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear",
+      "line": 202,
+      "doc": "Test clearing the cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cleanup_expired",
+      "line": 223,
+      "doc": "Test cleaning up expired entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_provider",
+      "line": 260,
+      "doc": "Test provider identification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prepare_messages_with_large_context",
+      "line": 265,
+      "doc": "Test message preparation with large context (should add cache_control).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prepare_messages_with_small_context",
+      "line": 295,
+      "doc": "Test message preparation with small context (no cache_control).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_estimate_savings_cached",
+      "line": 319,
+      "doc": "Test savings estimation for cached content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_estimate_savings_not_cached",
+      "line": 330,
+      "doc": "Test savings estimation for non-cached content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_estimate_savings_small_context",
+      "line": 339,
+      "doc": "Test that small contexts show no savings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_provider",
+      "line": 353,
+      "doc": "Test provider identification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prepare_messages",
+      "line": 358,
+      "doc": "Test message preparation (no special formatting for OpenAI).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_estimate_savings",
+      "line": 375,
+      "doc": "Test savings estimation (50% for OpenAI).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_provider",
+      "line": 389,
+      "doc": "Test provider identification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_estimate_savings",
+      "line": 394,
+      "doc": "Test savings estimation (100% for local cache).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_default_cache",
+      "line": 408,
+      "doc": "Test creating cache with defaults.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_cache_with_strategy",
+      "line": 415,
+      "doc": "Test creating cache with specific strategy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compute_key",
+      "line": 421,
+      "doc": "Test cache key computation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compute_key_with_metadata",
+      "line": 432,
+      "doc": "Test key computation includes metadata.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_lookup_miss_small_context",
+      "line": 441,
+      "doc": "Test lookup returns miss for small contexts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_store_and_lookup",
+      "line": 450,
+      "doc": "Test storing and looking up content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prepare_messages",
+      "line": 471,
+      "doc": "Test message preparation delegates to strategy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalidate",
+      "line": 483,
+      "doc": "Test cache invalidation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear",
+      "line": 506,
+      "doc": "Test clearing cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_stats",
+      "line": 528,
+      "doc": "Test getting cache statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_stats",
+      "line": 548,
+      "doc": "Test resetting statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hit_rate_calculation",
+      "line": 565,
+      "doc": "Test hit rate calculation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hit_rate_zero_requests",
+      "line": 578,
+      "doc": "Test hit rate with zero requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 584,
+      "doc": "Test serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_anthropic_cache",
+      "line": 601,
+      "doc": "Test creating Anthropic cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_openai_cache",
+      "line": 607,
+      "doc": "Test creating OpenAI cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_local_cache",
+      "line": 613,
+      "doc": "Test creating local cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_cache_with_config",
+      "line": 619,
+      "doc": "Test creating cache with custom config.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_cache_with_enum",
+      "line": 626,
+      "doc": "Test creating cache with CacheProvider enum.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCacheConfig",
+      "line": 25,
+      "doc": "Tests for CacheConfig.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCacheEntry",
+      "line": 53,
+      "doc": "Tests for CacheEntry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLRUCache",
+      "line": 92,
+      "doc": "Tests for LRUCache.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAnthropicCacheStrategy",
+      "line": 257,
+      "doc": "Tests for AnthropicCacheStrategy.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOpenAICacheStrategy",
+      "line": 350,
+      "doc": "Tests for OpenAICacheStrategy.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLocalCacheStrategy",
+      "line": 386,
+      "doc": "Tests for LocalCacheStrategy.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestContextCache",
+      "line": 405,
+      "doc": "Tests for ContextCache.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCacheStats",
+      "line": 562,
+      "doc": "Tests for CacheStats.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCreateCache",
+      "line": 598,
+      "doc": "Tests for create_cache convenience function.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth"
+    ]
+  }
+}

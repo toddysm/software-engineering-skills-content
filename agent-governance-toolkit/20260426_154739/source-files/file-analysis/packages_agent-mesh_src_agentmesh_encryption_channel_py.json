@@ -1,0 +1,231 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/encryption/channel.py",
+  "extension": ".py",
+  "size_bytes": 6664,
+  "line_count": 205,
+  "documentation": {
+    "file_docstring": "SecureChannel \u2014 high-level E2E encrypted agent-to-agent messaging.\n\nCombines X3DH key agreement with the Double Ratchet to provide a\nsimple API for encrypted bidirectional communication between agents.\n\nUsage:\n    alice_ch = SecureChannel.create_sender(alice_mgr, bob_bundle, ad)\n    bob_ch = SecureChannel.create_receiver(bob_mgr, alice_ik, alice_ek, otk_id, ad)\n\n    ciphertext = alice_ch.send(b\"hello\")\n    plaintext = bob_ch.receive(ciphertext)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Zero out sensitive state"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ChannelEstablishment: Data the initiator sends to the responder to establish the channel.",
+      "SecureChannel: E2E encrypted bidirectional channel between two agents.\n\nWraps X3DH (initial key",
+      "create_sender: Create a channel as the initiator (sender of the first message).\n\nArgs:\n    key_",
+      "create_receiver: Create a channel as the responder.\n\nArgs:\n    key_manager: The responder's X3DH ",
+      "send: Encrypt and send a message.\n\nArgs:\n    plaintext: Message content to encrypt.\n\nR",
+      "receive: Decrypt a received message.\n\nArgs:\n    message: The encrypted message from the p",
+      "close: Close the channel and clear key material."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ChannelEstablishment",
+    "is_closed",
+    "message_count",
+    "remote_identity_key",
+    "SecureChannel",
+    "send",
+    "close",
+    "create_sender",
+    "create_receiver",
+    "local_identity_key",
+    "receive"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "agentmesh.encryption.ratchet",
+      "agentmesh.encryption.x3dh"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ratchet",
+        "associated_data",
+        "local_identity_key",
+        "remote_identity_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_sender",
+      "line": 58,
+      "doc": "Create a channel as the initiator (sender of the first message).\n\nArgs:\n    key_manager: The initiator's X3DH key manager.\n    peer_bundle: The responder's published pre-key bundle.\n    associated_data: Additional data bound to the channel (e.g., DIDs).\n\nReturns:\n    A tuple of (SecureChannel, ChannelEstablishment). The\n    ChannelEstablishment must be sent to the responder out-of-band\n    so they can create their side of the channel.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "key_manager",
+        "peer_bundle",
+        "associated_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_receiver",
+      "line": 100,
+      "doc": "Create a channel as the responder.\n\nArgs:\n    key_manager: The responder's X3DH key manager.\n    establishment: The ChannelEstablishment data from the initiator.\n    associated_data: Additional data bound to the channel.\n\nReturns:\n    A SecureChannel ready to receive and send messages.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "key_manager",
+        "establishment",
+        "associated_data"
+      ],
+      "returns": "SecureChannel"
+    },
+    {
+      "name": "send",
+      "line": 142,
+      "doc": "Encrypt and send a message.\n\nArgs:\n    plaintext: Message content to encrypt.\n\nReturns:\n    An EncryptedMessage ready for transport.\n\nRaises:\n    RuntimeError: If the channel has been closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plaintext"
+      ],
+      "returns": "EncryptedMessage"
+    },
+    {
+      "name": "receive",
+      "line": 160,
+      "doc": "Decrypt a received message.\n\nArgs:\n    message: The encrypted message from the peer.\n\nReturns:\n    Decrypted plaintext bytes.\n\nRaises:\n    RuntimeError: If the channel has been closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "close",
+      "line": 178,
+      "doc": "Close the channel and clear key material.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_closed",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "message_count",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "local_identity_key",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "remote_identity_key",
+      "line": 204,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ChannelEstablishment",
+      "line": 28,
+      "doc": "Data the initiator sends to the responder to establish the channel.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SecureChannel",
+      "line": 36,
+      "doc": "E2E encrypted bidirectional channel between two agents.\n\nWraps X3DH (initial key exchange) and Double Ratchet (ongoing\nencryption) into a simple send/receive API.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

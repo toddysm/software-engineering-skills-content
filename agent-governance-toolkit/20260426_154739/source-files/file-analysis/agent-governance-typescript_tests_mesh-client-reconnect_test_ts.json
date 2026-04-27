@@ -1,0 +1,110 @@
+{
+  "path": "agent-governance-typescript/tests/mesh-client-reconnect.test.ts",
+  "extension": ".ts",
+  "size_bytes": 9459,
+  "line_count": 300,
+  "documentation": {
+    "file_docstring": "Tests for MeshClient inbox replay on reconnect. Validates that the client sends a fetch_pending frame after connect, handles pending_messages batch frames, and provides a clean reconnect cycle. Ref: Issue #1407 \u2014 MeshClient delivery-on-reconnect (inbox replay) Spec: docs/specs/AGENTMESH-WIRE-1.0.md Section 12",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Mock WebSocket \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "simulateFrame(frame: Record<string, unknown>): void { if (this.onmessage) { this.onmessage({ data: JSON.stringify(frame) }); } } } // \u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 let lastMockWs: MockWebSocket | null = null; function mockWsFactory(url: string): WebSocket { const ws = new MockWebSocket(url); lastMockWs = ws; return ws as unknown as WebSocket; } function makeKeyManager(): X3DHKeyManager { const priv = ed25519.utils.randomSecretKey(); const pub = ed25519.getPublicKey(priv); return new X3DHKeyManager(priv, pub); } function makeClient(overrides?: Partial<MeshClientOptions>): MeshClient { return new MeshClient({ relayUrl: \"http://localhost:8080\", registryUrl: \"http://localhost:8081\", keyManager: makeKeyManager(), agentDid: \"did:agentmesh:test-agent\", wsFactory: mockWsFactory, ...overrides, }); } // \u2500\u2500 Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 describe(\"MeshClient inbox replay\", () => { beforeEach(() => { lastMockWs = null; }); test(\"sends fetch_pending frame after connect\", async () => { const client = makeClient(); await client.connect(); expect(lastMockWs).not.toBeNull(); const frames = lastMockWs!.sent; // Should have at least 2 frames: connect + fetch_pending expect(frames.length).toBeGreaterThanOrEqual(2); const connectFrame = frames.find((f) => f.type === \"connect\"); expect(connectFrame).toBeDefined(); expect(connectFrame!.from).toBe(\"did:agentmesh:test-agent\"); const fetchFrame = frames.find((f) => f.type === \"fetch_pending\"); expect(fetchFrame).toBeDefined(); expect(fetchFrame!.from).toBe(\"did:agentmesh:test-agent\"); expect(fetchFrame!.v).toBe(1); }); test(\"connect sends fetch_pending after connect (ordering)\", async () => { const client = makeClient(); await client.connect(); const frames = lastMockWs!.sent; const connectIdx = frames.findIndex((f) => f.type === \"connect\"); const fetchIdx = frames.findIndex((f) => f.type === \"fetch_pending\"); expect(connectIdx).toBeGreaterThanOrEqual(0); expect(fetchIdx).toBeGreaterThan(connectIdx); }); test(\"handles pending_messages batch with plaintext messages\", async () => { const client = makeClient({ plaintextPeers: [\"did:agentmesh:peer-a\"] }); const received: Array<{ from: string; payload: unknown; isPlaintext: boolean }> = []; client.onMessage((from, payload, isPlaintext) => { received.push({ from, payload, isPlaintext }); }); await client.connect(); // Simulate relay sending a pending_messages batch const pendingBatch = { v: 1, type: \"pending_messages\", messages: [ { v: 1, type: \"message\", from: \"did:agentmesh:peer-a\", to: \"did:agentmesh:test-agent\", id: \"msg-001\", ts: new Date().toISOString(), ciphertext: btoa(JSON.stringify({ text: \"hello from offline\" })), plaintext: true, }, { v: 1, type: \"message\", from: \"did:agentmesh:peer-a\", to: \"did:agentmesh:test-agent\", id: \"msg-002\", ts: new Date().toISOString(), ciphertext: btoa(JSON.stringify({ text: \"second offline msg\" })), plaintext: true, }, ], }; lastMockWs!.simulateFrame(pendingBatch); // Allow async handlers to complete await new Promise((r) => setTimeout(r, 50)); expect(received).toHaveLength(2); expect(received[0].from).toBe(\"did:agentmesh:peer-a\"); expect(received[0].payload).toEqual({ text: \"hello from offline\" }); expect(received[0].isPlaintext).toBe(true); expect(received[1].payload).toEqual({ text: \"second offline msg\" }); }); test(\"handles empty pending_messages gracefully\", async () => { const client = makeClient(); const received: unknown[] = []; client.onMessage((from, payload) => { received.push(payload); }); await client.connect(); // Empty messages array lastMockWs!.simulateFrame({ v: 1, type: \"pending_messages\", messages: [] }); await new Promise((r) => setTimeout(r, 50)); expect(received).toHaveLength(0); // Missing messages field lastMockWs!.simulateFrame({ v: 1, type: \"pending_messages\" }); await new Promise((r) => setTimeout(r, 50)); expect(received).toHaveLength(0); // Null messages field lastMockWs!.simulateFrame({ v: 1, type: \"pending_messages\", messages: null }); await new Promise((r) => setTimeout(r, 50)); expect(received).toHaveLength(0); }); test(\"sends ack for each pending message\", async () => { const client = makeClient({ plaintextPeers: [\"did:agentmesh:sender\"] }); client.onMessage(() => {",
+      "Reconnect",
+      "Should have created a new WebSocket",
+      "New connection should also have connect + fetch_pending",
+      "Same WebSocket, no additional frames"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [],
+  "imports": {
+    "internal": [
+      "../src/encryption/mesh-client",
+      "../src/encryption/x3dh"
+    ],
+    "external": [
+      "@noble/curves/ed25519"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "send",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "close",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "simulateFrame",
+      "line": 47,
+      "doc": "",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "mockWsFactory",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "makeKeyManager",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "makeClient",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockWebSocket",
+      "line": 22,
+      "doc": "",
+      "is_public": false,
+      "extends": null,
+      "implements": []
+    }
+  ],
+  "complexity_score": 5,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,736 @@
+{
+  "path": "packages/agent-os/modules/control-plane/tests/test_sql_policy.py",
+  "extension": ".py",
+  "size_bytes": 15463,
+  "line_count": 362,
+  "documentation": {
+    "file_docstring": "Tests for SQL policy enforcement using AST-level parsing.\n\nThese tests verify that the no_destructive_sql policy correctly identifies\ndangerous SQL operations while allowing safe queries.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check if sqlglot is available",
+      "=============================================",
+      "SAFE QUERIES - Should PASS",
+      "=============================================",
+      "=============================================",
+      "DANGEROUS QUERIES - Should BLOCK",
+      "=============================================",
+      "=============================================",
+      "BYPASS ATTEMPTS - Should still BLOCK",
+      "=============================================",
+      "With AST parsing, this should be allowed (comment is ignored)",
+      "With AST parsing, this should be allowed (it's just a string)",
+      "=============================================",
+      "EDGE CASES",
+      "=============================================",
+      "First safe, second dangerous",
+      "Config that blocks INSERT (not blocked by default)",
+      "SELECT should still pass"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestSQLPolicy: Test the SQL policy enforcement.",
+      "TestSQLPolicyFallback: Test the fallback SQL check when sqlglot is not available.",
+      "TestSQLPolicyConfig: Test config-based SQL policy loading.",
+      "sql_policy: Get the no_destructive_sql policy.",
+      "make_sql_request: Helper to create an ExecutionRequest for a SQL query.",
+      "test_simple_select_allowed: Simple SELECT queries should be allowed.",
+      "test_select_with_where_allowed: SELECT with WHERE clause should be allowed.",
+      "test_insert_allowed: INSERT statements should be allowed.",
+      "test_update_with_where_allowed: UPDATE with WHERE clause should be allowed.",
+      "test_delete_with_where_allowed: DELETE with WHERE clause should be allowed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestSQLPolicy",
+    "test_drop_database_blocked",
+    "test_update_without_where_blocked",
+    "test_grant_blocked",
+    "test_create_policies_from_explicit_config",
+    "test_simple_select_allowed",
+    "test_grant_select_blocked",
+    "test_fallback_blocks_grant",
+    "test_drop_table_blocked",
+    "test_create_policies_from_config_with_yaml",
+    "TestSQLPolicyFallback",
+    "test_fallback_blocks_create_user",
+    "test_empty_query_allowed",
+    "test_drop_in_string_allowed",
+    "test_create_table_allowed",
+    "test_fallback_allows_insert",
+    "test_whitespace_only_allowed",
+    "sql_policy",
+    "make_sql_request",
+    "test_fallback_blocks_update_without_where",
+    "test_create_role_blocked",
+    "test_drop_in_comment_allowed",
+    "test_config_missing_file_raises",
+    "test_merge_into_blocked",
+    "test_default_policies_emits_deprecation_warning",
+    "test_multiple_statements_checked",
+    "test_delete_with_where_allowed",
+    "test_fallback_uses_config",
+    "test_alter_table_blocked",
+    "test_fallback_allows_update_with_where",
+    "test_select_with_where_allowed",
+    "test_create_user_blocked",
+    "test_update_with_where_allowed",
+    "test_case_variations_blocked",
+    "test_revoke_blocked",
+    "TestSQLPolicyConfig",
+    "test_fallback_blocks_drop",
+    "test_fallback_blocks_exec_xp_cmdshell",
+    "test_exec_xp_cmdshell_blocked",
+    "test_fallback_allows_select",
+    "test_insert_allowed",
+    "test_non_sql_action_allowed",
+    "test_fallback_blocks_merge",
+    "test_truncate_blocked",
+    "test_fallback_blocks_revoke",
+    "test_delete_without_where_blocked",
+    "test_execute_xp_cmdshell_blocked"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.agent_kernel",
+      "warnings",
+      "sqlglot",
+      "datetime",
+      "agent_control_plane.agent_kernel",
+      "datetime",
+      "agent_control_plane.agent_kernel",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.policy_engine"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "sql_policy",
+      "line": 29,
+      "doc": "Get the no_destructive_sql policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "make_sql_request",
+      "line": 37,
+      "doc": "Helper to create an ExecutionRequest for a SQL query.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": "ExecutionRequest"
+    },
+    {
+      "name": "test_simple_select_allowed",
+      "line": 64,
+      "doc": "Simple SELECT queries should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_select_with_where_allowed",
+      "line": 69,
+      "doc": "SELECT with WHERE clause should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insert_allowed",
+      "line": 74,
+      "doc": "INSERT statements should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_update_with_where_allowed",
+      "line": 79,
+      "doc": "UPDATE with WHERE clause should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_with_where_allowed",
+      "line": 84,
+      "doc": "DELETE with WHERE clause should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_table_allowed",
+      "line": 89,
+      "doc": "CREATE TABLE should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drop_table_blocked",
+      "line": 98,
+      "doc": "DROP TABLE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drop_database_blocked",
+      "line": 103,
+      "doc": "DROP DATABASE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_truncate_blocked",
+      "line": 108,
+      "doc": "TRUNCATE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_without_where_blocked",
+      "line": 113,
+      "doc": "DELETE without WHERE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_alter_table_blocked",
+      "line": 118,
+      "doc": "ALTER TABLE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grant_blocked",
+      "line": 123,
+      "doc": "GRANT should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grant_select_blocked",
+      "line": 128,
+      "doc": "GRANT SELECT should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoke_blocked",
+      "line": 133,
+      "doc": "REVOKE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_user_blocked",
+      "line": 138,
+      "doc": "CREATE USER should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_role_blocked",
+      "line": 143,
+      "doc": "CREATE ROLE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_update_without_where_blocked",
+      "line": 148,
+      "doc": "UPDATE without WHERE should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exec_xp_cmdshell_blocked",
+      "line": 153,
+      "doc": "EXEC xp_cmdshell should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_execute_xp_cmdshell_blocked",
+      "line": 158,
+      "doc": "EXECUTE xp_cmdshell should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_merge_into_blocked",
+      "line": 163,
+      "doc": "MERGE INTO should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drop_in_comment_allowed",
+      "line": 176,
+      "doc": "DROP keyword in comment should NOT trigger block.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drop_in_string_allowed",
+      "line": 183,
+      "doc": "DROP keyword in string literal should NOT trigger block.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_case_variations_blocked",
+      "line": 189,
+      "doc": "Case variations of dangerous keywords should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_query_allowed",
+      "line": 203,
+      "doc": "Empty query should be allowed (no harm).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_whitespace_only_allowed",
+      "line": 208,
+      "doc": "Whitespace-only query should be allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_sql_action_allowed",
+      "line": 213,
+      "doc": "Non-SQL action types should pass through.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_statements_checked",
+      "line": 232,
+      "doc": "Multiple statements should all be checked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_drop",
+      "line": 242,
+      "doc": "Fallback should block DROP.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_grant",
+      "line": 247,
+      "doc": "Fallback should block GRANT.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_create_user",
+      "line": 252,
+      "doc": "Fallback should block CREATE USER.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_exec_xp_cmdshell",
+      "line": 257,
+      "doc": "Fallback should block EXEC xp_cmdshell.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_update_without_where",
+      "line": 262,
+      "doc": "Fallback should block UPDATE without WHERE.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_revoke",
+      "line": 267,
+      "doc": "Fallback should block REVOKE.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_blocks_merge",
+      "line": 272,
+      "doc": "Fallback should block MERGE INTO.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_allows_select",
+      "line": 277,
+      "doc": "Fallback should allow SELECT.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_allows_insert",
+      "line": 282,
+      "doc": "Fallback should allow INSERT.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_allows_update_with_where",
+      "line": 287,
+      "doc": "Fallback should allow UPDATE with WHERE.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_policies_from_config_with_yaml",
+      "line": 296,
+      "doc": "Loading from YAML config should produce working policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_policies_from_explicit_config",
+      "line": 321,
+      "doc": "Passing SQLPolicyConfig directly should work.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_policies_emits_deprecation_warning",
+      "line": 335,
+      "doc": "create_default_policies should emit a deprecation warning.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_config_missing_file_raises",
+      "line": 343,
+      "doc": "Loading a non-existent config should raise FileNotFoundError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fallback_uses_config",
+      "line": 349,
+      "doc": "Fallback regex check should respect config.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestSQLPolicy",
+      "line": 25,
+      "doc": "Test the SQL policy enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSQLPolicyFallback",
+      "line": 239,
+      "doc": "Test the fallback SQL check when sqlglot is not available.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSQLPolicyConfig",
+      "line": 293,
+      "doc": "Test config-based SQL policy loading.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 13,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

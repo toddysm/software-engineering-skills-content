@@ -1,0 +1,141 @@
+{
+  "path": "packages/agent-os/src/agent_os/trust_root.py",
+  "extension": ".py",
+  "size_bytes": 4301,
+  "line_count": 128,
+  "documentation": {
+    "file_docstring": "Deterministic Trust Root \u2014 Final authority for the supervisor hierarchy.\n\nThe trust root is a pure-code (non-LLM) policy checkpoint that sits at\nthe top of the supervisor chain.  It evaluates actions using\nGovernancePolicy rules and cannot be overridden by any agent.\n\nExample:\n    >>> from agent_os.trust_root import TrustRoot, TrustDecision\n    >>> from agent_os.integrations.base import GovernancePolicy\n    >>>\n    >>> policy = GovernancePolicy(allowed_tools=[\"read_file\"])\n    >>> root = TrustRoot(policies=[policy])\n    >>> decision = root.validate_action({\"tool\": \"delete_file\", \"arguments\": {}})\n    >>> decision.allowed  # False",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------",
+      "Check allowed tools",
+      "Check blocked patterns",
+      "Root level must be deterministic \u2014 not an LLM agent"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustDecision: Result of a deterministic trust-root evaluation.",
+      "TrustRoot: Deterministic (non-LLM) policy authority at the top of the supervisor hierarchy.",
+      "validate_action: Deterministic policy check against all registered policies.\n\nArgs:\n    action: D",
+      "validate_supervisor: Verify a supervisor agent meets trust requirements.\n\nA supervisor at any level m",
+      "is_deterministic: Guarantee that this trust root uses only deterministic logic."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "validate_action",
+    "validate_supervisor",
+    "TrustDecision",
+    "is_deterministic",
+    "TrustRoot"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "typing",
+      "agent_os.integrations.base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policies",
+        "max_escalation_depth"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_action",
+      "line": 63,
+      "doc": "Deterministic policy check against all registered policies.\n\nArgs:\n    action: Dict with at least ``tool`` (str) and ``arguments`` (dict).\n\nReturns:\n    TrustDecision indicating whether the action is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action"
+      ],
+      "returns": "TrustDecision"
+    },
+    {
+      "name": "validate_supervisor",
+      "line": 102,
+      "doc": "Verify a supervisor agent meets trust requirements.\n\nA supervisor at any level must declare a ``name`` and ``level``.\nLevel-0 supervisors **must not** be agent-based (``is_agent`` must be False).\n\nArgs:\n    supervisor_config: Dict with ``name``, ``level``, and optionally ``is_agent``.\n\nReturns:\n    True if the supervisor configuration is acceptable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "supervisor_config"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_deterministic",
+      "line": 126,
+      "doc": "Guarantee that this trust root uses only deterministic logic.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustDecision",
+      "line": 29,
+      "doc": "Result of a deterministic trust-root evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustRoot",
+      "line": 38,
+      "doc": "Deterministic (non-LLM) policy authority at the top of the supervisor hierarchy.\n\nThe trust root is the FINAL authority \u2014 it cannot be overridden by any agent.\nAll evaluations use pure code logic; no model inference is involved.\n\nArgs:\n    policies: List of GovernancePolicy instances to enforce.\n    max_escalation_depth: Maximum supervisor levels before forced rejection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 8,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

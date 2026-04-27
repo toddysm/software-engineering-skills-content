@@ -1,0 +1,425 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/prioritization.py",
+  "extension": ".py",
+  "size_bytes": 20994,
+  "line_count": 542,
+  "documentation": {
+    "file_docstring": "Prioritization Framework - Graph-based Context Ranking System\n\nThis module implements a three-layer prioritization system that ranks\nretrieved context based on a hierarchy of needs:\n\n1. Safety Layer (Highest Priority): Recent failures and corrections\n2. Personalization Layer (Medium Priority): User-specific preferences\n3. Global Wisdom Layer (Low Priority): Generic best practices\n\nThe framework sits between the wisdom database and the agent, providing\nranked strategies that help the agent avoid past mistakes and respect\nuser preferences.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Start with global wisdom (foundation)",
+      "Add personalization layer (medium priority)",
+      "Add safety layer (highest priority - most visible)",
+      "Configuration constants",
+      "Load databases",
+      "Check if similar correction exists",
+      "Update existing correction",
+      "Add new correction",
+      "Check if preference exists",
+      "Update existing preference",
+      "Add new preference",
+      "Check if correction is recent",
+      "Check if correction is relevant to this user",
+      "Note: In production, use semantic similarity (e.g., embeddings) to match",
+      "query with task_pattern. This simple keyword matching is a placeholder.",
+      "See PRIORITIZATION_FRAMEWORK.md for future enhancement details.",
+      "Simple keyword overlap check",
+      "Format the safety warning",
+      "Sort by priority (highest first)",
+      "Layer 1: Safety (Highest Priority)",
+      "Layer 2: Personalization (Medium Priority)",
+      "Layer 3: Global Wisdom (Low Priority)",
+      "This is passed as-is from the wisdom database",
+      "Extract key information from critique",
+      "Extract correction suggestion from critique",
+      "Find sentence containing the phrase",
+      "Detect output format preferences",
+      "Detect tool usage preferences",
+      "Initialize framework",
+      "Example 1: Add a safety correction",
+      "Example 2: Add user preferences",
+      "Example 3: Get prioritized context",
+      "Example 4: Show stats"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SafetyCorrection: Represents a correction for a past failure.",
+      "UserPreference: Represents a user-specific preference or constraint.",
+      "PrioritizedContext: Container for prioritized context with different layers.",
+      "PrioritizationFramework: Main prioritization framework that ranks context based on:\n- Safety: Recent fail",
+      "main: Example usage of the prioritization framework.",
+      "build_system_prompt: Build a system prompt with prioritized context.",
+      "_load_safety_corrections: Load safety corrections from disk.",
+      "_save_safety_corrections: Save safety corrections to disk.",
+      "_load_user_preferences: Load user preferences from disk.",
+      "_save_user_preferences: Save user preferences to disk."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_stats",
+    "PrioritizationFramework",
+    "PrioritizedContext",
+    "to_dict",
+    "main",
+    "add_user_preference",
+    "learn_from_failure",
+    "get_prioritized_context",
+    "SafetyCorrection",
+    "from_dict",
+    "learn_user_preference",
+    "build_system_prompt",
+    "add_safety_correction",
+    "UserPreference"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "typing",
+      "datetime",
+      "dataclasses",
+      "collections"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 479,
+      "doc": "Example usage of the prioritization framework.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "build_system_prompt",
+      "line": 76,
+      "doc": "Build a system prompt with prioritized context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "safety_db_file",
+        "preferences_db_file",
+        "failure_window_hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_safety_corrections",
+      "line": 123,
+      "doc": "Load safety corrections from disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_safety_corrections",
+      "line": 136,
+      "doc": "Save safety corrections to disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_user_preferences",
+      "line": 145,
+      "doc": "Load user preferences from disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_user_preferences",
+      "line": 161,
+      "doc": "Save user preferences to disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_safety_correction",
+      "line": 173,
+      "doc": "Add a new safety correction based on a failure.\n\nArgs:\n    task_pattern: Description of the task that failed\n    failure_description: What went wrong\n    correction: How to avoid this failure\n    user_id: Optional user who experienced the failure",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task_pattern",
+        "failure_description",
+        "correction",
+        "user_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_user_preference",
+      "line": 210,
+      "doc": "Add or update a user preference.\n\nArgs:\n    user_id: User identifier\n    preference_key: Type of preference (e.g., \"output_format\")\n    preference_value: Value of preference (e.g., \"JSON\")\n    description: Human-readable description\n    priority: Priority level (1-10, higher = more important)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_id",
+        "preference_key",
+        "preference_value",
+        "description",
+        "priority"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_recent_safety_corrections",
+      "line": 251,
+      "doc": "Get recent safety corrections relevant to the query.\n\nReturns formatted safety warnings for high-priority injection.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "user_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_user_preferences_formatted",
+      "line": 296,
+      "doc": "Get formatted user preferences for the personalization layer.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_prioritized_context",
+      "line": 318,
+      "doc": "Main method: Get prioritized context for a query.\n\nArgs:\n    query: User's query/task\n    global_wisdom: Base system instructions\n    user_id: Optional user identifier for personalization\n    verbose: Print prioritization details\n\nReturns:\n    PrioritizedContext with ranked strategy",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "global_wisdom",
+        "user_id",
+        "verbose"
+      ],
+      "returns": "PrioritizedContext"
+    },
+    {
+      "name": "learn_from_failure",
+      "line": 356,
+      "doc": "Extract safety corrections from failure critique.\n\nThis is called by the Observer when it detects a failure.\n\nNote: In production, use LLM to extract structured failure information.\nThis simple heuristic extraction is a placeholder.\nSee PRIORITIZATION_FRAMEWORK.md for future enhancement details.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "critique",
+        "user_id",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "learn_user_preference",
+      "line": 404,
+      "doc": "Extract user preferences from feedback.\n\nThis is called when user provides feedback on agent behavior.\n\nNote: In production, use LLM to extract structured preferences.\nThis pattern-based extraction is a placeholder for common cases.\nSee PRIORITIZATION_FRAMEWORK.md for future enhancement details.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_id",
+        "query",
+        "user_feedback",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 462,
+      "doc": "Get statistics about the prioritization framework.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SafetyCorrection",
+      "line": 27,
+      "doc": "Represents a correction for a past failure.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "UserPreference",
+      "line": 46,
+      "doc": "Represents a user-specific preference or constraint.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PrioritizedContext",
+      "line": 69,
+      "doc": "Container for prioritized context with different layers.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PrioritizationFramework",
+      "line": 100,
+      "doc": "Main prioritization framework that ranks context based on:\n- Safety: Recent failures and corrections\n- Personalization: User-specific preferences\n- Global Wisdom: Generic best practices",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 68,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

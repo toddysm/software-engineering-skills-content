@@ -1,0 +1,316 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/registry/app.py",
+  "extension": ".py",
+  "size_bytes": 11029,
+  "line_count": 282,
+  "documentation": {
+    "file_docstring": "AgentMesh Registry \u2014 FastAPI application.\n\nSpec: docs/specs/AGENTMESH-WIRE-1.0.md Section 11\nIndependent design: implements against wire spec only.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Request/Response Models \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Auth \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Check timestamp within replay window",
+      "Look up agent",
+      "Verify Ed25519 signature over timestamp",
+      "\u2500\u2500 Application \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Registration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Pre-Keys \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Presence \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Reputation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Simple exponential moving average",
+      "\u2500\u2500 Discovery \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Health \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "verify_ed25519_timestamp_auth: Verify Ed25519-Timestamp auth header. Returns the agent DID.\n\nFormat: Ed25519-Ti",
+      "RegistryServer: AgentMesh Registry \u2014 FastAPI application.",
+      "register_agent: Register a new agent.",
+      "get_agent: Get agent metadata.",
+      "deregister_agent: Deregister an agent.",
+      "upload_prekeys: Upload a pre-key bundle.",
+      "fetch_prekeys: Fetch a pre-key bundle. Atomically consumes one OPK.",
+      "get_presence: Get agent presence / last-seen.",
+      "submit_reputation: Submit reputation feedback for an agent.",
+      "discover: Search agents by capability."
+    ]
+  },
+  "purpose": {
+    "primary_role": "application",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "test class/function patterns",
+      "special file: app.py"
+    ]
+  },
+  "exports": [
+    "ReputationRequest",
+    "app",
+    "store",
+    "RegisterAgentRequest",
+    "verify_ed25519_timestamp_auth",
+    "PreKeyBundleRequest",
+    "RegistryServer"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "logging",
+      "datetime",
+      "typing",
+      "fastapi",
+      "pydantic",
+      "agentmesh.registry.store",
+      "nacl.signing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_utcnow",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "datetime"
+    },
+    {
+      "name": "verify_ed25519_timestamp_auth",
+      "line": 54,
+      "doc": "Verify Ed25519-Timestamp auth header. Returns the agent DID.\n\nFormat: Ed25519-Timestamp <did> <iso8601> <base64url(signature)>\n\nSpec: docs/specs/AGENTMESH-WIRE-1.0.md Section 13.1",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "authorization",
+        "store"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "app",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "FastAPI"
+    },
+    {
+      "name": "store",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "RegistryStore"
+    },
+    {
+      "name": "_create_app",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "FastAPI"
+    },
+    {
+      "name": "register_agent",
+      "line": 131,
+      "doc": "Register a new agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "req"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_agent",
+      "line": 155,
+      "doc": "Get agent metadata.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "deregister_agent",
+      "line": 170,
+      "doc": "Deregister an agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "upload_prekeys",
+      "line": 179,
+      "doc": "Upload a pre-key bundle.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "did",
+        "req"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "fetch_prekeys",
+      "line": 199,
+      "doc": "Fetch a pre-key bundle. Atomically consumes one OPK.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_presence",
+      "line": 228,
+      "doc": "Get agent presence / last-seen.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "submit_reputation",
+      "line": 242,
+      "doc": "Submit reputation feedback for an agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "did",
+        "req"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "discover",
+      "line": 257,
+      "doc": "Search agents by capability.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "capability",
+        "limit"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "health",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RegisterAgentRequest",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PreKeyBundleRequest",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReputationRequest",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RegistryServer",
+      "line": 104,
+      "doc": "AgentMesh Registry \u2014 FastAPI application.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

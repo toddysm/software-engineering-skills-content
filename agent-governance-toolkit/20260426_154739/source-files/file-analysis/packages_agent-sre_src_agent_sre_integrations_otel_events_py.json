@@ -1,0 +1,253 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/otel/events.py",
+  "extension": ".py",
+  "size_bytes": 9904,
+  "line_count": 322,
+  "documentation": {
+    "file_docstring": "OpenTelemetry event logger for Agent SRE.\n\nExports structured events (incidents, cost alerts, signals, chaos faults)\nas OTEL log records using the Events API.\n\nUsage:\n    from agent_sre.integrations.otel.events import EventLogger\n\n    event_logger = EventLogger(service_name=\"my-agent-fleet\")\n    event_logger.log_incident_detected(incident)\n    event_logger.log_cost_alert(alert)\n    event_logger.log_signal(signal)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Log via Python logging",
+      "Add to current span if available",
+      "Span events only accept str values"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "EventLogger: Logs Agent SRE events as structured records.\n\nUses Python's logging module with ",
+      "_current_span: Get the current OTEL span if one is active.",
+      "_emit: Emit a structured event.\n\nLogs via Python logging (for OTEL log exporters) and a",
+      "log_slo_status_change: Log an SLO status transition.\n\nArgs:\n    slo_name: Name of the SLO\n    old_statu",
+      "log_burn_rate_alert: Log a burn rate alert firing.\n\nArgs:\n    slo_name: Name of the SLO\n    alert_nam",
+      "log_cost_alert: Log a cost alert.\n\nArgs:\n    agent_id: Agent identifier\n    severity: Alert seve",
+      "log_signal: Log a reliability signal.\n\nArgs:\n    signal_type: Type of signal (e.g., \"slo_bre",
+      "log_incident_detected: Log an incident detection.\n\nArgs:\n    incident_id: Unique incident identifier\n  ",
+      "log_incident_resolved: Log an incident resolution.\n\nArgs:\n    incident_id: Unique incident identifier\n ",
+      "log_fault_injected: Log a chaos fault injection.\n\nArgs:\n    experiment_name: Name of the chaos exper"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "log_slo_status_change",
+    "log_cost_alert",
+    "log_incident_detected",
+    "EventLogger",
+    "log_chaos_completed",
+    "log_signal",
+    "log_incident_resolved",
+    "log_burn_rate_alert",
+    "log_fault_injected"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "typing",
+      "opentelemetry",
+      "agent_sre.integrations.otel.conventions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_name",
+        "logger_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_current_span",
+      "line": 66,
+      "doc": "Get the current OTEL span if one is active.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_emit",
+      "line": 73,
+      "doc": "Emit a structured event.\n\nLogs via Python logging (for OTEL log exporters) and adds\nan event to the current span (for trace correlation).\n\nReturns:\n    The event attributes dict (for testing/inspection)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_name",
+        "attributes",
+        "level",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_slo_status_change",
+      "line": 102,
+      "doc": "Log an SLO status transition.\n\nArgs:\n    slo_name: Name of the SLO\n    old_status: Previous status\n    new_status: New status\n    error_budget_remaining: Current remaining budget fraction",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo_name",
+        "old_status",
+        "new_status",
+        "error_budget_remaining"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_burn_rate_alert",
+      "line": 130,
+      "doc": "Log a burn rate alert firing.\n\nArgs:\n    slo_name: Name of the SLO\n    alert_name: Name of the alert\n    burn_rate: Current burn rate value\n    severity: Alert severity (warning, critical, page)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo_name",
+        "alert_name",
+        "burn_rate",
+        "severity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_cost_alert",
+      "line": 158,
+      "doc": "Log a cost alert.\n\nArgs:\n    agent_id: Agent identifier\n    severity: Alert severity (info, warning, critical)\n    message: Alert message\n    current_value: Current cost value\n    threshold: Threshold that was breached",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "severity",
+        "message",
+        "current_value",
+        "threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_signal",
+      "line": 189,
+      "doc": "Log a reliability signal.\n\nArgs:\n    signal_type: Type of signal (e.g., \"slo_breach\")\n    source: Signal source (agent ID, SLO name, etc.)\n    value: Signal value\n    message: Signal description",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal_type",
+        "source",
+        "value",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_incident_detected",
+      "line": 215,
+      "doc": "Log an incident detection.\n\nArgs:\n    incident_id: Unique incident identifier\n    title: Incident title\n    severity: Incident severity (p1-p4)\n    agent_id: Affected agent\n    signal_count: Number of correlated signals",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "incident_id",
+        "title",
+        "severity",
+        "agent_id",
+        "signal_count"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_incident_resolved",
+      "line": 249,
+      "doc": "Log an incident resolution.\n\nArgs:\n    incident_id: Unique incident identifier\n    duration_seconds: Time to resolution in seconds",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "incident_id",
+        "duration_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_fault_injected",
+      "line": 271,
+      "doc": "Log a chaos fault injection.\n\nArgs:\n    experiment_name: Name of the chaos experiment\n    fault_type: Type of fault injected\n    target: Target of the fault\n    applied: Whether the fault was successfully applied",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "experiment_name",
+        "fault_type",
+        "target",
+        "applied"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_chaos_completed",
+      "line": 298,
+      "doc": "Log a chaos experiment completion.\n\nArgs:\n    experiment_name: Name of the experiment\n    resilience_score: Final fault impact score (0-100)\n    agent_id: Target agent identifier",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "experiment_name",
+        "resilience_score",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "EventLogger",
+      "line": 50,
+      "doc": "Logs Agent SRE events as structured records.\n\nUses Python's logging module with structured attributes that OTEL\nlog exporters can pick up, plus adds events to the current span\nwhen available for trace correlation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 15,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

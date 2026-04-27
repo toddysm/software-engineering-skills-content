@@ -1,0 +1,498 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/ghost_mode.py",
+  "extension": ".py",
+  "size_bytes": 24012,
+  "line_count": 656,
+  "documentation": {
+    "file_docstring": "Ghost Mode (Passive Observation) - The Observer Daemon Pattern\n\nThis module implements the \"No UI\" paradigm where the Interface Layer sits\nin the background (Ghost Mode), consuming signal streams silently and only\nsurfacing when it has high-confidence value.\n\nKey Concepts:\n- Observer Daemon: Background process that watches without interfering\n- Dry Run Flag: Analyzes signals without taking action\n- Confidence-Based Surfacing: Only interrupts when highly confident\n- Context Shadow: Learns user workflows and behavior patterns\n- Behavior Model: Local, secure storage of user-specific patterns\n\nThe Setup: The Interface Layer sits in the background (Ghost Mode).\nThe Loop: It consumes the signal stream silently. It sends data to the Agent with a \"Dry Run\" flag.\nThe Trigger: It only surfaces when it has high-confidence value.\n\nThe Lesson:\nThe future interface isn't a \"Destination\" (a website). \nIt is a Daemon (a background process). \nIt is invisible until it is indispensable.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Configure logging",
+      "Filter by user if user_id specified",
+      "Load existing data to preserve other users' patterns",
+      "Update with current user's patterns",
+      "Save",
+      "Add user_id to metadata if available",
+      "If pattern exists, update frequency",
+      "Increase confidence with frequency (cap at 0.95)",
+      "Reload patterns if requested (useful for multi-user scenarios)",
+      "Filter by trigger if specified",
+      "Filter by confidence",
+      "Sort by confidence (highest first)",
+      "Observation state",
+      "For demo purposes, track recent signals",
+      "Check for new signals",
+      "Process each signal in dry-run mode",
+      "Check if we should surface this observation",
+      "Sleep before next poll",
+      "Log error but keep running",
+      "Extract context from signal",
+      "Dry-run analysis: What would we do with this signal?",
+      "Calculate confidence based on:",
+      "1. Signal clarity (do we understand it?)",
+      "2. Pattern match (have we seen similar before?)",
+      "3. Context completeness (do we have enough info?)",
+      "Determine if we should surface",
+      "Generate observation and recommendation",
+      "Learn patterns from this observation",
+      "Example heuristics for different signal types",
+      "Check for security concerns",
+      "Check for test files",
+      "Check for errors",
+      "Check if this matches a known pattern",
+      "Learn new pattern if sequence is long enough",
+      "Factor 1: Signal clarity",
+      "Factor 2: Pattern match",
+      "Factor 3: Has recommendation",
+      "Factor 4: Security or critical signal",
+      "Cap at 1.0",
+      "Call the surfacing callback if provided"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ConfidenceLevel: Confidence levels for surfacing decisions.",
+      "BehaviorPattern: A learned behavior pattern from user workflows.\n\nExample: \"How they file expense",
+      "ObservationResult: Result of passive observation with confidence scoring.\n\nThis represents what the",
+      "ContextShadow: Context Shadow: A secure local storage for user behavior patterns.\n\nThis is the ",
+      "GhostModeObserver: Ghost Mode Observer: The background daemon that watches silently.\n\nThis is the \"",
+      "to_dict: Convert to dictionary.",
+      "from_dict: Create from dictionary.",
+      "get_confidence_level: Get confidence level enum.",
+      "to_dict: Convert to dictionary.",
+      "_load_patterns: Load behavior patterns from storage."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "query_patterns",
+    "get_pattern",
+    "get_recent_observations",
+    "start_observing",
+    "ContextShadow",
+    "observe_signal",
+    "BehaviorPattern",
+    "GhostModeObserver",
+    "to_dict",
+    "get_confidence_level",
+    "learn_pattern",
+    "stop_observing",
+    "ConfidenceLevel",
+    "ObservationResult",
+    "from_dict",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "time",
+      "threading",
+      "logging",
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 72,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 87,
+      "doc": "Create from dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_confidence_level",
+      "line": 118,
+      "doc": "Get confidence level enum.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "ConfidenceLevel"
+    },
+    {
+      "name": "to_dict",
+      "line": 129,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "storage_file",
+        "user_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_patterns",
+      "line": 164,
+      "doc": "Load behavior patterns from storage.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_patterns",
+      "line": 186,
+      "doc": "Save behavior patterns to storage.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "learn_pattern",
+      "line": 206,
+      "doc": "Learn a new behavior pattern.\n\nArgs:\n    pattern: Behavior pattern to learn",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "pattern"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query_patterns",
+      "line": 229,
+      "doc": "Query learned behavior patterns.\n\nArgs:\n    trigger: Optional trigger to filter by\n    min_confidence: Minimum confidence threshold\n    reload: Whether to reload patterns from file first\n    \nReturns:\n    List of matching patterns",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trigger",
+        "min_confidence",
+        "reload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_pattern",
+      "line": 261,
+      "doc": "Get a specific pattern by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "pattern_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 265,
+      "doc": "Get statistics about learned patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 301,
+      "doc": "Initialize Ghost Mode Observer.\n\nArgs:\n    context_shadow: Context shadow for storing behavior patterns\n    confidence_threshold: Minimum confidence to surface (default 0.7, must be 0.0-1.0)\n    surfacing_callback: Optional callback when surfacing is triggered\n    \nRaises:\n    ValueError: If confidence_threshold is not in range 0.0-1.0",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context_shadow",
+        "confidence_threshold",
+        "surfacing_callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start_observing",
+      "line": 334,
+      "doc": "Start the observer daemon in background mode.\n\nArgs:\n    poll_interval: How often to check for new signals (seconds)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "poll_interval"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop_observing",
+      "line": 352,
+      "doc": "Stop the observer daemon.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_observation_loop",
+      "line": 358,
+      "doc": "Main observation loop that runs in the background.\n\nThis continuously polls for signals and processes them silently.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "poll_interval"
+      ],
+      "returns": null
+    },
+    {
+      "name": "observe_signal",
+      "line": 390,
+      "doc": "Observe a signal without blocking.\n\nThis is the entry point for signals. The signal is queued\nand will be processed asynchronously by the daemon.\n\nArgs:\n    signal: Signal data to observe",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_process_signal_dry_run",
+      "line": 403,
+      "doc": "Process a signal in dry-run mode (no actions taken).\n\nThis analyzes the signal and determines:\n1. What was observed\n2. Confidence in the observation\n3. Whether to surface to user\n4. What to recommend if surfacing\n\nArgs:\n    signal: Signal data\n    \nReturns:\n    ObservationResult with analysis",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": "ObservationResult"
+    },
+    {
+      "name": "_analyze_signal",
+      "line": 457,
+      "doc": "Analyze a signal to understand what's happening.\n\nThis is where the \"intelligence\" of the observer lives.\nIn a real system, this might use ML models or heuristics.\n\nArgs:\n    signal: Signal data\n    \nReturns:\n    Analysis results including observation and recommendations",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_analyze_file_change",
+      "line": 487,
+      "doc": "Analyze file change signals.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_analyze_log_stream",
+      "line": 514,
+      "doc": "Analyze log stream signals.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_analyze_user_action",
+      "line": 533,
+      "doc": "Analyze user action signals and learn patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_confidence",
+      "line": 577,
+      "doc": "Calculate confidence score for the observation.\n\nFactors:\n1. Signal clarity: Do we have all required fields?\n2. Pattern match: Have we seen this before?\n3. Analysis quality: Did we extract meaningful insights?\n\nArgs:\n    signal: Original signal\n    analysis: Analysis results\n    \nReturns:\n    Confidence score (0-1)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal",
+        "analysis"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_surface_observation",
+      "line": 618,
+      "doc": "Surface an observation to the user.\n\nThis is called when confidence exceeds threshold.\nIn a real system, this might show a notification, log entry,\nor trigger an action.\n\nArgs:\n    observation: Observation to surface",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "observation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 636,
+      "doc": "Get statistics about observation activity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_recent_observations",
+      "line": 654,
+      "doc": "Get recent observations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConfidenceLevel",
+      "line": 43,
+      "doc": "Confidence levels for surfacing decisions.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BehaviorPattern",
+      "line": 52,
+      "doc": "A learned behavior pattern from user workflows.\n\nExample: \"How they file expenses\"\n- Trigger: User opens expense report\n- Steps: [Open form, Attach receipt, Fill amount, Submit]\n- Frequency: 15 times/month\n- Last seen: 2024-01-01",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ObservationResult",
+      "line": 103,
+      "doc": "Result of passive observation with confidence scoring.\n\nThis represents what the observer learned without interfering.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ContextShadow",
+      "line": 144,
+      "doc": "Context Shadow: A secure local storage for user behavior patterns.\n\nThis is the \"Cookies of the real world\" - a way to store user context\nthat can be queried by other Agents.\n\nExample Use Case:\n- Learn: \"User files expenses on Fridays at 4pm\"\n- Store: Pattern with trigger, steps, and confidence\n- Query: \"What does this user do on Friday afternoons?\"\n- Answer: \"High confidence they'll file expenses\"",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GhostModeObserver",
+      "line": 288,
+      "doc": "Ghost Mode Observer: The background daemon that watches silently.\n\nThis is the \"No UI\" paradigm - a background process that:\n1. Consumes signal streams without blocking\n2. Runs dry-run analysis without taking action\n3. Only surfaces when confidence is high\n4. Learns user behavior patterns over time\n\nThe observer is invisible until indispensable.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 88,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

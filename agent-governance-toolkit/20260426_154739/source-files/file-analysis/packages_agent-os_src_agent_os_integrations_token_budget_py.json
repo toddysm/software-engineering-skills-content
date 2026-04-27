@@ -1,0 +1,201 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/token_budget.py",
+  "extension": ".py",
+  "size_bytes": 4970,
+  "line_count": 134,
+  "documentation": {
+    "file_docstring": "Token Budget Tracking with Warnings\n\nTracks token usage per agent and fires warnings when approaching limits.\nIntegrates with GovernancePolicy for budget configuration.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------",
+      "Fire callback outside the lock to avoid deadlocks",
+      "------------------------------------------------------------------",
+      "Display helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Internals",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TokenBudgetStatus: Snapshot of an agent's token budget status.",
+      "_AgentUsage: Internal mutable record of per-agent token consumption.",
+      "TokenBudgetTracker: Thread-safe token budget tracker with configurable warning thresholds.\n\nArgs:\n  ",
+      "record_usage: Record token consumption and return the updated status.\n\nFires the ``on_warning`",
+      "get_usage: Return current budget status for *agent_id*.",
+      "check_budget: Alias for :meth:`get_usage` \u2013 check whether budget is healthy.",
+      "reset: Reset all tracked usage for *agent_id*.",
+      "format_status: Return a CLI-friendly progress bar, e.g. ``[\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591] 82% (8,200/10,000 tokens"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_usage",
+    "TokenBudgetTracker",
+    "record_usage",
+    "format_status",
+    "check_budget",
+    "reset",
+    "TokenBudgetStatus"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "threading",
+      "dataclasses",
+      "typing",
+      "base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_tokens",
+        "warning_threshold",
+        "policy",
+        "on_warning"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_usage",
+      "line": 68,
+      "doc": "Record token consumption and return the updated status.\n\nFires the ``on_warning`` callback the first time the warning\nthreshold is crossed for a given recording.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "prompt_tokens",
+        "completion_tokens"
+      ],
+      "returns": "TokenBudgetStatus"
+    },
+    {
+      "name": "get_usage",
+      "line": 92,
+      "doc": "Return current budget status for *agent_id*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "TokenBudgetStatus"
+    },
+    {
+      "name": "check_budget",
+      "line": 98,
+      "doc": "Alias for :meth:`get_usage` \u2013 check whether budget is healthy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "TokenBudgetStatus"
+    },
+    {
+      "name": "reset",
+      "line": 102,
+      "doc": "Reset all tracked usage for *agent_id*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "format_status",
+      "line": 111,
+      "doc": "Return a CLI-friendly progress bar, e.g. ``[\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591] 82% (8,200/10,000 tokens)``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_build_status",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "usage"
+      ],
+      "returns": "TokenBudgetStatus"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TokenBudgetStatus",
+      "line": 18,
+      "doc": "Snapshot of an agent's token budget status.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "_AgentUsage",
+      "line": 29,
+      "doc": "Internal mutable record of per-agent token consumption.",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TokenBudgetTracker",
+      "line": 36,
+      "doc": "Thread-safe token budget tracker with configurable warning thresholds.\n\nArgs:\n    max_tokens: Global default budget. Overridden per-agent by GovernancePolicy.\n    warning_threshold: Fraction of budget (0.0-1.0) at which ``is_warning`` activates.\n    policy: Optional GovernancePolicy whose ``max_tokens`` is used as the default limit.\n    on_warning: Optional callback ``(agent_id, status)`` fired when a warning threshold is crossed.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 10,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

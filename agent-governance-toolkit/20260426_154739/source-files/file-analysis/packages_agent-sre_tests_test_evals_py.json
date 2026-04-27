@@ -1,0 +1,886 @@
+{
+  "path": "packages/agent-sre/tests/test_evals.py",
+  "extension": ".py",
+  "size_bytes": 18939,
+  "line_count": 583,
+  "documentation": {
+    "file_docstring": "Tests for the LLM-as-Judge Evaluation Engine.\n\nCovers: EvalCriterion, Verdict, EvalInput, EvalResult, RulesJudge,\n        JudgeProtocol, EvalSuite, EvalReport, EvaluationEngine.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Data Classes",
+      "=============================================================================",
+      "=============================================================================",
+      "RulesJudge",
+      "=============================================================================",
+      "--- Correctness ---",
+      "--- Hallucination ---",
+      "--- Relevance ---",
+      "\"machine\" and \"learning\" are query keywords that appear in the response",
+      "Short response gets penalty",
+      "--- Safety ---",
+      "--- Tool Use ---",
+      "--- Custom rules ---",
+      "--- Unknown criterion ---",
+      "=============================================================================",
+      "EvalSuite",
+      "=============================================================================",
+      "=============================================================================",
+      "EvaluationEngine",
+      "=============================================================================",
+      "Should not raise, results should have ABSTAIN entries",
+      "=============================================================================",
+      "Integration: Evals \u2192 SLI pipeline",
+      "=============================================================================",
+      "Run evals and feed into SLI",
+      "Feed into SLI: hallucinated if score < 0.7",
+      "At least the fabricated one should be detected",
+      "Simulate tasks"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "test_judge_error_handled: Engine handles judge exceptions gracefully.",
+      "test_eval_results_feed_hallucination_sli: Demonstrate eval results feeding into HallucinationRate SLI.",
+      "test_eval_results_feed_task_success_sli: Demonstrate eval results feeding into TaskSuccessRate SLI."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_passing_evaluation",
+    "test_failing_safety",
+    "TestEvaluationEngine",
+    "test_judge_id",
+    "test_relevance_short_response",
+    "custom_fn",
+    "test_eval_results_feed_hallucination_sli",
+    "test_protocol_compliance",
+    "test_with_reference",
+    "TestEvalsToSLI",
+    "TestEvalResult",
+    "test_hallucination_clean",
+    "TestRulesJudge",
+    "test_hallucination_example_url",
+    "test_average_score",
+    "test_correctness_no_match",
+    "test_clear",
+    "test_relevance_no_query",
+    "test_tool_use_all_success",
+    "test_rag",
+    "test_custom_rule",
+    "TestEvalSuite",
+    "TestEvalCriterion",
+    "test_batch_run",
+    "test_history",
+    "test_relevance_low",
+    "test_basic_run",
+    "test_correctness_word_overlap",
+    "test_basic",
+    "test_pass_rate",
+    "test_rag_suite",
+    "test_tool_agent_suite",
+    "test_correctness_no_reference",
+    "test_judge_error_handled",
+    "test_eval_results_feed_task_success_sli",
+    "test_default",
+    "test_hallucination_fabricated_phone",
+    "test_relevance_high",
+    "TestVerdict",
+    "test_tool_use_no_calls",
+    "test_custom",
+    "test_safety_clean",
+    "test_safety_unsafe_hack",
+    "test_average_score_by_criterion",
+    "TestEvalInput",
+    "evaluate",
+    "test_correctness_contains_reference",
+    "test_safety_unsafe_sql",
+    "test_tool_use_with_errors",
+    "test_all_criteria",
+    "test_to_dict",
+    "test_report_to_dict",
+    "test_empty_pass_rate",
+    "test_empty_average_score",
+    "BadJudge",
+    "test_tool_agent",
+    "test_correctness_exact_match",
+    "test_values",
+    "test_hallucination_with_context_grounded",
+    "test_safety_unsafe_rm",
+    "test_unknown_criterion",
+    "test_stats",
+    "test_with_tool_calls"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "agent_sre.evals",
+      "agent_sre.slo.indicators",
+      "agent_sre.slo.indicators"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_values",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_criteria",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_values",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_with_reference",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_with_tool_calls",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_judge_id",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_protocol_compliance",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_correctness_exact_match",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_correctness_contains_reference",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_correctness_no_match",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_correctness_no_reference",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_correctness_word_overlap",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hallucination_clean",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hallucination_fabricated_phone",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hallucination_example_url",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hallucination_with_context_grounded",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_relevance_high",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_relevance_low",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_relevance_short_response",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_relevance_no_query",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_safety_clean",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_safety_unsafe_hack",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_safety_unsafe_sql",
+      "line": 239,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_safety_unsafe_rm",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_use_all_success",
+      "line": 257,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_use_with_errors",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_use_no_calls",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_rule",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_criterion",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default",
+      "line": 329,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rag",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_agent",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic_run",
+      "line": 358,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_passing_evaluation",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_failing_safety",
+      "line": 385,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_run",
+      "line": 397,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pass_rate",
+      "line": 406,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_average_score",
+      "line": 422,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_average_score_by_criterion",
+      "line": 433,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_history",
+      "line": 444,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear",
+      "line": 450,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats",
+      "line": 457,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_to_dict",
+      "line": 470,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rag_suite",
+      "line": 483,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_agent_suite",
+      "line": 497,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_judge_error_handled",
+      "line": 511,
+      "doc": "Engine handles judge exceptions gracefully.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_pass_rate",
+      "line": 525,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_average_score",
+      "line": 529,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_eval_results_feed_hallucination_sli",
+      "line": 540,
+      "doc": "Demonstrate eval results feeding into HallucinationRate SLI.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_eval_results_feed_task_success_sli",
+      "line": 564,
+      "doc": "Demonstrate eval results feeding into TaskSuccessRate SLI.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "custom_fn",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "inp"
+      ],
+      "returns": "EvalResult"
+    },
+    {
+      "name": "evaluate",
+      "line": 517,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestEvalCriterion",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVerdict",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvalInput",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvalResult",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRulesJudge",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvalSuite",
+      "line": 328,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvaluationEngine",
+      "line": 357,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvalsToSLI",
+      "line": 539,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "BadJudge",
+      "line": 514,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 12,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

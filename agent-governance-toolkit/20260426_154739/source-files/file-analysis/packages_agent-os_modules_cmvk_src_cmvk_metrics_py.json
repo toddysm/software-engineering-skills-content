@@ -1,0 +1,238 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/metrics.py",
+  "extension": ".py",
+  "size_bytes": 15098,
+  "line_count": 473,
+  "documentation": {
+    "file_docstring": "CMVK Distance Metrics Module\n\nProvides configurable distance metrics for embedding verification.\nAll functions are pure (no side effects) and use only numpy/scipy.\n\nSupported Metrics:\n    - cosine: Cosine distance (default, normalizes vectors)\n    - euclidean: Euclidean distance (preserves magnitude)\n    - manhattan: Manhattan/L1 distance\n    - chebyshev: Chebyshev/L\u221e distance (max absolute difference)\n    - mahalanobis: Mahalanobis distance (accounts for correlation)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Handle numerical precision issues",
+      "Calculate per-dimension differences",
+      "Normalization",
+      "Assume normalized embeddings in [-1, 1]",
+      "Per-dimension contributions",
+      "Normalization",
+      "Normalization",
+      "Without covariance info, use identity matrix (equivalent to Euclidean)",
+      "Fallback if scipy fails",
+      "For Mahalanobis, normalization depends on the covariance structure",
+      "Chi-squared with n degrees of freedom has expected value n",
+      "Normalize using expected value under null hypothesis",
+      "Convert string to enum",
+      "Dispatch to appropriate function",
+      "============================================================================",
+      "Weighted Distance Functions",
+      "============================================================================",
+      "Normalize weights to sum to number of dimensions (preserve scale)",
+      "Per-dimension weighted contributions",
+      "Normalization",
+      "Fall back to unweighted calculation"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DistanceMetric: Supported distance metrics for embedding comparison.",
+      "MetricResult: Result of a distance metric calculation.\n\nAttributes:\n    distance: Raw distance",
+      "cosine_distance: Calculate cosine distance between two vectors.\n\nCosine distance = 1 - cosine_sim",
+      "euclidean_distance: Calculate Euclidean (L2) distance between two vectors.\n\nUnlike cosine distance, ",
+      "manhattan_distance: Calculate Manhattan (L1/city-block) distance between two vectors.\n\nSum of absolu",
+      "chebyshev_distance: Calculate Chebyshev (L\u221e) distance between two vectors.\n\nMaximum absolute differe",
+      "mahalanobis_distance: Calculate Mahalanobis distance between two vectors.\n\nAccounts for correlation be",
+      "calculate_distance: Calculate distance between two vectors using specified metric.\n\nThis is the prim",
+      "get_available_metrics: Return list of available distance metric names.",
+      "weighted_euclidean_distance: Calculate weighted Euclidean distance between two vectors.\n\nAllows certain dimen"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "DistanceMetric",
+    "calculate_weighted_distance",
+    "manhattan_distance",
+    "get_available_metrics",
+    "MetricResult",
+    "mahalanobis_distance",
+    "cosine_distance",
+    "euclidean_distance",
+    "chebyshev_distance",
+    "weighted_euclidean_distance",
+    "calculate_distance"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "collections.abc",
+      "dataclasses",
+      "enum",
+      "typing",
+      "numpy",
+      "numpy.typing",
+      "scipy"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "cosine_distance",
+      "line": 63,
+      "doc": "Calculate cosine distance between two vectors.\n\nCosine distance = 1 - cosine_similarity\nRange: [0, 2] where 0 = identical direction, 1 = orthogonal, 2 = opposite\n\nNote: Cosine distance normalizes vectors, losing magnitude information.\nUse Euclidean distance when magnitude matters.\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n\nReturns:\n    MetricResult with cosine distance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "euclidean_distance",
+      "line": 103,
+      "doc": "Calculate Euclidean (L2) distance between two vectors.\n\nUnlike cosine distance, Euclidean distance preserves magnitude information.\nThis is critical for detecting drift in absolute values (e.g., NDVI scores).\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    expected_range: Optional (min, max) expected range for normalization.\n                   If None, uses vector dimension for normalization.\n\nReturns:\n    MetricResult with Euclidean distance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "expected_range"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "manhattan_distance",
+      "line": 155,
+      "doc": "Calculate Manhattan (L1/city-block) distance between two vectors.\n\nSum of absolute differences across all dimensions.\nMore robust to outliers than Euclidean distance.\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    expected_range: Optional (min, max) expected range for normalization.\n\nReturns:\n    MetricResult with Manhattan distance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "expected_range"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "chebyshev_distance",
+      "line": 204,
+      "doc": "Calculate Chebyshev (L\u221e) distance between two vectors.\n\nMaximum absolute difference across any single dimension.\nUseful for detecting if ANY dimension has significant drift.\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    expected_range: Optional (min, max) expected range for normalization.\n\nReturns:\n    MetricResult with Chebyshev distance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "expected_range"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "mahalanobis_distance",
+      "line": 252,
+      "doc": "Calculate Mahalanobis distance between two vectors.\n\nAccounts for correlation between dimensions using covariance matrix.\nUseful when dimensions are correlated (e.g., related environmental factors).\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    cov_inv: Inverse of covariance matrix. If None, uses identity (= Euclidean).\n\nReturns:\n    MetricResult with Mahalanobis distance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "cov_inv"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "calculate_distance",
+      "line": 305,
+      "doc": "Calculate distance between two vectors using specified metric.\n\nThis is the primary entry point for distance calculations.\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    metric: Distance metric to use. One of:\n        - \"cosine\": Cosine distance (default)\n        - \"euclidean\": Euclidean/L2 distance\n        - \"manhattan\": Manhattan/L1 distance\n        - \"chebyshev\": Chebyshev/L\u221e distance\n        - \"mahalanobis\": Mahalanobis distance\n    **kwargs: Additional arguments passed to the specific metric function\n\nReturns:\n    MetricResult with distance and normalized score\n\nRaises:\n    ValueError: If metric is not supported or vectors have different shapes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "metric"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "get_available_metrics",
+      "line": 360,
+      "doc": "Return list of available distance metric names.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "weighted_euclidean_distance",
+      "line": 370,
+      "doc": "Calculate weighted Euclidean distance between two vectors.\n\nAllows certain dimensions to contribute more to the overall distance.\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    weights: Weight for each dimension. If None, uses uniform weights.\n    expected_range: Optional (min, max) expected range for normalization.\n\nReturns:\n    MetricResult with weighted Euclidean distance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "weights",
+        "expected_range"
+      ],
+      "returns": "MetricResult"
+    },
+    {
+      "name": "calculate_weighted_distance",
+      "line": 434,
+      "doc": "Calculate weighted distance between two vectors.\n\nCurrently supports weighted versions of:\n- euclidean: Weighted Euclidean distance\n\nFor other metrics, weights are not applied (falls back to unweighted).\n\nArgs:\n    vec_a: First vector\n    vec_b: Second vector\n    weights: Weight for each dimension\n    metric: Distance metric to use\n    **kwargs: Additional arguments\n\nReturns:\n    MetricResult with distance score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "weights",
+        "metric"
+      ],
+      "returns": "MetricResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "DistanceMetric",
+      "line": 35,
+      "doc": "Supported distance metrics for embedding comparison.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MetricResult",
+      "line": 46,
+      "doc": "Result of a distance metric calculation.\n\nAttributes:\n    distance: Raw distance value\n    normalized: Distance normalized to [0, 1] range\n    metric: The metric used\n    details: Additional metric-specific information",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 69,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,361 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/time_travel_debugger.py",
+  "extension": ".py",
+  "size_bytes": 19803,
+  "line_count": 557,
+  "documentation": {
+    "file_docstring": "Time-Travel Debugger - Replay Agent History\n\nFeature: \"Time-Travel Debugging\"\nProblem: Need to understand and debug agent behavior after the fact.\nSolution: Since all communication is on amb (message bus) and all history is in emk (event kernel),\n         build a \"Replay\" tool. \"Re-run the last 5 minutes of Agent A's life exactly as it happened.\"\nResult: Complete observability and debugging capability for agent behavior.\n\nThis module provides infrastructure to replay agent execution history from\nthe audit logs and message history.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Store replay sessions",
+      "Store state snapshots for time-travel",
+      "Cache for replay events",
+      "Limit number of snapshots",
+      "Find closest snapshot before or at target time",
+      "Use the FlightRecorder's get_events_in_time_range method",
+      "Fallback to get_log method",
+      "Filter manually",
+      "Convert to ReplayEvents",
+      "Sort by timestamp",
+      "FlightRecorder format has: trace_id, timestamp, agent_id, tool_name,",
+      "tool_args, input_prompt, policy_verdict, violation_reason, result",
+      "Determine event type based on policy verdict and tool name",
+      "Map to replay event type",
+      "Parse tool_args if it's JSON string",
+      "Parse result if it's JSON string",
+      "Validate time range",
+      "Collect events",
+      "Create session",
+      "Find session",
+      "Find most recent session for this agent",
+      "Replay based on mode",
+      "Return events one at a time (user must call next_step)",
+      "Continuous or fast-forward: replay all events",
+      "Aggregate statistics"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ReplayMode: Mode for replaying agent history",
+      "ReplayEventType: Types of events that can be replayed",
+      "ReplayEvent: An event in the replay timeline",
+      "ReplaySession: A replay session for an agent",
+      "TimeTravelConfig: Configuration for time-travel debugging",
+      "TimeTravelDebugger: Time-Travel Debugger for replaying agent execution history.\n\nThis class provides",
+      "__init__: Initialize the time-travel debugger.\n\nArgs:\n    flight_recorder: FlightRecorder ",
+      "capture_state_snapshot: Capture a point-in-time snapshot of agent state.\n\nArgs:\n    agent_id: Agent iden",
+      "get_state_at_time: Get agent state at a specific point in time.\n\nArgs:\n    agent_id: Agent identifi",
+      "collect_events_from_flight_recorder: Collect replay events from FlightRecorder audit logs.\n\nArgs:\n    agent_id: Agent"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "TimeTravelDebugger",
+    "get_replay_summary",
+    "ReplayMode",
+    "ReplayEventType",
+    "get_statistics",
+    "ReplaySession",
+    "capture_state_snapshot",
+    "collect_events_from_flight_recorder",
+    "replay_agent_history",
+    "replay_time_window",
+    "export_replay_session",
+    "get_state_at_time",
+    "create_replay_session",
+    "TimeTravelConfig",
+    "get_session_progress",
+    "ReplayEvent",
+    "close_session",
+    "next_step"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "logging",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 88,
+      "doc": "Initialize the time-travel debugger.\n\nArgs:\n    flight_recorder: FlightRecorder instance for accessing audit logs\n    config: Configuration for time-travel behavior",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "flight_recorder",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "capture_state_snapshot",
+      "line": 115,
+      "doc": "Capture a point-in-time snapshot of agent state.\n\nArgs:\n    agent_id: Agent identifier\n    agent_state: Complete agent state to snapshot\n    metadata: Optional metadata about the snapshot",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "agent_state",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_state_at_time",
+      "line": 150,
+      "doc": "Get agent state at a specific point in time.\n\nArgs:\n    agent_id: Agent identifier\n    target_time: Target timestamp\n    \nReturns:\n    Agent state snapshot closest to the target time, or None",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "target_time"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect_events_from_flight_recorder",
+      "line": 184,
+      "doc": "Collect replay events from FlightRecorder audit logs.\n\nArgs:\n    agent_id: Agent identifier\n    start_time: Start of time range\n    end_time: End of time range\n    \nReturns:\n    List of replay events in chronological order",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "start_time",
+        "end_time"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_convert_audit_entry_to_replay_event",
+      "line": 240,
+      "doc": "Convert an audit log entry to a ReplayEvent",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit_entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_replay_session",
+      "line": 302,
+      "doc": "Create a new replay session for an agent.\n\nArgs:\n    agent_id: Agent identifier\n    start_time: Start of replay period\n    end_time: End of replay period\n    mode: Replay mode (step-by-step, continuous, fast-forward)\n    \nReturns:\n    Created ReplaySession",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "start_time",
+        "end_time",
+        "mode"
+      ],
+      "returns": "ReplaySession"
+    },
+    {
+      "name": "replay_time_window",
+      "line": 351,
+      "doc": "Replay the last N minutes of an agent's life.\n\nArgs:\n    agent_id: Agent identifier\n    minutes: Number of minutes to replay\n    mode: Replay mode\n    \nReturns:\n    Created ReplaySession",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "minutes",
+        "mode"
+      ],
+      "returns": "ReplaySession"
+    },
+    {
+      "name": "replay_agent_history",
+      "line": 373,
+      "doc": "Replay agent history, optionally with a callback for each event.\n\nArgs:\n    agent_id: Agent identifier\n    session_id: Specific session to replay (uses most recent if None)\n    callback: Optional callback function called for each event\n    \nReturns:\n    List of replayed events",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "session_id",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "next_step",
+      "line": 425,
+      "doc": "Advance to the next event in a step-by-step replay session.\n\nArgs:\n    session_id: Replay session identifier\n    \nReturns:\n    Next event, or None if at end",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_session_progress",
+      "line": 448,
+      "doc": "Get progress information for a replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_replay_summary",
+      "line": 469,
+      "doc": "Get a summary of a replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_replay_session",
+      "line": 496,
+      "doc": "Export a replay session for external analysis.\n\nArgs:\n    session_id: Replay session identifier\n    format: Export format (currently only 'json')\n    \nReturns:\n    Serialized replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id",
+        "format"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "close_session",
+      "line": 538,
+      "doc": "Close and remove a replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 544,
+      "doc": "Get statistics about time-travel debugging",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ReplayMode",
+      "line": 25,
+      "doc": "Mode for replaying agent history",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReplayEventType",
+      "line": 32,
+      "doc": "Types of events that can be replayed",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReplayEvent",
+      "line": 43,
+      "doc": "An event in the replay timeline",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReplaySession",
+      "line": 54,
+      "doc": "A replay session for an agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TimeTravelConfig",
+      "line": 67,
+      "doc": "Configuration for time-travel debugging",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TimeTravelDebugger",
+      "line": 77,
+      "doc": "Time-Travel Debugger for replaying agent execution history.\n\nThis class provides:\n- Replay of agent actions and decisions over a time period\n- Step-by-step or continuous replay modes\n- Integration with FlightRecorder for complete audit trails\n- State snapshot capture for point-in-time restoration",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 77,
+  "responsibility": {
+    "single_responsibility_score": 0.8,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "path": "packages/agent-os/modules/mcp-kernel-server/src/mcp_kernel_server/server.py",
+  "extension": ".py",
+  "size_bytes": 19086,
+  "line_count": 564,
+  "documentation": {
+    "file_docstring": "MCP Kernel Server - Main server implementation.\n\nExposes Agent OS primitives through Model Context Protocol:\n- Tools: cmvk_verify, kernel_execute, iatp_sign, iatp_verify, iatp_reputation\n- Resources: VFS filesystem, audit logs\n- Prompts: Standard agent instructions\n\nAAIF Compliance:\n- Stateless: All context in request, no session state\n- MCP June 2026: Full protocol compliance\n- Claude Desktop: Zero-config integration via stdio\n\nUsage:\n    # Stdio mode (for Claude Desktop)\n    mcp-kernel-server --stdio\n    \n    # HTTP mode (for development)\n    mcp-kernel-server --http --port 8080",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Stdio mode (for Claude Desktop)",
+      "HTTP mode (for development)",
+      "=============================================================================",
+      "MCP Prompts - Standard Agent Instructions",
+      "=============================================================================",
+      "Initialize tools (stateless)",
+      "Initialize resources (stateless with external backend)",
+      "Prompts (static)",
+      "=========================================================================",
+      "MCP Protocol Handlers",
+      "=========================================================================",
+      "Parse audit://agent_id/log",
+      "Return audit entries (in production, from external store)",
+      "=========================================================================",
+      "MCP Prompts Handlers",
+      "=========================================================================",
+      "Fill in template with arguments",
+      "=========================================================================",
+      "Stdio Transport (for Claude Desktop)",
+      "=========================================================================",
+      "=========================================================================",
+      "Server Lifecycle",
+      "=========================================================================",
+      "=========================================================================",
+      "Stateless Execution Helper (for direct integration)",
+      "========================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ServerConfig: Server configuration.",
+      "KernelMCPServer: MCP Server exposing Agent OS kernel primitives.\n\nStateless Design (MCP June 2026",
+      "stateless_execute: Execute an action through the kernel statelessly.\n\nThis is the core stateless AP",
+      "handle_initialize: Handle MCP initialize request.",
+      "handle_list_tools: Handle MCP tools/list request.",
+      "handle_call_tool: Handle MCP tools/call request.",
+      "handle_list_resources: Handle MCP resources/list request.",
+      "handle_list_resource_templates: Handle MCP resources/templates/list request.",
+      "handle_read_resource: Handle MCP resources/read request.",
+      "_read_audit: Read from audit log."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ServerConfig",
+    "KernelMCPServer"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "json",
+      "logging",
+      "sys",
+      "typing",
+      "dataclasses",
+      "mcp_kernel_server.tools",
+      "mcp_kernel_server.resources",
+      "mcp_kernel_server.resources"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "stateless_execute",
+      "line": 520,
+      "doc": "Execute an action through the kernel statelessly.\n\nThis is the core stateless API for June 2026 MCP compliance:\n- All context passed in request\n- No session state maintained\n- Can run on any server instance\n\nArgs:\n    action: Action to execute (e.g., \"database_query\")\n    params: Action parameters\n    context: Full execution context including:\n        - agent_id: Identifier for the agent\n        - policies: List of policy names to enforce\n        - history: Previous interactions (optional)\n        - state: External state reference (optional)\n    config: Optional server configuration\n\nReturns:\n    Execution result with success status and data",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "action",
+        "params",
+        "context",
+        "config"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_initialize",
+      "line": 222,
+      "doc": "Handle MCP initialize request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "handle_list_tools",
+      "line": 237,
+      "doc": "Handle MCP tools/list request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "handle_call_tool",
+      "line": 250,
+      "doc": "Handle MCP tools/call request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "arguments"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "handle_list_resources",
+      "line": 290,
+      "doc": "Handle MCP resources/list request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "handle_list_resource_templates",
+      "line": 309,
+      "doc": "Handle MCP resources/templates/list request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "handle_read_resource",
+      "line": 320,
+      "doc": "Handle MCP resources/read request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_read_audit",
+      "line": 349,
+      "doc": "Read from audit log.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "handle_list_prompts",
+      "line": 372,
+      "doc": "Handle MCP prompts/list request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "handle_get_prompt",
+      "line": 385,
+      "doc": "Handle MCP prompts/get request.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "arguments"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "run_stdio",
+      "line": 419,
+      "doc": "Run server in stdio mode for Claude Desktop integration.\n\nProtocol: JSON-RPC 2.0 over stdin/stdout\nEach message is newline-delimited JSON",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_jsonrpc",
+      "line": 459,
+      "doc": "Handle JSON-RPC request.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "start",
+      "line": 507,
+      "doc": "Start the MCP server.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 511,
+      "doc": "Stop the MCP server.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ServerConfig",
+      "line": 48,
+      "doc": "Server configuration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KernelMCPServer",
+      "line": 162,
+      "doc": "MCP Server exposing Agent OS kernel primitives.\n\nStateless Design (MCP June 2026 Standard):\n- No session state maintained\n- All context passed in each request\n- State externalized to backend storage\n- Horizontally scalable\n\nTools (8 total):\n- verify_code_safety: Check code safety before execution\n- cmvk_verify: Cross-model claim verification\n- cmvk_review: Multi-model code review\n- kernel_execute: Governed action execution\n- iatp_sign: Trust attestation signing\n- iatp_verify: Trust relationship verification\n- iatp_reputation: Reputation query/slashing\n- get_audit_log: Retrieve audit trail\n\nResources:\n- vfs://{agent_id}/mem/* - Agent memory\n- vfs://{agent_id}/policy/* - Agent policies\n- audit://{agent_id}/log - Audit trail (read-only)\n\nPrompts:\n- governed_agent: Standard governed agent instructions\n- verify_claim: CMVK verification template\n- safe_execution: Safe action execution template",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 52,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

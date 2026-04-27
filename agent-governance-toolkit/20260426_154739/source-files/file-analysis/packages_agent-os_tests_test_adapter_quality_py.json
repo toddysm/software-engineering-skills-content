@@ -1,0 +1,596 @@
+{
+  "path": "packages/agent-os/tests/test_adapter_quality.py",
+  "extension": ".py",
+  "size_bytes": 13092,
+  "line_count": 431,
+  "documentation": {
+    "file_docstring": "Tests for adapter code quality improvements.\n\nCovers: retry logic, timeout support, structured logging, error recovery,\nhealth checks, and type hints across all integration adapters.\n\nRun with: python -m pytest tests/test_adapter_quality.py -v --tb=short",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Retry Logic (OpenAI adapter \u2014 #181)",
+      "=============================================================================",
+      "=============================================================================",
+      "Timeout Support (#182)",
+      "=============================================================================",
+      "=============================================================================",
+      "Structured Logging (LangChain adapter \u2014 #183)",
+      "=============================================================================",
+      "=============================================================================",
+      "Error Recovery (AutoGen adapter \u2014 #185)",
+      "=============================================================================",
+      "Patch pre_execute to raise",
+      "=============================================================================",
+      "Health Check (#187)",
+      "=============================================================================",
+      "=============================================================================",
+      "Type Hints Smoke Tests (#188, #189)",
+      "============================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "test_langchain_ainvoke_timeout: ainvoke should raise TimeoutError when the operation exceeds timeout.",
+      "test_autogen_governance_failure_with_callback: When governance check itself fails, on_error is called for generate_reply.",
+      "test_health_check_returns_dict_keys: All adapters return the same set of keys.",
+      "test_base_integration_type_hints: Verify BaseIntegration methods have return type annotations."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_semantic_kernel_has_timeout",
+    "test_semantic_kernel_health_degraded",
+    "test_retry_does_not_retry_non_transient",
+    "test_openai_kernel_health_check",
+    "test_retry_exhausts_max_retries",
+    "FakeRateLimitError",
+    "test_langchain_invoke_logs_debug_and_info",
+    "test_autogen_governance_failure_with_callback",
+    "test_is_transient_detects_known_errors",
+    "test_autogen_on_error_callback",
+    "test_openai_kernel_health_check_degraded",
+    "error_handler",
+    "test_langchain_kernel_health_degraded",
+    "test_retry_logs_attempts",
+    "test_autogen_kernel_health_degraded",
+    "test_autogen_kernel_has_timeout",
+    "test_health_check_returns_dict_keys",
+    "test_openai_kernel_retry_params",
+    "test_langchain_kernel_default_timeout",
+    "FakeAPIConnectionError",
+    "test_retry_succeeds_on_first_try",
+    "test_autogen_receive_error_recovery",
+    "test_langchain_kernel_has_timeout",
+    "test_autogen_generate_reply_error_recovery",
+    "test_langchain_kernel_health_check",
+    "test_openai_agents_sdk_kernel_has_health_check",
+    "test_retry_succeeds_after_transient_failure",
+    "test_langchain_invoke_logs_deny",
+    "test_langchain_batch_logs",
+    "test_langchain_invoke_logs_error",
+    "test_semantic_kernel_health_unhealthy",
+    "test_langchain_run_logs",
+    "test_langchain_stream_logs",
+    "test_autogen_kernel_health_check",
+    "test_autogen_without_on_error_raises",
+    "test_semantic_kernel_health_check",
+    "test_base_integration_type_hints"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "logging",
+      "time",
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.base",
+      "agent_os.integrations.openai_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.autogen_adapter",
+      "agent_os.integrations.semantic_kernel_adapter",
+      "inspect",
+      "agent_os.integrations.openai_agents_sdk"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_retry_succeeds_on_first_try",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_retry_succeeds_after_transient_failure",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_retry_exhausts_max_retries",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_retry_does_not_retry_non_transient",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_is_transient_detects_known_errors",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_retry_logs_attempts",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_openai_kernel_retry_params",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_kernel_has_timeout",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_kernel_default_timeout",
+      "line": 113,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_ainvoke_timeout",
+      "line": 119,
+      "doc": "ainvoke should raise TimeoutError when the operation exceeds timeout.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "slow"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_kernel_has_timeout",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_semantic_kernel_has_timeout",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_make_mock_chain",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_invoke_logs_debug_and_info",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_invoke_logs_deny",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_run_logs",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_batch_logs",
+      "line": 198,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_stream_logs",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_invoke_logs_error",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_mock_autogen_agent",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_on_error_callback",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_generate_reply_error_recovery",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_receive_error_recovery",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_without_on_error_raises",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_governance_failure_with_callback",
+      "line": 307,
+      "doc": "When governance check itself fails, on_error is called for generate_reply.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_openai_kernel_health_check",
+      "line": 331,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_openai_kernel_health_check_degraded",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_kernel_health_check",
+      "line": 348,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_kernel_health_degraded",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_kernel_health_check",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_kernel_health_degraded",
+      "line": 371,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_semantic_kernel_health_check",
+      "line": 378,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_semantic_kernel_health_unhealthy",
+      "line": 386,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_semantic_kernel_health_degraded",
+      "line": 393,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_health_check_returns_dict_keys",
+      "line": 400,
+      "doc": "All adapters return the same set of keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_base_integration_type_hints",
+      "line": 413,
+      "doc": "Verify BaseIntegration methods have return type annotations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_openai_agents_sdk_kernel_has_health_check",
+      "line": 425,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "slow_ainvoke",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "error_handler",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "exc",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "error_handler",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "exc",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "error_handler",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "exc",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "error_handler",
+      "line": 311,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "exc",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FakeRateLimitError",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FakeAPIConnectionError",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 4,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

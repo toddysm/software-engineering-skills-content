@@ -1,0 +1,604 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/api/__init__.py",
+  "extension": ".py",
+  "size_bytes": 11601,
+  "line_count": 359,
+  "documentation": {
+    "file_docstring": "REST API for Agent-SRE.\n\nTwo server implementations:\n\n1. **Minimal (zero-dependency)** \u2014 ``AgentSREServer`` / ``APIState``\n   Uses Python's built-in ``http.server``.  Suitable for embedding in\n   any agent process with no extra packages.\n\n2. **FastAPI (full-featured)** \u2014 ``create_app``\n   Requires the ``api`` extra (``pip install agent-sre[api]``).\n   Provides versioned REST endpoints for SLOs, cost, chaos, incidents,\n   and progressive delivery.  Run with::\n\n       uvicorn agent_sre.api.server:app\n\nMinimal server endpoints:\n    GET  /health           \u2014 Service health check\n    GET  /api/slos         \u2014 All SLOs with status and error budgets\n    GET  /api/slos/{name}  \u2014 Single SLO details\n    GET  /api/incidents    \u2014 Open incidents\n    GET  /api/incidents/all \u2014 All incidents (including resolved)\n    GET  /api/cost         \u2014 Cost summary\n    GET  /api/traces       \u2014 Recent protocol traces\n    GET  /api/status       \u2014 Aggregate system status\n\nUsage (minimal):\n    from agent_sre.api import AgentSREServer, APIState\n\n    state = APIState()\n    state.add_slo(my_slo)\n    state.set_incident_detector(detector)\n\n    server = AgentSREServer(state, port=8080)\n    server.serve_forever()\n\nUsage (FastAPI):\n    from agent_sre.api import create_app\n\n    app = create_app()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "API state \u2014 shared data container",
+      "---------------------------------------------------------------------------",
+      "-- SLOs --",
+      "-- Incidents --",
+      "-- Cost --",
+      "-- Traces --",
+      "Keep last 100",
+      "-- Metadata --",
+      "-- Aggregate status --",
+      "---------------------------------------------------------------------------",
+      "HTTP request handler",
+      "---------------------------------------------------------------------------",
+      "Check for SLO detail route: /api/slos/{name}",
+      "-- Route handlers --",
+      "---------------------------------------------------------------------------",
+      "Server",
+      "---------------------------------------------------------------------------",
+      "Create handler class with state bound"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "create_app: Create the FastAPI application (requires ``agent-sre[api]`` extra).",
+      "CostSnapshot: Point-in-time cost summary.",
+      "APIState: Shared state container for the API server.\n\nRegister SLOs, incident detectors, c",
+      "_json_response: Send a JSON response.",
+      "_APIHandler: HTTP request handler for Agent-SRE API.",
+      "AgentSREServer: Minimal HTTP server exposing Agent-SRE data as a REST API.\n\nUsage:\n    state = A",
+      "add_slo: Register an SLO.",
+      "remove_slo: Remove an SLO by name.",
+      "set_incident_detector: Register the incident detector (any object with open_incidents/all_incidents).",
+      "add_trace_report: Add a trace report dict (from TracingReport.to_dict())."
+    ]
+  },
+  "purpose": {
+    "primary_role": "api",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "api/endpoint path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "all_incidents",
+    "do_OPTIONS",
+    "handle_request",
+    "create_app",
+    "to_dict",
+    "shutdown",
+    "APIState",
+    "do_GET",
+    "add_trace_report",
+    "log_message",
+    "uptime_seconds",
+    "serve_forever",
+    "get_slo",
+    "budget_utilization",
+    "CostSnapshot",
+    "all_slos",
+    "AgentSREServer",
+    "open_incidents",
+    "port",
+    "update_cost",
+    "remove_slo",
+    "add_slo",
+    "set_incident_detector",
+    "cost",
+    "system_status",
+    "set_metadata",
+    "trace_reports"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "time",
+      "dataclasses",
+      "http.server",
+      "typing",
+      "urllib.parse",
+      "agent_sre.slo.objectives",
+      "collections.abc",
+      "agent_sre.api.server"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_app",
+      "line": 60,
+      "doc": "Create the FastAPI application (requires ``agent-sre[api]`` extra).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "_json_response",
+      "line": 216,
+      "doc": "Send a JSON response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "handler",
+        "status",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "budget_utilization",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_slo",
+      "line": 115,
+      "doc": "Register an SLO.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_slo",
+      "line": 119,
+      "doc": "Remove an SLO by name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_slo",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "all_slos",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_incident_detector",
+      "line": 131,
+      "doc": "Register the incident detector (any object with open_incidents/all_incidents).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "detector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "open_incidents",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "all_incidents",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_cost",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "snapshot"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cost",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CostSnapshot"
+    },
+    {
+      "name": "add_trace_report",
+      "line": 158,
+      "doc": "Add a trace report dict (from TracingReport.to_dict()).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "report"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_reports",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_metadata",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "uptime_seconds",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "system_status",
+      "line": 180,
+      "doc": "Aggregate system health summary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_message",
+      "line": 232,
+      "doc": "Suppress default access logging.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "format"
+      ],
+      "returns": null
+    },
+    {
+      "name": "do_GET",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "do_OPTIONS",
+      "line": 262,
+      "doc": "Handle CORS preflight.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_health",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_status",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_slos",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_slo_detail",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_incidents",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_all_incidents",
+      "line": 297,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_cost",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_traces",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state",
+        "host",
+        "port"
+      ],
+      "returns": null
+    },
+    {
+      "name": "port",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "serve_forever",
+      "line": 349,
+      "doc": "Start serving (blocks).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "shutdown",
+      "line": 353,
+      "doc": "Stop the server.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_request",
+      "line": 357,
+      "doc": "Handle a single request (for testing).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CostSnapshot",
+      "line": 72,
+      "doc": "Point-in-time cost summary.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "APIState",
+      "line": 98,
+      "doc": "Shared state container for the API server.\n\nRegister SLOs, incident detectors, cost data, and trace reports\nhere. The HTTP handler reads from this state.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "_APIHandler",
+      "line": 227,
+      "doc": "HTTP request handler for Agent-SRE API.",
+      "is_public": false,
+      "bases": [
+        "BaseHTTPRequestHandler"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentSREServer",
+      "line": 316,
+      "doc": "Minimal HTTP server exposing Agent-SRE data as a REST API.\n\nUsage:\n    state = APIState()\n    state.add_slo(my_slo)\n\n    server = AgentSREServer(state, port=8080)\n    server.serve_forever()  # blocking",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/semantic_purge.py",
+  "extension": ".py",
+  "size_bytes": 14052,
+  "line_count": 349,
+  "documentation": {
+    "file_docstring": "Semantic Purge - Scale by Subtraction for patch lifecycle management.\n\nImplements the \"Taxonomy of Lessons\" to prevent context bloat:\n- Type A (Syntax/Capability): High decay - likely model defects, purge on upgrade\n- Type B (Business/Context): Zero decay - world truths, retain forever\n\nThis allows reducing context usage by 40-60% over the agent's lifetime.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Analyze patch content to determine type",
+      "Determine if should purge on upgrade",
+      "Build metadata",
+      "Check diagnosis first (most reliable indicator)",
+      "Tool misuse is almost always Type A (model capability issue)",
+      "Policy violations are Type B (business rules)",
+      "Hallucinations about entities are Type B (world knowledge)",
+      "Schema mismatches depend on content",
+      "Check if it's about company-specific schema",
+      "Analyze patch content",
+      "Count indicators",
+      "Check for specific patterns",
+      "Schema injection and parameter checking are Type A",
+      "Constitutional rules about domains are Type B",
+      "Entity-specific negative constraints are Type B",
+      "RAG memory patches are typically Type B (business context)",
+      "Score-based classification",
+      "Default to business context (safer - won't accidentally purge important rules)",
+      "This is Type A (Syntax) - likely fixed in new model",
+      "This is Type B (Business) - retain forever",
+      "Record purge event",
+      "Remove purged patches",
+      "Create a synthetic patch for the competence lesson",
+      "In a real system, this would be integrated with the patcher",
+      "Competence patches are always Type B - domain knowledge",
+      "These represent what the agent didn't know about the domain/business"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PatchClassifier: Classifies patches into Type A (Syntax) vs Type B (Business).\n\nThis is the \"Taxo",
+      "SemanticPurge: Manages patch lifecycle and purging.\n\nThis is \"Scale by Subtraction\" - reducing ",
+      "classify_patch: Classify a patch as Type A or Type B.\n\nArgs:\n    patch: The correction patch to ",
+      "_determine_decay_type: Determine if patch is Type A (Syntax) or Type B (Business).\n\nType A - Syntax/Cap",
+      "_build_decay_metadata: Build metadata for decay management.",
+      "_get_classification_reason: Get human-readable reason for classification.",
+      "register_patch: Register a patch with classification for lifecycle management.\n\nArgs:\n    patch:",
+      "purge_on_upgrade: Purge Type A patches when model version upgrades.\n\nThis is the \"Purge Event\" - a",
+      "_estimate_tokens_reclaimed: Estimate tokens reclaimed by purging patches.\n\nRough estimate: each patch uses 5",
+      "get_purge_stats: Get statistics about purging activity."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "SemanticPurge",
+    "classify_patch",
+    "register_completeness_audit",
+    "PatchClassifier",
+    "get_permanent_patches",
+    "get_purgeable_patches",
+    "get_purge_stats",
+    "purge_on_upgrade",
+    "register_patch"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "typing",
+      "datetime",
+      "models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "classify_patch",
+      "line": 46,
+      "doc": "Classify a patch as Type A or Type B.\n\nArgs:\n    patch: The correction patch to classify\n    current_model_version: Current model version (e.g., \"gpt-4o\", \"gpt-5\")\n    \nReturns:\n    ClassifiedPatch with decay type and metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch",
+        "current_model_version"
+      ],
+      "returns": "ClassifiedPatch"
+    },
+    {
+      "name": "_determine_decay_type",
+      "line": 84,
+      "doc": "Determine if patch is Type A (Syntax) or Type B (Business).\n\nType A - Syntax/Capability (HIGH DECAY):\n- Model-specific issues (JSON formatting, type errors)\n- Tool usage errors (wrong parameter types)\n- Syntax errors, validation issues\n- Query construction problems\n- These are likely fixed in newer model versions\n\nType B - Business/Context (ZERO DECAY):\n- Company-specific rules (\"Fiscal year starts in July\")\n- Entity existence (\"Project_Alpha is deprecated\")\n- Policy violations (medical advice restrictions)\n- Domain knowledge (archived locations, workflows)\n- These are world truths that models can't learn",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": "PatchDecayType"
+    },
+    {
+      "name": "_build_decay_metadata",
+      "line": 165,
+      "doc": "Build metadata for decay management.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch",
+        "decay_type"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_get_classification_reason",
+      "line": 182,
+      "doc": "Get human-readable reason for classification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch",
+        "decay_type"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_patch",
+      "line": 205,
+      "doc": "Register a patch with classification for lifecycle management.\n\nArgs:\n    patch: The correction patch\n    current_model_version: Current model version\n    \nReturns:\n    ClassifiedPatch with metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch",
+        "current_model_version"
+      ],
+      "returns": "ClassifiedPatch"
+    },
+    {
+      "name": "purge_on_upgrade",
+      "line": 227,
+      "doc": "Purge Type A patches when model version upgrades.\n\nThis is the \"Purge Event\" - async purging to reclaim tokens.\n\nArgs:\n    old_model_version: Previous model version\n    new_model_version: New model version\n    \nReturns:\n    Dictionary with purged and retained patch IDs",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "old_model_version",
+        "new_model_version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_estimate_tokens_reclaimed",
+      "line": 289,
+      "doc": "Estimate tokens reclaimed by purging patches.\n\nRough estimate: each patch uses 50-200 tokens depending on complexity.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "purged_patch_ids"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_purge_stats",
+      "line": 297,
+      "doc": "Get statistics about purging activity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "get_purgeable_patches",
+      "line": 318,
+      "doc": "Get list of patches that would be purged on upgrade.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_permanent_patches",
+      "line": 325,
+      "doc": "Get list of permanent (Type B) patches.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_completeness_audit",
+      "line": 332,
+      "doc": "Register a competence patch from completeness audit.\n\nCompetence patches are always Type B (business context) because they\nrepresent gaps in domain knowledge, not model defects.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit",
+        "current_model_version"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PatchClassifier",
+      "line": 26,
+      "doc": "Classifies patches into Type A (Syntax) vs Type B (Business).\n\nThis is the \"Taxonomy of Lessons\" that determines lifecycle.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SemanticPurge",
+      "line": 193,
+      "doc": "Manages patch lifecycle and purging.\n\nThis is \"Scale by Subtraction\" - reducing context by purging temporary wisdom.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

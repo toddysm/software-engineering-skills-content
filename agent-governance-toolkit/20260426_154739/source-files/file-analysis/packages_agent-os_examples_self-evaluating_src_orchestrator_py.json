@@ -1,0 +1,375 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/orchestrator.py",
+  "extension": ".py",
+  "size_bytes": 16271,
+  "line_count": 484,
+  "documentation": {
+    "file_docstring": "Orchestration Layer - Deterministic State Machine\n\nThis module implements the \"Glue\" between probabilistic AI workers.\nThe orchestrator is NOT a fuzzy AI trying to figure things out.\nIt's a DETERMINISTIC STATE MACHINE that manages the flow of data \nbetween probabilistic workers.\n\nKey Principles:\n1. The Router (Hub & Spoke): Workers never talk to each other directly\n2. The Transformer Middleware: Manages data flow between states\n3. The Brain (AI) is probabilistic, but the Skeleton (Orchestrator) is deterministic\n\nArchitecture:\n- State Machine: Rigid, deterministic workflow definition\n- Hub: Central router that dispatches work to workers\n- Workers: Probabilistic AI agents (Product Manager, Coder, Reviewer, etc.)\n- Transformer: Middleware that transforms outputs between workers",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check all transitions",
+      "Validate workflow",
+      "Default: pass the last output",
+      "Default: pass through",
+      "Get the worker",
+      "Transform input (Transformer Middleware)",
+      "Execute worker (Probabilistic AI)",
+      "Transform output (Transformer Middleware)",
+      "Record in history",
+      "Get workflow definition",
+      "Initialize context",
+      "State machine execution loop",
+      "Get current step",
+      "Execute step",
+      "Store output in context data",
+      "Determine next step (Deterministic State Machine)",
+      "Handle failure",
+      "Stay on current step for retry",
+      "Pre-built workflow templates",
+      "Step 1: Product Manager creates specs",
+      "Step 2: Coder implements",
+      "Step 3: Reviewer reviews",
+      "Terminal states",
+      "Add failure terminal state"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "WorkflowState: Deterministic workflow states.",
+      "WorkerType: Types of workers in the system.",
+      "WorkflowContext: Shared context that flows through the workflow.\nThis is the \"data bus\" between w",
+      "WorkerDefinition: Definition of a worker in the system.\nWorkers are probabilistic AI agents.",
+      "WorkflowStep: A single step in the deterministic workflow.\nEach step specifies:\n- Which worker",
+      "WorkflowDefinition: Deterministic workflow definition.\nThis is the \"skeleton\" - rigid and determinis",
+      "Orchestrator: The Hub - Central deterministic orchestrator.\n\nThis is the \"state machine\" that ",
+      "create_build_website_workflow: Create a \"Build a Website\" workflow.\nThis demonstrates: Product Manager \u2192 Coder ",
+      "create_generic_pipeline: Create a generic linear pipeline workflow.\n\nArgs:\n    steps: List of (step_id, w",
+      "add_history: Add a step to the workflow history."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "WorkflowState",
+    "register_workflow",
+    "execute_workflow",
+    "WorkflowStep",
+    "add_step",
+    "get_last_output",
+    "Orchestrator",
+    "create_generic_pipeline",
+    "WorkerDefinition",
+    "WorkflowContext",
+    "WorkflowDefinition",
+    "validate",
+    "create_build_website_workflow",
+    "add_history",
+    "get_step",
+    "register_worker",
+    "WorkerType"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "enum",
+      "datetime",
+      "dataclasses",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_build_website_workflow",
+      "line": 372,
+      "doc": "Create a \"Build a Website\" workflow.\nThis demonstrates: Product Manager \u2192 Coder \u2192 Reviewer pipeline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "WorkflowDefinition"
+    },
+    {
+      "name": "create_generic_pipeline",
+      "line": 441,
+      "doc": "Create a generic linear pipeline workflow.\n\nArgs:\n    steps: List of (step_id, worker_type, description) tuples\n\nReturns:\n    WorkflowDefinition",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "steps"
+      ],
+      "returns": "WorkflowDefinition"
+    },
+    {
+      "name": "add_history",
+      "line": 64,
+      "doc": "Add a step to the workflow history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker_type",
+        "input_data",
+        "output_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_last_output",
+      "line": 74,
+      "doc": "Get the last output, optionally filtered by worker type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker_type"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description",
+        "goal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_step",
+      "line": 133,
+      "doc": "Add a step to the workflow.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "step",
+        "is_initial"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_step",
+      "line": 139,
+      "doc": "Get a step by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "step_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 143,
+      "doc": "Validate the workflow definition.\nEnsures all transitions point to valid steps.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_worker",
+      "line": 182,
+      "doc": "Register a worker in the hub.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_workflow",
+      "line": 186,
+      "doc": "Register a workflow definition.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_transform_input",
+      "line": 195,
+      "doc": "Transform input for a worker (Transformer Middleware).\nThis is the \"secret sauce\" that manages data flow.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker",
+        "context"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_transform_output",
+      "line": 206,
+      "doc": "Transform output from a worker (Transformer Middleware).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker",
+        "output",
+        "context"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_execute_step",
+      "line": 216,
+      "doc": "Execute a single workflow step.\nReturns (success, output) tuple.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "step",
+        "context",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_workflow",
+      "line": 264,
+      "doc": "Execute a workflow (Deterministic State Machine).\n\nArgs:\n    workflow_name: Name of the workflow to execute\n    goal: The goal/objective for this workflow execution\n    initial_data: Optional initial data to seed the workflow\n    verbose: Print execution details\n\nReturns:\n    WorkflowContext with final state and results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow_name",
+        "goal",
+        "initial_data",
+        "verbose"
+      ],
+      "returns": "WorkflowContext"
+    }
+  ],
+  "classes": [
+    {
+      "name": "WorkflowState",
+      "line": 30,
+      "doc": "Deterministic workflow states.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "WorkerType",
+      "line": 40,
+      "doc": "Types of workers in the system.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "WorkflowContext",
+      "line": 51,
+      "doc": "Shared context that flows through the workflow.\nThis is the \"data bus\" between workers.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "WorkerDefinition",
+      "line": 89,
+      "doc": "Definition of a worker in the system.\nWorkers are probabilistic AI agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "WorkflowStep",
+      "line": 103,
+      "doc": "A single step in the deterministic workflow.\nEach step specifies:\n- Which worker to use\n- What the success criteria are\n- What happens on success/failure",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "WorkflowDefinition",
+      "line": 120,
+      "doc": "Deterministic workflow definition.\nThis is the \"skeleton\" - rigid and deterministic.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Orchestrator",
+      "line": 164,
+      "doc": "The Hub - Central deterministic orchestrator.\n\nThis is the \"state machine\" that manages the flow between\nprobabilistic workers. It's rigid, deterministic code.\n\nKey responsibilities:\n1. Route work to appropriate workers (Hub & Spoke pattern)\n2. Transform data between workers (Transformer Middleware)\n3. Track workflow state\n4. Enforce deterministic flow",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

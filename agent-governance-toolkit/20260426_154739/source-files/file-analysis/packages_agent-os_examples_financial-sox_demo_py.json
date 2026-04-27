@@ -1,0 +1,340 @@
+{
+  "path": "packages/agent-os/examples/financial-sox/demo.py",
+  "extension": ".py",
+  "size_bytes": 18834,
+  "line_count": 470,
+  "documentation": {
+    "file_docstring": "Financial SOX Compliance Demo\n==============================\n\nDemonstrates Agent OS governance for Sarbanes-Oxley (SOX) compliant\nfinancial transaction processing.  A mock agent processes transactions\nwhile governance enforces:\n\n  1. Human approval   \u2013 transactions over $1,000 require approval\n  2. Blocked patterns \u2013 SSN and credit-card numbers are rejected\n  3. Allowed tools    \u2013 only approved financial operations are permitted\n  4. Rate limiting    \u2013 max tool calls per agent session\n  5. Immutable audit  \u2013 append-only JSON log with CSV/JSON export\n\nRun:  python demo.py          (no dependencies beyond agent-os)",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Ensure the repo root's src/ is importable when running from the example dir.",
+      "---------------------------------------------------------------------------",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "1. GOVERNANCE POLICY",
+      "SOX-oriented policy using only community-edition features:",
+      "require_human_approval, max_tool_calls, allowed_tools, blocked_patterns.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "2. IMMUTABLE AUDIT LOG",
+      "Append-only list written to a JSON file at the end.  Each entry is",
+      "timestamped and cannot be modified once appended.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "3. INTEGRATION SUBCLASS",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "4. MOCK FINANCIAL AGENT",
+      "Simulates an LLM-based agent that processes financial transactions.",
+      "No real model calls are made.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "5. GOVERNED EXECUTION HELPER",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "6. DISPLAY HELPERS",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "7. DEMO SCENARIOS",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "-- Set up integration and wire audit listeners -----------------------",
+      "-- Print policy summary ----------------------------------------------",
+      "-- Scenario 1-5: Process transactions --------------------------------",
+      "Record transaction details in audit log",
+      "-- Scenario 6: Blocked PII (SSN) ------------------------------------",
+      "-- Scenario 7: Blocked PII (credit card) ----------------------------",
+      "-- Scenario 8: Unauthorized tool -------------------------------------",
+      "-- Scenario 9: Query balance (allowed) -------------------------------",
+      "-- Scenario 10: Generate report (allowed) ----------------------------",
+      "-- Audit log summary -------------------------------------------------",
+      "-- Context summary ---------------------------------------------------",
+      "-- Export audit trail ------------------------------------------------",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "_redact: Redact a sensitive value for safe logging.",
+      "audit_listener: Append every governance event to the immutable audit log.",
+      "save_audit_json: Write the audit log to an append-only JSON file.",
+      "save_audit_csv: Export the audit log to CSV for compliance review.",
+      "SOXIntegration: Thin integration used to access governance helpers.",
+      "FinancialAgent: Mock agent that processes financial transactions.",
+      "governed_call: Execute a tool call through the governance layer.\n\nReturns the mock result strin",
+      "process: Simulate processing a transaction with SOX rules.",
+      "query_balance: Return a mock account balance.",
+      "generate_report: Return a mock compliance report summary."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "save_audit_csv",
+    "save_audit_json",
+    "process",
+    "run_demo",
+    "query_balance",
+    "FinancialAgent",
+    "audit_listener",
+    "print_section",
+    "SOXIntegration",
+    "print_header",
+    "governed_call",
+    "wrap",
+    "generate_report",
+    "Transaction",
+    "unwrap"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "csv",
+      "io",
+      "json",
+      "os",
+      "sys",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "agent_os.integrations.base",
+      "hashlib",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_redact",
+      "line": 50,
+      "doc": "Redact a sensitive value for safe logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value",
+        "visible_chars"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "audit_listener",
+      "line": 100,
+      "doc": "Append every governance event to the immutable audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save_audit_json",
+      "line": 105,
+      "doc": "Write the audit log to an append-only JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save_audit_csv",
+      "line": 111,
+      "doc": "Export the audit log to CSV for compliance review.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_call",
+      "line": 201,
+      "doc": "Execute a tool call through the governance layer.\n\nReturns the mock result string on success, or None if blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "integration",
+        "ctx",
+        "interceptor",
+        "tool_name",
+        "arguments"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_header",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "title"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_section",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "title"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_demo",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process",
+      "line": 171,
+      "doc": "Simulate processing a transaction with SOX rules.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "amount",
+        "recipient",
+        "description"
+      ],
+      "returns": "Transaction"
+    },
+    {
+      "name": "query_balance",
+      "line": 188,
+      "doc": "Return a mock account balance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "account"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_report",
+      "line": 192,
+      "doc": "Return a mock compliance report summary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SOXIntegration",
+      "line": 138,
+      "doc": "Thin integration used to access governance helpers.",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Transaction",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FinancialAgent",
+      "line": 163,
+      "doc": "Mock agent that processes financial transactions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

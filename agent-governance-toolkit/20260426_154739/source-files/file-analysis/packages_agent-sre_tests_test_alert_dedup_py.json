@@ -1,0 +1,518 @@
+{
+  "path": "packages/agent-sre/tests/test_alert_dedup.py",
+  "extension": ".py",
+  "size_bytes": 12518,
+  "line_count": 360,
+  "documentation": {
+    "file_docstring": "Tests for alert deduplication and storm protection (issue #52).\n\nCovers: AlertDeduplicator, AlertBatcher, alert_fingerprint, and\nintegration with the existing AlertManager.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "alert_fingerprint",
+      "=============================================================================",
+      "=============================================================================",
+      "AlertDeduplicator",
+      "=============================================================================",
+      "Patch time to simulate window expiry",
+      "After resolved, same alert should pass again",
+      "After clear, same alert should pass",
+      "Different agent_id but same slo_name should be suppressed",
+      "Each unique agent should appear exactly once",
+      "=============================================================================",
+      "AlertBatcher",
+      "=============================================================================",
+      "After flush, adding a new alert should start a new window",
+      "=============================================================================",
+      "Integration: AlertDeduplicator + AlertManager",
+      "=============================================================================",
+      "First send",
+      "Duplicate",
+      "3 unique alerts should be batched"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestDeduplicatorWithManager: Verify AlertDeduplicator works as middleware around AlertManager.",
+      "test_dedup_and_batcher_combined: Full pipeline: dedup -> batch -> send."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_duplicate_after_window_passes",
+    "test_add_and_flush",
+    "test_fingerprint_is_hex_string",
+    "test_is_ready_window_expiry",
+    "TestAlertFingerprint",
+    "test_thread_safety",
+    "test_resolved_clears_window",
+    "test_dedup_wraps_manager",
+    "test_different_fields_produce_different_fingerprint",
+    "test_clear",
+    "test_digest_with_alerts",
+    "test_missing_field_uses_empty_string",
+    "test_is_ready_max_batch_size",
+    "test_digest_truncates_at_10",
+    "check_and_record",
+    "TestAlertDeduplicator",
+    "test_flush_empty",
+    "test_different_alerts_not_deduplicated",
+    "test_first_alert_passes",
+    "test_record_updates_timestamp",
+    "test_custom_group_by",
+    "test_is_ready_empty_batch",
+    "test_same_fields_produce_same_fingerprint",
+    "test_duplicate_within_window_suppressed",
+    "test_get_stats",
+    "test_dedup_and_batcher_combined",
+    "test_batcher_with_manager",
+    "test_flush_resets_window",
+    "test_digest_empty",
+    "test_digest_single_alert",
+    "TestDeduplicatorWithManager",
+    "TestAlertBatcher",
+    "test_resolved_always_passes"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "threading",
+      "time",
+      "unittest.mock",
+      "agent_sre.alerts"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_same_fields_produce_same_fingerprint",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_different_fields_produce_different_fingerprint",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_group_by",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_is_hex_string",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_field_uses_empty_string",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_first_alert_passes",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_duplicate_within_window_suppressed",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_duplicate_after_window_passes",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_different_alerts_not_deduplicated",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_resolved_always_passes",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_resolved_clears_window",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_updates_timestamp",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_stats",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_group_by",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thread_safety",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_and_flush",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_flush_empty",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_ready_max_batch_size",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_ready_window_expiry",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_ready_empty_batch",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_digest_empty",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_digest_with_alerts",
+      "line": 233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_digest_truncates_at_10",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_digest_single_alert",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_flush_resets_window",
+      "line": 259,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thread_safety",
+      "line": 267,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dedup_wraps_manager",
+      "line": 290,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batcher_with_manager",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dedup_and_batcher_combined",
+      "line": 332,
+      "doc": "Full pipeline: dedup -> batch -> send.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_and_record",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestAlertFingerprint",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAlertDeduplicator",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAlertBatcher",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDeduplicatorWithManager",
+      "line": 287,
+      "doc": "Verify AlertDeduplicator works as middleware around AlertManager.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

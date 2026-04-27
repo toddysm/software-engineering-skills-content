@@ -1,0 +1,292 @@
+{
+  "path": "packages/agent-os/src/agent_os/agents_compat.py",
+  "extension": ".py",
+  "size_bytes": 17500,
+  "line_count": 490,
+  "documentation": {
+    "file_docstring": "AGENTS.md Compatibility for Agent OS.\n\nParses OpenAI/Anthropic standard .agents/ directory structure\nand maps to Agent OS kernel policies.\n\nAlso provides generation utilities for producing AGENTS.md files\nfrom AgentMdConfig dataclasses (GitHub Copilot / Cursor / Codex format).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Convert to kernel policies",
+      "Parse main agents.md",
+      "Parse security.md (Agent OS extension)",
+      "Extract YAML front matter if present",
+      "Parse sections",
+      "Find \"You can:\" or \"Capabilities:\" section",
+      "Find description (first paragraph)",
+      "Extract skill text",
+      "Parse constraints from parentheses",
+      "Check for (read-only), (requires approval), etc.",
+      "Map common patterns",
+      "Default: snake_case the skill",
+      "Try YAML front matter first",
+      "Try full YAML",
+      "Convert skills to rules",
+      "Add security config",
+      "Check .agents/ directory",
+      "Check root agents.md",
+      "\u2500\u2500 AGENTS.md Generator \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 YAML frontmatter \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Title \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Project Overview \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Build & Test Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Code Style \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Governance \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Boundaries \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Commit Style \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Parse YAML frontmatter \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Section regex (## Heading) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Build & Test Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Simple heuristic: commands containing \"test\" \u2192 test, \"lint\"/\"check\"/\"format\" \u2192 lint, rest \u2192 build",
+      "\u2500\u2500 Code Style \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Matches both `**key:** value` and `**key**: value`",
+      "\u2500\u2500 Governance \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Boundaries \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentSkill: Parsed agent skill/capability.",
+      "AgentConfig: Parsed agent configuration from AGENTS.md.",
+      "AgentsParser: Parse .agents/ directory structure.\n\nSupports:\n- agents.md (OpenAI/Anthropic sta",
+      "discover_agents: Discover all agent configurations in a repository.\n\nLooks for:\n- .agents/agents.",
+      "AgentMdConfig: Configuration for generating an AGENTS.md file.\n\nMaps Agent OS concepts (governa",
+      "generate_agents_md: Generate a valid AGENTS.md string from *config*.\n\nThe output includes YAML front",
+      "save_agents_md: Write the generated AGENTS.md to *path*.",
+      "load_agents_md: Parse an AGENTS.md file back into an *AgentMdConfig*.\n\nExtracts YAML frontmatter",
+      "parse_directory: Parse .agents/ directory.",
+      "_parse_agents_md: Parse agents.md file."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "AgentSkill",
+    "AgentConfig",
+    "AgentsParser",
+    "to_kernel_policies",
+    "generate_agents_md",
+    "save_agents_md",
+    "AgentMdConfig",
+    "parse_directory",
+    "discover_agents",
+    "load_agents_md"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "re",
+      "dataclasses",
+      "pathlib",
+      "typing",
+      "yaml",
+      "agent_os.integrations.base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "discover_agents",
+      "line": 260,
+      "doc": "Discover all agent configurations in a repository.\n\nLooks for:\n- .agents/agents.md\n- .agents/AGENTS.md\n- agents.md (root)\n- AGENTS.md (root)\n\nReturns list of parsed configurations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "root_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_agents_md",
+      "line": 323,
+      "doc": "Generate a valid AGENTS.md string from *config*.\n\nThe output includes YAML frontmatter followed by Markdown sections for\nproject overview, build & test commands, code style, governance,\nboundaries, and commit style.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "save_agents_md",
+      "line": 412,
+      "doc": "Write the generated AGENTS.md to *path*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "config",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_agents_md",
+      "line": 419,
+      "doc": "Parse an AGENTS.md file back into an *AgentMdConfig*.\n\nExtracts YAML frontmatter for metadata and scans Markdown sections for\nbuild/test/lint commands, code style, governance policy, and boundaries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "AgentMdConfig"
+    },
+    {
+      "name": "__init__",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "parse_directory",
+      "line": 68,
+      "doc": "Parse .agents/ directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "AgentConfig"
+    },
+    {
+      "name": "_parse_agents_md",
+      "line": 95,
+      "doc": "Parse agents.md file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "AgentConfig"
+    },
+    {
+      "name": "_parse_skills",
+      "line": 137,
+      "doc": "Parse skills from bullet list.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_skill_to_action",
+      "line": 173,
+      "doc": "Convert skill description to action name.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "skill"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_parse_security_md",
+      "line": 198,
+      "doc": "Parse security.md (Agent OS extension).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_kernel_policies",
+      "line": 217,
+      "doc": "Convert AgentConfig to Agent OS kernel policies.\n\nReturns policy configuration for Control Plane.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentSkill",
+      "line": 24,
+      "doc": "Parsed agent skill/capability.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentConfig",
+      "line": 35,
+      "doc": "Parsed agent configuration from AGENTS.md.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentsParser",
+      "line": 45,
+      "doc": "Parse .agents/ directory structure.\n\nSupports:\n- agents.md (OpenAI/Anthropic standard)\n- security.md (Agent OS extension)\n- YAML front matter\n\nUsage:\n    parser = AgentsParser()\n    config = parser.parse_directory(\"./my-project/.agents\")\n\n    # Convert to kernel policies\n    policies = parser.to_kernel_policies(config)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentMdConfig",
+      "line": 304,
+      "doc": "Configuration for generating an AGENTS.md file.\n\nMaps Agent OS concepts (governance policy, RBAC role, tools) into the\nstandard AGENTS.md format consumed by GitHub Copilot, Cursor, Codex, etc.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 69,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

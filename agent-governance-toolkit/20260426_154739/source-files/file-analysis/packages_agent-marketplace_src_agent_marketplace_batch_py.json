@@ -1,0 +1,226 @@
+{
+  "path": "packages/agent-marketplace/src/agent_marketplace/batch.py",
+  "extension": ".py",
+  "size_bytes": 14260,
+  "line_count": 430,
+  "documentation": {
+    "file_docstring": "Batch Policy Evaluation\n\nScans a directory of plugin manifests and evaluates each against a\ngovernance policy, producing a consolidated compliance report.\n\nUsage (programmatic):\n    >>> from agent_marketplace.batch import evaluate_batch, format_report\n    >>> result = evaluate_batch(Path(\"./plugins\"), Path(\"policy.yaml\"))\n    >>> print(format_report(result, \"text\"))\n\nIntegration with CLI (add to cli_commands.py):\n    >>> from agent_marketplace.batch import evaluate_batch_command\n    >>> plugin.add_command(evaluate_batch_command)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Models",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Policy loading and evaluation helpers",
+      "---------------------------------------------------------------------------",
+      "Check each immediate subdirectory for a manifest",
+      "Also check the directory root",
+      "---------------------------------------------------------------------------",
+      "Core API",
+      "---------------------------------------------------------------------------",
+      "Top violations sorted by frequency (descending)",
+      "---------------------------------------------------------------------------",
+      "Report formatting",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "CLI command",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Violation: A single policy violation found during evaluation.",
+      "PluginResult: Evaluation result for a single plugin.",
+      "BatchResult: Consolidated result of batch policy evaluation.",
+      "_load_policy: Load policy rules from a YAML file.\n\nExpected format::\n\n    rules:\n      require",
+      "_evaluate_manifest: Evaluate a single manifest against policy rules.",
+      "_discover_manifests: Find all plugin manifest files in immediate subdirectories.",
+      "evaluate_batch: Scan a directory for plugin manifests and evaluate each against a policy.\n\nEach ",
+      "format_report: Format a :class:`BatchResult` as JSON, markdown, or plain text.\n\nArgs:\n    resul",
+      "_format_markdown: Format result as a Markdown report.",
+      "_format_text: Format result as plain text."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "PluginResult",
+    "evaluate_batch_command",
+    "BatchResult",
+    "Violation",
+    "format_report",
+    "evaluate_batch"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "sys",
+      "pathlib",
+      "typing",
+      "click",
+      "yaml",
+      "pydantic",
+      "agent_marketplace.exceptions",
+      "agent_marketplace.manifest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_load_policy",
+      "line": 81,
+      "doc": "Load policy rules from a YAML file.\n\nExpected format::\n\n    rules:\n      require_signature: true\n      allowed_types: [integration, agent]\n      min_description_length: 10\n      require_capabilities: true\n      max_dependencies: 10",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "policy_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_manifest",
+      "line": 105,
+      "doc": "Evaluate a single manifest against policy rules.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "manifest",
+        "rules"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_discover_manifests",
+      "line": 176,
+      "doc": "Find all plugin manifest files in immediate subdirectories.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_batch",
+      "line": 203,
+      "doc": "Scan a directory for plugin manifests and evaluate each against a policy.\n\nEach immediate subdirectory containing an ``agent-plugin.yaml`` is treated\nas a plugin.  Unparseable manifests are reported as non-compliant with a\n``manifest_parse_error`` violation.\n\nArgs:\n    directory: Path to directory containing plugin subdirectories.\n    policy_path: Path to a YAML policy file.\n\nReturns:\n    Consolidated :class:`BatchResult`.\n\nRaises:\n    MarketplaceError: If the directory or policy file is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "directory",
+        "policy_path"
+      ],
+      "returns": "BatchResult"
+    },
+    {
+      "name": "format_report",
+      "line": 288,
+      "doc": "Format a :class:`BatchResult` as JSON, markdown, or plain text.\n\nArgs:\n    result: The batch evaluation result to format.\n    fmt: Output format \u2014 ``\"json\"``, ``\"markdown\"``, or ``\"text\"``.\n\nReturns:\n    Formatted report string.\n\nRaises:\n    MarketplaceError: If the format is unknown.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "result",
+        "fmt"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_format_markdown",
+      "line": 311,
+      "doc": "Format result as a Markdown report.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "result"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_format_text",
+      "line": 354,
+      "doc": "Format result as plain text.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "result"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "evaluate_batch_command",
+      "line": 405,
+      "doc": "Evaluate all plugins in a directory against a governance policy.\n\nScans DIRECTORY for plugin subdirectories containing agent-plugin.yaml\nmanifests and evaluates each against the rules in POLICY.\n\nExit code 0 if all plugins are compliant, 1 if any violations exist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "directory",
+        "policy",
+        "output_file",
+        "fmt"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "Violation",
+      "line": 42,
+      "doc": "A single policy violation found during evaluation.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginResult",
+      "line": 51,
+      "doc": "Evaluation result for a single plugin.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BatchResult",
+      "line": 59,
+      "doc": "Consolidated result of batch policy evaluation.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 49,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

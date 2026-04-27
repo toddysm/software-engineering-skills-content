@@ -1,0 +1,265 @@
+{
+  "path": "packages/agent-hypervisor/tutorials/execution-rings-workflow/demo.py",
+  "extension": ".py",
+  "size_bytes": 10651,
+  "line_count": 301,
+  "documentation": {
+    "file_docstring": "Execution Rings Workflow Demo \u2014 Data Processing Pipeline\n\nDemonstrates the agent-hypervisor execution ring system with four agents\nat different privilege levels:\n\n  Ring 0 (Supervisor)  \u2014 orchestrates the workflow, can access all resources\n  Ring 1 (Data Agent)  \u2014 reads databases, writes reports\n  Ring 2 (Analysis)    \u2014 reads data, computes, but no write access\n  Ring 3 (User-facing) \u2014 sandboxed, can only return pre-approved responses\n\nShows ring enforcement, elevation, kill switch, and audit trail.\n\nRun:\n    python demo.py",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Allow running from the tutorials/execution-rings-workflow directory without",
+      "installing the package by adding the repo src/ to sys.path.",
+      "\u2500\u2500 Agent definitions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Action definitions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Each action's required_ring is derived from its properties (is_admin,",
+      "reversibility, is_read_only) via ActionDescriptor.required_ring.",
+      "\u2500\u2500 Audit trail \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Display helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Scenario runners \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Simulate granting elevation",
+      "With elevated ring, the agent can now perform Ring 1 actions",
+      "Revoke elevation",
+      "\u2500\u2500 Main demo \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Log initial ring assignments",
+      "Run all scenarios",
+      "Scenario 5: Print the audit trail"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "AuditEntry: A single audit trail entry.",
+      "AuditTrail: Collects audit events for the demo.",
+      "run_scenario_1: Normal operation \u2014 each agent performs actions within its ring.",
+      "run_scenario_2: Ring enforcement \u2014 lower-privileged agents denied higher-ring actions.",
+      "run_scenario_3: Ring elevation \u2014 temporary sudo for emergency access.\n\nNote: RingElevationManage",
+      "run_scenario_4: Kill switch \u2014 supervisor kills misbehaving agent."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "log",
+    "run_scenario_3",
+    "print_roster",
+    "AuditEntry",
+    "run_scenario_1",
+    "AuditTrail",
+    "print_scenario",
+    "print_check",
+    "run_scenario_4",
+    "run_demo",
+    "main",
+    "print_header",
+    "print_trail",
+    "run_scenario_2"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "sys",
+      "dataclasses",
+      "pathlib",
+      "hypervisor.models",
+      "hypervisor.rings.enforcer",
+      "hypervisor.security.kill_switch"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "print_header",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "print_roster",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "print_scenario",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "number",
+        "title"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_check",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent",
+        "action_id",
+        "allowed",
+        "agent_ring",
+        "required_ring"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_scenario_1",
+      "line": 170,
+      "doc": "Normal operation \u2014 each agent performs actions within its ring.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "enforcer",
+        "audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_scenario_2",
+      "line": 190,
+      "doc": "Ring enforcement \u2014 lower-privileged agents denied higher-ring actions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "enforcer",
+        "audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_scenario_3",
+      "line": 209,
+      "doc": "Ring elevation \u2014 temporary sudo for emergency access.\n\nNote: RingElevationManager.request_elevation() raises in public preview,\nso we simulate elevation logic directly to illustrate the concept.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "enforcer",
+        "audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_scenario_4",
+      "line": 247,
+      "doc": "Kill switch \u2014 supervisor kills misbehaving agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "kill_switch",
+        "audit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_demo",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "agent",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_trail",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AuditEntry",
+      "line": 109,
+      "doc": "A single audit trail entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuditTrail",
+      "line": 118,
+      "doc": "Collects audit events for the demo.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

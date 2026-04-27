@@ -1,0 +1,259 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/security/rate_limiter.py",
+  "extension": ".py",
+  "size_bytes": 5774,
+  "line_count": 190,
+  "documentation": {
+    "file_docstring": "Runtime-layer per-agent/per-ring rate limiting.\n\nThis module enforces token-bucket limits per agent, session, and execution ring\ninside the hypervisor runtime layer.\n\nSee also:\n    - agent_os.integrations.rate_limiter: tool-call policy limits in Agent OS.\n    - agentmesh.services.rate_limiter: service/proxy-level limits in Agent Mesh.\n    - agentmesh.services.rate_limit_middleware: HTTP edge middleware in Agent Mesh.\n    - agent_os.policies.rate_limiting: shared token-bucket primitives.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Default rate limits per ring (requests per second, burst capacity)",
+      "(agent_did, session_id) -> TokenBucket",
+      "Track stats"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "RateLimitExceeded: Raised when an agent exceeds their rate limit.",
+      "TokenBucket: A token bucket for rate limiting.",
+      "RateLimitStats: Statistics for an agent's rate limiting.",
+      "AgentRateLimiter: Rate limiting per agent per ring using token buckets.\n\nHigher-privilege rings ge",
+      "consume: Try to consume tokens. Returns True if successful.",
+      "_refill: Refill tokens based on elapsed time.",
+      "check: Check if an agent can make a request.\n\nReturns True if allowed, raises RateLimit",
+      "try_check: Like check(), but returns False instead of raising.",
+      "update_ring: Update an agent's rate limit when their ring changes.",
+      "get_stats: Get rate limit stats for an agent."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_stats",
+    "RateLimitStats",
+    "available",
+    "check",
+    "tracked_agents",
+    "update_ring",
+    "try_check",
+    "TokenBucket",
+    "AgentRateLimiter",
+    "RateLimitExceeded",
+    "consume"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "hypervisor.constants",
+      "hypervisor.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "consume",
+      "line": 44,
+      "doc": "Try to consume tokens. Returns True if successful.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tokens"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_refill",
+      "line": 52,
+      "doc": "Refill tokens based on elapsed time.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "available",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ring_limits"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 103,
+      "doc": "Check if an agent can make a request.\n\nReturns True if allowed, raises RateLimitExceeded if not.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id",
+        "ring",
+        "cost"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "try_check",
+      "line": 133,
+      "doc": "Like check(), but returns False instead of raising.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id",
+        "ring",
+        "cost"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "update_ring",
+      "line": 146,
+      "doc": "Update an agent's rate limit when their ring changes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id",
+        "new_ring"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 165,
+      "doc": "Get rate limit stats for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_or_create_bucket",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "ring"
+      ],
+      "returns": "TokenBucket"
+    },
+    {
+      "name": "tracked_agents",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RateLimitExceeded",
+      "line": 31,
+      "doc": "Raised when an agent exceeds their rate limit.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TokenBucket",
+      "line": 36,
+      "doc": "A token bucket for rate limiting.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RateLimitStats",
+      "line": 75,
+      "doc": "Statistics for an agent's rate limiting.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentRateLimiter",
+      "line": 86,
+      "doc": "Rate limiting per agent per ring using token buckets.\n\nHigher-privilege rings get more generous limits. When an agent\nis promoted/demoted, their bucket is recreated with new limits.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 14,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth"
+    ]
+  }
+}

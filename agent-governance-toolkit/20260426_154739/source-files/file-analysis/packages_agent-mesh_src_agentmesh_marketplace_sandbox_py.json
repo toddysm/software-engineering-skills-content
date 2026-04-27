@@ -1,0 +1,133 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/marketplace/sandbox.py",
+  "extension": ".py",
+  "size_bytes": 9215,
+  "line_count": 250,
+  "documentation": {
+    "file_docstring": "Plugin Sandbox \u2014 Subprocess Isolation\n======================================\n\nExecutes plugin code in an isolated subprocess with:\n- Blocked dangerous module imports (subprocess, os, ctypes, etc.)\n- Restricted built-in functions at runtime (no exec/eval/breakpoint)\n- JSON-only I/O (stdin \u2192 stdout)\n- Configurable timeout (default 30s)\n- No access to AgentMesh internals\n\nSecurity layers (defense-in-depth):\n1. Subprocess isolation \u2014 separate process, no shared memory\n2. Import guard \u2014 blocks dangerous modules before AND during execution\n3. Builtin restriction \u2014 exec/eval/breakpoint removed AFTER module loading\n   (kept during import because importlib.exec_module needs them)\n4. Minimal environment \u2014 no secrets leaked via env vars\n5. Timeout \u2014 kills runaway processes\n\nUsage:\n    sandbox = PluginSandbox(plugins_dir=Path(\"./plugins\"))\n    result = sandbox.execute(\n        plugin_name=\"my-plugin\",\n        entry_function=\"process\",\n        input_data={\"query\": \"hello\"},\n    )",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Default execution timeout in seconds.",
+      "Additional modules blocked beyond RESTRICTED_MODULES.",
+      "The runner script is injected into the subprocess via -c.",
+      "It installs an import guard, loads the plugin, calls the entry",
+      "function with JSON from stdin, and writes JSON to stdout.",
+      "\u2500\u2500 1. Install import guard \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 2. Read input \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 3. Load plugin module (builtins intact for importlib) \u2500\u2500\u2500\u2500",
+      "\u2500\u2500 4. Strip dangerous builtins AFTER import \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "exec/eval/compile are needed by importlib during module loading,",
+      "but must be blocked before running plugin entry code.",
+      "\u2500\u2500 5. Call entry function \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 6. Write output \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Build the payload sent via stdin",
+      "Minimal env \u2014 keep Python working but don't leak secrets.",
+      "On Windows, Python needs SYSTEMROOT to load standard library."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PluginSandboxError: Raised when sandbox execution fails.",
+      "PluginSandbox: Execute plugin code in an isolated subprocess.\n\nPlugins receive JSON input and m",
+      "execute: Execute a plugin function in the sandbox.\n\nArgs:\n    plugin_name: Installed plug"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "execute",
+    "PluginSandbox",
+    "PluginSandboxError"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "subprocess",
+      "sys",
+      "textwrap",
+      "pathlib",
+      "typing",
+      "agentmesh.marketplace.installer",
+      "os"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugins_dir",
+        "timeout_seconds",
+        "python_executable"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 165,
+      "doc": "Execute a plugin function in the sandbox.\n\nArgs:\n    plugin_name: Installed plugin name (directory under plugins_dir).\n    entry_function: Name of the function to call in the plugin module.\n    input_data: JSON-serializable dict passed to the function.\n    module_name: Python module to import. Defaults to ``plugin_name``\n        with hyphens replaced by underscores.\n    timeout: Override the default timeout for this execution.\n\nReturns:\n    Dict with either ``{\"result\": ...}`` on success or\n    ``{\"error\": \"...\"}`` on failure.\n\nRaises:\n    PluginSandboxError: On timeout, crash, or invalid output.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "entry_function",
+        "input_data"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PluginSandboxError",
+      "line": 136,
+      "doc": "Raised when sandbox execution fails.",
+      "is_public": true,
+      "bases": [
+        "MarketplaceError"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginSandbox",
+      "line": 140,
+      "doc": "Execute plugin code in an isolated subprocess.\n\nPlugins receive JSON input and must return JSON output.\nThey cannot import dangerous modules, use exec/eval, or access\nthe host process in any way.\n\nArgs:\n    plugins_dir: Directory where plugins are installed.\n    timeout_seconds: Maximum execution time before the subprocess\n        is killed. Defaults to 30.\n    python_executable: Path to the Python interpreter. Defaults to\n        the current interpreter (``sys.executable``).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 24,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

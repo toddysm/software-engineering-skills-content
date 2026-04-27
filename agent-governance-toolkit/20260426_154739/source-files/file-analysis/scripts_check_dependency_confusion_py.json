@@ -1,0 +1,219 @@
+{
+  "path": "scripts/check_dependency_confusion.py",
+  "extension": ".py",
+  "size_bytes": 17794,
+  "line_count": 435,
+  "documentation": {
+    "file_docstring": "Pre-commit hook: detect unregistered PyPI package names in pip install commands.\n\nScans staged files for `pip install <name>` where <name> is not a known\nregistered package. Prevents dependency confusion attacks.\n\nUsage:\n    # Install as pre-commit hook\n    cp scripts/check_dependency_confusion.py .git/hooks/pre-commit\n    chmod +x .git/hooks/pre-commit\n\n    # Or run manually\n    python scripts/check_dependency_confusion.py [files...]",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Install as pre-commit hook"
+    ],
+    "inline_comments": [
+      "Or run manually",
+      "Known registered PyPI package names for this project",
+      "Core packages (on PyPI) \u2014 both hyphen and underscore variants",
+      "Common dependencies",
+      "Dashboard / visualization (used in examples)",
+      "Async / caching (used in examples)",
+      "Document processing / NLP (used in examples)",
+      "Dev tools",
+      "Infrastructure / runtime (used in examples)",
+      "Slack / messaging",
+      "Telemetry",
+      "pyproject.toml optional-dependency group names (not real packages)",
+      "Integration packages / real PyPI packages used as deps",
+      "Cedar/OPA policy backends",
+      "Internal module references",
+      "APS adapter optional deps",
+      "Microsoft Agent Framework (MAF) \u2014 not yet on PyPI, used in examples",
+      "Internal cross-package references (local-only, NOT on PyPI)",
+      "These are flagged as HIGH RISK if found in requirements.txt with version pins",
+      "instead of path references. See dependency confusion attack vector.",
+      "With extras (base name is what matters)",
+      "Local-only packages that should NEVER appear with version pins in",
+      "requirements.txt (they must use path references like -e ../primitives)",
+      "Known npm packages for this project",
+      "Common deps",
+      "Common npm dev dependencies",
+      "npm deps from extensions/copilot",
+      "npm deps from extensions/chrome",
+      "npm deps from extensions/mcp-server",
+      "npm deps from mcp-proxy",
+      "npm deps from agent-governance-typescript",
+      "npm deps from agent-os-vscode",
+      "Known Cargo crate names",
+      "Patterns that are always safe (not package names)",
+      "Skip flags",
+      "Skip tokens that look like code, not package names",
+      "Strip extras: package[extra] -> package",
+      "Strip version specifiers: package>=1.0 -> package",
+      "Strip markdown/quote artifacts",
+      "Strip extras and version specifiers",
+      "Match dependency lines like: \"package>=1.0\" or \"package[extra]>=1.0,<2.0\"",
+      "In optional-dependencies, lines like 'aps = [\"pkg>=1.0\"]' are group",
+      "headers \u2014 the key (aps) is an extras name, not a package. Parse the",
+      "values inside the brackets instead.",
+      "Extract package names from the bracket contents",
+      "Get files to check",
+      "Pre-commit mode: check staged files",
+      "--strict: additionally scan all notebooks, requirements, and manifest files"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "extract_package_names: Extract package names from a pip install argument string.",
+      "check_file: Check a file for potentially unregistered pip install targets.",
+      "check_requirements_file: Check a requirements*.txt file for unregistered package names.",
+      "check_notebook: Check a Jupyter notebook for pip install of unregistered packages.",
+      "check_pyproject_toml: Check a pyproject.toml for unregistered package dependencies.",
+      "check_package_json: Check a package.json for unregistered npm package dependencies.",
+      "check_cargo_toml: Check a Cargo.toml for unregistered crate dependencies."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "check_cargo_toml",
+    "check_pyproject_toml",
+    "check_requirements_file",
+    "check_package_json",
+    "extract_package_names",
+    "main",
+    "check_notebook",
+    "check_file"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "argparse",
+      "glob",
+      "json",
+      "re",
+      "subprocess",
+      "sys"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "extract_package_names",
+      "line": 156,
+      "doc": "Extract package names from a pip install argument string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "install_args"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_file",
+      "line": 179,
+      "doc": "Check a file for potentially unregistered pip install targets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_requirements_file",
+      "line": 200,
+      "doc": "Check a requirements*.txt file for unregistered package names.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_notebook",
+      "line": 227,
+      "doc": "Check a Jupyter notebook for pip install of unregistered packages.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_pyproject_toml",
+      "line": 250,
+      "doc": "Check a pyproject.toml for unregistered package dependencies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_package_json",
+      "line": 313,
+      "doc": "Check a package.json for unregistered npm package dependencies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_cargo_toml",
+      "line": 332,
+      "doc": "Check a Cargo.toml for unregistered crate dependencies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 365,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "int"
+    }
+  ],
+  "classes": [],
+  "complexity_score": 84,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

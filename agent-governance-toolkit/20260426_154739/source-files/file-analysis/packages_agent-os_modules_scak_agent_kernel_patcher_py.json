@@ -1,0 +1,418 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/patcher.py",
+  "extension": ".py",
+  "size_bytes": 24533,
+  "line_count": 582,
+  "documentation": {
+    "file_docstring": "Agent patcher that applies corrections to agents.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Generate patch ID",
+      "Determine patch strategy (easy vs hard fix)",
+      "Determine patch type based on failure",
+      "Generate patch content based on strategy",
+      "Apply patch based on type",
+      "Mark as applied",
+      "Update agent state",
+      "Get or create system prompt",
+      "Append the new rule",
+      "In real system, would modify actual code",
+      "In real system, would update configuration",
+      "Rollback based on patch type",
+      "Mark as not applied",
+      "Update agent state",
+      "In real system, would restore previous version",
+      "Remove the memory from RAG store",
+      "Tool Misuse: Schema Injection - update tool definition in the prompt",
+      "Policy Violation: Constitutional Update - prepend refusal rule to system prompt",
+      "Hallucination: RAG Patch - add negative constraint to memory",
+      "Easy fixes: Simple cognitive glitches that can be addressed with rules",
+      "Hard fixes: Complex patterns requiring historical context",
+      "Use strategy as primary determinant",
+      "Fall back to failure type analysis",
+      "EASY FIX: System Prompt Update",
+      "HARD FIX: RAG Memory Injection",
+      "CODE CHANGE",
+      "CONFIG UPDATE",
+      "Default fallback",
+      "Tool Misuse: Schema Injection - Make tool definition stricter",
+      "Extract specific tool information from the failure",
+      "Policy Violation: Constitutional Update - Prepend refusal rule",
+      "Determine the specific policy domain from the failure",
+      "Check error message first",
+      "Then check failure trace if available",
+      "Convert hint into a permanent rule for other glitches",
+      "Create a memory entry",
+      "For hallucinations, extract the hallucinated entity and create negative constraint",
+      "Extract hallucinated entity from error message or failed action",
+      "Common patterns for hallucinations",
+      "\"Project_Alpha does not exist\" -> \"Project_Alpha\"",
+      "\"Table 'recent_users' not found\" -> \"recent_users\"",
+      "\"Unknown entity: XYZ\" -> \"XYZ\"",
+      "Pattern: 'entity_name' or \"entity_name\" in error message",
+      "Pattern: Entity_Name or Project_Alpha (CamelCase or Snake_Case with underscores)",
+      "Look for CamelCase or underscore-separated capitalized words",
+      "Also try looking for simple CamelCase",
+      "Try to find in error message"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentPatcher: Patches agents to prevent future failures.\n\nThis is \"The Patcher\" (The Optimizer",
+      "create_patch: Create a correction patch for an agent.\n\nArgs:\n    agent_id: ID of the agent to ",
+      "apply_patch: Apply a correction patch to an agent.\n\nThis is \"The Patcher\" in action - applyin",
+      "_apply_system_prompt_patch: Apply an easy fix: Update the system_prompt with a new rule.\n\nExample: \"Always c",
+      "_apply_rag_memory_patch: Apply a hard fix: Inject a \"Memory\" into the vector store.\n\nExample: \"In 2025, u",
+      "_apply_code_patch: Apply code changes patch.",
+      "_apply_config_patch: Apply configuration changes patch.",
+      "rollback_patch: Rollback a previously applied patch.\n\nArgs:\n    patch_id: ID of the patch to rol",
+      "_rollback_system_prompt: Rollback system prompt changes.",
+      "_rollback_rag_memory: Rollback RAG memory injection."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "create_patch",
+    "apply_patch",
+    "rollback_patch",
+    "get_patch_history",
+    "AgentPatcher",
+    "get_agent_state"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "uuid",
+      "typing",
+      "datetime",
+      "models",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_patch",
+      "line": 35,
+      "doc": "Create a correction patch for an agent.\n\nArgs:\n    agent_id: ID of the agent to patch\n    analysis: Failure analysis\n    simulation: Successful simulation result\n    diagnosis: Cognitive glitch diagnosis if available\n    shadow_result: Shadow agent verification result\n    \nReturns:\n    CorrectionPatch object",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "analysis",
+        "simulation",
+        "diagnosis",
+        "shadow_result"
+      ],
+      "returns": "CorrectionPatch"
+    },
+    {
+      "name": "apply_patch",
+      "line": 90,
+      "doc": "Apply a correction patch to an agent.\n\nThis is \"The Patcher\" in action - applying the fix permanently.\n\nArgs:\n    patch: The patch to apply\n    \nReturns:\n    True if patch was applied successfully",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_apply_system_prompt_patch",
+      "line": 131,
+      "doc": "Apply an easy fix: Update the system_prompt with a new rule.\n\nExample: \"Always check schema before querying\"",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_rag_memory_patch",
+      "line": 149,
+      "doc": "Apply a hard fix: Inject a \"Memory\" into the vector store.\n\nExample: \"In 2025, user asked X, and we failed. The correct logic is Y.\"",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_code_patch",
+      "line": 168,
+      "doc": "Apply code changes patch.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_config_patch",
+      "line": 173,
+      "doc": "Apply configuration changes patch.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "rollback_patch",
+      "line": 178,
+      "doc": "Rollback a previously applied patch.\n\nArgs:\n    patch_id: ID of the patch to rollback\n    \nReturns:\n    True if rollback was successful",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_rollback_system_prompt",
+      "line": 228,
+      "doc": "Rollback system prompt changes.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_rollback_rag_memory",
+      "line": 233,
+      "doc": "Rollback RAG memory injection.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_state",
+      "line": 241,
+      "doc": "Get the current state of an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "AgentState"
+    },
+    {
+      "name": "_determine_patch_strategy",
+      "line": 250,
+      "doc": "Determine patch strategy based on the problem statement requirements:\n\n- Tool Misuse \u2192 Schema Injection (update tool definition in prompt)\n- Hallucination \u2192 RAG Patch (add negative constraint to context)\n- Policy Violation \u2192 Constitutional Update (prepend refusal rule to system prompt)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "diagnosis"
+      ],
+      "returns": "PatchStrategy"
+    },
+    {
+      "name": "_determine_patch_type",
+      "line": 294,
+      "doc": "Determine the type of patch needed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "strategy"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_generate_patch_content",
+      "line": 322,
+      "doc": "Generate the actual patch content based on strategy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "simulation",
+        "strategy",
+        "diagnosis",
+        "shadow_result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_system_prompt_rule",
+      "line": 361,
+      "doc": "Generate a rule to add to system prompt.\n\nImplements:\n- Tool Misuse \u2192 Schema Injection (stricter tool definition)\n- Policy Violation \u2192 Constitutional Update (refusal rule)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "diagnosis",
+        "analysis"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_generate_rag_memory_content",
+      "line": 426,
+      "doc": "Generate RAG memory content (Hard Fix).\n\nFor Hallucination: Add negative constraint to the context.\nExample: \"Project_Alpha is deprecated\" or \"Entity X does not exist\"",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "diagnosis",
+        "analysis",
+        "shadow_result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_hallucinated_entity",
+      "line": 477,
+      "doc": "Extract the hallucinated entity name from failure context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "failure"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_code_change_content",
+      "line": 512,
+      "doc": "Generate code change content.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "simulation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_config_content",
+      "line": 544,
+      "doc": "Generate configuration update content.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "simulation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_update_agent_state",
+      "line": 560,
+      "doc": "Update the state of an agent after patching.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "patch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_patch_history",
+      "line": 575,
+      "doc": "Get patch history, optionally filtered by agent_id.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentPatcher",
+      "line": 22,
+      "doc": "Patches agents to prevent future failures.\n\nThis is \"The Patcher\" (The Optimizer) - applies fixes permanently.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 130,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

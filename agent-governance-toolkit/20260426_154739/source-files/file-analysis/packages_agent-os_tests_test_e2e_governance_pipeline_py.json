@@ -1,0 +1,884 @@
+{
+  "path": "packages/agent-os/tests/test_e2e_governance_pipeline.py",
+  "extension": ".py",
+  "size_bytes": 30827,
+  "line_count": 901,
+  "documentation": {
+    "file_docstring": "End-to-end governance pipeline tests.\n\nValidates the complete governance flow from input validation through\npolicy evaluation, capability enforcement, rogue detection, audit\nlogging, and middleware composition.\n\nCovers:\n  1. Full pipeline: input \u2192 injection check \u2192 policy eval \u2192 capability guard\n     \u2192 rogue detection \u2192 audit trail\n  2. MAF middleware stack composition and factory\n  3. Multi-layer policy enforcement (deny overrides allow)\n  4. Audit trail integrity across pipeline stages\n  5. Rogue agent detection triggering quarantine\n  6. Governance policy + PolicyDocument interop\n  7. YAML policy directory \u2192 evaluator \u2192 middleware flow\n  8. Cross-package integration (agent-os + agent-mesh + agent-sre)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "Test Helpers \u2014 Mock MAF Context Objects",
+      "============================================================================",
+      "============================================================================",
+      "1. Full Governance Pipeline \u2014 Input to Audit",
+      "============================================================================",
+      "Create middleware",
+      "Create context with a denied message",
+      "Should raise MiddlewareTermination",
+      "Audit log should record the denial",
+      "Audit rule allows but logs",
+      "============================================================================",
+      "2. Capability Guard Middleware",
+      "============================================================================",
+      "Audit should have start and complete entries",
+      "============================================================================",
+      "3. Audit Trail Middleware",
+      "============================================================================",
+      "The complete entry should have error outcome",
+      "Entry should be retrievable",
+      "============================================================================",
+      "4. Rogue Detection Middleware",
+      "============================================================================",
+      "Should not raise",
+      "Simulate a burst of rapid calls to trigger frequency anomaly",
+      "After many rapid calls, the detector may recommend quarantine",
+      "If quarantine recommended, the middleware should block",
+      "If not (insufficient data), the middleware passes",
+      "Call an unexpected tool",
+      "The detector should record this as a deviation",
+      "============================================================================",
+      "5. Full Middleware Stack \u2014 Factory",
+      "============================================================================",
+      "Verify types",
+      "Simulate running through the agent middleware pipeline",
+      "Run agent-level middleware (GovernancePolicyMiddleware, AuditTrailMiddleware)",
+      "============================================================================",
+      "6. Input Validation \u2192 Policy pipeline",
+      "============================================================================",
+      "First stage: check for injection",
+      "Block immediately, don't even evaluate policy",
+      "If somehow not detected, policy should still evaluate",
+      "Input passes to policy",
+      "Normal write",
+      "Poisoned write attempt \u2014 use injection patterns that match",
+      "============================================================================",
+      "7. Multi-Policy Layered Enforcement",
+      "============================================================================",
+      "Security deny (priority=100) should win over allow (priority=1)",
+      "Admin blocked",
+      "User allowed",
+      "============================================================================",
+      "8. MCP Security in Pipeline",
+      "============================================================================",
+      "Scan a clean tool",
+      "Register it",
+      "Verify fingerprint exists",
+      "Do not register poisoned tools \u2014 verify by checking registry is empty",
+      "============================================================================",
+      "9. Cross-Package Integration",
+      "============================================================================",
+      "All middleware share the same audit log",
+      "Register a capability profile",
+      "Record normal actions",
+      "Assess risk",
+      "Log the decision with the audit log",
+      "============================================================================",
+      "10. Governance Pipeline Error Handling",
+      "============================================================================",
+      "Context without 'role' field \u2014 should not crash",
+      "Should not raise"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MockAgent: Mock MAF agent with a name.",
+      "MockAgentContext: Mock MAF AgentContext for middleware testing.",
+      "MockFunction: Mock MAF function/tool.",
+      "MockFunctionContext: Mock MAF FunctionInvocationContext.",
+      "MockMessage: Mock MAF Message.",
+      "TestFullGovernancePipeline: Test the complete governance flow from input to audit trail.",
+      "TestCapabilityGuardPipeline: Test tool-level allow/deny enforcement.",
+      "TestAuditTrailPipeline: Test audit trail captures pre/post execution events.",
+      "TestRogueDetectionPipeline: Test rogue agent detection in the middleware pipeline.",
+      "TestMiddlewareStackFactory: Test create_governance_middleware factory function."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_clean_input_reaches_policy",
+    "test_rogue_detector_from_sre_package",
+    "TestCapabilityGuardPipeline",
+    "test_policy_evaluator_with_mesh_audit_log",
+    "test_scan_rejects_before_registration",
+    "test_evaluator_handles_missing_field",
+    "test_injector_handles_empty_input",
+    "TestMultiPolicyLayeredEnforcement",
+    "text",
+    "test_creates_full_stack",
+    "TestFullGovernancePipeline",
+    "TestPipelineErrorHandling",
+    "MockAgent",
+    "test_multiple_policies_from_yaml_dir",
+    "TestMCPSecurityPipeline",
+    "test_memory_guard_in_pipeline",
+    "TestRogueDetectionPipeline",
+    "MockFunction",
+    "test_stack_with_capability_guard_only",
+    "test_minimal_stack_with_audit_only",
+    "test_memory_guard_handles_empty_content",
+    "MockFunctionContext",
+    "MockMessage",
+    "MockAgentContext",
+    "test_injection_blocks_before_policy",
+    "TestCrossPackageIntegration",
+    "test_security_policy_overrides_permissive",
+    "TestAuditTrailPipeline",
+    "TestInputValidationPipeline",
+    "TestMiddlewareStackFactory",
+    "test_audit_log_shared_across_middleware",
+    "test_scan_before_registration"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "time",
+      "pathlib",
+      "typing",
+      "unittest.mock",
+      "pytest",
+      "agent_os.policies.schema",
+      "agent_os.policies.evaluator",
+      "agent_os.prompt_injection",
+      "agent_os.memory_guard",
+      "agent_os.mcp_security",
+      "agent_os.integrations.base",
+      "agent_os.integrations.maf_adapter",
+      "agentmesh.governance.audit",
+      "agent_sre.anomaly.rogue_detector"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_name",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "role",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "text",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_policy_evaluator",
+      "line": 120,
+      "doc": "Create a PolicyEvaluator with test policies.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pipeline_blocks_denied_message",
+      "line": 158,
+      "doc": "Pipeline blocks a message that matches a deny rule.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pipeline_allows_clean_message",
+      "line": 194,
+      "doc": "Pipeline allows a message that doesn't match deny rules.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pipeline_audits_search_operations",
+      "line": 218,
+      "doc": "Pipeline audits (allows) messages matching audit rules.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_tool_passes",
+      "line": 247,
+      "doc": "Allowed tool invocation proceeds normally.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_denied_tool_blocked",
+      "line": 264,
+      "doc": "Tool not in allowed list is blocked.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_explicit_deny_overrides_allow",
+      "line": 277,
+      "doc": "Explicit deny_tools overrides allow_tools.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_restrictions_allows_all",
+      "line": 289,
+      "doc": "No allow/deny lists allows all tools.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_guard_audit_logging",
+      "line": 304,
+      "doc": "Capability guard logs tool invocations to audit log.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_captures_successful_execution",
+      "line": 329,
+      "doc": "Successful execution creates start and complete entries.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_captures_failed_execution",
+      "line": 345,
+      "doc": "Failed execution records error in audit trail.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_id_in_metadata",
+      "line": 365,
+      "doc": "Audit entry ID is set in context.metadata for correlation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_detector",
+      "line": 388,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "quarantine_level"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_normal_usage_passes",
+      "line": 398,
+      "doc": "Normal tool usage passes rogue detection.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_burst_triggers_quarantine",
+      "line": 415,
+      "doc": "Rapid-fire tool calls trigger rogue quarantine.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_violation_detected",
+      "line": 449,
+      "doc": "Using tools outside capability profile is flagged.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_creates_full_stack",
+      "line": 476,
+      "doc": "Factory creates a complete middleware stack.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_minimal_stack_with_audit_only",
+      "line": 500,
+      "doc": "Factory with custom audit_log creates audit middleware.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stack_with_capability_guard_only",
+      "line": 511,
+      "doc": "Factory with only allowed_tools creates capability guard.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_end_to_end_stack_execution",
+      "line": 522,
+      "doc": "Full stack executes end-to-end without errors.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_injection_blocks_before_policy",
+      "line": 555,
+      "doc": "Prompt injection should be caught before policy evaluation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_input_reaches_policy",
+      "line": 572,
+      "doc": "Clean input passes injection check and reaches policy evaluation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_guard_in_pipeline",
+      "line": 601,
+      "doc": "Memory guard validates writes within the governance context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_security_policy_overrides_permissive",
+      "line": 625,
+      "doc": "High-priority security rules override permissive defaults.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_policies_from_yaml_dir",
+      "line": 669,
+      "doc": "Loading multiple YAML policies creates layered enforcement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_before_registration",
+      "line": 721,
+      "doc": "Tools are scanned before registration in the pipeline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_rejects_before_registration",
+      "line": 746,
+      "doc": "Poisoned tools are rejected and not registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_shared_across_middleware",
+      "line": 771,
+      "doc": "A single AuditLog is shared across all middleware layers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rogue_detector_from_sre_package",
+      "line": 792,
+      "doc": "RogueAgentDetector from agent-sre works with agent-os middleware.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_evaluator_with_mesh_audit_log",
+      "line": 812,
+      "doc": "PolicyEvaluator decisions are logged via agent-mesh AuditLog.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluator_handles_missing_field",
+      "line": 856,
+      "doc": "PolicyEvaluator handles contexts missing the referenced field.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_injector_handles_empty_input",
+      "line": 880,
+      "doc": "PromptInjectionDetector handles empty string input.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_guard_handles_empty_content",
+      "line": 886,
+      "doc": "MemoryGuard handles empty content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_middleware_with_empty_messages",
+      "line": 893,
+      "doc": "Policy middleware handles context with no messages.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "call_next",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "call_next",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "call_next",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "call_next",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "failing_next",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockAgent",
+      "line": 72,
+      "doc": "Mock MAF agent with a name.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockAgentContext",
+      "line": 78,
+      "doc": "Mock MAF AgentContext for middleware testing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockFunction",
+      "line": 88,
+      "doc": "Mock MAF function/tool.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockFunctionContext",
+      "line": 94,
+      "doc": "Mock MAF FunctionInvocationContext.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockMessage",
+      "line": 101,
+      "doc": "Mock MAF Message.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFullGovernancePipeline",
+      "line": 117,
+      "doc": "Test the complete governance flow from input to audit trail.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCapabilityGuardPipeline",
+      "line": 243,
+      "doc": "Test tool-level allow/deny enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditTrailPipeline",
+      "line": 325,
+      "doc": "Test audit trail captures pre/post execution events.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRogueDetectionPipeline",
+      "line": 385,
+      "doc": "Test rogue agent detection in the middleware pipeline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMiddlewareStackFactory",
+      "line": 473,
+      "doc": "Test create_governance_middleware factory function.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestInputValidationPipeline",
+      "line": 552,
+      "doc": "Test prompt injection detection feeding into policy evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMultiPolicyLayeredEnforcement",
+      "line": 622,
+      "doc": "Test multiple policy documents enforcing together.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPSecurityPipeline",
+      "line": 718,
+      "doc": "Test MCP security scanning in the governance context.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrossPackageIntegration",
+      "line": 768,
+      "doc": "Test integration across agent-os, agent-mesh, agent-sre packages.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPipelineErrorHandling",
+      "line": 853,
+      "doc": "Test error handling throughout the governance pipeline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "path": "examples/atr-community-rules/sync_atr_rules.py",
+  "extension": ".py",
+  "size_bytes": 9663,
+  "line_count": 274,
+  "documentation": {
+    "file_docstring": "Sync ATR (Agent Threat Rules) YAML rules into AGT PolicyDocument format.\n\nReads ATR rule files from a directory and converts them to a single YAML file\ncompatible with AGT's PolicyEvaluator.load_policies().\n\nUsage:\n    # From node_modules (after `npm install agent-threat-rules`)\n    python sync_atr_rules.py --atr-dir node_modules/agent-threat-rules/rules/\n\n    # From a local clone\n    python sync_atr_rules.py --atr-dir /path/to/agent-threat-rules/rules/\n\n    # Specify output path\n    python sync_atr_rules.py --atr-dir ./rules/ --output atr_policy.yaml\n\n    # CI mode: fail on any invalid regex (use for local validation, not weekly cron)\n    python sync_atr_rules.py --atr-dir ./rules/ --strict-regex",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "!/usr/bin/env python3"
+    ],
+    "inline_comments": [
+      "From node_modules (after `npm install agent-threat-rules`)",
+      "From a local clone",
+      "Specify output path",
+      "CI mode: fail on any invalid regex (use for local validation, not weekly cron)",
+      "---------------------------------------------------------------------------",
+      "ATR severity -> AGT priority mapping",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ATR category -> AGT context field mapping",
+      "",
+      "AGT PolicyEvaluator matches rules against a context dict.  This mapping",
+      "determines which context field each ATR category should inspect.",
+      "---------------------------------------------------------------------------",
+      "Determine the context field based on the original ATR field or category",
+      "Build a unique rule name",
+      "Skip rules that are not production-ready"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "InvalidRegexError: Raised when an ATR regex pattern fails compile validation.",
+      "_load_yaml: Load a single YAML file, returning an empty dict on failure.",
+      "_extract_regex_patterns: Extract all regex patterns from an ATR detection block.",
+      "_validate_regex: Best-effort regex validation addressing the ReDoS concern raised in #908 review.",
+      "_atr_to_agt_rule: Convert one ATR detection condition into an AGT rule entry.",
+      "convert_atr_directory: Walk an ATR rules directory and produce an AGT PolicyDocument dict.\n\nEach ATR ru"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "convert_atr_directory",
+    "main",
+    "InvalidRegexError"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "argparse",
+      "re",
+      "sys",
+      "pathlib",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_load_yaml",
+      "line": 70,
+      "doc": "Load a single YAML file, returning an empty dict on failure.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_regex_patterns",
+      "line": 81,
+      "doc": "Extract all regex patterns from an ATR detection block.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "detection"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_regex",
+      "line": 90,
+      "doc": "Best-effort regex validation addressing the ReDoS concern raised in #908 review.\n\nChecks:\n  1. Pattern compiles cleanly (no syntax errors).\n  2. Pattern length is below a conservative upper bound (8 KB) \u2014 prevents\n     a malicious or malformed ATR upstream from shipping pathologically\n     long regexes.\n\nThis is a cheap static guard, not a runtime ReDoS defence. True ReDoS\nmitigation would require wrapping each re.search() call in the core\nPolicyEvaluator with a timeout, which is out of scope for this example\nsync utility.\n\nReturns True if the pattern is acceptable. On failure, either raises\nInvalidRegexError (when ``strict=True``) or logs a warning and returns\nFalse (when ``strict=False``).\n\nNote: as of ATR v2.0.12, a small number of rules use Unicode escape\nsequences (\\uXXXX) that are valid in PCRE/JavaScript but not in Python's\nre module. These are legitimate rules and are silently skipped in lenient\nmode. The weekly sync workflow runs WITHOUT --strict-regex so that these\nrules produce a warning rather than aborting the sync.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "pattern",
+        "source"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_atr_to_agt_rule",
+      "line": 139,
+      "doc": "Convert one ATR detection condition into an AGT rule entry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "atr",
+        "pattern",
+        "index"
+      ],
+      "returns": null
+    },
+    {
+      "name": "convert_atr_directory",
+      "line": 167,
+      "doc": "Walk an ATR rules directory and produce an AGT PolicyDocument dict.\n\nEach ATR rule may contain multiple detection conditions (regex patterns).\nEvery pattern that passes static validation becomes a separate AGT rule.\n\nPer PR #908 review:\n  - Raises FileNotFoundError (not sys.exit) when no rules are found, so\n    callers can handle it programmatically (requested by @aymenhmaidiwastaken).\n  - Validates every regex at compile time before emitting it (addresses\n    the ReDoS concern raised by the AI code-reviewer bot). Pathological\n    patterns are dropped with a warning (strict_regex=False) or raise\n    InvalidRegexError (strict_regex=True).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "atr_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 227,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "InvalidRegexError",
+      "line": 66,
+      "doc": "Raised when an ATR regex pattern fails compile validation.",
+      "is_public": true,
+      "bases": [
+        "ValueError"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

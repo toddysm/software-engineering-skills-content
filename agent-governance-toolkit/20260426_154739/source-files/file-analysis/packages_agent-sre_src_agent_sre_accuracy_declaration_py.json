@@ -1,0 +1,152 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/accuracy_declaration.py",
+  "extension": ".py",
+  "size_bytes": 7739,
+  "line_count": 198,
+  "documentation": {
+    "file_docstring": "EU AI Act Art. 15(1) formal accuracy declaration mechanism.\n\nProvides ``AccuracyDeclaration`` \u2014 a Pydantic model that formally\nspecifies expected accuracy levels per risk category, with factory\nmethods for recommended thresholds and validation against runtime SLIs.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RiskTier: EU AI Act risk classification tier.",
+      "AccuracyThreshold: Minimum accuracy threshold for a specific metric.",
+      "AccuracyDeclaration: Formal accuracy declaration per EU AI Act Art. 15(1).\n\nDeclares expected accurac",
+      "for_high_risk: Create declaration with recommended HIGH risk thresholds.",
+      "for_limited_risk: Create declaration with relaxed LIMITED risk thresholds.",
+      "validate_against_sli: Check if an actual SLI value meets the declared minimum.\n\nFor rate metrics (hall",
+      "to_compliance_section: Export as a section for compliance report / Annex IV."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AccuracyThreshold",
+    "to_compliance_section",
+    "RiskTier",
+    "AccuracyDeclaration",
+    "validate_against_sli",
+    "for_high_risk",
+    "for_limited_risk"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "enum",
+      "typing",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "for_high_risk",
+      "line": 62,
+      "doc": "Create declaration with recommended HIGH risk thresholds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "system_name"
+      ],
+      "returns": "AccuracyDeclaration"
+    },
+    {
+      "name": "for_limited_risk",
+      "line": 99,
+      "doc": "Create declaration with relaxed LIMITED risk thresholds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "system_name"
+      ],
+      "returns": "AccuracyDeclaration"
+    },
+    {
+      "name": "validate_against_sli",
+      "line": 128,
+      "doc": "Check if an actual SLI value meets the declared minimum.\n\nFor rate metrics (hallucination_rate, calibration_delta), the\nactual value must be **at or below** the minimum. For accuracy\nmetrics, the actual value must be **at or above** the minimum.\n\nReturns:\n    ``(True, message)`` if compliant, ``(False, message)`` if not.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_name",
+        "actual_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_compliance_section",
+      "line": 180,
+      "doc": "Export as a section for compliance report / Annex IV.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RiskTier",
+      "line": 21,
+      "doc": "EU AI Act risk classification tier.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AccuracyThreshold",
+      "line": 30,
+      "doc": "Minimum accuracy threshold for a specific metric.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AccuracyDeclaration",
+      "line": 40,
+      "doc": "Formal accuracy declaration per EU AI Act Art. 15(1).\n\nDeclares expected accuracy levels for a system, allowing conformity\nassessors to verify that configured SLI targets meet declared minimums.\n\nExample::\n\n    decl = AccuracyDeclaration.for_high_risk(\"MyAgent\")\n    passed, msg = decl.validate_against_sli(\"tool_call_accuracy\", 0.97)\n    assert passed  # 0.97 >= 0.95 minimum",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

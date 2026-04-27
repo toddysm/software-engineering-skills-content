@@ -1,0 +1,255 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/approval.py",
+  "extension": ".py",
+  "size_bytes": 8193,
+  "line_count": 254,
+  "documentation": {
+    "file_docstring": "Human-in-the-loop approval workflows for policy-gated agent actions.\n\nWhen a policy rule returns ``require_approval``, the approval handler\npauses execution, requests human approval, and resumes or denies\nbased on the response.\n\nUsage::\n\n    from agentmesh.governance.approval import (\n        CallbackApproval, AutoRejectApproval,\n    )\n    from agentmesh.governance import govern\n\n    handler = CallbackApproval(lambda req: ApprovalDecision(approved=True, approver=\"admin\"))\n    safe = govern(my_tool, policy=\"policy.yaml\", approval_handler=handler)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ApprovalRequest: Details of an action awaiting approval.\n\nAttributes:\n    action: Description of ",
+      "ApprovalDecision: Result of an approval request.\n\nAttributes:\n    approved: Whether the action was",
+      "ApprovalHandler: Abstract base class for approval handlers.",
+      "AutoRejectApproval: Automatically rejects all approval requests (fail-safe default).\n\nUse in product",
+      "CallbackApproval: Delegates approval to a custom callback function.\n\nArgs:\n    callback: Function ",
+      "ConsoleApproval: Interactive console-based approval for development/testing.\n\nPrompts the user vi",
+      "WebhookApproval: HTTP webhook-based approval (Slack, Teams, PagerDuty, etc.).\n\nPosts an approval ",
+      "request_approval: Request approval for a policy-gated action.\n\nImplementations may block (waiting "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ApprovalDecision",
+    "request_approval",
+    "CallbackApproval",
+    "ApprovalHandler",
+    "ApprovalRequest",
+    "AutoRejectApproval",
+    "ConsoleApproval",
+    "WebhookApproval"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "abc",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "urllib.request",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "request_approval",
+      "line": 81,
+      "doc": "Request approval for a policy-gated action.\n\nImplementations may block (waiting for human input), call an\nexternal service, or auto-decide.\n\nArgs:\n    request: Details of the action awaiting approval.\n\nReturns:\n    An ``ApprovalDecision`` indicating whether the action is approved.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ApprovalDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request_approval",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ApprovalDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback",
+        "timeout_seconds",
+        "on_timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request_approval",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ApprovalDecision"
+    },
+    {
+      "name": "request_approval",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ApprovalDecision"
+    },
+    {
+      "name": "__init__",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "url",
+        "timeout_seconds",
+        "headers"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request_approval",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ApprovalDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ApprovalRequest",
+      "line": 34,
+      "doc": "Details of an action awaiting approval.\n\nAttributes:\n    action: Description of the action (from policy context).\n    rule_name: Name of the policy rule that triggered approval.\n    policy_name: Name of the policy containing the rule.\n    agent_id: Identifier of the acting agent.\n    context: Full evaluation context.\n    approvers: List of required approvers from the policy rule.\n    requested_at: When the approval was requested.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ApprovalDecision",
+      "line": 59,
+      "doc": "Result of an approval request.\n\nAttributes:\n    approved: Whether the action was approved.\n    approver: Identity of the person who approved/denied.\n    reason: Optional explanation.\n    decided_at: When the decision was made.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ApprovalHandler",
+      "line": 77,
+      "doc": "Abstract base class for approval handlers.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AutoRejectApproval",
+      "line": 95,
+      "doc": "Automatically rejects all approval requests (fail-safe default).\n\nUse in production to ensure ``require_approval`` actions are denied\nwhen no human reviewer is configured.\n\nArgs:\n    reason: Rejection reason included in the decision.",
+      "is_public": true,
+      "bases": [
+        "ApprovalHandler"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CallbackApproval",
+      "line": 120,
+      "doc": "Delegates approval to a custom callback function.\n\nArgs:\n    callback: Function that receives an ``ApprovalRequest`` and\n        returns an ``ApprovalDecision``.\n    timeout_seconds: Max time to wait for callback. Default 300 (5 min).\n    on_timeout: Action when timeout expires. Default: deny.",
+      "is_public": true,
+      "bases": [
+        "ApprovalHandler"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ConsoleApproval",
+      "line": 165,
+      "doc": "Interactive console-based approval for development/testing.\n\nPrompts the user via stdin. NOT for production use.",
+      "is_public": true,
+      "bases": [
+        "ApprovalHandler"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "WebhookApproval",
+      "line": 196,
+      "doc": "HTTP webhook-based approval (Slack, Teams, PagerDuty, etc.).\n\nPosts an approval request to a URL and polls or waits for a\ncallback response.\n\nArgs:\n    url: Webhook endpoint URL.\n    timeout_seconds: Max time to wait. Default 300 (5 min).\n    headers: Optional HTTP headers (e.g., auth tokens).",
+      "is_public": true,
+      "bases": [
+        "ApprovalHandler"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

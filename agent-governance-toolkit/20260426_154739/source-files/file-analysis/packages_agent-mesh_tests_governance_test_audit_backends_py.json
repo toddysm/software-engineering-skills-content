@@ -1,0 +1,476 @@
+{
+  "path": "packages/agent-mesh/tests/governance/test_audit_backends.py",
+  "extension": ".py",
+  "size_bytes": 11570,
+  "line_count": 342,
+  "documentation": {
+    "file_docstring": "Tests for external append-only audit trail backends.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SignedAuditEntry",
+      "---------------------------------------------------------------------------",
+      "Tamper with a field after signing",
+      "---------------------------------------------------------------------------",
+      "FileAuditSink",
+      "---------------------------------------------------------------------------",
+      "Tamper with the file",
+      "Use a tiny max_file_size to trigger rotation",
+      "Should have rotated \u2014 the original path still exists with the latest",
+      "entry, and a rotated file should exist too.",
+      "Open a new sink on the same file \u2014 should continue the chain.",
+      "---------------------------------------------------------------------------",
+      "HashChainVerifier",
+      "---------------------------------------------------------------------------",
+      "Read lines, swap order \u2192 chain break",
+      "Tamper with the stored JSON",
+      "---------------------------------------------------------------------------",
+      "AuditLog + Sink Integration",
+      "---------------------------------------------------------------------------",
+      "Entry is in memory",
+      "Entry is also on disk"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_entry: Create a minimal :class:`AuditEntry` for testing.",
+      "TestSignedAuditEntry: Tests for cryptographic signing of individual entries.",
+      "TestFileAuditSink: Tests for the file-based audit sink.",
+      "TestHashChainVerifier: Tests for the standalone verification tool.",
+      "TestAuditLogSinkIntegration: Tests for AuditLog with an external FileAuditSink."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_detect_wrong_secret_key",
+    "test_read_entries",
+    "test_verify_integrity_fails_for_tampered_file",
+    "test_hash_chain_links_entries",
+    "test_write_batch",
+    "TestAuditLogSinkIntegration",
+    "test_implements_audit_sink_protocol",
+    "test_write_appends_multiple_entries",
+    "TestFileAuditSink",
+    "test_file_rotation",
+    "test_content_hash_is_deterministic",
+    "test_detect_tampered_entry",
+    "test_audit_log_with_sink_writes_to_file",
+    "test_from_entry_produces_non_empty_hashes",
+    "TestSignedAuditEntry",
+    "test_to_dict_includes_integrity_fields",
+    "test_nonexistent_file",
+    "test_verify_valid_file",
+    "test_detect_chain_break",
+    "test_audit_log_sink_integrity_after_multiple_logs",
+    "test_entries_are_valid_json",
+    "test_write_creates_file",
+    "test_verify_returns_false_with_wrong_key",
+    "test_verify_integrity_passes_for_valid_file",
+    "test_audit_log_without_sink_still_works",
+    "test_resume_chain_from_existing_file",
+    "TestHashChainVerifier",
+    "test_verify_detects_tampered_content",
+    "test_verify_returns_true_for_valid_entry"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "pathlib",
+      "pytest",
+      "agentmesh.governance.audit",
+      "agentmesh.governance.audit_backends"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_entry",
+      "line": 27,
+      "doc": "Create a minimal :class:`AuditEntry` for testing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "AuditEntry"
+    },
+    {
+      "name": "test_from_entry_produces_non_empty_hashes",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_content_hash_is_deterministic",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_returns_true_for_valid_entry",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_returns_false_with_wrong_key",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_detects_tampered_content",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hash_chain_links_entries",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_includes_integrity_fields",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_write_creates_file",
+      "line": 113,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_write_appends_multiple_entries",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_write_batch",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_entries_are_valid_json",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_integrity_passes_for_valid_file",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_integrity_fails_for_tampered_file",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_read_entries",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_rotation",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_resume_chain_from_existing_file",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_implements_audit_sink_protocol",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_valid_file",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detect_chain_break",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detect_tampered_entry",
+      "line": 257,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detect_wrong_secret_key",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nonexistent_file",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_without_sink_still_works",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_with_sink_writes_to_file",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_sink_integrity_after_multiple_logs",
+      "line": 329,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestSignedAuditEntry",
+      "line": 43,
+      "doc": "Tests for cryptographic signing of individual entries.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFileAuditSink",
+      "line": 110,
+      "doc": "Tests for the file-based audit sink.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHashChainVerifier",
+      "line": 226,
+      "doc": "Tests for the standalone verification tool.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditLogSinkIntegration",
+      "line": 297,
+      "doc": "Tests for AuditLog with an external FileAuditSink.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

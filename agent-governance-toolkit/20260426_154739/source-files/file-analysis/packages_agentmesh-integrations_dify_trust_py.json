@@ -1,0 +1,336 @@
+{
+  "path": "packages/agentmesh-integrations/dify/trust.py",
+  "extension": ".py",
+  "size_bytes": 9708,
+  "line_count": 263,
+  "documentation": {
+    "file_docstring": "Trust management for Dify agents and workflows.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check capabilities first (always check, don't rely on identity-only cache)",
+      "Check identity cache - includes public key for security",
+      "Basic validation",
+      "Calculate trust score",
+      "Success",
+      "Check capability for step type",
+      "Check if we have historical score",
+      "Base score for new peers",
+      "Bonus for having public key",
+      "Store for future",
+      "Keep log bounded"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustVerificationResult: Result of trust verification.",
+      "TrustManager: Manages trust verification for Dify workflows and agents.\n\nThread-safe: All muta",
+      "set_identity: Set or update the local identity.",
+      "verify_peer: Verify a peer agent's identity and capabilities.",
+      "verify_workflow_step: Verify trust for a workflow step execution.",
+      "record_success: Record successful interaction, increasing trust.",
+      "record_failure: Record failed interaction, decreasing trust.",
+      "get_trust_score: Get current trust score for a DID.",
+      "get_audit_log: Get recent audit log entries.",
+      "clear_cache: Clear verification cache."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "clear_cache",
+    "verify_workflow_step",
+    "set_identity",
+    "record_success",
+    "TrustManager",
+    "to_dict",
+    "get_audit_log",
+    "record_failure",
+    "verify_peer",
+    "TrustVerificationResult",
+    "get_trust_score"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "threading",
+      "typing",
+      "logging",
+      "extensions.agentmesh.identity"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "cache_ttl_seconds",
+        "min_trust_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_identity",
+      "line": 60,
+      "doc": "Set or update the local identity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_peer",
+      "line": 65,
+      "doc": "Verify a peer agent's identity and capabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "peer_public_key",
+        "required_capabilities",
+        "peer_capabilities"
+      ],
+      "returns": "TrustVerificationResult"
+    },
+    {
+      "name": "verify_workflow_step",
+      "line": 116,
+      "doc": "Verify trust for a workflow step execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow_id",
+        "step_id",
+        "step_type",
+        "required_capability"
+      ],
+      "returns": "TrustVerificationResult"
+    },
+    {
+      "name": "record_success",
+      "line": 149,
+      "doc": "Record successful interaction, increasing trust.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_failure",
+      "line": 156,
+      "doc": "Record failed interaction, decreasing trust.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did",
+        "severity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_score",
+      "line": 163,
+      "doc": "Get current trust score for a DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_audit_log",
+      "line": 168,
+      "doc": "Get recent audit log entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_cache",
+      "line": 173,
+      "doc": "Clear verification cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_peer_has_capability",
+      "line": 178,
+      "doc": "Check if peer has a required capability (supports wildcards).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_caps",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_calculate_trust_score",
+      "line": 185,
+      "doc": "Calculate trust score for a peer.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "peer_public_key"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_get_cached",
+      "line": 203,
+      "doc": "Get cached result if valid (key includes DID + public key for security).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "peer_public_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_cache",
+      "line": 217,
+      "doc": "Cache a verification result (key includes DID + public key for security).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "peer_public_key",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_fail",
+      "line": 223,
+      "doc": "Create a failed verification result.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason",
+        "peer_did",
+        "trust_score"
+      ],
+      "returns": "TrustVerificationResult"
+    },
+    {
+      "name": "_log_audit",
+      "line": 239,
+      "doc": "Log an audit entry (thread-safe).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "target",
+        "success",
+        "trust_score",
+        "reason"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustVerificationResult",
+      "line": 19,
+      "doc": "Result of trust verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustManager",
+      "line": 40,
+      "doc": "Manages trust verification for Dify workflows and agents.\n\nThread-safe: All mutable state access is protected by a lock.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

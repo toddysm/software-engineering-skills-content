@@ -1,0 +1,617 @@
+{
+  "path": "packages/agent-hypervisor/tests/integration/test_hypervisor_e2e.py",
+  "extension": ".py",
+  "size_bytes": 20406,
+  "line_count": 551,
+  "documentation": {
+    "file_docstring": "Hypervisor Integration Tests\n\nEnd-to-end tests validating the full hypervisor lifecycle:\nsession creation \u2192 agent join \u2192 saga execution \u2192 audit \u2192 termination \u2192 GC.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Full Lifecycle",
+      "---------------------------------------------------------------------------",
+      "Join two agents",
+      "Activate",
+      "Capture some audit deltas",
+      "Terminate \u2014 should get audit log root",
+      "---------------------------------------------------------------------------",
+      "Ring Assignment & Demotion",
+      "---------------------------------------------------------------------------",
+      "Reversibility registry detects non-reversible actions.",
+      "Verify the registry flags it correctly.",
+      "---------------------------------------------------------------------------",
+      "Sponsorship + Penalty Integration",
+      "---------------------------------------------------------------------------",
+      "Public Preview: no sponsor boost, eff_score = vouchee_sigma",
+      "Default max_exposure = 0.80",
+      "Already bonded 0.45, max = 0.72 (80% of 0.9), remaining = 0.27",
+      "Public Preview: no penalties applied",
+      "---------------------------------------------------------------------------",
+      "Saga Execution with Timeout & Retry",
+      "---------------------------------------------------------------------------",
+      "Execute first two successfully",
+      "Step 3 fails",
+      "Compensate",
+      "Compensation runs in reverse: step2 first, then step1",
+      "No undo_api \u2014 compensation impossible",
+      "---------------------------------------------------------------------------",
+      "Audit Trail Integration",
+      "---------------------------------------------------------------------------",
+      "Capture 5 turns",
+      "Tamper with a delta \u2014 chain verification now detects tampering",
+      "Capture deltas",
+      "Computing again on same engine should give same result",
+      "---------------------------------------------------------------------------",
+      "GC Integration",
+      "---------------------------------------------------------------------------",
+      "Write files to VFS",
+      "Terminate",
+      "GC should have purged VFS",
+      "---------------------------------------------------------------------------",
+      "Edge Cases & Security",
+      "---------------------------------------------------------------------------",
+      "Sponsor agent has \u03c3=0.9, max_exposure=0.80 \u2192 limit 0.72",
+      "Bonded 0.36 in s1. Next sponsor: 0.4*0.9 = 0.36 \u2192 total 0.72 = exactly at limit",
+      "Any more should fail"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestFullLifecycle: End-to-end session lifecycle: create \u2192 join \u2192 activate \u2192 terminate.",
+      "TestRingEnforcementIntegration: Test ring assignment with real sessions and sponsorship.",
+      "TestVouchingSlashingIntegration: Test sponsorship with exposure limits and penalty cascades.",
+      "TestSagaIntegration: Test saga orchestration with real timeout and retry behavior.",
+      "TestAuditTrailIntegration: Test delta audit engine in context of full sessions.",
+      "TestGCIntegration: Test garbage collection with real VFS and delta engines.",
+      "TestEdgeCases: Edge cases and security boundaries.",
+      "test_complete_session_lifecycle: Happy path: create, join two agents, activate, terminate with audit.",
+      "test_session_without_audit: Session with audit disabled returns None audit log root.",
+      "test_multiple_concurrent_sessions: Multiple sessions can run independently."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_release_bonds_on_session_terminate",
+    "test_gc_tracks_purged_sessions",
+    "TestFullLifecycle",
+    "TestVouchingSlashingIntegration",
+    "TestRingEnforcementIntegration",
+    "TestAuditTrailIntegration",
+    "TestEdgeCases",
+    "TestSagaIntegration",
+    "test_vouch_and_compute_eff_score",
+    "test_max_exposure_prevents_over_bonding",
+    "test_slash_cascades_to_voucher",
+    "TestGCIntegration",
+    "setup"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "pytest",
+      "hypervisor",
+      "hypervisor.audit.delta",
+      "hypervisor.liability.vouching",
+      "hypervisor.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "setup",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_complete_session_lifecycle",
+      "line": 43,
+      "doc": "Happy path: create, join two agents, activate, terminate with audit.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_session_without_audit",
+      "line": 84,
+      "doc": "Session with audit disabled returns None audit log root.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_concurrent_sessions",
+      "line": 96,
+      "doc": "Multiple sessions can run independently.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_high_score_gets_standard_ring",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_low_score_gets_sandbox",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_reversible_action_forces_strong_mode",
+      "line": 143,
+      "doc": "Joining with non-reversible actions forces STRONG consistency.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vouch_and_compute_eff_score",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_exposure_prevents_over_bonding",
+      "line": 194,
+      "doc": "Agent cannot bond more than max_exposure of their \u03c3.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slash_cascades_to_voucher",
+      "line": 206,
+      "doc": "Public Preview: penalty logs but doesn't apply penalties.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_bonds_on_session_terminate",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 240,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_saga_happy_path",
+      "line": 243,
+      "doc": "Multi-step saga executes all steps successfully.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_saga_timeout_triggers_failure",
+      "line": 267,
+      "doc": "Step that exceeds timeout is marked as failed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_saga_retry_on_failure",
+      "line": 288,
+      "doc": "Step retries on transient failure and eventually succeeds.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_saga_compensation_on_failure",
+      "line": 316,
+      "doc": "Failed step triggers compensation of all committed steps.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_saga_escalation_on_compensation_failure",
+      "line": 360,
+      "doc": "Failed compensation escalates to Joint Liability penalty.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 394,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_trail_captures_all_turns",
+      "line": 397,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hash_chain_integrity",
+      "line": 416,
+      "doc": "Public Preview: no chain verification, always returns True.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hash_chain_root_deterministic",
+      "line": 435,
+      "doc": "Same session with same deltas produces consistent audit log roots.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 470,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_gc_purges_vfs_on_terminate",
+      "line": 473,
+      "doc": "Termination triggers GC that purges VFS state.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_gc_tracks_purged_sessions",
+      "line": 495,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 515,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cannot_join_nonexistent_session",
+      "line": 518,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_duplicate_agent_rejected",
+      "line": 522,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_participants_enforced",
+      "line": 531,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vouching_exposure_limit_across_sessions",
+      "line": 543,
+      "doc": "Max exposure protects an agent's total bonded reputation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "slow_executor",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "flaky_executor",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "compensator",
+      "line": 351,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compensator",
+      "line": 375,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestFullLifecycle",
+      "line": 36,
+      "doc": "End-to-end session lifecycle: create \u2192 join \u2192 activate \u2192 terminate.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    },
+    {
+      "name": "TestRingEnforcementIntegration",
+      "line": 118,
+      "doc": "Test ring assignment with real sessions and sponsorship.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    },
+    {
+      "name": "TestVouchingSlashingIntegration",
+      "line": 174,
+      "doc": "Test sponsorship with exposure limits and penalty cascades.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    },
+    {
+      "name": "TestSagaIntegration",
+      "line": 236,
+      "doc": "Test saga orchestration with real timeout and retry behavior.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    },
+    {
+      "name": "TestAuditTrailIntegration",
+      "line": 390,
+      "doc": "Test delta audit engine in context of full sessions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    },
+    {
+      "name": "TestGCIntegration",
+      "line": 466,
+      "doc": "Test garbage collection with real VFS and delta engines.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 511,
+      "doc": "Edge cases and security boundaries.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "integration"
+      ]
+    }
+  ],
+  "complexity_score": 4,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,609 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/agent.py",
+  "extension": ".py",
+  "size_bytes": 39258,
+  "line_count": 987,
+  "documentation": {
+    "file_docstring": "Self-Evolving Agent POC\n\nThis module implements a self-evolving agent that:\n1. Receives queries and attempts to solve them using tools\n2. Evaluates its own performance using an LLM reflection system\n3. Evolves its system instructions based on critique when performance is below threshold\n4. Retries with improved instructions\n\nAdditionally supports a decoupled mode:\n- DoerAgent: Synchronous execution with telemetry emission (no learning)\n- SelfEvolvingAgent: Legacy synchronous learning mode (for backward compatibility)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Load environment variables",
+      "Import telemetry if available (optional dependency)",
+      "Import prioritization framework if available (optional dependency)",
+      "Default instructions",
+      "Store query and response for upgrade purge strategy",
+      "Safe mathematical operators",
+      "Parse the expression",
+      "Constants for circuit breaker integration",
+      "OpenAgent Definition (OAD) metadata system",
+      "Load or create default manifest",
+      "Intent detection",
+      "Circuit breaker for A/B testing",
+      "Constraint engine (logic firewall)",
+      "Model configuration",
+      "Collect violation messages",
+      "Determine which version to use",
+      "Let circuit breaker decide based on traffic split",
+      "Use prioritization framework if available",
+      "Version is tracked internally but doesn't modify the actual system prompt",
+      "In production, different versions might use different models, prompts, or tools",
+      "For this POC, both versions use the same prompt (version is just for A/B testing tracking)",
+      "Add tool information to the system prompt",
+      "Detect intent on first turn",
+      "Record start time for latency tracking",
+      "Emit task start event",
+      "ACT: Execute the query with prioritization and circuit breaker",
+      "Calculate latency",
+      "Record execution in circuit breaker if enabled",
+      "For simplicity, we consider any non-error response as success",
+      "Periodically evaluate and decide on rollout progression",
+      "In production, this might be done by a separate process",
+      "Update agent metadata trust score if enabled",
+      "Emit task completion event",
+      "Add circuit breaker info if enabled",
+      "Model configuration",
+      "Add tool information to the system prompt",
+      "Extract JSON from response (handle markdown code blocks)",
+      "Default to low score if reflection fails",
+      "ACT: Agent tries to solve the query",
+      "REFLECT: Evaluate the response",
+      "Store attempt results",
+      "Check if score meets threshold",
+      "EVOLVE: If score < threshold and we have retries left",
+      "Max retries reached",
+      "Check for API key",
+      "Initialize agent",
+      "Example queries",
+      "Wait for user input between queries (optional)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MemorySystem: Manages the agent's system instructions stored in JSON.",
+      "AgentTools: Simple tools the agent can use.",
+      "DoerAgent: The \"Doer\" - Synchronous execution agent.\n\nExecutes tasks with read-only access ",
+      "SelfEvolvingAgent: Legacy self-evolving agent with synchronous reflection and evolution.\nKept for b",
+      "main: Example usage of the self-evolving agent.",
+      "load_instructions: Load system instructions from JSON file.",
+      "save_instructions: Save system instructions to JSON file.",
+      "get_system_prompt: Get the current system instructions as a prompt.",
+      "update_instructions: Update instructions with new version and log the improvement.\n\nArgs:\n    new_ins",
+      "calculate: Safely evaluate a mathematical expression using AST parsing."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "evolve",
+    "act",
+    "AgentTools",
+    "load_instructions",
+    "DoerAgent",
+    "execute_tool",
+    "get_metadata_manifest",
+    "update_instructions",
+    "get_current_time",
+    "get_system_prompt",
+    "emit_undo_signal",
+    "calculate",
+    "emit_abandonment_signal",
+    "run",
+    "get_available_tools",
+    "emit_acceptance_signal",
+    "reflect",
+    "string_length",
+    "MemorySystem",
+    "eval_node",
+    "save_instructions",
+    "SelfEvolvingAgent",
+    "validate_action_plan",
+    "main",
+    "publish_manifest"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "ast",
+      "operator",
+      "time",
+      "random",
+      "typing",
+      "datetime",
+      "openai",
+      "dotenv",
+      "telemetry",
+      "prioritization",
+      "agent_metadata",
+      "intent_detection",
+      "circuit_breaker",
+      "constraint_engine",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 944,
+      "doc": "Example usage of the self-evolving agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "memory_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_instructions",
+      "line": 53,
+      "doc": "Load system instructions from JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save_instructions",
+      "line": 70,
+      "doc": "Save system instructions to JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "instructions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_system_prompt",
+      "line": 76,
+      "doc": "Get the current system instructions as a prompt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "update_instructions",
+      "line": 80,
+      "doc": "Update instructions with new version and log the improvement.\n\nArgs:\n    new_instructions: New system instructions\n    critique: Critique that prompted the improvement\n    query: Optional query that caused the failure (for upgrade purge)\n    response: Optional agent response that failed (for upgrade purge)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_instructions",
+        "critique"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate",
+      "line": 114,
+      "doc": "Safely evaluate a mathematical expression using AST parsing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "expression"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_current_time",
+      "line": 152,
+      "doc": "Get the current time.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "string_length",
+      "line": 157,
+      "doc": "Get the length of a string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "text"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_available_tools",
+      "line": 162,
+      "doc": "List available tools.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "wisdom_file",
+        "stream_file",
+        "enable_telemetry",
+        "enable_prioritization",
+        "enable_intent_detection",
+        "enable_circuit_breaker",
+        "circuit_breaker_config_file",
+        "enable_constraint_engine",
+        "constraint_engine_config",
+        "enable_metadata",
+        "manifest_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_tool",
+      "line": 296,
+      "doc": "Execute a tool by name with error handling.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_action_plan",
+      "line": 306,
+      "doc": "Validate an action plan through the constraint engine (logic firewall).\n\nArgs:\n    plan: Action plan to validate with keys:\n        - action_type: Type of action (e.g., \"sql_query\", \"email\", \"file_operation\")\n        - action_data: Action-specific data\n    verbose: Print validation details\n\nReturns:\n    (approved, reason) tuple where:\n        - approved: Whether the plan passed validation\n        - reason: Reason for rejection if not approved",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plan",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "act",
+      "line": 334,
+      "doc": "Agent attempts to solve the query using current wisdom.\nUses prioritization framework to rank context by importance.\n\nArgs:\n    query: User's query\n    user_id: Optional user identifier for personalization\n    version_override: Optional version to use (\"old\" or \"new\"), \n                    overrides circuit breaker decision\n\nReturns:\n    (response, version) tuple where version is \"old\" or \"new\"",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "user_id",
+        "version_override"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_emit_telemetry",
+      "line": 394,
+      "doc": "Emit telemetry event to the stream.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "query",
+        "agent_response",
+        "success",
+        "user_feedback",
+        "user_id",
+        "conversation_id",
+        "turn_number",
+        "intent_type",
+        "intent_confidence"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_emit_signal",
+      "line": 425,
+      "doc": "Helper method to emit a signal event to the stream.\nReduces code duplication across signal emission methods.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal_type",
+        "query",
+        "agent_response",
+        "success",
+        "user_id",
+        "signal_context",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 455,
+      "doc": "Execute query and emit telemetry.\nNo reflection or evolution - just execution.\n\nArgs:\n    query: User's query\n    verbose: Print execution details\n    user_feedback: Optional user feedback\n    user_id: Optional user identifier for personalization\n    conversation_id: Optional conversation identifier for tracking multi-turn conversations\n    turn_number: Optional turn number within the conversation (1-indexed)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "verbose",
+        "user_feedback",
+        "user_id",
+        "conversation_id",
+        "turn_number"
+      ],
+      "returns": null
+    },
+    {
+      "name": "emit_undo_signal",
+      "line": 586,
+      "doc": "Emit an \"Undo\" signal - Critical Failure.\n\nThis is called when a user reverses an agent action (e.g., Ctrl+Z, revert code).\nThis is the loudest \"Thumbs Down\" possible.\n\nArgs:\n    query: Original query\n    agent_response: Agent's response that was undone\n    user_id: Optional user identifier\n    undo_action: Description of what was undone\n    verbose: Print signal details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "agent_response",
+        "user_id",
+        "undo_action",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "emit_abandonment_signal",
+      "line": 619,
+      "doc": "Emit an \"Abandonment\" signal - Loss.\n\nThis is called when a user starts a workflow but stops responding halfway\nwithout reaching a resolution. This means we lost them.\n\nArgs:\n    query: Original query\n    agent_response: Last agent response before abandonment\n    user_id: Optional user identifier\n    interaction_count: Number of interactions before abandonment\n    last_interaction_time: Timestamp of last interaction\n    verbose: Print signal details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "agent_response",
+        "user_id",
+        "interaction_count",
+        "last_interaction_time",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "emit_acceptance_signal",
+      "line": 657,
+      "doc": "Emit an \"Acceptance\" signal - Success.\n\nThis is called when a user takes the output and moves to the next task\nwithout follow-up questions. This means we won.\n\nArgs:\n    query: Original query\n    agent_response: Agent's response that was accepted\n    user_id: Optional user identifier\n    next_task: Description of the next task user moved to\n    time_to_next_task: Time in seconds from response to next task\n    verbose: Print signal details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "agent_response",
+        "user_id",
+        "next_task",
+        "time_to_next_task",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metadata_manifest",
+      "line": 695,
+      "doc": "Get the agent's OpenAgent Definition (OAD) metadata manifest.\n\nReturns the complete metadata including capabilities, constraints,\nIO contract, and trust score.\n\nThis is the \"USB Port\" for AI - a standard interface definition\nthat allows agents to be discovered, understood, and composed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish_manifest",
+      "line": 711,
+      "doc": "Publish the agent's metadata manifest.\n\nIn a real system, this would register the agent in a marketplace\nor registry for discovery by other agents or systems.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 734,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "memory_file",
+        "score_threshold",
+        "max_retries"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_tool",
+      "line": 749,
+      "doc": "Execute a tool by name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "act",
+      "line": 755,
+      "doc": "Agent attempts to solve the query using its current system instructions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "reflect",
+      "line": 780,
+      "doc": "Separate LLM call to evaluate the agent's output.\nReturns a score (0-1) and critique.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "agent_response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evolve",
+      "line": 827,
+      "doc": "Third LLM call that reads critique and rewrites system instructions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "critique",
+        "query",
+        "agent_response"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "run",
+      "line": 870,
+      "doc": "Main loop: Task -> Act -> Reflect -> Evolve -> Retry",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "eval_node",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "node"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MemorySystem",
+      "line": 46,
+      "doc": "Manages the agent's system instructions stored in JSON.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentTools",
+      "line": 110,
+      "doc": "Simple tools the agent can use.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DoerAgent",
+      "line": 175,
+      "doc": "The \"Doer\" - Synchronous execution agent.\n\nExecutes tasks with read-only access to the Wisdom Database.\nEmits telemetry to an event stream for offline learning.\nDoes NOT perform reflection or evolution during execution.\n\nOptionally supports circuit breaker for A/B testing different agent versions.\nPublishes an OpenAgent Definition (OAD) metadata manifest.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SelfEvolvingAgent",
+      "line": 728,
+      "doc": "Legacy self-evolving agent with synchronous reflection and evolution.\nKept for backward compatibility.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 134,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

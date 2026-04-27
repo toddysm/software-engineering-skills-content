@@ -1,0 +1,231 @@
+{
+  "path": "examples/cognitive-attestation-governed/getting_started.py",
+  "extension": ".py",
+  "size_bytes": 13306,
+  "line_count": 357,
+  "documentation": {
+    "file_docstring": "AGT + Cognitive Attestation: policy enforcement plus signed interpretability.\n\nAGT decides whether an action is allowed. Cognitive Attestation signs the\ninterpretable decomposition of model state behind the decision, so an auditor\ncan verify what the reasoning substrate looked like when the action fired,\nnot just whether the policy rule matched.\n\nPaper: Cognitive Attestation (Zenodo DOI 10.5281/zenodo.19646276)\nReference implementation: github.com/aeoess/agent-passport-system\nCommunity-contributed, experimental, Apache 2.0.",
+    "header_comments": [],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "RFC 8785 JCS canonicalization (minimal subset sufficient for this envelope)",
+      "---------------------------------------------------------------------------",
+      "NOTE: This is a MINIMAL JCS implementation that covers the field types used",
+      "in this example envelope. It does not implement the full RFC 8785 edge",
+      "cases (Unicode normalization, certain IEEE 754 special values, etc.).",
+      "Production code should use a fully-tested JCS library such as `jcs` on PyPI",
+      "or the reference implementation at github.com/cyberphone/json-canonicalization.",
+      "The APS SDK at github.com/aeoess/agent-passport-system ships a spec-conformant",
+      "implementation used for all real signatures.",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Envelope types",
+      "---------------------------------------------------------------------------",
+      "Canonical sort: (feature_id, activation_statistic). This order is",
+      "required by the Cognitive Attestation spec (Zenodo 10.5281/zenodo.19646276,",
+      "Section 3.2) so that two independently-produced envelopes over the",
+      "same feature set produce identical canonical bytes.",
+      "Build the exact dict that the verifier will canonicalize",
+      "canonicalize over everything except the signature itself",
+      "Signature check",
+      "Freshness check (replay defence). An envelope older than max_age_seconds",
+      "is rejected even with a valid signature, because the signed timestamp",
+      "lets the verifier distinguish a new legitimate envelope from a replay",
+      "of an old one.",
+      "Accept \"...Z\" and \"...+00:00\" forms",
+      "---------------------------------------------------------------------------",
+      "Minimal AGT-style policy evaluator (stand-in so the example runs standalone)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Demo",
+      "---------------------------------------------------------------------------",
+      "Step 1: agent has an Ed25519 key",
+      "Step 2: policy (AGT-compatible shape)",
+      "Step 3: proposed action",
+      "Step 4: AGT-style policy decision",
+      "Step 5: agent's reasoning substrate, decomposed into SAE features.",
+      "In production this comes from running a sparse autoencoder over",
+      "the model's residual stream. Here we use a fixed demo dictionary",
+      "and static features so the output is reproducible.",
+      "Step 6: build + sign Cognitive Attestation envelope",
+      "Step 7: offline verification (signature + freshness)",
+      "Step 8: tamper check",
+      "Step 9: freshness / replay defence",
+      "Simulate verifying the same valid envelope 10 minutes later (>300s default)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "canonicalize_jcs: RFC 8785 JSON Canonicalization Scheme (minimal).",
+      "build_envelope: Build the unsigned envelope (canonical form, ready to sign).\n\nThe `timestamp` fi",
+      "sign_envelope: Attach signer pubkey, then sign the canonical form (excluding signature).",
+      "verify_envelope: Verify signature AND (optionally) freshness.\n\nReturns (ok, reason). On success, ",
+      "evaluate_policy: Minimal policy check for demonstration purposes ONLY.\n\nThis is NOT a substitute "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "evaluate_policy",
+    "sign_envelope",
+    "build_envelope",
+    "FeatureActivation",
+    "main",
+    "CognitiveAttestation",
+    "verify_envelope",
+    "canonicalize_jcs"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "dataclasses",
+      "typing",
+      "datetime",
+      "cryptography.hazmat.primitives.asymmetric.ed25519",
+      "cryptography.hazmat.primitives.serialization",
+      "base64",
+      "base64",
+      "cryptography.exceptions",
+      "copy",
+      "datetime"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "canonicalize_jcs",
+      "line": 45,
+      "doc": "RFC 8785 JSON Canonicalization Scheme (minimal).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_encode",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "build_envelope",
+      "line": 96,
+      "doc": "Build the unsigned envelope (canonical form, ready to sign).\n\nThe `timestamp` field is included in the canonical form and therefore\nin the signature. This prevents replay of a valid envelope into a\ndifferent point in time: any attempt to reuse a previously-signed\nenvelope will still carry the original timestamp, which a verifier\ncan reject against freshness policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "action",
+        "features",
+        "dictionary_ref",
+        "signer_role",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sign_envelope",
+      "line": 146,
+      "doc": "Attach signer pubkey, then sign the canonical form (excluding signature).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "unsigned",
+        "sk"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_envelope",
+      "line": 164,
+      "doc": "Verify signature AND (optionally) freshness.\n\nReturns (ok, reason). On success, reason is \"ok\". On failure, reason is\none of: \"signature_invalid\", \"envelope_expired\", \"envelope_not_yet_valid\",\n\"timestamp_malformed\", \"missing_signature\", \"missing_pubkey\".\n\nSet max_age_seconds=None to disable freshness checking (signature-only\nverification, not recommended for live traffic).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "signed",
+        "max_age_seconds",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_policy",
+      "line": 229,
+      "doc": "Minimal policy check for demonstration purposes ONLY.\n\nThis is NOT a substitute for the AGT policy engine. It intentionally\nimplements only exact-match tool name rules so this example is fully\nself-contained and does not pull AGT as a heavy dependency. Real\ndeployments MUST replace this with `agent-governance-toolkit`'s\npolicy engine, which supports regex matches, nested conditions,\ntemporal rules, obligations, and the full AGT rule schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "action",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FeatureActivation",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CognitiveAttestation",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "logging"
+    ]
+  }
+}

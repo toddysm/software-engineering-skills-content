@@ -1,0 +1,271 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/llamafirewall.py",
+  "extension": ".py",
+  "size_bytes": 13725,
+  "line_count": 343,
+  "documentation": {
+    "file_docstring": "LlamaFirewall integration adapter \u2014 chain Meta's LlamaFirewall with Agent OS for defense-in-depth.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Enums",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Result dataclass",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "LlamaFirewallAdapter",
+      "---------------------------------------------------------------------------",
+      "Lazy import of llamafirewall",
+      "Fallback if llama is required but not installed",
+      "-- public API ---------------------------------------------------------",
+      "CHAIN_BOTH or VOTE_MAJORITY \u2014 run both",
+      "CHAIN_BOTH or VOTE_MAJORITY",
+      "-- internal scanners --------------------------------------------------",
+      "-- result combination -------------------------------------------------",
+      "Single-scanner modes",
+      "CHAIN_BOTH: block if either blocks, use max score (most conservative)",
+      "VOTE_MAJORITY: require both to agree for block, use average score",
+      "Fallback (should not reach here)",
+      "-- helpers ------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FirewallMode: Operating mode for the combined firewall.",
+      "FirewallVerdict: Unified verdict across scanners.",
+      "FirewallResult: Combined result from LlamaFirewall and/or Agent OS scanning.",
+      "LlamaFirewallAdapter: Adapter that chains Meta's LlamaFirewall with Agent OS prompt injection detectio",
+      "scan_prompt: Scan a prompt using the configured mode (async).",
+      "scan_prompt_sync: Scan a prompt using the configured mode (synchronous).",
+      "scan_code: Scan code using CodeShield if available, otherwise return SAFE with warning.",
+      "_run_llamafirewall: Call LlamaFirewall's scan API with graceful error handling.",
+      "_run_agent_os: Run Agent OS PromptInjectionDetector \u2014 always available.",
+      "_combine_results: Merge results from both scanners based on the operating mode."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "FirewallResult",
+    "FirewallMode",
+    "LlamaFirewallAdapter",
+    "scan_prompt_sync",
+    "available_scanners",
+    "FirewallVerdict"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_os.prompt_injection",
+      "llamafirewall",
+      "llamafirewall",
+      "llamafirewall"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "mode",
+        "agent_os_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_prompt",
+      "line": 101,
+      "doc": "Scan a prompt using the configured mode (async).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "context"
+      ],
+      "returns": "FirewallResult"
+    },
+    {
+      "name": "scan_prompt_sync",
+      "line": 122,
+      "doc": "Scan a prompt using the configured mode (synchronous).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "context"
+      ],
+      "returns": "FirewallResult"
+    },
+    {
+      "name": "scan_code",
+      "line": 143,
+      "doc": "Scan code using CodeShield if available, otherwise return SAFE with warning.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "code",
+        "language"
+      ],
+      "returns": "FirewallResult"
+    },
+    {
+      "name": "_run_llamafirewall",
+      "line": 187,
+      "doc": "Call LlamaFirewall's scan API with graceful error handling.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_run_agent_os",
+      "line": 210,
+      "doc": "Run Agent OS PromptInjectionDetector \u2014 always available.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt"
+      ],
+      "returns": "DetectionResult"
+    },
+    {
+      "name": "_combine_results",
+      "line": 216,
+      "doc": "Merge results from both scanners based on the operating mode.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "llama_result",
+        "aos_result",
+        "mode"
+      ],
+      "returns": "FirewallResult"
+    },
+    {
+      "name": "_map_llama_verdict",
+      "line": 312,
+      "doc": "Map LlamaFirewall string verdict to FirewallVerdict.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "verdict_str"
+      ],
+      "returns": "FirewallVerdict"
+    },
+    {
+      "name": "_agent_os_verdict",
+      "line": 325,
+      "doc": "Map Agent OS DetectionResult to FirewallVerdict.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "result"
+      ],
+      "returns": "FirewallVerdict"
+    },
+    {
+      "name": "available_scanners",
+      "line": 334,
+      "doc": "Return list of active scanner names.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FirewallMode",
+      "line": 26,
+      "doc": "Operating mode for the combined firewall.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FirewallVerdict",
+      "line": 34,
+      "doc": "Unified verdict across scanners.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FirewallResult",
+      "line": 47,
+      "doc": "Combined result from LlamaFirewall and/or Agent OS scanning.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "LlamaFirewallAdapter",
+      "line": 63,
+      "doc": "Adapter that chains Meta's LlamaFirewall with Agent OS prompt injection detection.\n\nUsage::\n\n    adapter = LlamaFirewallAdapter(mode=FirewallMode.CHAIN_BOTH)\n    result = await adapter.scan_prompt(\"ignore previous instructions\")\n    if result.verdict == FirewallVerdict.BLOCKED:\n        print(\"Blocked!\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 48,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

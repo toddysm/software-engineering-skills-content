@@ -1,0 +1,193 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/scope_guard.py",
+  "extension": ".py",
+  "size_bytes": 10617,
+  "line_count": 303,
+  "documentation": {
+    "file_docstring": "Scope Guard \u2014 prevents agent actions from exceeding configured scope limits.\n\nEvaluates file count, line count, and scope drift against per-agent\nconfiguration to produce PASS / SOFT_FAIL / HARD_FAIL decisions.\nIntegrates with the PolicyEngine for governance audit trails.\n\nUsage::\n\n    from agent_os.integrations.scope_guard import ScopeGuard, ScopeConfig\n\n    config = ScopeConfig(max_files=10, max_lines=500)\n    guard = ScopeGuard()\n    result = guard.evaluate(\n        agent_id=\"implementer\",\n        config=config,\n        changed_files=[\"src/main.py\", \"tests/test_main.py\"],\n        insertions=120,\n        deletions=30,\n    )\n    print(result.decision)  # \"PASS\"",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 public API \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Mode \"off\" \u2192 always pass",
+      "Check file count",
+      "Check line count",
+      "Check drift indicators",
+      "Excess files for downstream remediation",
+      "\u2500\u2500 internal helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ScopeConfig: Per-agent scope configuration.\n\nAttributes:\n    max_files: Maximum number of fil",
+      "ScopeEvaluation: Result of a scope guard evaluation.\n\nAttributes:\n    decision: One of ``\"PASS\"``",
+      "_escalate: Return the more severe of two decisions.",
+      "_get_diff_stats: Return ``(changed_files, insertions, deletions)`` via ``git diff --numstat``.\n\nA",
+      "ScopeGuard: Evaluates whether agent changes are within configured scope limits.\n\nOptionally ",
+      "evaluate: Evaluate whether an agent's changes are within scope.\n\nDecision logic:\n    1. ``",
+      "evaluate_from_git: Convenience wrapper that reads diff stats from *repo_path*.\n\nArgs:\n    agent_id:",
+      "_record: Record the evaluation as an audit event if a policy engine is set."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "evaluate_from_git",
+    "ScopeConfig",
+    "ScopeEvaluation",
+    "ScopeGuard",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "subprocess",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_escalate",
+      "line": 77,
+      "doc": "Return the more severe of two decisions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "current",
+        "proposed"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_get_diff_stats",
+      "line": 85,
+      "doc": "Return ``(changed_files, insertions, deletions)`` via ``git diff --numstat``.\n\nArgs:\n    repo_path: Path to a git repository or worktree.\n    base_branch: Branch to diff against.\n\nReturns:\n    Tuple of (file paths, total insertions, total deletions).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_path",
+        "base_branch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 139,
+      "doc": "Evaluate whether an agent's changes are within scope.\n\nDecision logic:\n    1. ``config.mode == \"off\"`` \u2192 always ``PASS``.\n    2. files > ``max_files \u00d7 2`` **or** lines > ``max_lines \u00d7 2`` \u2192 ``HARD_FAIL``.\n    3. files > ``max_files`` **or** lines > ``max_lines`` \u2192 ``SOFT_FAIL``.\n    4. Any drift indicator with ``severity == \"warning\"`` \u2192 ``SOFT_FAIL``.\n    5. Otherwise \u2192 ``PASS``.\n\nArgs:\n    agent_id: Unique agent identifier.\n    config: Scope configuration for this agent.\n    changed_files: List of changed file paths.\n    insertions: Total lines added.\n    deletions: Total lines removed.\n    drift_indicators: Optional list of drift indicator dicts.  Each\n        dict may contain ``severity`` (``\"info\"`` | ``\"warning\"``).\n\nReturns:\n    A :class:`ScopeEvaluation` with the decision and supporting data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "config",
+        "changed_files",
+        "insertions",
+        "deletions",
+        "drift_indicators"
+      ],
+      "returns": "ScopeEvaluation"
+    },
+    {
+      "name": "evaluate_from_git",
+      "line": 251,
+      "doc": "Convenience wrapper that reads diff stats from *repo_path*.\n\nArgs:\n    agent_id: Unique agent identifier.\n    config: Scope configuration.\n    repo_path: Path to the git repository.\n    base_branch: Branch to diff against (default ``\"main\"``).\n    drift_indicators: Optional drift indicator dicts.\n\nReturns:\n    A :class:`ScopeEvaluation`.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "config",
+        "repo_path",
+        "base_branch",
+        "drift_indicators"
+      ],
+      "returns": "ScopeEvaluation"
+    },
+    {
+      "name": "_record",
+      "line": 285,
+      "doc": "Record the evaluation as an audit event if a policy engine is set.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "evaluation"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ScopeConfig",
+      "line": 36,
+      "doc": "Per-agent scope configuration.\n\nAttributes:\n    max_files: Maximum number of files an agent may change.\n    max_lines: Maximum total lines (insertions + deletions) allowed.\n    mode: Guard mode \u2014 ``\"on\"`` (default) to enforce, ``\"off\"`` to skip.\n    drift_detection: Whether to evaluate drift indicators.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ScopeEvaluation",
+      "line": 53,
+      "doc": "Result of a scope guard evaluation.\n\nAttributes:\n    decision: One of ``\"PASS\"``, ``\"SOFT_FAIL\"``, ``\"HARD_FAIL\"``.\n    files_changed: Number of files changed.\n    lines_changed: Total lines changed (insertions + deletions).\n    max_files: Configured file limit.\n    max_lines: Configured line limit.\n    drift_indicators: Drift indicator dicts passed in for audit.\n    reason: Human-readable explanation of the decision.\n    excess_files: File paths that exceed the file limit.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ScopeGuard",
+      "line": 123,
+      "doc": "Evaluates whether agent changes are within configured scope limits.\n\nOptionally records governance audit events through a *policy_engine*.\nThe policy engine, when provided, must expose a\n``record_event(event: dict)`` method.\n\nArgs:\n    policy_engine: Optional governance policy engine for audit trails.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 27,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,348 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/anomaly/detector.py",
+  "extension": ".py",
+  "size_bytes": 13069,
+  "line_count": 368,
+  "documentation": {
+    "file_docstring": "Behavioral anomaly detection engine.\n\nLearns normal agent behavior from metrics and traces, then flags\ndeviations that may indicate failures, attacks, or degradation.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Lazily-initialized strategy instances (imported here to avoid",
+      "circular import at module level).",
+      "-- strategies (lazy init) ------------------------------------------",
+      "-- baseline management ---------------------------------------------",
+      "-- public API -------------------------------------------------------",
+      "--- Statistical check ---",
+      "--- Resource check ---",
+      "Append after check so the sequence is available on next call",
+      "Trim to max length",
+      "Trim to max length",
+      "-- helpers --------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AnomalyType: Types of behavioral anomalies.",
+      "AnomalySeverity: Severity of a detected anomaly.",
+      "AnomalyAlert: Alert raised when a behavioral anomaly is detected.",
+      "BehaviorBaseline: Statistical baseline for a single metric.",
+      "DetectorConfig: Configuration for the anomaly detector.",
+      "_percentile: Return the *pct*-th percentile from a pre-sorted list.",
+      "AnomalyDetector: Behavioral anomaly detector for agent metrics.\n\nMaintains rolling windows and ba",
+      "_infer_anomaly_type: Best-effort mapping from metric name to anomaly type.",
+      "_update_baseline: Recompute baseline statistics from the rolling window.",
+      "ingest: Ingest a metric data point and check for anomalies.\n\nReturns an ``AnomalyAlert``"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AnomalySeverity",
+    "summary",
+    "ingest",
+    "alerts",
+    "AnomalyDetector",
+    "record_tool_call",
+    "AnomalyType",
+    "AnomalyAlert",
+    "to_dict",
+    "BehaviorBaseline",
+    "reset",
+    "get_baseline",
+    "DetectorConfig"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "math",
+      "time",
+      "collections",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_sre.anomaly.strategies",
+      "agent_sre.anomaly.strategies",
+      "agent_sre.anomaly.strategies"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_percentile",
+      "line": 110,
+      "doc": "Return the *pct*-th percentile from a pre-sorted list.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sorted_vals",
+        "pct"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_infer_anomaly_type",
+      "line": 355,
+      "doc": "Best-effort mapping from metric name to anomaly type.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "metric_name"
+      ],
+      "returns": "AnomalyType"
+    },
+    {
+      "name": "to_dict",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_statistical",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_get_sequential",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_get_resource",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_update_baseline",
+      "line": 170,
+      "doc": "Recompute baseline statistics from the rolling window.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_name"
+      ],
+      "returns": "BehaviorBaseline"
+    },
+    {
+      "name": "ingest",
+      "line": 198,
+      "doc": "Ingest a metric data point and check for anomalies.\n\nReturns an ``AnomalyAlert`` if an anomaly is detected, ``None``\notherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_name",
+        "value",
+        "agent_id",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_tool_call",
+      "line": 267,
+      "doc": "Record a tool call and check for unusual sequences.\n\nReturns an ``AnomalyAlert`` if a rare transition is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_baseline",
+      "line": 317,
+      "doc": "Return current baseline for a metric, or ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "alerts",
+      "line": 322,
+      "doc": "Return a copy of the alert history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "summary",
+      "line": 326,
+      "doc": "Return a summary of detector state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 341,
+      "doc": "Reset baselines and windows for *metric_name*, or all if ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_name"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AnomalyType",
+      "line": 22,
+      "doc": "Types of behavioral anomalies.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AnomalySeverity",
+      "line": 35,
+      "doc": "Severity of a detected anomaly.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AnomalyAlert",
+      "line": 44,
+      "doc": "Alert raised when a behavioral anomaly is detected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BehaviorBaseline",
+      "line": 68,
+      "doc": "Statistical baseline for a single metric.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DetectorConfig",
+      "line": 93,
+      "doc": "Configuration for the anomaly detector.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AnomalyDetector",
+      "line": 122,
+      "doc": "Behavioral anomaly detector for agent metrics.\n\nMaintains rolling windows and baselines per metric, runs detection\nstrategies, and produces ``AnomalyAlert`` objects.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 41,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

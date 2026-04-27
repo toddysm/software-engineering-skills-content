@@ -1,0 +1,190 @@
+{
+  "path": "packages/agent-os/examples/integrations/governance_quickstart.py",
+  "extension": ".py",
+  "size_bytes": 6725,
+  "line_count": 150,
+  "documentation": {
+    "file_docstring": "Agent OS Governance Quickstart \u2014 All 7 Framework Integrations\n\nDemonstrates how Agent OS adds governance (policy enforcement, signals,\naudit trails) to every major agent framework with a unified API.\n\nUsage:\n    pip install agent-os-kernel\n    python governance_quickstart.py",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Shared policy for all frameworks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 1. LangChain \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from langchain_core.runnables import RunnableLambda",
+      "chain = RunnableLambda(lambda x: f\"Echo: {x}\")",
+      "kernel = LangChainKernel(policy=policy)",
+      "governed = kernel.wrap(chain)",
+      "result = governed.invoke(\"Hello LangChain!\")",
+      "\u2500\u2500 2. LlamaIndex \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from llama_index.core import VectorStoreIndex",
+      "index = VectorStoreIndex.from_documents(docs)",
+      "engine = index.as_query_engine()",
+      "kernel = LlamaIndexKernel(policy=policy)",
+      "governed = kernel.wrap(engine)",
+      "result = governed.query(\"Summarise the document\")",
+      "\u2500\u2500 3. CrewAI \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from crewai import Crew, Agent, Task",
+      "agent = Agent(role=\"Analyst\", goal=\"Analyze data\")",
+      "task = Task(description=\"Analyze trends\", agent=agent)",
+      "crew = Crew(agents=[agent], tasks=[task])",
+      "kernel = CrewAIKernel(policy=policy)",
+      "governed = kernel.wrap(crew)",
+      "result = governed.kickoff()",
+      "\u2500\u2500 4. AutoGen \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from autogen import AssistantAgent, UserProxyAgent",
+      "assistant = AssistantAgent(\"assistant\", llm_config={...})",
+      "kernel = AutoGenKernel(policy=policy)",
+      "kernel.govern(assistant)",
+      "kernel.signal(\"assistant\", \"SIGSTOP\")   # pause",
+      "kernel.signal(\"assistant\", \"SIGCONT\")   # resume",
+      "kernel.unwrap(assistant)                 # restore original",
+      "\u2500\u2500 5. OpenAI Assistants \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from openai import OpenAI",
+      "client = OpenAI()",
+      "kernel = OpenAIKernel(policy=policy)",
+      "governed = kernel.wrap_assistant(assistant, client)",
+      "thread = governed.create_thread()",
+      "governed.add_message(thread.id, \"Analyse this\")",
+      "run = governed.run(thread.id)",
+      "\u2500\u2500 6. OpenAI Agents SDK \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from agents import Agent, Runner",
+      "agent = Agent(name=\"analyst\", instructions=\"...\")",
+      "kernel = OpenAIAgentsKernel(policy={...})",
+      "governed = kernel.wrap_runner(Runner)",
+      "result = await governed.run(agent, \"Analyse Q4\")",
+      "\u2500\u2500 7. Semantic Kernel \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "from semantic_kernel import Kernel",
+      "sk = Kernel()",
+      "wrapper = SemanticKernelWrapper(policy=policy)",
+      "governed = wrapper.wrap(sk)",
+      "result = await governed.invoke(\"plugin\", \"function\", input=\"data\")",
+      "\u2500\u2500 Run all \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "langchain_example: Wrap any LangChain runnable with governance.",
+      "llamaindex_example: Wrap a LlamaIndex query engine with governance.",
+      "crewai_example: Wrap a CrewAI Crew with governance.",
+      "autogen_example: Govern AutoGen agents in-place.",
+      "openai_assistants_example: Wrap OpenAI Assistants API with governance.",
+      "openai_agents_sdk_example: Wrap the new OpenAI Agents SDK with governance.",
+      "semantic_kernel_example: Wrap Microsoft Semantic Kernel with governance."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "autogen_example",
+    "semantic_kernel_example",
+    "crewai_example",
+    "openai_assistants_example",
+    "openai_agents_sdk_example",
+    "langchain_example",
+    "llamaindex_example"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "agent_os.integrations",
+      "agent_os.integrations.openai_agents_sdk"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "langchain_example",
+      "line": 42,
+      "doc": "Wrap any LangChain runnable with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "llamaindex_example",
+      "line": 55,
+      "doc": "Wrap a LlamaIndex query engine with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "crewai_example",
+      "line": 69,
+      "doc": "Wrap a CrewAI Crew with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "autogen_example",
+      "line": 83,
+      "doc": "Govern AutoGen agents in-place.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "openai_assistants_example",
+      "line": 98,
+      "doc": "Wrap OpenAI Assistants API with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "openai_agents_sdk_example",
+      "line": 113,
+      "doc": "Wrap the new OpenAI Agents SDK with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "semantic_kernel_example",
+      "line": 125,
+      "doc": "Wrap Microsoft Semantic Kernel with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 2,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

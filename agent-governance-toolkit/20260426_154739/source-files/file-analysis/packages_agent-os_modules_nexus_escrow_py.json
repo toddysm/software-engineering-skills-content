@@ -1,0 +1,404 @@
+{
+  "path": "packages/agent-os/modules/nexus/escrow.py",
+  "extension": ".py",
+  "size_bytes": 15018,
+  "line_count": 430,
+  "documentation": {
+    "file_docstring": "Proof of Outcome / Escrow Manager\n\nImplements the \"Reward\" mechanism where agents bet on task outcomes.\nCredits are escrowed and released based on SCAK validation.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "In-memory storage (would be database in production)",
+      "Configuration",
+      "Check requester has enough credits",
+      "Generate escrow ID",
+      "Create receipt",
+      "Lock credits",
+      "Sign from Nexus",
+      "Store",
+      "Determine resolution based on outcome",
+      "Validate with SCAK if required",
+      "SCAK failed - treat as failure",
+      "Transfer credits to provider",
+      "Update reputation",
+      "Update receipt",
+      "Return credits to requester",
+      "Update reputation",
+      "Update receipt",
+      "Credits remain locked until Arbiter decides",
+      "Return credits",
+      "Small reputation penalty for provider",
+      "No SCAK validator - assume success",
+      "Validate with SCAK",
+      "drift_score = await self.scak_validator.validate(flight_recorder_log)",
+      "For now, simulate",
+      "Determine if SCAK passed"
+    ],
+    "todo_comments": [
+      "TODO: Generate actual signature"
+    ],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "EscrowManager: Manages escrow lifecycle for inter-agent tasks.\n\nThe \"Reward\" OS - agents don't ",
+      "ProofOfOutcome: High-level API for the Proof-of-Outcome mechanism.\n\nWraps EscrowManager with SCA",
+      "create_escrow: Create an escrow for a task.\n\nLocks credits from requester until task completion",
+      "activate_escrow: Mark escrow as active (task in progress).",
+      "complete_task: Mark task as complete, awaiting validation.",
+      "release_escrow: Release escrow based on outcome.\n\n- success: Credits go to provider, provider re",
+      "_resolve_success: Resolve escrow as success - credits to provider.",
+      "_resolve_failure: Resolve escrow as failure - credits returned to requester.",
+      "_resolve_dispute: Mark escrow as disputed - to be resolved by Arbiter.",
+      "expire_escrow: Handle escrow expiration - credits returned to requester."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_agent_credits",
+    "EscrowManager",
+    "get_escrow",
+    "add_credits",
+    "ProofOfOutcome",
+    "list_escrows"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "hashlib",
+      "uuid",
+      "asyncio",
+      "schemas.escrow",
+      "schemas.receipt",
+      "reputation",
+      "exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_escrow",
+      "line": 51,
+      "doc": "Create an escrow for a task.\n\nLocks credits from requester until task completion.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "requester_signature"
+      ],
+      "returns": "EscrowReceipt"
+    },
+    {
+      "name": "activate_escrow",
+      "line": 91,
+      "doc": "Mark escrow as active (task in progress).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id"
+      ],
+      "returns": "EscrowReceipt"
+    },
+    {
+      "name": "complete_task",
+      "line": 103,
+      "doc": "Mark task as complete, awaiting validation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "output_hash",
+        "duration_ms",
+        "provider_signature"
+      ],
+      "returns": "EscrowReceipt"
+    },
+    {
+      "name": "release_escrow",
+      "line": 125,
+      "doc": "Release escrow based on outcome.\n\n- success: Credits go to provider, provider reputation +2\n- failure: Credits return to requester, provider reputation -10\n- dispute: Escalate to Arbiter",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "release"
+      ],
+      "returns": "EscrowResolution"
+    },
+    {
+      "name": "_resolve_success",
+      "line": 162,
+      "doc": "Resolve escrow as success - credits to provider.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "receipt",
+        "release"
+      ],
+      "returns": "EscrowResolution"
+    },
+    {
+      "name": "_resolve_failure",
+      "line": 194,
+      "doc": "Resolve escrow as failure - credits returned to requester.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "receipt",
+        "release"
+      ],
+      "returns": "EscrowResolution"
+    },
+    {
+      "name": "_resolve_dispute",
+      "line": 226,
+      "doc": "Mark escrow as disputed - to be resolved by Arbiter.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "receipt",
+        "release"
+      ],
+      "returns": "EscrowResolution"
+    },
+    {
+      "name": "expire_escrow",
+      "line": 247,
+      "doc": "Handle escrow expiration - credits returned to requester.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id"
+      ],
+      "returns": "EscrowResolution"
+    },
+    {
+      "name": "get_escrow",
+      "line": 275,
+      "doc": "Get escrow by ID (public method).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id"
+      ],
+      "returns": "EscrowReceipt"
+    },
+    {
+      "name": "get_agent_credits",
+      "line": 279,
+      "doc": "Get credit balance for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "add_credits",
+      "line": 283,
+      "doc": "Add credits to an agent's balance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "amount"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "list_escrows",
+      "line": 288,
+      "doc": "List escrows with optional filtering.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "status"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_escrow",
+      "line": 307,
+      "doc": "Get escrow by ID or raise error.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id"
+      ],
+      "returns": "EscrowReceipt"
+    },
+    {
+      "name": "_sign_escrow",
+      "line": 313,
+      "doc": "Generate Nexus signature for escrow.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "request"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_sign_resolution",
+      "line": 318,
+      "doc": "Generate Nexus signature for resolution.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "outcome"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 331,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_manager",
+        "scak_validator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_escrow",
+      "line": 339,
+      "doc": "Create an escrow for a task.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "requester_did",
+        "provider_did",
+        "task_hash",
+        "credits",
+        "timeout_seconds",
+        "require_scak",
+        "drift_threshold"
+      ],
+      "returns": "EscrowReceipt"
+    },
+    {
+      "name": "validate_outcome",
+      "line": 365,
+      "doc": "Validate task outcome using SCAK.\n\nReplays the flight recorder log against the Control Plane\nto deterministically verify the claimed outcome.\n\nReturns:\n    Tuple of (passed, drift_score)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "flight_recorder_log",
+        "claimed_outcome"
+      ],
+      "returns": null
+    },
+    {
+      "name": "release_escrow",
+      "line": 396,
+      "doc": "Release escrow based on outcome.\n\n- success: Credits go to provider, provider reputation +2\n- failure: Credits return to requester, provider reputation -10\n- dispute: Escalate to Arbiter",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "outcome",
+        "output_hash",
+        "duration_ms",
+        "scak_drift_score",
+        "dispute_reason"
+      ],
+      "returns": "EscrowResolution"
+    }
+  ],
+  "classes": [
+    {
+      "name": "EscrowManager",
+      "line": 33,
+      "doc": "Manages escrow lifecycle for inter-agent tasks.\n\nThe \"Reward\" OS - agents don't just talk, they bet on outcomes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ProofOfOutcome",
+      "line": 324,
+      "doc": "High-level API for the Proof-of-Outcome mechanism.\n\nWraps EscrowManager with SCAK validation integration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

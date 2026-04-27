@@ -1,0 +1,319 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/async_policy_evaluator.py",
+  "extension": ".py",
+  "size_bytes": 9418,
+  "line_count": 272,
+  "documentation": {
+    "file_docstring": "Async-safe and thread-safe trust policy evaluator for Agent-Mesh.\n\nWraps the synchronous :class:`PolicyEvaluator` (trust variant) with\nconcurrency controls identical to the Agent-OS async evaluator so that\nthe trust policy evaluator can be used safely from ``asyncio`` coroutines\n**and** from multiple OS threads simultaneously.\n\nConcurrency guarantees\n----------------------\n* **asyncio.Lock** guards coroutine-level access.\n* A lightweight **read-write lock** allows multiple concurrent reads\n  (evaluations) while giving exclusive access to writes (policy reloads).\n* All evaluation statistics are updated atomically via a thread lock.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Concurrency statistics",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Read-write lock helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Async-safe trust policy evaluator",
+      "---------------------------------------------------------------------------",
+      "-- properties --------------------------------------------------------",
+      "-- async entry-points ------------------------------------------------",
+      "-- internal helpers --------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ConcurrencyStats: Tracks concurrency-related metrics for the async trust evaluator.\n\nAll mutations",
+      "_ReadWriteLock: Simple readers-writer lock built on :class:`threading.RLock`.\n\nMultiple readers ",
+      "AsyncTrustPolicyEvaluator: Thread-safe and asyncio-safe trust policy evaluator.\n\nWraps :class:`PolicyEvalua",
+      "average_evaluation_time: Return average evaluation latency in seconds, or 0.0.",
+      "as_dict: Serialise stats to a plain dictionary.",
+      "evaluator: Return the underlying synchronous trust policy evaluator.",
+      "evaluate: Evaluate trust policies against *context* with async + thread safety.\n\nAcquires ",
+      "evaluate_sync: Thread-safe synchronous trust policy evaluation.\n\nUses the read side of the RW l",
+      "evaluate_batch: Evaluate multiple contexts concurrently.\n\nEach context is evaluated in its own a",
+      "reload_policies: Replace the loaded trust policies with an exclusive write lock.\n\nAcquires the wr"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "release_write",
+    "ConcurrencyStats",
+    "evaluator",
+    "evaluate_sync",
+    "release_read",
+    "AsyncTrustPolicyEvaluator",
+    "acquire_write",
+    "as_dict",
+    "average_evaluation_time",
+    "acquire_read",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "logging",
+      "threading",
+      "time",
+      "dataclasses",
+      "typing",
+      "policy_evaluator",
+      "trust_policy"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "average_evaluation_time",
+      "line": 54,
+      "doc": "Return average evaluation latency in seconds, or 0.0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "as_dict",
+      "line": 60,
+      "doc": "Serialise stats to a plain dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "acquire_read",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "release_read",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "acquire_write",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "release_write",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluator",
+      "line": 141,
+      "doc": "Return the underlying synchronous trust policy evaluator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PolicyEvaluator"
+    },
+    {
+      "name": "evaluate",
+      "line": 147,
+      "doc": "Evaluate trust policies against *context* with async + thread safety.\n\nAcquires the async lock (coroutine safety) and the read side of\nthe RW lock (thread safety) so that concurrent evaluations can\nproceed but a policy reload will block until all in-flight\nevaluations complete.\n\nThread-safety: YES \u2014 safe to call from multiple threads via\n``asyncio.run_coroutine_threadsafe``.\n\nReturns\n-------\nTrustPolicyDecision\n    The result of evaluating the loaded trust policies.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "TrustPolicyDecision"
+    },
+    {
+      "name": "evaluate_sync",
+      "line": 168,
+      "doc": "Thread-safe synchronous trust policy evaluation.\n\nUses the read side of the RW lock so multiple threads may\nevaluate concurrently while policy reloads block.\n\nThread-safety: YES \u2014 safe to call from any OS thread.\n\nReturns\n-------\nTrustPolicyDecision\n    The result of evaluating the loaded trust policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "TrustPolicyDecision"
+    },
+    {
+      "name": "evaluate_batch",
+      "line": 183,
+      "doc": "Evaluate multiple contexts concurrently.\n\nEach context is evaluated in its own asyncio task.  All tasks\nshare the same concurrency controls so a policy reload in\nprogress will block them.\n\nThread-safety: YES.\n\nReturns\n-------\nlist[TrustPolicyDecision]\n    One decision per input context, in the same order.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "contexts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reload_policies",
+      "line": 204,
+      "doc": "Replace the loaded trust policies with an exclusive write lock.\n\nAcquires the write side of the RW lock so that no evaluations\ncan proceed while the policy set is being replaced.\n\nThread-safety: YES.\n\nParameters\n----------\npolicies:\n    New list of trust policies to load.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "policies"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 222,
+      "doc": "Return a snapshot of concurrency statistics.\n\nThread-safety: YES \u2014 reads are guarded by the thread lock.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_with_read_lock",
+      "line": 232,
+      "doc": "Run the trust evaluator under the read side of the RW lock.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "TrustPolicyDecision"
+    },
+    {
+      "name": "_reload_with_write_lock",
+      "line": 261,
+      "doc": "Replace policies under the exclusive write lock.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policies"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConcurrencyStats",
+      "line": 39,
+      "doc": "Tracks concurrency-related metrics for the async trust evaluator.\n\nAll mutations happen under the owning evaluator's thread lock so\nindividual field updates are atomic with respect to other threads.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_ReadWriteLock",
+      "line": 76,
+      "doc": "Simple readers-writer lock built on :class:`threading.RLock`.\n\nMultiple readers can hold the lock concurrently; a writer gets\nexclusive access (no readers **and** no other writers).",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AsyncTrustPolicyEvaluator",
+      "line": 111,
+      "doc": "Thread-safe and asyncio-safe trust policy evaluator.\n\nWraps :class:`PolicyEvaluator` (the trust variant from Agent-Mesh)\nwith proper concurrency controls:\n\n* :pyobj:`asyncio.Lock` for coroutine safety within a single event\n  loop.\n* :class:`_ReadWriteLock` for thread safety \u2014 multiple concurrent\n  reads (evaluations) are allowed; writes (policy reloads) acquire\n  exclusive access.\n* Evaluation statistics (:class:`ConcurrencyStats`) are maintained\n  atomically.\n\nParameters\n----------\nevaluator:\n    The underlying synchronous trust policy evaluator to wrap.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 15,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

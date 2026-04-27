@@ -1,0 +1,355 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/polymorphic_output.py",
+  "extension": ".py",
+  "size_bytes": 15341,
+  "line_count": 455,
+  "documentation": {
+    "file_docstring": "Polymorphic Output (Adaptive Rendering)\n\nThis module implements an adaptive output system where the agent determines\nthe response modality based on the input modality and context.\n\nThe Old World: \"The AI always replies with text.\"\nThe New World: If input can be anything, output must be anything.\n\nThe system determines the Modality of Response based on:\n1. Modality of Input (telemetry \u2192 widget, IDE \u2192 ghost text)\n2. Nature of Data (tabular \u2192 table, time series \u2192 chart)\n3. User Context (debugging \u2192 inline, monitoring \u2192 dashboard)\n\nScenario A (Data): Backend Telemetry \u2192 Dashboard Widget (not chat)\nScenario B (Code): IDE typing \u2192 Ghost Text (not popup)\nScenario C (Analysis): SQL results \u2192 Interactive Table (not text dump)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Core fields",
+      "Content (what to display)",
+      "Rendering hints",
+      "Metadata",
+      "Alternative representations (fallbacks)",
+      "Rule 1: IDE context \u2192 Ghost Text or Inline Error",
+      "Rule 2: Monitoring context \u2192 Dashboard Widget or Chart",
+      "Rule 3: High urgency \u2192 Notification",
+      "Rule 4: Tabular data \u2192 Table",
+      "Rule 5: Time series data \u2192 Chart",
+      "Rule 6: Code data \u2192 Code Snippet",
+      "Rule 7: Structured data \u2192 Card",
+      "Rule 8: List data \u2192 List",
+      "Default: Text",
+      "Check if it's code",
+      "Check if it's time series (list of dicts with timestamp)",
+      "Check if it's tabular (list of dicts with same keys)",
+      "Check for specific patterns",
+      "Detect data type",
+      "Detect appropriate modality",
+      "Generate text fallback",
+      "Create response",
+      "Format as key-value pairs",
+      "Format as ASCII table",
+      "Format as text representation",
+      "Get headers",
+      "Calculate column widths",
+      "Build table",
+      "Header",
+      "Rows",
+      "Helper functions for creating specific response types"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "OutputModality: Types of output modalities the agent can generate.",
+      "InputContext: Context in which the input was received.",
+      "PolymorphicResponse: Structured response with modality and rendering data.\n\nThis is the output of the",
+      "OutputModalityDetector: Determines the appropriate output modality based on input context and data type.",
+      "PolymorphicOutputEngine: Main engine for generating polymorphic outputs.\n\nThis takes agent responses and ",
+      "create_ghost_text_response: Create a ghost text response for IDE autocomplete.",
+      "create_dashboard_widget_response: Create a dashboard widget response for monitoring.",
+      "create_chart_response: Create a chart response for data visualization.",
+      "create_table_response: Create a table response for structured data.",
+      "create_notification_response: Create a notification response for alerts."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "detect_data_type",
+    "OutputModalityDetector",
+    "create_ghost_text_response",
+    "detect_modality",
+    "PolymorphicResponse",
+    "create_notification_response",
+    "generate_response",
+    "OutputModality",
+    "to_dict",
+    "create_chart_response",
+    "create_table_response",
+    "to_json",
+    "InputContext",
+    "create_dashboard_widget_response",
+    "PolymorphicOutputEngine"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "dataclasses",
+      "typing",
+      "datetime",
+      "enum",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_ghost_text_response",
+      "line": 341,
+      "doc": "Create a ghost text response for IDE autocomplete.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "suggestion",
+        "cursor_position"
+      ],
+      "returns": "PolymorphicResponse"
+    },
+    {
+      "name": "create_dashboard_widget_response",
+      "line": 358,
+      "doc": "Create a dashboard widget response for monitoring.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "metric_name",
+        "metric_value",
+        "trend",
+        "alert_level"
+      ],
+      "returns": "PolymorphicResponse"
+    },
+    {
+      "name": "create_chart_response",
+      "line": 385,
+      "doc": "Create a chart response for data visualization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "chart_type",
+        "data_points",
+        "title",
+        "x_axis_label",
+        "y_axis_label"
+      ],
+      "returns": "PolymorphicResponse"
+    },
+    {
+      "name": "create_table_response",
+      "line": 413,
+      "doc": "Create a table response for structured data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "rows",
+        "title",
+        "sortable",
+        "filterable"
+      ],
+      "returns": "PolymorphicResponse"
+    },
+    {
+      "name": "create_notification_response",
+      "line": 433,
+      "doc": "Create a notification response for alerts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "message",
+        "level",
+        "action"
+      ],
+      "returns": "PolymorphicResponse"
+    },
+    {
+      "name": "to_dict",
+      "line": 80,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_json",
+      "line": 91,
+      "doc": "Convert to JSON string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "detect_modality",
+      "line": 103,
+      "doc": "Detect the appropriate output modality.\n\nArgs:\n    input_context: Context in which input was received\n    data_type: Type of data in the response (e.g., \"time_series\", \"tabular\")\n    input_signal_type: Type of input signal (e.g., \"log_stream\", \"file_change\")\n    urgency: Urgency score (0-1)\n    \nReturns:\n    OutputModality: The detected modality",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_context",
+        "data_type",
+        "input_signal_type",
+        "urgency"
+      ],
+      "returns": "OutputModality"
+    },
+    {
+      "name": "detect_data_type",
+      "line": 163,
+      "doc": "Analyze data and determine its type.\n\nArgs:\n    data: The response data\n    \nReturns:\n    str: Data type (e.g., \"time_series\", \"tabular\", \"text\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_response",
+      "line": 211,
+      "doc": "Generate a polymorphic response from agent output.\n\nArgs:\n    data: The response data from the agent\n    input_context: Context in which input was received\n    input_signal_type: Type of input signal\n    urgency: Urgency score (0-1)\n    rendering_hints: Optional hints for rendering\n    \nReturns:\n    PolymorphicResponse: Structured response with modality",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "input_context",
+        "input_signal_type",
+        "urgency",
+        "rendering_hints"
+      ],
+      "returns": "PolymorphicResponse"
+    },
+    {
+      "name": "_generate_text_fallback",
+      "line": 261,
+      "doc": "Generate a plain text fallback for any response.\n\nArgs:\n    data: The response data\n    modality: The detected modality\n    \nReturns:\n    str: Plain text representation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "modality"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_format_as_ascii_table",
+      "line": 295,
+      "doc": "Format list of dicts as ASCII table.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_format_chart_as_text",
+      "line": 324,
+      "doc": "Format chart data as text representation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "OutputModality",
+      "line": 29,
+      "doc": "Types of output modalities the agent can generate.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InputContext",
+      "line": 45,
+      "doc": "Context in which the input was received.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolymorphicResponse",
+      "line": 57,
+      "doc": "Structured response with modality and rendering data.\n\nThis is the output of the agent that can be rendered in any format.\nThe Interface Layer uses this to generate the actual UI component.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "OutputModalityDetector",
+      "line": 96,
+      "doc": "Determines the appropriate output modality based on input context and data type.\n\nThis is the \"brain\" that decides: \"Should I render text? A chart? Ghost text?\"",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolymorphicOutputEngine",
+      "line": 200,
+      "doc": "Main engine for generating polymorphic outputs.\n\nThis takes agent responses and converts them into structured\nPolymorphicResponse objects with appropriate modality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 56,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/integrations/langchain/tools.py",
+  "extension": ".py",
+  "size_bytes": 5820,
+  "line_count": 179,
+  "documentation": {
+    "file_docstring": "Trust-aware LangChain tool wrappers.\n\nProvides wrappers that inject trust verification before any\nLangChain tool execution.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Copyright (c) Agent-Mesh Contributors. All rights reserved.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Instance attributes (not Pydantic fields for compatibility)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "trust_verified_tool: Wrap a LangChain tool with trust verification.\n\nReturns a callable that checks t",
+      "TrustVerifiedTool: A LangChain tool subclass that checks trust before execution.\n\nWraps an inner ca",
+      "_run: Execute with trust verification.",
+      "_arun: Async execution delegates to sync _run.",
+      "BaseTool: Fallback when langchain is not installed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "BaseModel",
+    "TrustVerifiedTool",
+    "wrapper",
+    "trust_verified_tool",
+    "BaseTool"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "typing",
+      "agentmesh.exceptions",
+      "callback",
+      "langchain_core.tools",
+      "pydantic",
+      "langchain.tools",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "trust_verified_tool",
+      "line": 50,
+      "doc": "Wrap a LangChain tool with trust verification.\n\nReturns a callable that checks the agent's trust score before\ndelegating to the original tool's ``run`` method.\n\nArgs:\n    tool: A LangChain tool instance (must have a ``run`` method).\n    agent_did: DID of the agent invoking the tool.\n    min_score: Minimum trust score required (0\u20131000).\n    trust_store: Optional trust store backend.\n\nReturns:\n    A wrapper function that enforces trust before execution.\n\nRaises:\n    TrustVerificationError: If the agent's trust score is below *min_score*.\n\nExample::\n\n    from langchain_community.tools import DuckDuckGoSearchRun\n    from agentmesh.integrations.langchain import trust_verified_tool\n\n    search = DuckDuckGoSearchRun()\n    safe_search = trust_verified_tool(search, \"did:mesh:abc\", min_score=600)\n    result = safe_search(\"latest AI news\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tool",
+        "agent_did",
+        "min_score",
+        "trust_store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrapper",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description",
+        "agent_did",
+        "min_trust_score",
+        "trust_store",
+        "inner_fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_run",
+      "line": 159,
+      "doc": "Execute with trust verification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_arun",
+      "line": 177,
+      "doc": "Async execution delegates to sync _run.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_run",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustVerifiedTool",
+      "line": 104,
+      "doc": "A LangChain tool subclass that checks trust before execution.\n\nWraps an inner callable with AgentMesh trust verification.\nThe trust score is checked on every ``_run`` invocation.\n\nArgs:\n    name: Tool name.\n    description: Tool description.\n    agent_did: DID of the agent using this tool.\n    min_trust_score: Minimum trust score required (0\u20131000).\n    trust_store: Optional trust store backend.\n    inner_fn: The actual function to execute after trust verification.\n\nExample::\n\n    import ast\n    from agentmesh.integrations.langchain import TrustVerifiedTool\n\n    tool = TrustVerifiedTool(\n        name=\"calculator\",\n        description=\"Evaluates a numeric literal safely\",\n        agent_did=\"did:mesh:abc123\",\n        min_trust_score=500,\n        inner_fn=lambda q: str(ast.literal_eval(q)),  # safe: only evaluates Python literal values\n    )\n    result = tool.run(\"42\")",
+      "is_public": true,
+      "bases": [
+        "BaseTool"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BaseTool",
+      "line": 34,
+      "doc": "Fallback when langchain is not installed.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "BaseModel",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 15,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

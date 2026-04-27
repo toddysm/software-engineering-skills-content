@@ -1,0 +1,506 @@
+{
+  "path": "packages/agent-sre/tests/test_chaos_scheduler.py",
+  "extension": ".py",
+  "size_bytes": 11591,
+  "line_count": 306,
+  "documentation": {
+    "file_docstring": "Tests for chaos scheduler \u2014 scheduling, blackouts, progressive severity, YAML loading.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Cron matching",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Blackout windows",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Progressive severity",
+      "---------------------------------------------------------------------------",
+      "Back to initial after failure breaks the streak",
+      "---------------------------------------------------------------------------",
+      "Resilience trend",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "YAML loading",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Edge cases",
+      "---------------------------------------------------------------------------",
+      "Schedule matches cron but is blocked by blackout"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestCronMatching: Cron-based schedule matching using croniter.",
+      "TestBlackoutWindows: Blackout windows block chaos execution during protected periods.",
+      "TestProgressiveSeverity: Severity increases after consecutive successes.",
+      "TestResilienceTrend: Resilience trend tracking over execution history.",
+      "TestYAMLLoading: Load schedules from YAML config files.",
+      "TestEdgeCases: Disabled schedules, unknown IDs, all-blackout."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_disabled_schedule_never_runs",
+    "test_empty_history",
+    "test_failure_resets_consecutive_count",
+    "test_get_due_schedules",
+    "test_wrong_hour_does_not_match",
+    "TestYAMLLoading",
+    "test_every_day_at_10_30",
+    "TestResilienceTrend",
+    "TestProgressiveSeverity",
+    "test_severity_increases_after_successes",
+    "test_weekday_9am_matches_monday",
+    "test_unknown_schedule_severity_is_zero",
+    "test_trend_with_fewer_than_window",
+    "test_severity_capped_at_max",
+    "test_outside_blackout_allows_execution",
+    "test_no_progressive_config_returns_full_severity",
+    "test_midnight_wrap_blackout",
+    "TestBlackoutWindows",
+    "test_in_blackout_blocks_execution",
+    "test_load_example_schedules",
+    "test_load_custom_yaml",
+    "test_initial_severity",
+    "test_load_with_progressive_config",
+    "TestEdgeCases",
+    "TestCronMatching",
+    "test_wednesday_2pm_matches",
+    "test_trend_returns_last_n_scores",
+    "test_multiple_blackouts",
+    "test_weekday_9am_does_not_match_saturday",
+    "test_all_day_blackout",
+    "test_unknown_schedule_id"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "datetime",
+      "pytest",
+      "agent_sre.chaos.chaos_scheduler",
+      "agent_sre.chaos.loader",
+      "agent_sre.chaos.scheduler",
+      "pathlib",
+      "pathlib",
+      "pathlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_schedule",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "schedule_id",
+        "cron",
+        "enabled",
+        "blackouts",
+        "progressive"
+      ],
+      "returns": "ChaosSchedule"
+    },
+    {
+      "name": "_make_execution",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "schedule_id",
+        "result",
+        "severity",
+        "resilience",
+        "at"
+      ],
+      "returns": "ScheduleExecution"
+    },
+    {
+      "name": "test_weekday_9am_matches_monday",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_weekday_9am_does_not_match_saturday",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_every_day_at_10_30",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrong_hour_does_not_match",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wednesday_2pm_matches",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_in_blackout_blocks_execution",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_outside_blackout_allows_execution",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_midnight_wrap_blackout",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_blackouts",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initial_severity",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_severity_increases_after_successes",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_failure_resets_consecutive_count",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_severity_capped_at_max",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_progressive_config_returns_full_severity",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_history",
+      "line": 204,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trend_returns_last_n_scores",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trend_with_fewer_than_window",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_example_schedules",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_with_progressive_config",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_custom_yaml",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_disabled_schedule_never_runs",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_schedule_id",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_schedule_severity_is_zero",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_day_blackout",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_due_schedules",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCronMatching",
+      "line": 69,
+      "doc": "Cron-based schedule matching using croniter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBlackoutWindows",
+      "line": 105,
+      "doc": "Blackout windows block chaos execution during protected periods.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestProgressiveSeverity",
+      "line": 140,
+      "doc": "Severity increases after consecutive successes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestResilienceTrend",
+      "line": 201,
+      "doc": "Resilience trend tracking over execution history.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestYAMLLoading",
+      "line": 231,
+      "doc": "Load schedules from YAML config files.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 276,
+      "doc": "Disabled schedules, unknown IDs, all-blackout.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

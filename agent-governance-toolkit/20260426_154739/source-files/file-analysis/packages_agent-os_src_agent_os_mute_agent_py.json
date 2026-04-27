@@ -1,0 +1,195 @@
+{
+  "path": "packages/agent-os/src/agent_os/mute_agent.py",
+  "extension": ".py",
+  "size_bytes": 7484,
+  "line_count": 209,
+  "documentation": {
+    "file_docstring": "Mute Agent \u2014 post-execution gate for output filtering.\n\nThe mute agent sits between the execution engine and the caller, inspecting\nand sanitising execution results before they leave the kernel.  It removes\nor redacts sensitive data (PII, credentials, internal metadata) according to\nconfigurable ``MutePolicy`` rules.\n\nArchitecture:\n    ExecutionEngine \u2500\u2500\u25b6 MuteAgent.mute(result) \u2500\u2500\u25b6 sanitised result \u2500\u2500\u25b6 Caller\n\nBuilt-in pattern categories:\n    - **email**: RFC-5322-style email addresses\n    - **phone**: North-American and international phone numbers\n    - **ssn**: US Social Security Numbers\n    - **credit_card**: Major card number formats (Visa, MC, Amex, Discover)\n    - **api_key**: Common API-key / secret-key patterns",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Built-in PII / sensitive-data patterns",
+      "---------------------------------------------------------------------------",
+      "Pre-compiled versions for performance",
+      "---------------------------------------------------------------------------",
+      "Externalised configuration dataclass",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Data models",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Mute Agent",
+      "---------------------------------------------------------------------------",
+      "-- public API ---------------------------------------------------------",
+      "-- internals ----------------------------------------------------------",
+      "Built-in patterns",
+      "Custom regex patterns",
+      "Keyword substring replacement"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PIIDetectionConfig: Structured configuration for PII detection patterns, loadable from YAML.\n\nAttrib",
+      "load_pii_config: Load PII detection configuration from a YAML file.\n\nArgs:\n    path: Path to a YA",
+      "MutePolicy: Rules for what to mute/redact in execution output.\n\nAttributes:\n    enabled_buil",
+      "MuteAgent: Post-execution gate that redacts sensitive content from results.\n\nArgs:\n    poli",
+      "mute: Filter *result*, redacting sensitive content in-place.\n\nAccepts an ``ExecutionRe",
+      "scrub_text: Redact sensitive content from a plain string.",
+      "_scrub: Recursively scrub strings inside dicts, lists, and scalars."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "load_pii_config",
+    "MuteAgent",
+    "mute",
+    "scrub_text",
+    "PIIDetectionConfig",
+    "MutePolicy"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "os",
+      "re",
+      "warnings",
+      "dataclasses",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_pii_config",
+      "line": 78,
+      "doc": "Load PII detection configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML file with a ``builtin_patterns`` section.\n\nReturns:\n    PIIDetectionConfig populated from the YAML data.\n\nRaises:\n    FileNotFoundError: If the config file does not exist.\n    ValueError: If the YAML is missing the ``builtin_patterns`` section.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "PIIDetectionConfig"
+    },
+    {
+      "name": "__init__",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mute",
+      "line": 156,
+      "doc": "Filter *result*, redacting sensitive content in-place.\n\nAccepts an ``ExecutionResult`` (from ``agent_os.stateless``) or any\nobject with a ``data`` attribute.  The ``data`` field is walked\nrecursively and string values are scrubbed.\n\nReturns:\n    The same result object with sensitive strings replaced.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "scrub_text",
+      "line": 174,
+      "doc": "Redact sensitive content from a plain string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_scrub",
+      "line": 180,
+      "doc": "Recursively scrub strings inside dicts, lists, and scalars.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_scrub_string",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PIIDetectionConfig",
+      "line": 66,
+      "doc": "Structured configuration for PII detection patterns, loadable from YAML.\n\nAttributes:\n    builtin_patterns: Mapping of pattern name to regex string.\n    disclaimer: Disclaimer text shown in logs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MutePolicy",
+      "line": 113,
+      "doc": "Rules for what to mute/redact in execution output.\n\nAttributes:\n    enabled_builtins: Names of built-in patterns to apply\n        (e.g. ``[\"email\", \"ssn\"]``).  An empty list disables builtins.\n    custom_patterns: Additional regex patterns (raw strings).\n    sensitive_keywords: Exact substring keywords to redact.\n    replacement: The string used to replace redacted content.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MuteAgent",
+      "line": 133,
+      "doc": "Post-execution gate that redacts sensitive content from results.\n\nArgs:\n    policy: A ``MutePolicy`` describing what to redact.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

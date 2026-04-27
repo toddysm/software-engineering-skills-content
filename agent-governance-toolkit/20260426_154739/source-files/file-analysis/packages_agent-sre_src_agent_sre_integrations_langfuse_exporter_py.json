@@ -1,0 +1,275 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/langfuse/exporter.py",
+  "extension": ".py",
+  "size_bytes": 8327,
+  "line_count": 285,
+  "documentation": {
+    "file_docstring": "Langfuse exporter \u2014 SLO scores and cost observations.\n\nThis module provides Langfuse-specific features that go beyond standard\nOTLP export: trace-level scores from SLO evaluations and structured\ncost observations with usage_details.\n\nRequires: pip install langfuse\n\nThe exporter operates in two modes:\n- **Live mode**: Connects to a real Langfuse instance (uses LANGFUSE_* env vars)\n- **Offline mode**: Collects events in memory for testing/inspection\n\nFor standard metrics/traces, use the OTEL exporters in\nagent_sre.integrations.otel and configure Langfuse as your OTLP endpoint.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Offline storage for testing",
+      "Overall SLO status",
+      "Error budget remaining",
+      "Burn rate",
+      "Per-SLI scores"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LangfuseClient: Protocol matching the Langfuse Python SDK client interface.",
+      "SLOScore: A score derived from SLO evaluation, ready for Langfuse.",
+      "CostObservation: A cost observation ready for Langfuse.",
+      "LangfuseExporter: Exports Agent SRE data to Langfuse.\n\nProvides two capabilities beyond standard O",
+      "is_offline: True if operating in offline/test mode.",
+      "scores: Get recorded scores (offline mode).",
+      "observations: Get recorded observations (offline mode).",
+      "score_slo: Score a Langfuse trace with SLO health data.\n\nCreates multiple scores per SLO:\n-",
+      "score_trace: Score a trace with an arbitrary metric.\n\nArgs:\n    trace_id: Langfuse trace ID\n ",
+      "record_cost: Record a cost observation for a trace.\n\nIn live mode, creates a Langfuse span wi"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "is_offline",
+    "observations",
+    "span",
+    "record_cost",
+    "clear",
+    "scores",
+    "LangfuseExporter",
+    "SLOScore",
+    "LangfuseClient",
+    "score_trace",
+    "CostObservation",
+    "score_slo",
+    "score"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "typing",
+      "agent_sre.integrations.otel.conventions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "score",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "span",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_offline",
+      "line": 106,
+      "doc": "True if operating in offline/test mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "scores",
+      "line": 111,
+      "doc": "Get recorded scores (offline mode).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "observations",
+      "line": 116,
+      "doc": "Get recorded observations (offline mode).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "score_slo",
+      "line": 120,
+      "doc": "Score a Langfuse trace with SLO health data.\n\nCreates multiple scores per SLO:\n- `slo.<name>.status`: Overall status (0=healthy, 1=warning, 2=critical, 3=exhausted)\n- `slo.<name>.budget_remaining`: Error budget remaining (0.0-1.0)\n- `slo.<name>.burn_rate`: Current burn rate\n- One score per SLI: `sli.<name>`: Current value\n\nArgs:\n    trace_id: Langfuse trace ID to attach scores to\n    slo: An agent_sre.slo.objectives.SLO instance\n\nReturns:\n    List of SLOScore objects created",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "score_trace",
+      "line": 184,
+      "doc": "Score a trace with an arbitrary metric.\n\nArgs:\n    trace_id: Langfuse trace ID\n    name: Score name\n    value: Score value\n    comment: Human-readable comment\n\nReturns:\n    The created SLOScore",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "name",
+        "value",
+        "comment"
+      ],
+      "returns": "SLOScore"
+    },
+    {
+      "name": "record_cost",
+      "line": 204,
+      "doc": "Record a cost observation for a trace.\n\nIn live mode, creates a Langfuse span with cost metadata.\nIn offline mode, stores the observation in memory.\n\nArgs:\n    trace_id: Langfuse trace ID\n    agent_id: Agent identifier\n    cost_usd: Cost in USD\n    task_id: Optional task identifier\n    metadata: Additional metadata\n\nReturns:\n    The created CostObservation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "agent_id",
+        "cost_usd",
+        "task_id",
+        "metadata"
+      ],
+      "returns": "CostObservation"
+    },
+    {
+      "name": "_record_score",
+      "line": 253,
+      "doc": "Internal: record a score and send to Langfuse if live.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "name",
+        "value",
+        "comment"
+      ],
+      "returns": "SLOScore"
+    },
+    {
+      "name": "clear",
+      "line": 282,
+      "doc": "Clear all offline storage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "LangfuseClient",
+      "line": 30,
+      "doc": "Protocol matching the Langfuse Python SDK client interface.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "SLOScore",
+      "line": 56,
+      "doc": "A score derived from SLO evaluation, ready for Langfuse.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CostObservation",
+      "line": 67,
+      "doc": "A cost observation ready for Langfuse.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "LangfuseExporter",
+      "line": 78,
+      "doc": "Exports Agent SRE data to Langfuse.\n\nProvides two capabilities beyond standard OTEL:\n1. **SLO Scores**: Attach SLO health as numeric scores to Langfuse traces\n2. **Cost Observations**: Record per-task costs with Langfuse-native metadata\n\nArgs:\n    client: A Langfuse client instance. If None, operates in offline mode\n            (collects events in memory for testing).\n\nExample:\n    from langfuse import get_client\n    from agent_sre.integrations.langfuse import LangfuseExporter\n\n    exporter = LangfuseExporter(client=get_client())\n    exporter.score_slo(trace_id=\"trace-123\", slo=my_slo)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

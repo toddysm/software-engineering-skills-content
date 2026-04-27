@@ -1,0 +1,112 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/otel/saga_sink.py",
+  "extension": ".py",
+  "size_bytes": 3087,
+  "line_count": 97,
+  "documentation": {
+    "file_docstring": "OTel adapter for hypervisor SagaSpanExporter.\n\nBridges the hypervisor's ``SpanSink`` protocol into the native\nOpenTelemetry SDK via the existing ``TraceExporter.export_span_simple()``.\n\nUsage::\n\n    from agent_sre.integrations.otel.saga_sink import OTelSpanSink\n    from agent_sre.integrations.otel.traces import TraceExporter\n    from hypervisor.observability import SagaSpanExporter, HypervisorEventBus\n\n    bus = HypervisorEventBus()\n    trace_exporter = TraceExporter(service_name=\"my-agent\")\n    sink = OTelSpanSink(trace_exporter, agent_id=\"agent-1\")\n\n    saga_exporter = SagaSpanExporter(bus, sink=sink)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Map saga span status strings to SRE SpanStatus",
+      "Merge saga attributes with agent ID"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "OTelSpanSink: Concrete SpanSink adapter that bridges into the OTel TraceExporter.\n\nImplements ",
+      "record_span: Record a completed saga span as a native OTel span.\n\nArgs:\n    name: Span name (",
+      "spans_exported: Total number of spans sent to OTel."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record_span",
+    "OTelSpanSink",
+    "spans_exported"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "typing",
+      "agent_sre.replay.capture",
+      "agent_sre.integrations.otel.traces"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_span",
+      "line": 59,
+      "doc": "Record a completed saga span as a native OTel span.\n\nArgs:\n    name: Span name (e.g. ``saga.step.validate``).\n    start_time: Unix timestamp when the step started.\n    end_time: Unix timestamp when the step completed.\n    attributes: Saga-specific attributes (``agent.saga.*``).\n    status: One of ``\"ok\"``, ``\"error\"``, ``\"compensating\"``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "start_time",
+        "end_time",
+        "attributes",
+        "status"
+      ],
+      "returns": null
+    },
+    {
+      "name": "spans_exported",
+      "line": 95,
+      "doc": "Total number of spans sent to OTel.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "OTelSpanSink",
+      "line": 39,
+      "doc": "Concrete SpanSink adapter that bridges into the OTel TraceExporter.\n\nImplements the ``SpanSink`` protocol defined in\n``hypervisor.observability.saga_span_exporter`` without importing it\n(structural subtyping via Protocol).\n\nEach call to ``record_span()`` creates a native OTel span via\n``TraceExporter.export_span_simple()``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 3,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

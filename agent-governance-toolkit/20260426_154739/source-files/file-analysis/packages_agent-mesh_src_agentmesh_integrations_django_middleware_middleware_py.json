@@ -1,0 +1,219 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/integrations/django_middleware/middleware.py",
+  "extension": ".py",
+  "size_bytes": 7802,
+  "line_count": 207,
+  "documentation": {
+    "file_docstring": "AgentTrustMiddleware for Django\n===============================\n\nValidates incoming HTTP requests against AgentMesh trust headers.\nConfigurable via Django settings; returns 403 JSON on trust failure.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Marker attribute set by @trust_exempt decorator",
+      "Marker attribute set by @trust_required decorator (per-view min score)",
+      "------------------------------------------------------------------",
+      "helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "request processing",
+      "------------------------------------------------------------------",
+      "Check path-based exemptions first",
+      "V17: Validate request comes from a trusted proxy when configured",
+      "Django normalises headers to META keys: HTTP_X_AGENT_DID",
+      "Resolve per-view override via @trust_required decorator",
+      "@trust_exempt \u2014 skip verification entirely",
+      "Derive trust score \u2014 simple heuristic:",
+      "agents that provide a valid DID get a baseline score; agents that",
+      "also provide a signature get a higher score.",
+      "Attach trust info to request for downstream views",
+      "------------------------------------------------------------------",
+      "internal",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_get_setting: Read a Django setting with a fallback default.",
+      "AgentTrustMiddleware: Django middleware that enforces AgentMesh trust verification.\n\nConfiguration via",
+      "_trusted_proxies: Return list of trusted proxy IPs/CIDRs.\n\nWhen set, DID headers are only trusted ",
+      "_evaluate_trust: Return trust score for the given agent.\n\nVerifies the agent's Ed25519 signature ",
+      "_resolve_view_func: Resolve the view function for the current request, if possible."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AgentTrustMiddleware"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "typing",
+      "django.conf",
+      "django.http",
+      "base64",
+      "django.urls"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_get_setting",
+      "line": 28,
+      "doc": "Read a Django setting with a fallback default.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "default"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "get_response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_min_trust_score",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "name": "_did_header",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "_signature_header",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "_exempt_paths",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_trusted_proxies",
+      "line": 74,
+      "doc": "Return list of trusted proxy IPs/CIDRs.\n\nWhen set, DID headers are only trusted from these source IPs.\nEmpty list (default) means trust headers from any source \u2014 set\nthis in production to prevent header spoofing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "HttpResponse"
+    },
+    {
+      "name": "_evaluate_trust",
+      "line": 168,
+      "doc": "Return trust score for the given agent.\n\nVerifies the agent's Ed25519 signature over its DID.  The agent\nmust sign the DID string with its private key and send the\nbase64-encoded signature in the signature header.\n\nThe verifying public key is looked up via the Django setting\n``AGENTMESH_AGENT_KEYS``, a dict mapping DID \u2192 Ed25519PublicKey.\nAgents not in the registry or with invalid signatures receive a\nscore of 0.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agent_did",
+        "agent_sig"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_resolve_view_func",
+      "line": 199,
+      "doc": "Resolve the view function for the current request, if possible.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentTrustMiddleware",
+      "line": 33,
+      "doc": "Django middleware that enforces AgentMesh trust verification.\n\nConfiguration via Django settings:\n\n- ``AGENTMESH_MIN_TRUST_SCORE`` \u2014 minimum trust score (0-1000, default 500)\n- ``AGENTMESH_DID_HEADER`` \u2014 request header carrying the agent DID\n  (default ``\"X-Agent-DID\"``)\n- ``AGENTMESH_SIGNATURE_HEADER`` \u2014 request header carrying the agent\n  signature (default ``\"X-Agent-Signature\"``)\n- ``AGENTMESH_EXEMPT_PATHS`` \u2014 list of URL path prefixes that skip\n  trust verification (default ``[]``)\n\nOn success the middleware sets ``request.agent_did`` and\n``request.agent_trust_score`` for downstream views.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

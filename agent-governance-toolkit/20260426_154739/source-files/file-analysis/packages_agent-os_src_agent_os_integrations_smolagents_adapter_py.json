@@ -1,0 +1,504 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/smolagents_adapter.py",
+  "extension": ".py",
+  "size_bytes": 23194,
+  "line_count": 629,
+  "documentation": {
+    "file_docstring": "HuggingFace smolagents Integration for Agent-OS\n================================================\n\nProvides kernel-level governance for smolagents agent workflows.\n\nFeatures:\n- Extends BaseIntegration with wrap/unwrap for smolagents agents\n- Policy enforcement via tool-call interception\n- Tool allow/block lists\n- Content filtering with blocked patterns\n- Human approval workflow for sensitive tools\n- Token/call budget tracking\n- Full audit trail of tool calls and agent runs\n- Works without smolagents installed (graceful import handling)\n- Compatible with CodeAgent and ToolCallingAgent\n\nExample:\n    >>> from agent_os.integrations.smolagents_adapter import SmolagentsKernel\n    >>>\n    >>> kernel = SmolagentsKernel(\n    ...     max_tool_calls=10,\n    ...     blocked_tools=[\"exec_code\", \"shell\"],\n    ...     blocked_patterns=[\"DROP TABLE\", \"rm -rf\"],\n    ...     require_human_approval=True,\n    ...     sensitive_tools=[\"delete_file\", \"send_email\"],\n    ... )\n    >>>\n    >>> # Wrap an existing agent\n    >>> from smolagents import CodeAgent, HfApiModel\n    >>> agent = CodeAgent(tools=[my_tool], model=HfApiModel())\n    >>> governed = kernel.wrap(agent)\n    >>> result = governed.run(\"Summarize this document\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Graceful import of smolagents",
+      "Convenience kwargs (create PolicyConfig automatically)",
+      "Initialize BaseIntegration with a GovernancePolicy mapped from PolicyConfig",
+      "Counters",
+      "Audit trail",
+      "Violations collected",
+      "Human approval tracking",
+      "Wrapped agents registry and original forward methods",
+      "------------------------------------------------------------------",
+      "BaseIntegration abstract methods",
+      "------------------------------------------------------------------",
+      "smolagents stores tools in agent.toolbox (dict-like or has .tools)",
+      "------------------------------------------------------------------",
+      "Tool wrapping",
+      "------------------------------------------------------------------",
+      "Toolbox object has a .tools dict",
+      "Plain dict",
+      "Pre-execution governance check",
+      "Execute original tool",
+      "Post-execution governance check",
+      "------------------------------------------------------------------",
+      "Internal helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Tool-call governance hooks",
+      "------------------------------------------------------------------",
+      "Check timeout",
+      "Check tool count",
+      "Check budget",
+      "Check tool allowed",
+      "Check content in arguments",
+      "Human approval check",
+      "Track budget spend",
+      "------------------------------------------------------------------",
+      "Human Approval API",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_smolagents_available: Raise a helpful error when the ``smolagents`` package is missing.",
+      "PolicyConfig: Policy configuration for smolagents governance.",
+      "PolicyViolationError: Raised when a governance policy is violated.",
+      "AuditEvent: Single audit trail entry.",
+      "SmolagentsKernel: Governance kernel for HuggingFace smolagents.\n\nExtends BaseIntegration and inter",
+      "wrap: Wrap a smolagents agent with governance.\n\nIntercepts each tool's ``forward`` met",
+      "unwrap: Remove governance wrapper and restore original tool forwards.",
+      "_get_tools: Extract the tool dict from a smolagents agent.\n\nsmolagents agents expose tools v",
+      "_wrap_tool: Replace ``tool.forward`` with a governed version.",
+      "_default_violation_handler: Default handler called when a policy violation occurs.\n\nLogs the violation as an"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AuditEvent",
+    "deny",
+    "after_tool_call",
+    "health_check",
+    "before_tool_call",
+    "get_violations",
+    "governed_forward",
+    "PolicyConfig",
+    "wrap",
+    "approve",
+    "reset",
+    "get_audit_log",
+    "SmolagentsKernel",
+    "PolicyViolationError",
+    "get_pending_approvals",
+    "unwrap",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "typing",
+      "base",
+      "smolagents"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_smolagents_available",
+      "line": 58,
+      "doc": "Raise a helpful error when the ``smolagents`` package is missing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "description",
+        "severity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "on_violation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 188,
+      "doc": "Wrap a smolagents agent with governance.\n\nIntercepts each tool's ``forward`` method so that every tool call\npasses through policy checks before execution.  The agent's\n``toolbox`` (dict of tool-name \u2192 Tool) is iterated and each tool\nis wrapped in-place.\n\nWorks without smolagents installed (for testing with mocks).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 211,
+      "doc": "Remove governance wrapper and restore original tool forwards.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_get_tools",
+      "line": 229,
+      "doc": "Extract the tool dict from a smolagents agent.\n\nsmolagents agents expose tools via ``agent.toolbox`` which may be\na ``Toolbox`` object (with a ``.tools`` dict) or a plain dict.\nFalls back to an empty dict when no toolbox is found.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_tool",
+      "line": 247,
+      "doc": "Replace ``tool.forward`` with a governed version.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool",
+        "tool_name",
+        "agent_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_default_violation_handler",
+      "line": 301,
+      "doc": "Default handler called when a policy violation occurs.\n\nLogs the violation as an error. Override by passing a custom\non_violation callback to the kernel constructor.\n\nArgs:\n    error: The PolicyViolationError that was raised.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record",
+      "line": 312,
+      "doc": "Append an audit event to the internal audit log.\n\nRecords the event only when log_all_calls is enabled.\n\nArgs:\n    event_type: Short string label for the event.\n    agent_name: ID or name of the agent generating the event.\n    details: Arbitrary dict of additional context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "agent_name",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_tool_allowed",
+      "line": 332,
+      "doc": "Check whether a tool is permitted by the active policy.\n\nArgs:\n    tool_name: Name of the tool to check.\n\nReturns:\n    Tuple of (allowed: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_content",
+      "line": 347,
+      "doc": "Scan a string for policy-blocked patterns.\n\nArgs:\n    content: The text to scan.\n\nReturns:\n    Tuple of (allowed: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_timeout",
+      "line": 362,
+      "doc": "Check whether the kernel has exceeded its configured timeout.\n\nReturns:\n    Tuple of (within_limit: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_budget",
+      "line": 373,
+      "doc": "Check whether a tool call would exceed the configured cost budget.\n\nArgs:\n    cost: Cost units to add for this call (default 1.0).\n\nReturns:\n    Tuple of (within_budget: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cost"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_needs_approval",
+      "line": 390,
+      "doc": "Check if a tool call requires human approval.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_raise_violation",
+      "line": 398,
+      "doc": "Create, record, and surface a PolicyViolationError.\n\nAppends the error to the violations list and calls on_violation.\n\nArgs:\n    policy_name: Short identifier for the violated policy rule.\n    description: Human-readable description of the violation.\n\nReturns:\n    The constructed PolicyViolationError (caller may raise it).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "description"
+      ],
+      "returns": "PolicyViolationError"
+    },
+    {
+      "name": "before_tool_call",
+      "line": 419,
+      "doc": "Pre-execution governance check for a tool call.\n\nReturns None to allow execution, or a dict with error info to block it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "tool_args",
+        "agent_name",
+        "cost"
+      ],
+      "returns": null
+    },
+    {
+      "name": "after_tool_call",
+      "line": 506,
+      "doc": "Post-execution governance check for a tool call.\n\nInspects tool output for blocked patterns.\nReturns the (possibly modified) tool_result, or raises on violation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "tool_result",
+        "agent_name"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "approve",
+      "line": 543,
+      "doc": "Approve a pending tool call by its call_id.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "call_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "deny",
+      "line": 554,
+      "doc": "Deny a pending tool call by its call_id.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "call_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_pending_approvals",
+      "line": 564,
+      "doc": "Return all pending approval requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 572,
+      "doc": "Reset counters and start time (for new execution runs).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 579,
+      "doc": "Return the full audit trail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_violations",
+      "line": 583,
+      "doc": "Return all collected violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 587,
+      "doc": "Get governance statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 608,
+      "doc": "Return adapter health status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_forward",
+      "line": 255,
+      "doc": "Governed wrapper around a smolagents tool's forward method.\n\nIntercepts the tool invocation, validates the call against\nthe active policy, updates call counters and the audit log,\nthen delegates to the original forward implementation.\n\nArgs:\n    *args: Positional arguments forwarded to the original tool.\n    **kwargs: Keyword arguments forwarded to the original tool.\n\nReturns:\n    The result from the original tool's forward method.\n\nRaises:\n    PolicyViolationError: If the call violates the active policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyConfig",
+      "line": 68,
+      "doc": "Policy configuration for smolagents governance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 88,
+      "doc": "Raised when a governance policy is violated.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AuditEvent",
+      "line": 99,
+      "doc": "Single audit trail entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SmolagentsKernel",
+      "line": 108,
+      "doc": "Governance kernel for HuggingFace smolagents.\n\nExtends BaseIntegration and intercepts tool calls on smolagents\nCodeAgent and ToolCallingAgent instances by wrapping each tool's\n``forward`` method with governance checks.\n\nSupports human approval workflows for sensitive tools and\ntoken/call budget tracking.",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 64,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

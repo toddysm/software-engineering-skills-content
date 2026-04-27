@@ -1,0 +1,185 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/otel_observability.py",
+  "extension": ".py",
+  "size_bytes": 8380,
+  "line_count": 261,
+  "documentation": {
+    "file_docstring": "OpenTelemetry native observability for AGT governance operations.\n\nEmits spans and metrics from PolicyEngine, TrustManager, and approval\nworkflows. Zero overhead when OTel is not configured (no-op provider).\n\nUsage::\n\n    from agentmesh.governance.otel_observability import enable_otel\n\n    enable_otel(service_name=\"my-governed-agent\")\n    # All governance operations now emit OTel spans and metrics",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "All governance operations now emit OTel spans and metrics",
+      "Lazy-loaded OTel modules \u2014 zero import cost if unused",
+      "Semantic attribute names for AGT governance",
+      "Tracer",
+      "Meter",
+      "Counters",
+      "Histograms"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "enable_otel: Enable OpenTelemetry instrumentation for AGT.\n\nCall once at application startup.",
+      "trace_policy_evaluation: Context manager that wraps a policy evaluation with an OTel span.\n\nYields a dict",
+      "trace_approval: Context manager for tracing approval workflow spans.",
+      "trace_trust_verification: Context manager for tracing trust verification spans.",
+      "record_denial: Record a policy denial metric.",
+      "_record_metrics: Record evaluation metrics.",
+      "is_enabled: Check if OTel observability is enabled and functional.",
+      "reset: Reset OTel state (for testing only)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record_denial",
+    "trace_trust_verification",
+    "trace_approval",
+    "is_enabled",
+    "reset",
+    "enable_otel",
+    "trace_policy_evaluation"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "contextlib",
+      "typing",
+      "opentelemetry",
+      "opentelemetry.sdk.trace",
+      "opentelemetry.sdk.metrics",
+      "opentelemetry.sdk.resources",
+      "opentelemetry"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "enable_otel",
+      "line": 46,
+      "doc": "Enable OpenTelemetry instrumentation for AGT.\n\nCall once at application startup. If OTel SDK is not installed,\nthis is a no-op with a warning.\n\nArgs:\n    service_name: Service name for OTel resource.\n    endpoint: OTLP endpoint URL. If None, uses env vars\n        (OTEL_EXPORTER_OTLP_ENDPOINT) or default localhost:4317.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "service_name",
+        "endpoint"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_policy_evaluation",
+      "line": 119,
+      "doc": "Context manager that wraps a policy evaluation with an OTel span.\n\nYields a dict that the caller populates with results (rule, action, etc.).\nOn exit, the span is annotated with the results and metrics are recorded.\n\nUsage::\n\n    with trace_policy_evaluation(agent_id=\"a1\", stage=\"pre_tool\") as result:\n        decision = engine.evaluate(agent_id, ctx, stage=stage)\n        result[\"action\"] = decision.action\n        result[\"rule\"] = decision.matched_rule\n        result[\"allowed\"] = decision.allowed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "contextmanager"
+      ],
+      "args": [
+        "agent_id",
+        "stage",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_approval",
+      "line": 177,
+      "doc": "Context manager for tracing approval workflow spans.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "contextmanager"
+      ],
+      "args": [
+        "agent_id",
+        "rule_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_trust_verification",
+      "line": 201,
+      "doc": "Context manager for tracing trust verification spans.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "contextmanager"
+      ],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_denial",
+      "line": 219,
+      "doc": "Record a policy denial metric.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "rule_name",
+        "tool_name",
+        "stage"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record_metrics",
+      "line": 229,
+      "doc": "Record evaluation metrics.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "action",
+        "rule",
+        "stage",
+        "elapsed_ms"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_enabled",
+      "line": 249,
+      "doc": "Check if OTel observability is enabled and functional.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "bool"
+    },
+    {
+      "name": "reset",
+      "line": 254,
+      "doc": "Reset OTel state (for testing only).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

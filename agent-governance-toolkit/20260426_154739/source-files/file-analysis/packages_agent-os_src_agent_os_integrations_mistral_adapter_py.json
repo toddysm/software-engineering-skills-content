@@ -1,0 +1,280 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/mistral_adapter.py",
+  "extension": ".py",
+  "size_bytes": 11904,
+  "line_count": 365,
+  "documentation": {
+    "file_docstring": "Mistral AI Integration\n\nWraps Mistral's Chat API with Agent OS governance.\n\nUsage:\n    from agent_os.integrations.mistral_adapter import MistralKernel\n\n    kernel = MistralKernel(policy=GovernancePolicy(\n        max_tokens=4096,\n        allowed_tools=[\"web_search\"],\n        blocked_patterns=[\"password\"],\n    ))\n\n    governed = kernel.wrap(client)\n    response = governed.chat(\n        model=\"mistral-large-latest\",\n        messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    )\n\nFeatures:\n- Pre-execution policy checks on message content\n- Tool call interception and validation\n- Token limit enforcement\n- Content filtering via blocked patterns\n- Audit logging for all calls\n- Health check endpoint",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "--- pre-execution checks ---",
+      "Validate tools against policy",
+      "Enforce max_tokens cap from policy",
+      "Audit log",
+      "--- execute ---",
+      "--- post-execution checks ---",
+      "Track tokens",
+      "Check for tool calls in response choices",
+      "Post-execute bookkeeping"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_mistral_available: Raise a helpful error when the ``mistralai`` package is missing.",
+      "MistralContext: Execution context for Mistral AI interactions.\n\nAttributes:\n    model: The model",
+      "PolicyViolationError: Raised when a Mistral request violates governance policy.",
+      "MistralKernel: Mistral AI adapter for Agent OS.\n\nProvides governance for the Mistral Chat API i",
+      "GovernedMistralClient: Mistral client wrapped with Agent OS governance.\n\nIntercepts ``chat()`` calls fo",
+      "wrap_client: Quick wrapper for Mistral clients.\n\nArgs:\n    client: A Mistral client instance.",
+      "__init__: Initialise the Mistral governance kernel.\n\nArgs:\n    policy: Governance policy t",
+      "wrap: Wrap a Mistral client with governance.\n\nArgs:\n    client: A ``MistralClient`` or",
+      "unwrap: Retrieve the original unwrapped Mistral client.\n\nArgs:\n    governed_agent: A ``G",
+      "health_check: Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``,"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "wrap_client",
+    "health_check",
+    "chat",
+    "get_context",
+    "get_token_usage",
+    "MistralContext",
+    "GovernedMistralClient",
+    "wrap",
+    "MistralKernel",
+    "PolicyViolationError",
+    "unwrap"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "base",
+      "mistralai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_mistral_available",
+      "line": 52,
+      "doc": "Raise a helpful error when the ``mistralai`` package is missing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "wrap_client",
+      "line": 347,
+      "doc": "Quick wrapper for Mistral clients.\n\nArgs:\n    client: A Mistral client instance.\n    policy: Optional governance policy.\n\nReturns:\n    A governed client.\n\nExample:\n    >>> from agent_os.integrations.mistral_adapter import wrap_client\n    >>> governed = wrap_client(my_client)\n    >>> response = governed.chat(model=\"mistral-large-latest\", ...)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "client",
+        "policy"
+      ],
+      "returns": "GovernedMistralClient"
+    },
+    {
+      "name": "__init__",
+      "line": 101,
+      "doc": "Initialise the Mistral governance kernel.\n\nArgs:\n    policy: Governance policy to enforce. Uses default when ``None``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 115,
+      "doc": "Wrap a Mistral client with governance.\n\nArgs:\n    client: A ``MistralClient`` or ``Mistral`` client instance.\n\nReturns:\n    A ``GovernedMistralClient`` that enforces policy on all\n    ``chat()`` calls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client"
+      ],
+      "returns": "GovernedMistralClient"
+    },
+    {
+      "name": "unwrap",
+      "line": 141,
+      "doc": "Retrieve the original unwrapped Mistral client.\n\nArgs:\n    governed_agent: A ``GovernedMistralClient`` or any object.\n\nReturns:\n    The original Mistral client if applicable, otherwise\n    *governed_agent* as-is.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "health_check",
+      "line": 155,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client",
+        "kernel",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "chat",
+      "line": 191,
+      "doc": "Execute a governed chat completion.\n\nValidates message content against blocked patterns, enforces\ntool-call allowlists, checks token limits after completion,\nand records an audit trail.\n\nArgs:\n    **kwargs: Forwarded to ``client.chat()`` (includes ``model``,\n        ``messages``, ``tools``, etc.).\n\nReturns:\n    The Mistral chat completion response.\n\nRaises:\n    PolicyViolationError: If a governance policy is violated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_context",
+      "line": 299,
+      "doc": "Return the execution context with the full audit trail.\n\nReturns:\n    The ``MistralContext`` for this governed client.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "MistralContext"
+    },
+    {
+      "name": "get_token_usage",
+      "line": 307,
+      "doc": "Return cumulative token usage statistics.\n\nReturns:\n    A dict with ``prompt_tokens``, ``completion_tokens``,\n    ``total_tokens``, and ``limit``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_tools",
+      "line": 321,
+      "doc": "Validate tool definitions against policy allowlist.\n\nArgs:\n    tools: List of tool definitions from the request.\n\nRaises:\n    PolicyViolationError: If a tool is not in the allowed list.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__getattr__",
+      "line": 342,
+      "doc": "Proxy attribute access to the underlying Mistral client.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "MistralContext",
+      "line": 62,
+      "doc": "Execution context for Mistral AI interactions.\n\nAttributes:\n    model: The model used for this session.\n    chat_ids: Recorded chat completion response IDs.\n    function_calls: History of function/tool calls returned by Mistral.\n    prompt_tokens: Cumulative prompt tokens consumed.\n    completion_tokens: Cumulative completion tokens consumed.",
+      "is_public": true,
+      "bases": [
+        "ExecutionContext"
+      ],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 80,
+      "doc": "Raised when a Mistral request violates governance policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MistralKernel",
+      "line": 86,
+      "doc": "Mistral AI adapter for Agent OS.\n\nProvides governance for the Mistral Chat API including policy\nenforcement, tool-call validation, token tracking, and audit logging.\n\nExample:\n    >>> kernel = MistralKernel(policy=GovernancePolicy(max_tokens=8192))\n    >>> governed = kernel.wrap(MistralClient())\n    >>> response = governed.chat(\n    ...     model=\"mistral-large-latest\",\n    ...     messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    ... )",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedMistralClient",
+      "line": 174,
+      "doc": "Mistral client wrapped with Agent OS governance.\n\nIntercepts ``chat()`` calls for policy enforcement while proxying\nall other attributes to the underlying client.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 42,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

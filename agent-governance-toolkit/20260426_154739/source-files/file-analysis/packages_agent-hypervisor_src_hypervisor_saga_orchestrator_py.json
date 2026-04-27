@@ -1,0 +1,216 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/saga/orchestrator.py",
+  "extension": ".py",
+  "size_bytes": 7415,
+  "line_count": 229,
+  "documentation": {
+    "file_docstring": "Semantic Saga Orchestrator\n\nSequential step execution with reverse-order compensation on failure.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Reset to PENDING for retry",
+      "All retries exhausted"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "SagaTimeoutError: Raised when a saga step exceeds its timeout.",
+      "SagaOrchestrator: Orchestrates multi-step agent transactions with saga semantics.\n\nForward executi",
+      "create_saga: Create a new saga for a session.",
+      "add_step: Add a step to a saga.",
+      "execute_step: Execute a single saga step with timeout and retry support.\n\nArgs:\n    saga_id: S",
+      "compensate: Run compensation (rollback) for all committed steps in reverse order.\n\nArgs:\n   ",
+      "get_saga: Get a saga by ID.",
+      "active_sagas: Get all non-terminal sagas."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "SagaTimeoutError",
+    "get_saga",
+    "add_step",
+    "SagaOrchestrator",
+    "active_sagas",
+    "create_saga"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "uuid",
+      "collections.abc",
+      "typing",
+      "hypervisor.constants",
+      "hypervisor.saga.state_machine"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_saga",
+      "line": 51,
+      "doc": "Create a new saga for a session.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": "Saga"
+    },
+    {
+      "name": "add_step",
+      "line": 60,
+      "doc": "Add a step to a saga.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga_id",
+        "action_id",
+        "agent_did",
+        "execute_api",
+        "undo_api",
+        "timeout_seconds",
+        "max_retries"
+      ],
+      "returns": "SagaStep"
+    },
+    {
+      "name": "execute_step",
+      "line": 84,
+      "doc": "Execute a single saga step with timeout and retry support.\n\nArgs:\n    saga_id: Saga identifier\n    step_id: Step identifier\n    executor: Async callable that performs the action\n\nReturns:\n    Result from the executor\n\nRaises:\n    SagaStateError: If step is not in PENDING state\n    SagaTimeoutError: If step exceeds its timeout",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga_id",
+        "step_id",
+        "executor"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "compensate",
+      "line": 152,
+      "doc": "Run compensation (rollback) for all committed steps in reverse order.\n\nArgs:\n    saga_id: Saga identifier\n    compensator: Async callable that takes a SagaStep and calls its Undo_API\n\nReturns:\n    List of steps that failed compensation (empty = full success)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga_id",
+        "compensator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_saga",
+      "line": 207,
+      "doc": "Get a saga by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "active_sagas",
+      "line": 212,
+      "doc": "Get all non-terminal sagas.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_saga",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga_id"
+      ],
+      "returns": "Saga"
+    },
+    {
+      "name": "_get_step",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga",
+        "step_id"
+      ],
+      "returns": "SagaStep"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SagaTimeoutError",
+      "line": 31,
+      "doc": "Raised when a saga step exceeds its timeout.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SagaOrchestrator",
+      "line": 35,
+      "doc": "Orchestrates multi-step agent transactions with saga semantics.\n\nForward execution records each step. On failure, the orchestrator\niterates the Reversibility Registry in reverse order, calling\nUndo_API for each committed step. If any Undo_API fails,\nJoint Liability penalty is triggered.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

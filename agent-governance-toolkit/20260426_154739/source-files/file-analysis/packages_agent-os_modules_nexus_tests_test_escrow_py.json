@@ -1,0 +1,520 @@
+{
+  "path": "packages/agent-os/modules/nexus/tests/test_escrow.py",
+  "extension": ".py",
+  "size_bytes": 11756,
+  "line_count": 276,
+  "documentation": {
+    "file_docstring": "Tests for the Escrow Manager.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Still PENDING, not ACTIVE",
+      "AWAITING_VALIDATION is still active per is_active()"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "funded_escrow_manager: EscrowManager with pre-funded agents.",
+      "TestCreateEscrow: Tests for EscrowManager.create_escrow().",
+      "TestActivateEscrow: Tests for EscrowManager.activate_escrow().",
+      "TestCompleteTask: Tests for EscrowManager.complete_task().",
+      "TestReleaseEscrow: Tests for EscrowManager.release_escrow().",
+      "TestExpireEscrow: Tests for EscrowManager.expire_escrow().",
+      "TestCredits: Tests for credit management.",
+      "TestEscrowStatusTransitions: Tests for status transition validation.",
+      "TestEscrowSchemas: Tests for EscrowRequest and EscrowReceipt validation.",
+      "test_full_lifecycle: PENDING \u2192 ACTIVE \u2192 AWAITING_VALIDATION \u2192 RELEASED."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestEscrowSchemas",
+    "test_escrow_request_timeout_min",
+    "test_escrow_receipt_is_active",
+    "TestActivateEscrow",
+    "TestExpireEscrow",
+    "TestCompleteTask",
+    "TestCreateEscrow",
+    "test_add_credits_accumulates",
+    "test_get_agent_credits_default_zero",
+    "test_escrow_receipt_not_active_when_released",
+    "TestEscrowStatusTransitions",
+    "test_escrow_request_credits_validation",
+    "test_escrow_receipt_is_expired",
+    "funded_escrow_manager",
+    "test_add_credits",
+    "TestCredits",
+    "test_escrow_request_credits_max",
+    "TestReleaseEscrow"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "os",
+      "sys",
+      "datetime",
+      "pytest",
+      "nexus.escrow",
+      "nexus.reputation",
+      "nexus.schemas.escrow",
+      "nexus.exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "funded_escrow_manager",
+      "line": 33,
+      "doc": "EscrowManager with pre-funded agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_escrow_success",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_escrow_locks_credits",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insufficient_credits_raises",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activate_pending_escrow",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activate_nonexistent_raises",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activate_already_active_raises",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_complete_active_task",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_complete_non_active_raises",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_success",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_failure_refunds",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_dispute",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_already_resolved_raises",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expire_returns_credits",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expire_nonexistent_raises",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_agent_credits_default_zero",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_credits",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_credits_accumulates",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_lifecycle",
+      "line": 195,
+      "doc": "PENDING \u2192 ACTIVE \u2192 AWAITING_VALIDATION \u2192 RELEASED.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "funded_escrow_manager",
+        "sample_escrow_request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escrow_request_credits_validation",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escrow_request_credits_max",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escrow_request_timeout_min",
+      "line": 233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escrow_receipt_is_expired",
+      "line": 240,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escrow_receipt_is_active",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escrow_receipt_not_active_when_released",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCreateEscrow",
+      "line": 41,
+      "doc": "Tests for EscrowManager.create_escrow().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestActivateEscrow",
+      "line": 67,
+      "doc": "Tests for EscrowManager.activate_escrow().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCompleteTask",
+      "line": 90,
+      "doc": "Tests for EscrowManager.complete_task().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestReleaseEscrow",
+      "line": 112,
+      "doc": "Tests for EscrowManager.release_escrow().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestExpireEscrow",
+      "line": 158,
+      "doc": "Tests for EscrowManager.expire_escrow().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCredits",
+      "line": 174,
+      "doc": "Tests for credit management.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEscrowStatusTransitions",
+      "line": 191,
+      "doc": "Tests for status transition validation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEscrowSchemas",
+      "line": 216,
+      "doc": "Tests for EscrowRequest and EscrowReceipt validation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 10,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

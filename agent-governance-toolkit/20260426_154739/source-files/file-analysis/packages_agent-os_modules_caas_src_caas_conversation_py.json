@@ -1,0 +1,204 @@
+{
+  "path": "packages/agent-os/modules/caas/src/caas/conversation.py",
+  "extension": ".py",
+  "size_bytes": 7647,
+  "line_count": 223,
+  "documentation": {
+    "file_docstring": "Conversation Manager for Sliding Window (FIFO) history management.\n\nThe Brutal Squeeze Philosophy:\n\"Chopping > Summarizing\"\n\nInstead of asking an AI to summarize conversation history (which costs money and loses nuance),\nwe use a brutal \"Sliding Window\" approach:\n- Keep the last 10 turns perfectly intact\n- Delete turn 11 (FIFO - First In First Out)\n- No summarization = No lossy compression\n- Recent Precision over Vague History\n\nWhy this works:\n- Users rarely refer back to what they said 20 minutes ago\n- They constantly refer to the exact code snippet they pasted 30 seconds ago\n- Summary = Lossy Compression (loses specific error codes, exact wording)\n- Chopping = Lossless Compression (of the recent past)\n\nExample:\nTurn 1: \"I tried X and it failed with error code 500\"\nWith Summarization: \"User attempted troubleshooting\" (ERROR CODE LOST!)\nWith Chopping: After 10 new turns, this is deleted entirely\n                But turns 2-11 are perfectly intact with all details",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Set up logger",
+      "FIFO: If we're at max capacity, delete the oldest turn",
+      "Add the new turn at the end",
+      "Format as text"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ConversationManager: Manages conversation history using a Sliding Window (FIFO) approach.\n\nThe Slidin",
+      "__init__: Initialize the conversation manager.\n\nArgs:\n    max_turns: Maximum number of tur",
+      "add_turn: Add a conversation turn to the history.\n\nThis implements the FIFO Sliding Window",
+      "update_turn_response: Update the AI response for a specific turn.\n\nUseful when you add a turn with jus",
+      "get_conversation_history: Get the conversation history (last N turns).\n\nReturns the history in FIFO order ",
+      "get_recent_turns: Get the N most recent turns.\n\nArgs:\n    n: Number of recent turns to get\n    \nRe",
+      "clear_conversation: Clear all conversation history.",
+      "get_state: Get the current conversation state.\n\nReturns:\n    The current conversation state",
+      "set_state: Set the conversation state.\n\nArgs:\n    state: The new conversation state",
+      "get_statistics: Get statistics about the conversation.\n\nReturns:\n    Dictionary with statistics"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "update_turn_response",
+    "get_statistics",
+    "add_turn",
+    "clear_conversation",
+    "ConversationManager",
+    "get_conversation_history",
+    "set_state",
+    "get_state",
+    "get_recent_turns"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "datetime",
+      "uuid",
+      "logging",
+      "caas.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 54,
+      "doc": "Initialize the conversation manager.\n\nArgs:\n    max_turns: Maximum number of turns to keep (default: 10)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_turns"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_turn",
+      "line": 63,
+      "doc": "Add a conversation turn to the history.\n\nThis implements the FIFO Sliding Window:\n- If we have < max_turns, just add the turn\n- If we have = max_turns, delete the oldest turn and add the new one\n- No summarization, no compression, just brutal chopping\n\nArgs:\n    user_message: The user's message\n    ai_response: The AI's response (optional)\n    metadata: Optional metadata for the turn\n    \nReturns:\n    The ID of the created turn",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_message",
+        "ai_response",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "update_turn_response",
+      "line": 105,
+      "doc": "Update the AI response for a specific turn.\n\nUseful when you add a turn with just the user message\nand want to update it with the AI response later.\n\nArgs:\n    turn_id: The ID of the turn to update\n    ai_response: The AI response to add\n    \nReturns:\n    True if turn was found and updated, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "turn_id",
+        "ai_response"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_conversation_history",
+      "line": 125,
+      "doc": "Get the conversation history (last N turns).\n\nReturns the history in FIFO order (oldest to newest).\nAll turns are perfectly intact - no summarization, no loss.\n\nArgs:\n    include_metadata: Whether to include metadata in text format\n    format_as_text: If True, return formatted text; if False, return list of turns\n    \nReturns:\n    Formatted conversation history or list of turns",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "include_metadata",
+        "format_as_text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_recent_turns",
+      "line": 165,
+      "doc": "Get the N most recent turns.\n\nArgs:\n    n: Number of recent turns to get\n    \nReturns:\n    List of recent turns (newest last)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "n"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_conversation",
+      "line": 177,
+      "doc": "Clear all conversation history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_state",
+      "line": 181,
+      "doc": "Get the current conversation state.\n\nReturns:\n    The current conversation state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "ConversationState"
+    },
+    {
+      "name": "set_state",
+      "line": 190,
+      "doc": "Set the conversation state.\n\nArgs:\n    state: The new conversation state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 199,
+      "doc": "Get statistics about the conversation.\n\nReturns:\n    Dictionary with statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConversationManager",
+      "line": 40,
+      "doc": "Manages conversation history using a Sliding Window (FIFO) approach.\n\nThe Sliding Window ensures:\n1. Recent precision: Last N turns are perfectly intact\n2. Zero summarization cost: No AI calls needed\n3. No information loss: What's kept is lossless\n4. Predictable behavior: Always know what's in context\n\nPhilosophy:\nIn a frugal architecture, we value Recent Precision over Vague History.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

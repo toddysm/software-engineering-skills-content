@@ -1,0 +1,179 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/eu_ai_act.py",
+  "extension": ".py",
+  "size_bytes": 9786,
+  "line_count": 253,
+  "documentation": {
+    "file_docstring": "EU AI Act Risk Classifier (Regulation 2024/1689)\n\nStructured risk classification per Article 6 and Annex III with:\n- Art. 5 prohibited practices detection\n- Art. 6(1) Annex I safety-component path\n- Art. 6(3) exemptions for narrow procedural tasks\n- Profiling override per GDPR Art. 4(4)\n- Configurable risk categories via external YAML/JSON\n\nPromoted from examples/06-eu-ai-act-compliance per issue #756.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Risk levels",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Agent profile",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Classification result",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Configuration loader",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Risk Classifier",
+      "---------------------------------------------------------------------------",
+      "---- public API ----",
+      "1. Article 5 -- Prohibited practices (always checked first)",
+      "2. Article 6(1) -- Safety component under Annex I legislation",
+      "3. Article 6(2) -- Annex III domain check",
+      "3a. Check Art. 6(3) exemptions",
+      "3b. Profiling override: exemptions do NOT apply when profiling",
+      "Exemptions apply -- downgrade from HIGH",
+      "4. Capability-based escalation",
+      "5. Article 50 -- LIMITED transparency obligations",
+      "6. MINIMAL"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RiskLevel: EU AI Act risk tiers (Article 6).",
+      "AgentRiskProfile: Describes an AI system for risk classification.\n\nAttributes:\n    name: Human-rea",
+      "ClassificationResult: Result of a risk classification.",
+      "_normalize: Lowercase and replace spaces/hyphens with underscores.",
+      "_load_config: Load risk classification config from YAML or JSON.\n\nFalls back to the bundled ``",
+      "EUAIActRiskClassifier: Classify an AI system's risk level per Article 6 and Annex III.\n\nSupports extern",
+      "classify: Classify the risk level for an AI system per EU AI Act Article 6.\n\nEvaluates the"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ClassificationResult",
+    "classify",
+    "RiskLevel",
+    "AgentRiskProfile",
+    "EUAIActRiskClassifier"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "dataclasses",
+      "enum",
+      "pathlib",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_normalize",
+      "line": 86,
+      "doc": "Lowercase and replace spaces/hyphens with underscores.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_load_config",
+      "line": 91,
+      "doc": "Load risk classification config from YAML or JSON.\n\nFalls back to the bundled ``eu_ai_act_defaults.yaml``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "classify",
+      "line": 131,
+      "doc": "Classify the risk level for an AI system per EU AI Act Article 6.\n\nEvaluates the profile through the following cascade:\n\n1. **Article 5** -- prohibited practices (returns UNACCEPTABLE)\n2. **Article 6(1)** -- safety component under Annex I legislation (returns HIGH)\n3. **Article 6(2)** -- Annex III domain match (returns HIGH, unless exempted)\n4. **Article 6(3)** -- exemptions for narrow procedural tasks (may downgrade)\n   - Exemptions are voided when ``profile.involves_profiling`` is ``True``\n     (GDPR Art. 4(4) profiling override).\n5. **Capability escalation** -- high-risk capabilities (returns HIGH)\n6. **Article 50** -- transparency obligations (returns LIMITED)\n7. **Default** -- returns MINIMAL\n\nArgs:\n    profile: An ``AgentRiskProfile`` describing the AI system.\n\nReturns:\n    A ``ClassificationResult`` containing the risk level, a list of\n    triggers that explain the classification, any exemptions applied,\n    and whether a profiling override was activated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "profile"
+      ],
+      "returns": "ClassificationResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RiskLevel",
+      "line": 31,
+      "doc": "EU AI Act risk tiers (Article 6).",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentRiskProfile",
+      "line": 44,
+      "doc": "Describes an AI system for risk classification.\n\nAttributes:\n    name: Human-readable system name.\n    description: Free-text description of the system's purpose.\n    domain: Primary domain / use-case identifier.\n    capabilities: List of capability identifiers.\n    is_safety_component: Whether the system is a safety component\n        under EU harmonisation legislation (Annex I).\n    harmonisation_legislation: Specific Annex I legislation if applicable.\n    involves_profiling: Whether the system profiles natural persons\n        per GDPR Art. 4(4).\n    exemption_tags: Art. 6(3) exemption identifiers, if any.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ClassificationResult",
+      "line": 74,
+      "doc": "Result of a risk classification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EUAIActRiskClassifier",
+      "line": 109,
+      "doc": "Classify an AI system's risk level per Article 6 and Annex III.\n\nSupports external configuration so classification rules can be updated\nwhen the regulation is amended (e.g. Annex III changes).\n\nParameters:\n    config_path: Optional path to a YAML or JSON config file.\n        When ``None``, uses the bundled defaults.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "ui",
+      "api"
+    ]
+  }
+}

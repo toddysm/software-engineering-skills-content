@@ -1,0 +1,236 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/govern.py",
+  "extension": ".py",
+  "size_bytes": 11140,
+  "line_count": 311,
+  "documentation": {
+    "file_docstring": "High-level governance wrapper \u2014 2-line integration for any agent framework.\n\nUsage:\n    from agentmesh.governance.govern import govern, GovernanceConfig\n\n    governed_fn = govern(my_tool_function, policy=\"my-policy.yaml\")\n    result = governed_fn(action=\"read\", resource=\"users\")\n\nOr wrap an entire callable (agent, tool, function):\n    from agentmesh.governance import govern\n    safe_agent = govern(agent.run, policy=\"org-policy.yaml\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Load policy",
+      "Ensure the policy applies to our agent_id. If no agents are",
+      "specified, default to wildcard so govern() works out of the box.",
+      "Build evaluation context from kwargs",
+      "Evaluate policy",
+      "Handle require_approval",
+      "Audit",
+      "Handle decision",
+      "Advisory layer \u2014 runs ONLY after deterministic allow",
+      "Allowed \u2014 execute the wrapped function",
+      "Audit the approval decision",
+      "If kwargs contains 'action', use it directly",
+      "Pass through other kwargs as context",
+      "Log advisory decision"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernanceConfig: Configuration for the govern() wrapper.\n\nAttributes:\n    policy: Policy file pat",
+      "GovernanceDenied: Raised when a governed action is denied by policy.",
+      "GovernedCallable: Wraps any callable with policy enforcement and audit logging.\n\nThis is the core ",
+      "govern: Wrap any callable with AGT governance \u2014 2-line integration.\n\nArgs:\n    fn: The f",
+      "__call__: Execute the wrapped function with governance enforcement.",
+      "_handle_approval: Route require_approval decisions through the approval handler.",
+      "_build_context: Build policy evaluation context from function arguments.",
+      "_run_advisory: Run the optional advisory check (defense-in-depth).",
+      "engine: Access the underlying policy engine for advanced use.",
+      "audit_log: Access the audit log for inspection."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "engine",
+    "GovernedCallable",
+    "GovernanceDenied",
+    "GovernanceConfig",
+    "audit_log",
+    "govern"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "functools",
+      "logging",
+      "os",
+      "time",
+      "dataclasses",
+      "typing",
+      "policy",
+      "audit",
+      "approval",
+      "advisory"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "govern",
+      "line": 265,
+      "doc": "Wrap any callable with AGT governance \u2014 2-line integration.\n\nArgs:\n    fn: The function, tool, or agent callable to govern.\n    policy: Policy file path (supports ``extends``), inline YAML\n        string, or a ``Policy`` object.\n    agent_id: Agent identifier for policy evaluation. Default ``\"*\"``.\n    audit: Enable audit logging. Default ``True``.\n    on_deny: Optional callback on denial. Default: raise\n        ``GovernanceDenied``.\n    conflict_strategy: Conflict resolution strategy. Default\n        ``\"deny_overrides\"`` (any deny wins).\n\nReturns:\n    A ``GovernedCallable`` that enforces policy before execution.\n\nExample::\n\n    from agentmesh.governance import govern\n\n    def send_email(to, body):\n        ...\n\n    safe_send = govern(send_email, policy=\"email-policy.yaml\")\n    safe_send(to=\"user@example.com\", body=\"Hello\")  # policy-checked",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "fn"
+      ],
+      "returns": "GovernedCallable"
+    },
+    {
+      "name": "__init__",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "decision"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fn",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 103,
+      "doc": "Execute the wrapped function with governance enforcement.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_handle_approval",
+      "line": 155,
+      "doc": "Route require_approval decisions through the approval handler.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "decision",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "_build_context",
+      "line": 201,
+      "doc": "Build policy evaluation context from function arguments.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "args",
+        "kwargs"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_run_advisory",
+      "line": 225,
+      "doc": "Run the optional advisory check (defense-in-depth).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "engine",
+      "line": 255,
+      "doc": "Access the underlying policy engine for advanced use.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PolicyEngine"
+    },
+    {
+      "name": "audit_log",
+      "line": 260,
+      "doc": "Access the audit log for inspection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernanceConfig",
+      "line": 35,
+      "doc": "Configuration for the govern() wrapper.\n\nAttributes:\n    policy: Policy file path, YAML string, or Policy object.\n    agent_id: Agent identifier for policy evaluation. Defaults to \"*\".\n    audit: Whether to enable audit logging. Defaults to True.\n    audit_file: Path for file-based audit log. None = in-memory only.\n    on_deny: Callback when a policy denies an action. Default: raise.\n    conflict_strategy: Policy conflict resolution strategy.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GovernanceDenied",
+      "line": 57,
+      "doc": "Raised when a governed action is denied by policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedCallable",
+      "line": 68,
+      "doc": "Wraps any callable with policy enforcement and audit logging.\n\nThis is the core primitive \u2014 framework-specific wrappers build on it.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 40,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

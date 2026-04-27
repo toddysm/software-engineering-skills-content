@@ -1,0 +1,281 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/gemini_adapter.py",
+  "extension": ".py",
+  "size_bytes": 12053,
+  "line_count": 364,
+  "documentation": {
+    "file_docstring": "Google Gemini Integration\n\nWraps Google's Generative AI SDK with Agent OS governance.\n\nUsage:\n    from agent_os.integrations.gemini_adapter import GeminiKernel\n    import google.generativeai as genai\n\n    kernel = GeminiKernel(policy=GovernancePolicy(\n        max_tokens=4096,\n        allowed_tools=[\"web_search\"],\n        blocked_patterns=[\"password\"],\n    ))\n\n    model = genai.GenerativeModel(\"gemini-pro\")\n    governed = kernel.wrap(model)\n    response = governed.generate_content(\"Hello\")\n\nFeatures:\n- Pre-execution policy checks on prompts\n- Tool call interception and validation\n- Token limit enforcement\n- Content filtering via blocked patterns\n- Audit logging for all calls\n- Health check endpoint",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "--- pre-execution checks ---",
+      "Validate tools against policy",
+      "Audit log",
+      "--- execute ---",
+      "--- post-execution checks ---",
+      "Track tokens from usage_metadata",
+      "Check for function calls in candidates",
+      "Post-execute bookkeeping"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_genai_available: Raise a helpful error when the ``google-generativeai`` package is missing.",
+      "GeminiContext: Execution context for Google Gemini interactions.\n\nAttributes:\n    model_name: T",
+      "PolicyViolationError: Raised when a Gemini request violates governance policy.",
+      "GeminiKernel: Google Gemini adapter for Agent OS.\n\nProvides governance for ``GenerativeModel.g",
+      "GovernedGeminiModel: Gemini GenerativeModel wrapped with Agent OS governance.\n\nIntercepts ``generate_",
+      "wrap_model: Quick wrapper for Gemini GenerativeModel.\n\nArgs:\n    model: A ``google.generativ",
+      "__init__: Initialise the Gemini governance kernel.\n\nArgs:\n    policy: Governance policy to",
+      "wrap: Wrap a Gemini GenerativeModel with governance.\n\nArgs:\n    model: A ``google.gene",
+      "unwrap: Retrieve the original unwrapped Gemini model.\n\nArgs:\n    governed_agent: A ``Gov",
+      "health_check: Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``,"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "health_check",
+    "get_context",
+    "wrap_model",
+    "get_token_usage",
+    "generate_content",
+    "GeminiContext",
+    "wrap",
+    "GovernedGeminiModel",
+    "PolicyViolationError",
+    "GeminiKernel",
+    "unwrap"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "base",
+      "warnings",
+      "google.generativeai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_genai_available",
+      "line": 54,
+      "doc": "Raise a helpful error when the ``google-generativeai`` package is missing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "wrap_model",
+      "line": 346,
+      "doc": "Quick wrapper for Gemini GenerativeModel.\n\nArgs:\n    model: A ``google.generativeai.GenerativeModel`` instance.\n    policy: Optional governance policy.\n\nReturns:\n    A governed model.\n\nExample:\n    >>> from agent_os.integrations.gemini_adapter import wrap_model\n    >>> governed = wrap_model(my_model)\n    >>> response = governed.generate_content(\"Hello\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "model",
+        "policy"
+      ],
+      "returns": "GovernedGeminiModel"
+    },
+    {
+      "name": "__init__",
+      "line": 101,
+      "doc": "Initialise the Gemini governance kernel.\n\nArgs:\n    policy: Governance policy to enforce. Uses default when ``None``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 115,
+      "doc": "Wrap a Gemini GenerativeModel with governance.\n\nArgs:\n    model: A ``google.generativeai.GenerativeModel`` instance.\n\nReturns:\n    A ``GovernedGeminiModel`` that enforces policy on all\n    ``generate_content()`` calls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "model"
+      ],
+      "returns": "GovernedGeminiModel"
+    },
+    {
+      "name": "unwrap",
+      "line": 143,
+      "doc": "Retrieve the original unwrapped Gemini model.\n\nArgs:\n    governed_agent: A ``GovernedGeminiModel`` or any object.\n\nReturns:\n    The original GenerativeModel if applicable, otherwise\n    *governed_agent* as-is.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "health_check",
+      "line": 157,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 183,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "model",
+        "kernel",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_content",
+      "line": 193,
+      "doc": "Generate content with governance enforcement.\n\nValidates prompt content against blocked patterns, enforces\ntool-call allowlists, checks token limits, and records an\naudit trail.\n\nArgs:\n    contents: The prompt content (string, list, or Content object).\n    **kwargs: Forwarded to ``model.generate_content()``.\n\nReturns:\n    The Gemini generation response.\n\nRaises:\n    PolicyViolationError: If a governance policy is violated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "contents"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_context",
+      "line": 299,
+      "doc": "Return the execution context with the full audit trail.\n\nReturns:\n    The ``GeminiContext`` for this governed model.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "GeminiContext"
+    },
+    {
+      "name": "get_token_usage",
+      "line": 307,
+      "doc": "Return cumulative token usage statistics.\n\nReturns:\n    A dict with ``prompt_tokens``, ``completion_tokens``,\n    ``total_tokens``, and ``limit``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_tools",
+      "line": 321,
+      "doc": "Validate tool definitions against policy allowlist.\n\nArgs:\n    tools: Tool definitions from the request.\n\nRaises:\n    PolicyViolationError: If a tool is not in the allowed list.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__getattr__",
+      "line": 341,
+      "doc": "Proxy attribute access to the underlying Gemini model.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "GeminiContext",
+      "line": 64,
+      "doc": "Execution context for Google Gemini interactions.\n\nAttributes:\n    model_name: The Gemini model used for this session.\n    generation_ids: Recorded generation response identifiers.\n    function_calls: History of function calls returned by Gemini.\n    prompt_tokens: Cumulative prompt tokens consumed.\n    completion_tokens: Cumulative candidate tokens consumed.",
+      "is_public": true,
+      "bases": [
+        "ExecutionContext"
+      ],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 82,
+      "doc": "Raised when a Gemini request violates governance policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GeminiKernel",
+      "line": 88,
+      "doc": "Google Gemini adapter for Agent OS.\n\nProvides governance for ``GenerativeModel.generate_content()`` calls\nincluding policy enforcement, tool-call validation, token tracking,\nand audit logging.\n\nExample:\n    >>> kernel = GeminiKernel(policy=GovernancePolicy(max_tokens=8192))\n    >>> governed = kernel.wrap(genai.GenerativeModel(\"gemini-pro\"))\n    >>> response = governed.generate_content(\"Explain quantum computing\")",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedGeminiModel",
+      "line": 176,
+      "doc": "Gemini GenerativeModel wrapped with Agent OS governance.\n\nIntercepts ``generate_content()`` for policy enforcement while\nproxying all other attributes to the underlying model.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 38,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

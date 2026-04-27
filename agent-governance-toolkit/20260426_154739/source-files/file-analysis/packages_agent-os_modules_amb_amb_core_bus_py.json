@@ -1,0 +1,346 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/bus.py",
+  "extension": ".py",
+  "size_bytes": 16560,
+  "line_count": 481,
+  "documentation": {
+    "file_docstring": "Main MessageBus implementation.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Basic usage (backward compatible)",
+      "With new features",
+      "Persistence (AMB-001)",
+      "Schema validation (AMB-003)",
+      "Dead letter queue (AMB-002)",
+      "Tracing (AMB-004)",
+      "Fire and forget (fast, no guarantee)",
+      "Wait for verification (slower, with guarantee)",
+      "With new features",
+      "Schema validation (AMB-003)",
+      "Auto-inject trace context (AMB-004)",
+      "Persist message if enabled (AMB-001)",
+      "Update persistence status",
+      "Wrap handler with DLQ support if enabled",
+      "Check if message is expired (AMB-007)",
+      "Update persistence status if enabled",
+      "Route to DLQ on failure (AMB-002)",
+      "Update persistence status",
+      "Re-raise if no DLQ to maintain original behavior",
+      "Auto-inject trace context",
+      "Replay all messages from the last hour",
+      "Import datetime for type hints"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MessageBus: Main message bus interface for AI Agents.\n\nThis class provides a simple API for ",
+      "__init__: Initialize the message bus.\n\nArgs:\n    adapter: Broker adapter to use. If None, ",
+      "dlq: Get the dead letter queue.",
+      "persistence: Get the message store.",
+      "schema_registry: Get the schema registry.",
+      "connect: Connect to the broker.",
+      "disconnect: Disconnect from the broker.",
+      "__aenter__: Async context manager entry.",
+      "__aexit__: Async context manager exit.",
+      "publish: Publish a message to a topic.\n\nThis method supports both \"fire and forget\" (defa"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "dlq",
+    "MessageBus",
+    "schema_registry",
+    "persistence"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "uuid",
+      "traceback",
+      "typing",
+      "amb_core.broker",
+      "amb_core.models",
+      "amb_core.memory_broker",
+      "amb_core.schema",
+      "amb_core.dlq",
+      "amb_core.persistence",
+      "amb_core.tracing",
+      "datetime"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 54,
+      "doc": "Initialize the message bus.\n\nArgs:\n    adapter: Broker adapter to use. If None, uses InMemoryBroker.\n    persistence: Enable message persistence. Can be True for default\n                InMemoryMessageStore, or a MessageStore instance.\n    schema_registry: SchemaRegistry for message validation.\n    dlq_enabled: Enable dead letter queue. Can be True for default\n                DeadLetterQueue, or a DeadLetterQueue instance.\n    auto_inject_trace: Automatically inject trace context into messages.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "adapter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "dlq",
+      "line": 101,
+      "doc": "Get the dead letter queue.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "persistence",
+      "line": 106,
+      "doc": "Get the message store.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "schema_registry",
+      "line": 111,
+      "doc": "Get the schema registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "connect",
+      "line": 115,
+      "doc": "Connect to the broker.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disconnect",
+      "line": 120,
+      "doc": "Disconnect from the broker.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__aenter__",
+      "line": 125,
+      "doc": "Async context manager entry.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__aexit__",
+      "line": 130,
+      "doc": "Async context manager exit.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish",
+      "line": 134,
+      "doc": "Publish a message to a topic.\n\nThis method supports both \"fire and forget\" (default) and\n\"wait for verification\" patterns via the wait_for_confirmation parameter.\n\nArgs:\n    topic: Topic to publish to\n    payload: Message payload\n    priority: Message priority level (use Priority.HIGH, Priority.URGENT, etc.)\n    sender: Optional sender identifier\n    wait_for_confirmation: If True, wait for broker confirmation\n    ttl_seconds: Time-to-live in seconds (message expires after this)\n    trace_id: Distributed trace ID for tracking message flow\n    **kwargs: Additional message attributes\n\nReturns:\n    Message ID\n\nRaises:\n    ConnectionError: If not connected to the bus\n    SchemaValidationError: If schema validation fails (when registry configured)\n\nExample:\n    # Fire and forget (fast, no guarantee)\n    await bus.publish(\"agent.thoughts\", {\"thought\": \"Hello\"})\n    \n    # Wait for verification (slower, with guarantee)\n    msg_id = await bus.publish(\n        \"agent.action\",\n        {\"action\": \"execute\"},\n        wait_for_confirmation=True\n    )\n    \n    # With new features\n    await bus.publish(\n        \"fraud.alerts\",\n        {\"transaction_id\": \"tx123\", \"risk_score\": 0.95},\n        priority=Priority.CRITICAL,\n        ttl_seconds=300,\n        trace_id=str(uuid4())\n    )",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "payload"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "subscribe",
+      "line": 227,
+      "doc": "Subscribe to a topic with a message handler.\n\nArgs:\n    topic: Topic to subscribe to\n    handler: Async function to handle messages\n    with_dlq: If True and DLQ is enabled, route failed messages to DLQ\n\nReturns:\n    Subscription ID\n\nExample:\n    async def handle_message(msg: Message):\n        print(f\"Received: {msg.payload}\")\n    \n    sub_id = await bus.subscribe(\"agent.thoughts\", handle_message)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "handler"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_wrap_handler_with_dlq",
+      "line": 262,
+      "doc": "Wrap a message handler with DLQ error handling.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "handler",
+        "topic"
+      ],
+      "returns": "MessageHandler"
+    },
+    {
+      "name": "unsubscribe",
+      "line": 306,
+      "doc": "Unsubscribe from a topic.\n\nArgs:\n    subscription_id: Subscription ID to unsubscribe",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "subscription_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request",
+      "line": 318,
+      "doc": "Send a request and wait for a response.\n\nThis implements the request-response pattern for cases where\nyou need to wait for a reply from another agent.\n\nArgs:\n    topic: Topic to send request to\n    payload: Request payload\n    timeout: Maximum time to wait for response\n    sender: Optional sender identifier\n    **kwargs: Additional message attributes\n\nReturns:\n    Response message\n\nRaises:\n    TimeoutError: If no response within timeout\n\nExample:\n    response = await bus.request(\n        \"agent.query\",\n        {\"query\": \"What is the status?\"},\n        timeout=10.0\n    )\n    print(response.payload)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "payload"
+      ],
+      "returns": "Message"
+    },
+    {
+      "name": "reply",
+      "line": 376,
+      "doc": "Reply to a request message.\n\nArgs:\n    original_message: The original request message\n    payload: Reply payload\n\nReturns:\n    Reply message ID\n\nExample:\n    async def handle_request(msg: Message):\n        result = process_request(msg.payload)\n        await bus.reply(msg, {\"result\": result})",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "original_message",
+        "payload"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "replay",
+      "line": 412,
+      "doc": "Replay persisted messages from a topic (AMB-001).\n\nArgs:\n    topic: Topic to replay messages from\n    handler: Handler to process replayed messages\n    from_timestamp: Start timestamp (inclusive)\n    to_timestamp: End timestamp (inclusive)\n    \nReturns:\n    Number of messages replayed\n    \nRaises:\n    ValueError: If persistence is not enabled\n    \nExample:\n    # Replay all messages from the last hour\n    from datetime import datetime, timedelta, timezone\n    \n    one_hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)\n    count = await bus.replay(\n        \"fraud.alerts\",\n        handle_alert,\n        from_timestamp=one_hour_ago\n    )\n    print(f\"Replayed {count} messages\")",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "handler"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_dlq_stats",
+      "line": 457,
+      "doc": "Get DLQ statistics.\n\nReturns:\n    DLQ stats dict or None if DLQ not enabled",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_persistence_stats",
+      "line": 468,
+      "doc": "Get persistence statistics.\n\nReturns:\n    Persistence stats dict or None if persistence not enabled",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "dlq_handler",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "message"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MessageBus",
+      "line": 17,
+      "doc": "Main message bus interface for AI Agents.\n\nThis class provides a simple API for publishing and subscribing to messages\nwith support for both \"fire and forget\" and \"wait for verification\" patterns.\n\nNew in v0.2.0:\n    - persistence: Enable durable message storage for replay capability\n    - schema_registry: Validate messages against schemas\n    - dlq_enabled: Route failed messages to dead letter queue\n    - Distributed tracing support via trace_id\n\nExample:\n    # Basic usage (backward compatible)\n    bus = MessageBus(adapter=InMemoryAdapter())\n    await bus.publish(\"topic\", Message(payload=data))\n    \n    # With new features\n    bus = MessageBus(\n        adapter=InMemoryAdapter(),\n        persistence=True,              # Durable messages\n        schema_registry=schemas,       # Validation\n        dlq_enabled=True               # Dead letter queue\n    )\n    \n    await bus.publish(\n        \"topic\",\n        Message(\n            payload=data,\n            priority=Priority.HIGH,    # Prioritization\n            ttl_seconds=300,           # Expiration\n            trace_id=uuid4()           # Distributed tracing\n        )\n    )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 67,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "path": "packages/agent-os/src/agent_os/event_bus.py",
+  "extension": ".py",
+  "size_bytes": 4104,
+  "line_count": 124,
+  "documentation": {
+    "file_docstring": "Cross-gate event bus for governance layer composition.\n\nEnables governance gates (PolicyEvaluator, TrustGate, CircuitBreaker,\nConversationGuardian) to communicate via events without tight coupling.\n\nExample::\n\n    bus = GovernanceEventBus()\n    bus.subscribe(\"policy.violation\", on_violation)\n    bus.publish(\"policy.violation\", agent_id=\"a1\", action=\"delete_db\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Standard event types",
+      "Trust gate penalizes on policy violations",
+      "Circuit breaker trips on trust penalties",
+      "Policy engine publishes violation",
+      "Wildcard subscribers"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernanceEvent: A governance event emitted by any gate.",
+      "GovernanceEventBus: Publish/subscribe event bus for governance gate composition.\n\nExample::\n\n    bus",
+      "subscribe: Subscribe a handler to an event type.",
+      "unsubscribe: Remove a handler from an event type.",
+      "publish: Publish an event to all subscribers.",
+      "get_history: Get recent events, optionally filtered by type.",
+      "clear_history: Clear event history."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "GovernanceEventBus",
+    "subscribe",
+    "unsubscribe",
+    "clear_history",
+    "get_history",
+    "publish",
+    "GovernanceEvent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "collections",
+      "dataclasses",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "subscribe",
+      "line": 77,
+      "doc": "Subscribe a handler to an event type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unsubscribe",
+      "line": 81,
+      "doc": "Remove a handler from an event type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish",
+      "line": 88,
+      "doc": "Publish an event to all subscribers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "source",
+        "agent_id"
+      ],
+      "returns": "GovernanceEvent"
+    },
+    {
+      "name": "get_history",
+      "line": 115,
+      "doc": "Get recent events, optionally filtered by type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_history",
+      "line": 122,
+      "doc": "Clear event history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernanceEvent",
+      "line": 29,
+      "doc": "A governance event emitted by any gate.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GovernanceEventBus",
+      "line": 50,
+      "doc": "Publish/subscribe event bus for governance gate composition.\n\nExample::\n\n    bus = GovernanceEventBus()\n\n    # Trust gate penalizes on policy violations\n    def on_violation(event):\n        trust_engine.penalize(event.agent_id, severity=0.3)\n    bus.subscribe(\"policy.violation\", on_violation)\n\n    # Circuit breaker trips on trust penalties\n    def on_trust_penalty(event):\n        if event.data.get(\"new_score\", 1.0) < 0.3:\n            circuit_breaker.trip(event.agent_id)\n    bus.subscribe(\"trust.penalty\", on_trust_penalty)\n\n    # Policy engine publishes violation\n    bus.publish(\"policy.violation\", agent_id=\"agent-1\", action=\"drop_table\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,846 @@
+{
+  "path": "packages/agent-hypervisor/tests/test_shapley_attribution.py",
+  "extension": ".py",
+  "size_bytes": 23289,
+  "line_count": 569,
+  "documentation": {
+    "file_docstring": "Tests for Shapley-value fault attribution.\n\nValidates the mathematical properties of Shapley-value-inspired fault\nattribution: efficiency, symmetry, null-player, additivity, and correct\nmarginal contribution calculations across single-agent, multi-agent,\nweighted, and cascading fault scenarios.\n\nCloses #9",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Shapley-value helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Implements game-theoretic Shapley value computation so we can verify",
+      "that attribution results satisfy the required mathematical properties.",
+      "\u2500\u2500 Single Agent Fault Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Two Agent Fault Attribution Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Equal Contribution Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Weighted Agent Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Chain / Cascading Attribution Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 No Fault (Zero Attribution) Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Edge Cases \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Performance Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Coalition Computation Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Marginal Contribution Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Shapley Axiom Verification \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Integration with Liability System \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "characteristic_value: Characteristic function v(S): value (fault contribution) of a coalition.\n\nA coal",
+      "compute_shapley_values: Compute exact Shapley values for each agent.\n\n\u03c6_i = \u03a3_{S\u2286N\\{i}} [ |S|!(n-|S|-1)!",
+      "normalize_shapley: Normalize Shapley values to sum to 1.0 (liability shares).",
+      "TestSingleAgentFault: When only one agent exists and is faulty, it gets 100% attribution.",
+      "TestTwoAgentFault: When two agents participate and one is faulty.",
+      "TestEqualContribution: When all agents contribute equally to a fault.",
+      "TestWeightedAgents: Agents with different weights get proportional attribution.",
+      "TestCascadingAttribution: Cascading faults across a chain of agents.",
+      "TestNoFault: When no agent is faulty, all attributions should be zero.",
+      "TestEdgeCases: Edge cases: empty sets, single agent, many agents."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_marginal_of_faulty_agent_is_positive",
+    "test_vouching_engine_accepts_attributed_agent",
+    "TestTwoAgentFault",
+    "test_grand_coalition_value",
+    "test_marginal_equals_weight_for_independent_game",
+    "test_shapley_weighted_proportional",
+    "TestWeightedAgents",
+    "test_empty_agent_set",
+    "test_shapley_three_equal_agents",
+    "test_attribution_feeds_ledger",
+    "compute_shapley_values",
+    "test_faulty_agent_has_higher_liability",
+    "test_singleton_coalition_value",
+    "test_empty_coalition_value_is_zero",
+    "test_symmetry_axiom",
+    "test_shapley_no_fault_agents_all_zero",
+    "test_null_player_axiom",
+    "TestNoFault",
+    "test_shapley_two_agents_both_faulty_equal",
+    "test_single_agent_gets_full_liability",
+    "test_zero_attribution_normalized",
+    "test_attribution_id_uniqueness",
+    "test_equal_attribution_sums_to_one",
+    "test_fault_attribution_dataclass_fields",
+    "test_efficiency_axiom",
+    "test_get_liability_for_unknown_agent",
+    "test_single_agent_is_root_cause",
+    "test_additivity_axiom",
+    "TestCoalitionComputation",
+    "test_many_attributions_history",
+    "test_shapley_single_agent_full_value",
+    "test_shapley_weighted_two_agents",
+    "TestShapleyAxioms",
+    "test_shapley_cascading_decreasing_weights",
+    "TestSingleAgentFault",
+    "test_shapley_null_player_in_mixed_game",
+    "test_coalition_monotonicity",
+    "test_attributor_with_empty_actions",
+    "TestCascadingAttribution",
+    "TestMarginalContribution",
+    "test_risk_weights_passed_to_attributor",
+    "test_shapley_symmetry_property",
+    "test_shapley_two_agents_one_faulty",
+    "test_chain_of_three_with_root_cause",
+    "test_shapley_ten_agents_completes",
+    "characteristic_value",
+    "TestLiabilityIntegration",
+    "test_attribution_result_agents_involved",
+    "test_marginal_of_non_faulty_is_zero",
+    "TestEqualContribution",
+    "normalize_shapley",
+    "TestEdgeCases",
+    "test_zero_weight_agent_gets_zero_shapley",
+    "test_long_chain_root_cause_dominates",
+    "test_shapley_twelve_agents_efficiency_holds",
+    "test_single_non_faulty_agent",
+    "TestPerformance",
+    "test_single_agent_is_direct_cause",
+    "test_non_faulty_agent_gets_zero",
+    "test_coalition_subadditivity_with_non_faulty",
+    "test_repeated_faults_accumulate_in_ledger"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "math",
+      "time",
+      "itertools",
+      "hypervisor.liability.attribution",
+      "hypervisor.liability.ledger",
+      "hypervisor.liability.vouching"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_factorial",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "n"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "characteristic_value",
+      "line": 36,
+      "doc": "Characteristic function v(S): value (fault contribution) of a coalition.\n\nA coalition's value is the sum of weighted fault contributions of\nits faulty members. Non-faulty agents contribute 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "coalition",
+        "fault_agents",
+        "weights"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "compute_shapley_values",
+      "line": 54,
+      "doc": "Compute exact Shapley values for each agent.\n\n\u03c6_i = \u03a3_{S\u2286N\\{i}} [ |S|!(n-|S|-1)! / n! ] * [v(S\u222a{i}) - v(S)]",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agents",
+        "fault_agents",
+        "weights"
+      ],
+      "returns": null
+    },
+    {
+      "name": "normalize_shapley",
+      "line": 82,
+      "doc": "Normalize Shapley values to sum to 1.0 (liability shares).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "values"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_agent_gets_full_liability",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_agent_is_root_cause",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_agent_is_direct_cause",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_single_agent_full_value",
+      "line": 115,
+      "doc": "Shapley value for a single-player game: player gets full value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_faulty_agent_has_higher_liability",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_faulty_agent_gets_zero",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_two_agents_one_faulty",
+      "line": 145,
+      "doc": "Only the faulty agent has positive Shapley value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_two_agents_both_faulty_equal",
+      "line": 151,
+      "doc": "Both faulty agents split the total value equally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_three_equal_agents",
+      "line": 163,
+      "doc": "Three equally-faulty agents get equal Shapley shares.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_symmetry_property",
+      "line": 170,
+      "doc": "Shapley symmetry axiom: interchangeable players get equal values.\n\nIf v(S \u222a {i}) = v(S \u222a {j}) for all S, then \u03c6_i = \u03c6_j.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_equal_attribution_sums_to_one",
+      "line": 181,
+      "doc": "Normalized attributions always sum to 1.0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_weighted_two_agents",
+      "line": 196,
+      "doc": "Agent with double weight gets double the Shapley value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_weighted_proportional",
+      "line": 203,
+      "doc": "Weighted Shapley values are proportional to weights.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_risk_weights_passed_to_attributor",
+      "line": 212,
+      "doc": "CausalAttributor accepts risk_weights without error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_zero_weight_agent_gets_zero_shapley",
+      "line": 225,
+      "doc": "An agent with zero weight gets zero Shapley value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_of_three_with_root_cause",
+      "line": 239,
+      "doc": "In a chain A\u2192B\u2192C, root cause agent gets highest attribution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_cascading_decreasing_weights",
+      "line": 251,
+      "doc": "In a cascade, earlier agents should have higher attribution\nwhen weighted by position.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_long_chain_root_cause_dominates",
+      "line": 260,
+      "doc": "Root cause in a 5-agent chain should have highest Shapley value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_no_fault_agents_all_zero",
+      "line": 275,
+      "doc": "Null player axiom: non-faulty agents get zero Shapley value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_null_player_in_mixed_game",
+      "line": 281,
+      "doc": "A non-faulty agent among faulty ones gets zero.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_zero_attribution_normalized",
+      "line": 288,
+      "doc": "Normalizing all-zero values yields all zeros.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_agent_set",
+      "line": 301,
+      "doc": "Shapley with no agents returns empty dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_non_faulty_agent",
+      "line": 306,
+      "doc": "Single agent that didn't cause fault gets zero.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_attributor_with_empty_actions",
+      "line": 311,
+      "doc": "CausalAttributor handles empty agent_actions dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_liability_for_unknown_agent",
+      "line": 318,
+      "doc": "get_liability returns 0.0 for unknown agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_attribution_result_agents_involved",
+      "line": 323,
+      "doc": "agents_involved returns all participating agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_attribution_id_uniqueness",
+      "line": 336,
+      "doc": "Each AttributionResult gets a unique attribution_id.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fault_attribution_dataclass_fields",
+      "line": 342,
+      "doc": "FaultAttribution fields are correctly set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_ten_agents_completes",
+      "line": 364,
+      "doc": "Shapley computation for 10 agents completes within 5 seconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shapley_twelve_agents_efficiency_holds",
+      "line": 373,
+      "doc": "Efficiency property holds for 12-agent coalition.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_many_attributions_history",
+      "line": 381,
+      "doc": "CausalAttributor handles many sequential attributions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_coalition_value_is_zero",
+      "line": 396,
+      "doc": "v(\u2205) = 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grand_coalition_value",
+      "line": 400,
+      "doc": "v(N) equals sum of all fault weights.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_singleton_coalition_value",
+      "line": 406,
+      "doc": "v({i}) = weight of i if faulty, else 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_coalition_monotonicity",
+      "line": 412,
+      "doc": "Adding a faulty agent to a coalition never decreases its value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_coalition_subadditivity_with_non_faulty",
+      "line": 419,
+      "doc": "Adding a non-faulty agent doesn't change coalition value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_marginal_of_faulty_agent_is_positive",
+      "line": 433,
+      "doc": "Faulty agent's marginal contribution to any coalition is non-negative.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_marginal_of_non_faulty_is_zero",
+      "line": 446,
+      "doc": "Non-faulty agent's marginal contribution is always zero.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_marginal_equals_weight_for_independent_game",
+      "line": 459,
+      "doc": "In an additive game, marginal contribution equals agent's weight.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_efficiency_axiom",
+      "line": 475,
+      "doc": "Efficiency: \u03a3 \u03c6_i = v(N).\n\nThe sum of all Shapley values equals the grand coalition value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_symmetry_axiom",
+      "line": 487,
+      "doc": "Symmetry: if i and j are interchangeable, \u03c6_i = \u03c6_j.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_null_player_axiom",
+      "line": 494,
+      "doc": "Null player: if i adds no value to any coalition, \u03c6_i = 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_additivity_axiom",
+      "line": 499,
+      "doc": "Additivity: \u03c6(v+w) = \u03c6(v) + \u03c6(w) for any two games v, w.\n\nTested by computing Shapley values for two separate games and\nverifying they sum to the combined game's Shapley values.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_attribution_feeds_ledger",
+      "line": 526,
+      "doc": "Attribution result can be recorded in the liability ledger.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_repeated_faults_accumulate_in_ledger",
+      "line": 547,
+      "doc": "Multiple fault attributions accumulate in the ledger.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vouching_engine_accepts_attributed_agent",
+      "line": 564,
+      "doc": "Vouching engine works with agents that have fault attributions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestSingleAgentFault",
+      "line": 93,
+      "doc": "When only one agent exists and is faulty, it gets 100% attribution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTwoAgentFault",
+      "line": 124,
+      "doc": "When two agents participate and one is faulty.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEqualContribution",
+      "line": 160,
+      "doc": "When all agents contribute equally to a fault.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestWeightedAgents",
+      "line": 193,
+      "doc": "Agents with different weights get proportional attribution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCascadingAttribution",
+      "line": 236,
+      "doc": "Cascading faults across a chain of agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestNoFault",
+      "line": 272,
+      "doc": "When no agent is faulty, all attributions should be zero.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 298,
+      "doc": "Edge cases: empty sets, single agent, many agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPerformance",
+      "line": 361,
+      "doc": "Performance: large agent coalitions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCoalitionComputation",
+      "line": 393,
+      "doc": "Coalition value function correctness.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMarginalContribution",
+      "line": 430,
+      "doc": "Marginal contribution calculation correctness.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestShapleyAxioms",
+      "line": 472,
+      "doc": "Verify the four Shapley axioms hold.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLiabilityIntegration",
+      "line": 523,
+      "doc": "Integration tests between attribution and the broader liability system.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

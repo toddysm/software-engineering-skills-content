@@ -1,0 +1,253 @@
+{
+  "path": "packages/agent-os/modules/caas/src/caas/hf_utils.py",
+  "extension": ".py",
+  "size_bytes": 14728,
+  "line_count": 479,
+  "documentation": {
+    "file_docstring": "Hugging Face Hub Utilities for CaaS.\n\nThis module provides utilities for uploading and downloading datasets,\nexperiment results, and model artifacts to/from Hugging Face Hub.\n\nExample:\n    Upload experiment results to Hugging Face::\n\n        from caas.hf_utils import CaaSHubClient\n\n        client = CaaSHubClient(repo_id=\"microsoft/caas-benchmark\")\n        client.upload_experiment_logs(\n            results_path=\"experiments/results.json\",\n            commit_message=\"Add benchmark results v0.2.0\"\n        )\n\n    Download the benchmark corpus::\n\n        client = CaaSHubClient(repo_id=\"microsoft/caas-benchmark\")\n        corpus_path = client.download_benchmark_corpus()\n        print(f\"Corpus downloaded to: {corpus_path}\")\n\nNote:\n    Requires the `huggingface_hub` package: ``pip install huggingface_hub``\n\n    For uploads, you must be authenticated. Run ``huggingface-cli login``\n    or set the ``HF_TOKEN`` environment variable.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Lazy import to avoid hard dependency",
+      "Default repository IDs",
+      "If metadata provided, merge it into the results",
+      "Write to temp file",
+      "Clean up temp file",
+      "Convenience functions for quick access",
+      "Create repo if needed",
+      "Upload the folder"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ExperimentMetadata: Metadata for an experiment run.\n\nAttributes:\n    experiment_name: Human-readable",
+      "CaaSHubClient: Client for interacting with Hugging Face Hub for CaaS artifacts.\n\nThis client pr",
+      "upload_experiment_logs: Upload experiment results to Hugging Face Hub.\n\nConvenience function that create",
+      "download_benchmark_corpus: Download the CaaS benchmark corpus.\n\nConvenience function for downloading the of",
+      "push_dataset_to_hub: Push a dataset folder to Hugging Face Hub.\n\nCreates the repository if it doesn't",
+      "to_dict: Convert metadata to a dictionary.\n\nReturns:\n    Dict containing all metadata fie",
+      "__init__: Initialize the Hugging Face Hub client.\n\nArgs:\n    repo_id: The Hugging Face rep",
+      "download_benchmark_corpus: Download the CaaS benchmark corpus from Hugging Face.\n\nArgs:\n    local_dir: Loca",
+      "download_file: Download a specific file from the repository.\n\nArgs:\n    filename: Path to the f",
+      "upload_experiment_logs: Upload experiment results to Hugging Face Hub.\n\nArgs:\n    results_path: Local pa"
+    ]
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path"
+    ]
+  },
+  "exports": [
+    "create_dataset_repo",
+    "upload_experiment_logs",
+    "download_benchmark_corpus",
+    "upload_folder",
+    "push_dataset_to_hub",
+    "to_dict",
+    "download_file",
+    "ExperimentMetadata",
+    "CaaSHubClient"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "os",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "huggingface_hub"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "upload_experiment_logs",
+      "line": 381,
+      "doc": "Upload experiment results to Hugging Face Hub.\n\nConvenience function that creates a client and uploads results.\n\nArgs:\n    results_path: Path to the results file.\n    repo_id: Target repository ID.\n    commit_message: Git commit message.\n    token: Optional API token.\n\nReturns:\n    URL of the uploaded file.\n\nExample:\n    Quick upload::\n\n        from caas.hf_utils import upload_experiment_logs\n        url = upload_experiment_logs(\"results/eval.json\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results_path",
+        "repo_id",
+        "commit_message",
+        "token"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "download_benchmark_corpus",
+      "line": 413,
+      "doc": "Download the CaaS benchmark corpus.\n\nConvenience function for downloading the official benchmark corpus.\n\nArgs:\n    local_dir: Local directory to download to.\n    repo_id: Source repository ID.\n    token: Optional API token.\n\nReturns:\n    Path to the downloaded corpus.\n\nExample:\n    Quick download::\n\n        from caas.hf_utils import download_benchmark_corpus\n        corpus_path = download_benchmark_corpus(\"./data\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "local_dir",
+        "repo_id",
+        "token"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "push_dataset_to_hub",
+      "line": 440,
+      "doc": "Push a dataset folder to Hugging Face Hub.\n\nCreates the repository if it doesn't exist and uploads the data.\n\nArgs:\n    data_path: Path to the dataset folder.\n    repo_id: Target repository ID (format: \"username/dataset-name\").\n    commit_message: Git commit message.\n    private: Whether to create a private repository.\n    token: Optional API token.\n\nReturns:\n    URL of the repository.\n\nExample:\n    Push local dataset::\n\n        from caas.hf_utils import push_dataset_to_hub\n        url = push_dataset_to_hub(\n            data_path=\"./benchmarks/data/sample_corpus\",\n            repo_id=\"myuser/enterprise-docs-benchmark\"\n        )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data_path",
+        "repo_id",
+        "commit_message",
+        "private",
+        "token"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 95,
+      "doc": "Convert metadata to a dictionary.\n\nReturns:\n    Dict containing all metadata fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 135,
+      "doc": "Initialize the Hugging Face Hub client.\n\nArgs:\n    repo_id: The Hugging Face repository ID.\n    token: Optional API token. Falls back to HF_TOKEN env var or cached login.\n    repo_type: Type of repository (\"dataset\", \"model\", or \"space\").\n\nRaises:\n    ImportError: If huggingface_hub is not installed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "repo_id",
+        "token",
+        "repo_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "download_benchmark_corpus",
+      "line": 162,
+      "doc": "Download the CaaS benchmark corpus from Hugging Face.\n\nArgs:\n    local_dir: Local directory to download to. Defaults to cache.\n    revision: Git revision (branch, tag, or commit hash).\n\nReturns:\n    Path to the downloaded corpus directory.\n\nExample:\n    Download to custom directory::\n\n        client = CaaSHubClient()\n        path = client.download_benchmark_corpus(local_dir=\"./data/corpus\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "local_dir",
+        "revision"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "download_file",
+      "line": 196,
+      "doc": "Download a specific file from the repository.\n\nArgs:\n    filename: Path to the file within the repository.\n    local_dir: Local directory to save the file.\n    revision: Git revision.\n\nReturns:\n    Path to the downloaded file.\n\nExample:\n    Download specific results file::\n\n        client = CaaSHubClient()\n        path = client.download_file(\"results/evaluation_results.json\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "filename",
+        "local_dir",
+        "revision"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "upload_experiment_logs",
+      "line": 229,
+      "doc": "Upload experiment results to Hugging Face Hub.\n\nArgs:\n    results_path: Local path to the results file (JSON or folder).\n    path_in_repo: Path within the repository. Defaults to filename.\n    commit_message: Git commit message.\n    metadata: Optional experiment metadata to include.\n\nReturns:\n    URL of the uploaded file.\n\nExample:\n    Upload with metadata::\n\n        metadata = ExperimentMetadata(\n            experiment_name=\"ablation_study_v1\",\n            caas_version=\"0.2.0\",\n            metrics={\"precision_at_5\": 0.847}\n        )\n        url = client.upload_experiment_logs(\n            \"results.json\",\n            metadata=metadata\n        )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "results_path",
+        "path_in_repo",
+        "commit_message",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "upload_folder",
+      "line": 300,
+      "doc": "Upload a folder to Hugging Face Hub.\n\nArgs:\n    folder_path: Local folder path.\n    path_in_repo: Target path within the repository.\n    commit_message: Git commit message.\n    ignore_patterns: Patterns to ignore (e.g., [\"*.pyc\", \"__pycache__\"]).\n\nReturns:\n    URL of the repository.\n\nExample:\n    Upload entire results folder::\n\n        url = client.upload_folder(\n            \"experiments/results/\",\n            path_in_repo=\"benchmark_results/v0.2.0\"\n        )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "folder_path",
+        "path_in_repo",
+        "commit_message",
+        "ignore_patterns"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "create_dataset_repo",
+      "line": 345,
+      "doc": "Create a new dataset repository on Hugging Face Hub.\n\nArgs:\n    repo_name: Name for the new repository. Uses self.repo_id if None.\n    private: Whether the repository should be private.\n    exist_ok: Don't raise error if repo already exists.\n\nReturns:\n    URL of the created repository.\n\nExample:\n    Create a new private dataset repo::\n\n        client = CaaSHubClient(repo_id=\"myuser/my-caas-experiments\")\n        url = client.create_dataset_repo(private=True)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "repo_name",
+        "private",
+        "exist_ok"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ExperimentMetadata",
+      "line": 74,
+      "doc": "Metadata for an experiment run.\n\nAttributes:\n    experiment_name: Human-readable name for the experiment.\n    caas_version: Version of CaaS used.\n    timestamp: ISO format timestamp of the experiment.\n    python_version: Python version used.\n    metrics: Dictionary of metric names to values.\n    config: Configuration parameters used.\n    tags: List of tags for categorization.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CaaSHubClient",
+      "line": 112,
+      "doc": "Client for interacting with Hugging Face Hub for CaaS artifacts.\n\nThis client provides methods to upload and download datasets,\nexperiment results, and benchmark corpora.\n\nAttributes:\n    repo_id: The Hugging Face repository ID (format: \"username/repo-name\").\n    token: Optional Hugging Face API token. If not provided, uses cached token.\n    repo_type: Type of repository (\"dataset\", \"model\", or \"space\").\n\nExample:\n    Initialize and download benchmark corpus::\n\n        client = CaaSHubClient(repo_id=\"microsoft/caas-benchmark\")\n        corpus_path = client.download_benchmark_corpus()\n\n    Upload experiment results::\n\n        client = CaaSHubClient(repo_id=\"microsoft/caas-results\")\n        client.upload_experiment_logs(\"results/experiment_001.json\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

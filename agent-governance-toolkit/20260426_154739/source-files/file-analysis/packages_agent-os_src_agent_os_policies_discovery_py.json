@@ -1,0 +1,102 @@
+{
+  "path": "packages/agent-os/src/agent_os/policies/discovery.py",
+  "extension": ".py",
+  "size_bytes": 3520,
+  "line_count": 126,
+  "documentation": {
+    "file_docstring": "Folder-level governance policy discovery.\n\nWalks up from an action's path to the repository root, collecting\ngovernance.yaml files for hierarchical policy evaluation.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Collect candidates walking up",
+      "Reverse to root-first order",
+      "Check for inherit: false \u2014 trim the chain",
+      "Normalize to forward slashes for consistent matching"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "discover_policies: Discover governance policy files from action path up to root.\n\nWalks the directo",
+      "_apply_inheritance: Trim the policy chain at the first inherit: false boundary.\n\nWalks from most spe",
+      "filter_by_scope: Check if an action path matches a policy's scope glob.\n\nArgs:\n    policy_path: P"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "discover_policies",
+    "filter_by_scope"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "fnmatch",
+      "pathlib",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "discover_policies",
+      "line": 22,
+      "doc": "Discover governance policy files from action path up to root.\n\nWalks the directory tree from ``action_path`` upward to ``root``,\ncollecting ``governance.yaml`` (or ``.yml``) files. Returns them\nin **root-first** order (root at index 0, most specific last).\n\nIf a policy declares ``inherit: false``, parent policies above\nthat level are excluded.\n\nArgs:\n    action_path: Path where the agent action originates.\n    root: Repository or workspace root directory.\n\nReturns:\n    List of governance policy file paths, root-first order.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "action_path",
+        "root"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_inheritance",
+      "line": 81,
+      "doc": "Trim the policy chain at the first inherit: false boundary.\n\nWalks from most specific (last) toward root. The first policy\nwith ``inherit: false`` becomes the new root \u2014 nothing above\nit is included.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "candidates"
+      ],
+      "returns": null
+    },
+    {
+      "name": "filter_by_scope",
+      "line": 102,
+      "doc": "Check if an action path matches a policy's scope glob.\n\nArgs:\n    policy_path: Path to the governance.yaml file.\n    scope_pattern: Glob pattern from the policy's ``scope`` field.\n        If None, the policy applies to everything under its directory.\n    action_path: Path where the agent action originates.\n    root: Repository root.\n\nReturns:\n    True if the action path is within scope.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "policy_path",
+        "scope_pattern",
+        "action_path",
+        "root"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

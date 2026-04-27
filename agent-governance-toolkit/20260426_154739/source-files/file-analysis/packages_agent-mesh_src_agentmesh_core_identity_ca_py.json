@@ -1,0 +1,356 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/core/identity/ca.py",
+  "extension": ".py",
+  "size_bytes": 16516,
+  "line_count": 492,
+  "documentation": {
+    "file_docstring": "Core Identity - Certificate Authority\n\nThe Certificate Authority (CA) issues SPIFFE/SVID certificates for agent identities.\nThis is the root of trust for the AgentMesh.\n\nFeatures:\n- Issues short-lived SVID certificates (15-min default TTL)\n- Validates human sponsor signatures via Ed25519 verification\n- Generates agent DIDs\n- Handles credential rotation with token validation",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Cryptographic identity",
+      "Human sponsor",
+      "Capabilities",
+      "Delegation",
+      "Metadata",
+      "SVID certificate",
+      "Trust score",
+      "Tokens",
+      "Registry",
+      "Status",
+      "Track issued refresh tokens: {token_hash: (agent_did, expires_at)}",
+      "Reconstruct the signed payload",
+      "Store hash of token for later validation",
+      "Clean up expired token",
+      "Consume the token (one-time use)",
+      "Generate key ID",
+      "Create subject",
+      "Reconstruct public key object",
+      "Build certificate",
+      "Add SPIFFE ID as SAN",
+      "Serialize to DER",
+      "Validate sponsor signature",
+      "Generate DID",
+      "Issue SVID certificate",
+      "Generate tokens",
+      "Calculate initial trust score",
+      "Get CA certificate in PEM format",
+      "Build response",
+      "Validate the refresh token against issued tokens",
+      "If no new key provided, we can't issue a new cert",
+      "In production, we'd retrieve the existing public key",
+      "Issue new certificate",
+      "Generate new tokens",
+      "Get current trust score (would query from reward engine)",
+      "Get CA certificate"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SponsorRegistry: Registry of authorized sponsors and their Ed25519 public keys.\n\nMust be populate",
+      "RegistrationRequest: Registration request from an agent.",
+      "RegistrationResponse: Registration response with issued credentials.",
+      "CertificateAuthority: Certificate Authority for AgentMesh.\n\nIssues SPIFFE/SVID certificates for agent ",
+      "__init__: Initialize the Certificate Authority.\n\nArgs:\n    ca_private_key: CA's private ke",
+      "_generate_ca_certificate: Generate a self-signed CA certificate.",
+      "_validate_sponsor_signature: Validate the sponsor's Ed25519 signature.\n\nThe sponsor signs over: agent_name + ",
+      "_generate_access_token: Generate an access token for the agent.",
+      "_generate_refresh_token: Generate a refresh token for credential rotation and track it.",
+      "_validate_refresh_token: Validate a refresh token against issued tokens.\n\nReturns:\n    True if the token "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "remove_sponsor",
+    "register_sponsor",
+    "RegistrationRequest",
+    "register_agent",
+    "get_public_key",
+    "CertificateAuthority",
+    "rotate_credentials",
+    "RegistrationResponse",
+    "is_registered",
+    "SponsorRegistry"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "hashlib",
+      "logging",
+      "secrets",
+      "datetime",
+      "cryptography",
+      "cryptography.hazmat.primitives",
+      "cryptography.hazmat.primitives.asymmetric",
+      "cryptography.x509.oid",
+      "pydantic",
+      "identity"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_sponsor",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "email",
+        "public_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_sponsor",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_public_key",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_registered",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "email"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 126,
+      "doc": "Initialize the Certificate Authority.\n\nArgs:\n    ca_private_key: CA's private key (generates new if None)\n    ca_certificate: CA's certificate (self-signs if None)\n    default_ttl_minutes: Default TTL for issued certificates\n    sponsor_registry: Registry of authorized sponsors",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ca_private_key",
+        "ca_certificate",
+        "default_ttl_minutes",
+        "sponsor_registry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_ca_certificate",
+      "line": 157,
+      "doc": "Generate a self-signed CA certificate.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_sponsor_signature",
+      "line": 196,
+      "doc": "Validate the sponsor's Ed25519 signature.\n\nThe sponsor signs over: agent_name + sponsor_email + capabilities\n(concatenated with ':' separator).\n\nReturns:\n    True if the signature is valid, False otherwise.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_generate_access_token",
+      "line": 232,
+      "doc": "Generate an access token for the agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_generate_refresh_token",
+      "line": 238,
+      "doc": "Generate a refresh token for credential rotation and track it.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_validate_refresh_token",
+      "line": 252,
+      "doc": "Validate a refresh token against issued tokens.\n\nReturns:\n    True if the token is valid and bound to the given DID.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "refresh_token"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_issue_svid_certificate",
+      "line": 283,
+      "doc": "Issue a SPIFFE/SVID certificate for an agent.\n\nReturns:\n    (certificate_der, key_id, expires_at)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "public_key",
+        "ttl_minutes"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_initial_trust_score",
+      "line": 351,
+      "doc": "Calculate initial trust score for a new agent.\n\nNew agents start with a score of 500/1000 with balanced dimensions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 369,
+      "doc": "Register a new agent and issue credentials.\n\nArgs:\n    request: Registration request\n\nReturns:\n    Registration response with credentials\n\nRaises:\n    ValueError: If validation fails",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "RegistrationResponse"
+    },
+    {
+      "name": "rotate_credentials",
+      "line": 428,
+      "doc": "Rotate credentials for an existing agent.\n\nArgs:\n    agent_did: Agent's DID\n    refresh_token: Valid refresh token (must match an issued token)\n    new_public_key: Optional new public key for key rotation\n\nReturns:\n    New credentials\n\nRaises:\n    ValueError: If refresh token is invalid or new public key is missing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "refresh_token",
+        "new_public_key"
+      ],
+      "returns": "RegistrationResponse"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SponsorRegistry",
+      "line": 32,
+      "doc": "Registry of authorized sponsors and their Ed25519 public keys.\n\nMust be populated before agent registration so the CA can verify\nthat the sponsor signature on each ``RegistrationRequest`` is\nauthentic.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RegistrationRequest",
+      "line": 58,
+      "doc": "Registration request from an agent.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RegistrationResponse",
+      "line": 88,
+      "doc": "Registration response with issued credentials.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CertificateAuthority",
+      "line": 118,
+      "doc": "Certificate Authority for AgentMesh.\n\nIssues SPIFFE/SVID certificates for agent identities.\nRequires a ``SponsorRegistry`` to verify sponsor signatures.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 38,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

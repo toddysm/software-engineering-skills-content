@@ -1,0 +1,151 @@
+{
+  "path": "packages/agentmesh-integrations/copilot-governance/src/agent.ts",
+  "extension": ".ts",
+  "size_bytes": 10654,
+  "line_count": 342,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "GitHub Copilot Extension \u2014 agent request handler. Parses the incoming Copilot agent request, routes to the appropriate review function, and returns a streamed SSE response. The Copilot agent protocol sends a POST body like: ```json { \"messages\": [ { \"role\": \"user\", \"content\": \"@governance review\\n```ts\\n...code...\\n```\" } ] } ``` Supported commands (prefix of the last user message): @governance review      \u2014 Review the attached code block @governance validate    \u2014 Validate the attached YAML policy block @governance owasp       \u2014 Show OWASP Agentic Top-10 risk summary @governance help        \u2014 Show usage instructions All other messages get a helpful fallback.",
+      "---------------------------------------------------------------------------",
+      "Parsing helpers",
+      "---------------------------------------------------------------------------",
+      "Handle a GitHub Copilot Extension agent request. @param request - The parsed AgentRequest from the Copilot endpoint. @returns An async generator of response tokens (for SSE streaming). @example ```ts import { handleAgentRequest } from '@agentmesh/copilot-governance'; for await (const token of handleAgentRequest(parsedBody)) { res.write(`data: ${JSON.stringify(token)}\\n\\n`); } ```",
+      "Find the last user message",
+      "Stream the response word-by-word to simulate typing",
+      "Extremely minimal YAML-to-object parser. Supports the strict subset used by governance policy files: - Simple key: value mappings - Nested mappings (indentation-based) - String, integer, boolean, and null scalars - Inline lists: [a, b, c] - Block lists: - item Does NOT support anchors, aliases, multi-document streams, or complex types. For production use, replace with a proper YAML library such as `js-yaml`.",
+      "Skip blank lines and comments",
+      "If indentation decreases, we've left this block",
+      "Unexpected deeper indent \u2014 skip",
+      "Block list item",
+      "Caller should handle this as a list",
+      "Key: value pair",
+      "Value is on next lines \u2014 parse as nested block or list",
+      "Block list",
+      "Nested mapping",
+      "Inline list [a, b, c]",
+      "Null",
+      "Boolean",
+      "Number",
+      "String \u2014 strip surrounding quotes"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "parseYamlLite"
+  ],
+  "imports": {
+    "internal": [
+      "./reviewer",
+      "./policy-validator",
+      "./owasp",
+      "./types"
+    ],
+    "external": [
+      "@agentmesh/copilot-governance"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "extractCodeBlock",
+      "line": 37,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "detectCommand",
+      "line": 43,
+      "doc": "",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildHelpResponse",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "buildOwaspResponse",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseYamlLite",
+      "line": 204,
+      "doc": "Extremely minimal YAML-to-object parser.     Supports the strict subset used by governance policy files:   - Simple key:",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "parseBlock",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseList",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "getNextIndent",
+      "line": 308,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "parseScalar",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "ParseResult",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "interface"
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

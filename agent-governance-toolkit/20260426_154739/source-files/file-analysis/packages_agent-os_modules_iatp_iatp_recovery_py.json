@@ -1,0 +1,209 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/recovery.py",
+  "extension": ".py",
+  "size_bytes": 11028,
+  "line_count": 321,
+  "documentation": {
+    "file_docstring": "Recovery Engine Integration with SCAK (Self-Correcting Agent Kernel).\n\nThis module wraps the agent_kernel (scak) to provide failure recovery\nand rollback capabilities for IATP.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Note: SelfCorrectingAgentKernel requires specific initialization",
+      "We'll use the triage and diagnosis functions directly",
+      "Determine failure type from exception",
+      "Create failure record using scak's AgentFailure model",
+      "Determine recovery strategy based on manifest and failure type",
+      "Note: scak's diagnose_failure requires complex tool traces,",
+      "so we use a simplified diagnosis based on the failure record",
+      "Execute recovery",
+      "Record in history",
+      "Check if agent supports reversibility",
+      "Agent supports rollback and we have compensation logic",
+      "Partial rollback - log and warn",
+      "Timeout errors might be transient",
+      "No recovery possible",
+      "Execute compensation transaction",
+      "Note: Actual retry logic would be implemented by the caller",
+      "Always attempt recovery if agent supports reversibility",
+      "Attempt recovery for certain error types"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RecoveryStrategy: Recovery strategies for IATP.",
+      "IATPRecoveryEngine: Wrapper around SCAK for IATP failure recovery.\n\nThis integrates the Self-Correct",
+      "__init__: Initialize the IATP Recovery Engine.",
+      "handle_failure: Handle a failure in agent communication.\n\nThis is the main entry point for failu",
+      "_determine_strategy: Determine the appropriate recovery strategy.\n\nArgs:\n    diagnosis: Failure diagn",
+      "_execute_recovery: Execute the determined recovery strategy.\n\nArgs:\n    strategy: Recovery strategy",
+      "get_recovery_history: Get recovery history for a trace ID.\n\nArgs:\n    trace_id: Trace ID to look up\n\nR",
+      "should_attempt_recovery: Determine if recovery should be attempted for this error.\n\nArgs:\n    error: The ",
+      "execute_compensation_transaction: Execute a compensation transaction using the agent's compensation endpoint.\n\nThi"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "IATPRecoveryEngine",
+    "should_attempt_recovery",
+    "RecoveryStrategy",
+    "get_recovery_history"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "logging",
+      "datetime",
+      "enum",
+      "typing",
+      "agent_primitives",
+      "iatp.models",
+      "httpx"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 41,
+      "doc": "Initialize the IATP Recovery Engine.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_failure",
+      "line": 47,
+      "doc": "Handle a failure in agent communication.\n\nThis is the main entry point for failure recovery. It:\n1. Diagnoses the failure using scak\n2. Determines the appropriate recovery strategy\n3. Executes compensation if available\n\nArgs:\n    trace_id: Unique trace ID for this request\n    error: The exception that occurred\n    manifest: The agent's capability manifest\n    payload: The original request payload\n    compensation_callback: Optional callback for rollback\n\nReturns:\n    Dictionary with recovery result and actions taken",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "error",
+        "manifest",
+        "payload",
+        "compensation_callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_determine_strategy",
+      "line": 130,
+      "doc": "Determine the appropriate recovery strategy.\n\nArgs:\n    diagnosis: Failure diagnosis from scak\n    manifest: Agent capability manifest\n    has_compensation: Whether compensation callback is available\n\nReturns:\n    RecoveryStrategy to use for recovery",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "diagnosis",
+        "manifest",
+        "has_compensation"
+      ],
+      "returns": "RecoveryStrategy"
+    },
+    {
+      "name": "_execute_recovery",
+      "line": 163,
+      "doc": "Execute the determined recovery strategy.\n\nArgs:\n    strategy: Recovery strategy to execute\n    trace_id: Trace ID\n    failure: Failure details\n    manifest: Agent manifest\n    compensation_callback: Optional compensation callback\n\nReturns:\n    Dictionary with recovery results",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "strategy",
+        "trace_id",
+        "failure",
+        "manifest",
+        "compensation_callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_recovery_history",
+      "line": 229,
+      "doc": "Get recovery history for a trace ID.\n\nArgs:\n    trace_id: Trace ID to look up\n\nReturns:\n    Recovery history or None if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "should_attempt_recovery",
+      "line": 241,
+      "doc": "Determine if recovery should be attempted for this error.\n\nArgs:\n    error: The exception that occurred\n    manifest: Agent capability manifest\n\nReturns:\n    True if recovery should be attempted",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error",
+        "manifest"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "execute_compensation_transaction",
+      "line": 271,
+      "doc": "Execute a compensation transaction using the agent's compensation endpoint.\n\nThis is used when the agent provides a specific compensation/rollback\nendpoint as specified in the handshake.\n\nArgs:\n    trace_id: Trace ID\n    manifest: Agent manifest with undo_window info\n    compensation_endpoint: URL for compensation\n    compensation_payload: Payload for compensation request\n\nReturns:\n    True if compensation succeeded",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "manifest",
+        "compensation_endpoint",
+        "compensation_payload"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RecoveryStrategy",
+      "line": 26,
+      "doc": "Recovery strategies for IATP.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "IATPRecoveryEngine",
+      "line": 33,
+      "doc": "Wrapper around SCAK for IATP failure recovery.\n\nThis integrates the Self-Correcting Agent Kernel (scak) to provide\nautomatic failure detection, triage, and recovery for agent interactions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 58,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

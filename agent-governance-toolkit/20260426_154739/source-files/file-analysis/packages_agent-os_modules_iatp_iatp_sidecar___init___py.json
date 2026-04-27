@@ -1,0 +1,282 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/sidecar/__init__.py",
+  "extension": ".py",
+  "size_bytes": 18833,
+  "line_count": 519,
+  "documentation": {
+    "file_docstring": "IATP Sidecar Proxy Server\n\nThis is the main sidecar that sits in front of an agent and handles:\n- Capability manifest exchange\n- Agent attestation verification\n- Reputation tracking and slashing\n- Security validation\n- Privacy checks\n- Request routing\n- Telemetry and tracing",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Policy and Recovery engines",
+      "Reputation manager",
+      "Include attestation if available",
+      "Generate or use provided trace ID",
+      "Parse request body",
+      "Log JSON parsing error",
+      "Validate using Policy Engine",
+      "This provides an additional layer of policy validation",
+      "Policy engine blocked the request",
+      "Validate privacy policy (existing SecurityValidator)",
+      "BLOCK the request",
+      "Check if warning is needed (combine policy and security warnings)",
+      "If there's a warning and no user override, return the warning",
+      "Create quarantine session if needed",
+      "Log the request",
+      "Forward to backend agent",
+      "Log the response",
+      "Record successful transaction for reputation",
+      "Add tracing headers to response",
+      "Record timeout failure for reputation",
+      "Attempt recovery using scak integration",
+      "Record general failure for reputation",
+      "Attempt recovery using scak integration",
+      "Log JSON parsing error",
+      "Record the event based on reason",
+      "Log JSON parsing error"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SidecarProxy: The Sidecar Proxy that wraps an agent.\n\nArchitecture:\n- External requests hit th",
+      "create_sidecar: Factory function to create a sidecar proxy.\n\nArgs:\n    agent_url: URL of the bac",
+      "_setup_routes: Setup FastAPI routes.",
+      "run: Run the sidecar server.",
+      "get_manifest: Return the capability manifest.\nThis is the \"handshake\" endpoint.",
+      "get_attestation: Return the agent attestation record.\nThis provides cryptographic proof of runnin",
+      "health_check: Health check endpoint.",
+      "proxy_request: Main proxy endpoint that forwards requests to the backend agent.\n\nHeaders:\n- X-U",
+      "get_trace: Retrieve flight recorder logs for a trace ID.",
+      "get_quarantine_session: Get quarantine session info."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "SidecarProxy",
+    "run",
+    "create_sidecar"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "time",
+      "datetime",
+      "typing",
+      "httpx",
+      "fastapi",
+      "fastapi.responses",
+      "iatp.attestation",
+      "iatp.models",
+      "iatp.policy_engine",
+      "iatp.recovery",
+      "iatp.security",
+      "iatp.telemetry",
+      "uvicorn"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_sidecar",
+      "line": 493,
+      "doc": "Factory function to create a sidecar proxy.\n\nArgs:\n    agent_url: URL of the backend agent (e.g., \"http://localhost:8000\")\n    manifest: Capability manifest for this agent\n    host: Host to bind the sidecar to\n    port: Port to bind the sidecar to\n    attestation: Optional attestation record for agent verification\n\nReturns:\n    Configured SidecarProxy instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_url",
+        "manifest",
+        "host",
+        "port",
+        "attestation"
+      ],
+      "returns": "SidecarProxy"
+    },
+    {
+      "name": "__init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_url",
+        "manifest",
+        "sidecar_host",
+        "sidecar_port",
+        "attestation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_setup_routes",
+      "line": 75,
+      "doc": "Setup FastAPI routes.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 483,
+      "doc": "Run the sidecar server.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_manifest",
+      "line": 79,
+      "doc": "Return the capability manifest.\nThis is the \"handshake\" endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_attestation",
+      "line": 93,
+      "doc": "Return the agent attestation record.\nThis provides cryptographic proof of running verified code.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 106,
+      "doc": "Health check endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "proxy_request",
+      "line": 111,
+      "doc": "Main proxy endpoint that forwards requests to the backend agent.\n\nHeaders:\n- X-User-Override: Set to \"true\" to bypass security warnings\n- X-Agent-Trace-ID: Optional trace ID for distributed tracing",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request",
+        "x_user_override",
+        "x_agent_trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trace",
+      "line": 360,
+      "doc": "Retrieve flight recorder logs for a trace ID.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_quarantine_session",
+      "line": 368,
+      "doc": "Get quarantine session info.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_reputation",
+      "line": 376,
+      "doc": "Get reputation score for an agent.\n\nReturns the reputation score and recent events.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "slash_reputation",
+      "line": 391,
+      "doc": "Slash an agent's reputation due to misbehavior.\n\nExpected payload:\n{\n    \"reason\": \"hallucination|timeout|error\",\n    \"severity\": \"critical|high|medium|low\",\n    \"trace_id\": \"optional-trace-id\",\n    \"details\": {\"optional\": \"context\"}\n}\n\nThis is typically called by cmvk when it detects hallucinations.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_id",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_reputation",
+      "line": 448,
+      "doc": "Export all reputation data for network-wide propagation.\n\nThis allows other nodes to learn about agent reputations.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "import_reputation",
+      "line": 460,
+      "doc": "Import reputation data from other nodes.\n\nThis enables network-wide reputation propagation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SidecarProxy",
+      "line": 36,
+      "doc": "The Sidecar Proxy that wraps an agent.\n\nArchitecture:\n- External requests hit the sidecar (e.g., localhost:8001)\n- Sidecar validates, scrubs, and routes to the actual agent (e.g., localhost:8000)\n- All telemetry and security checks happen in the sidecar",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

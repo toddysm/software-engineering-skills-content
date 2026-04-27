@@ -1,0 +1,878 @@
+{
+  "path": "packages/agent-os/tests/test_optional_deps_integration.py",
+  "extension": ".py",
+  "size_bytes": 26516,
+  "line_count": 775,
+  "documentation": {
+    "file_docstring": "Integration tests for optional dependencies.\n\nTests that framework adapters behave correctly both when their underlying\nframework packages are available and when they are not (graceful degradation).\n\nCovers:\n  - Provider adapter construction and wrapping with mock objects\n  - Graceful ImportError handling for optional frameworks\n  - Policy enforcement through adapter wrapping lifecycle\n  - Deep hooks: tool interception, memory validation, delegation detection\n  - YAML policy loading and serialization round-trips\n  - GovernancePolicy YAML/dict serialization\n  - Health checker integration\n  - Async evaluator concurrency",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "Provider Adapter: OpenAI",
+      "============================================================================",
+      "============================================================================",
+      "Provider Adapter: Anthropic",
+      "============================================================================",
+      "Expected when anthropic package is not installed",
+      "============================================================================",
+      "Provider Adapter: Gemini",
+      "============================================================================",
+      "============================================================================",
+      "Framework Adapter: LangChain Deep Hooks",
+      "============================================================================",
+      "Tool should be marked as governed",
+      "The tool should be wrapped; actual blocking happens on invocation",
+      "============================================================================",
+      "Framework Adapter: CrewAI Deep Hooks",
+      "============================================================================",
+      "============================================================================",
+      "Framework Adapter: AutoGen",
+      "============================================================================",
+      "============================================================================",
+      "GovernancePolicy YAML/Dict Serialization",
+      "============================================================================",
+      "============================================================================",
+      "PolicyDocument YAML Loading",
+      "============================================================================",
+      "Reload and verify",
+      "============================================================================",
+      "Health Checker Integration",
+      "============================================================================",
+      "Report should be degraded (not healthy) because one component is degraded",
+      "Should be JSON-serializable",
+      "============================================================================",
+      "Async Policy Evaluator",
+      "============================================================================",
+      "Run 20 concurrent evaluations",
+      "Even indices should be denied (write), odd should be allowed (read)",
+      "============================================================================",
+      "Governance Event System",
+      "============================================================================",
+      "Post-execute increments call_count; checkpoint fires at multiples",
+      "Should not raise despite listener error",
+      "============================================================================",
+      "ExecutionContext Isolation",
+      "============================================================================",
+      "Mutate kernel policy",
+      "Context policy should still be 4096"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestOpenAIAdapterIntegration: Test OpenAI adapter with mock OpenAI client.",
+      "TestAnthropicAdapterIntegration: Test Anthropic adapter with mock Anthropic client.",
+      "TestGeminiAdapterIntegration: Test Gemini adapter with mock Gemini model.",
+      "TestLangChainDeepHooks: Test LangChain deep integration hooks with mock objects.",
+      "TestCrewAIDeepHooks: Test CrewAI deep integration hooks.",
+      "TestAutoGenAdapterIntegration: Test AutoGen adapter integration.",
+      "TestPolicySerialization: Test policy serialization round-trips.",
+      "TestPolicyDocumentYAML: Test PolicyDocument YAML loading.",
+      "TestHealthCheckerIntegration: Test health checker with registered checks.",
+      "TestAsyncPolicyEvaluator: Test async policy evaluation with concurrency."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_memory_write_interception",
+    "test_health_checker_degraded",
+    "TestAsyncPolicyEvaluator",
+    "test_save_to_yaml",
+    "test_context_validation",
+    "TestHealthCheckerIntegration",
+    "TestAutoGenAdapterIntegration",
+    "test_no_deep_hooks_when_disabled",
+    "test_kernel_policy_enforcement",
+    "TestAnthropicAdapterIntegration",
+    "test_policy_blocks_through_wrap",
+    "TestExecutionContextIsolation",
+    "test_tool_interception",
+    "test_load_multiple_policies_from_dir",
+    "test_violation_event_on_block",
+    "test_agent_wrapping",
+    "test_to_dict_and_back",
+    "TestPolicyDocumentYAML",
+    "bad_listener",
+    "test_checkpoint_event",
+    "test_kernel_construction",
+    "TestGovernanceEvents",
+    "test_context_invalid_agent_id_pattern",
+    "test_kernel_with_custom_policy",
+    "test_save_and_load_file",
+    "TestOpenAIAdapterIntegration",
+    "test_to_yaml_and_back",
+    "test_health_report_serialization",
+    "test_separate_contexts_independent",
+    "test_context_policy_is_deep_copy",
+    "test_blocked_tool_not_in_allowlist",
+    "custom_check",
+    "TestGeminiAdapterIntegration",
+    "test_policy_enforcement",
+    "test_health_checker_with_custom_check",
+    "TestPolicySerialization",
+    "test_crew_wrapping",
+    "test_wrap_requires_client",
+    "test_listener_error_does_not_break_flow",
+    "test_load_from_yaml",
+    "test_crew_policy_enforcement",
+    "test_event_listener_fires",
+    "test_wrap_with_mock_client",
+    "TestCrewAIDeepHooks",
+    "TestLangChainDeepHooks"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "copy",
+      "json",
+      "tempfile",
+      "pathlib",
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.base",
+      "agent_os.policies.schema",
+      "agent_os.integrations.openai_adapter",
+      "agent_os.integrations.openai_adapter",
+      "agent_os.integrations.openai_adapter",
+      "agent_os.integrations.openai_adapter",
+      "agent_os.integrations.openai_adapter",
+      "agent_os.integrations.anthropic_adapter",
+      "agent_os.integrations.anthropic_adapter",
+      "agent_os.integrations.anthropic_adapter",
+      "agent_os.integrations.gemini_adapter",
+      "agent_os.integrations.gemini_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.crewai_adapter",
+      "agent_os.integrations.crewai_adapter",
+      "agent_os.integrations.autogen_adapter",
+      "agent_os.integrations.autogen_adapter",
+      "agent_os.integrations.autogen_adapter",
+      "agent_os.policies.schema",
+      "agent_os.policies.schema",
+      "agent_os.policies.evaluator",
+      "agent_os.integrations.health",
+      "agent_os.integrations.health",
+      "agent_os.integrations.health",
+      "agent_os.policies.evaluator",
+      "agent_os.policies.async_evaluator",
+      "agent_os.policies.async_evaluator",
+      "agent_os.policies.async_evaluator",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_kernel_construction",
+      "line": 54,
+      "doc": "OpenAIKernel can be constructed without real OpenAI.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_with_custom_policy",
+      "line": 61,
+      "doc": "OpenAIKernel respects custom policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_requires_client",
+      "line": 71,
+      "doc": "OpenAIKernel.wrap raises TypeError without client.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_with_mock_client",
+      "line": 81,
+      "doc": "OpenAIKernel.wrap creates governed assistant with mock client.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_blocks_through_wrap",
+      "line": 92,
+      "doc": "Policy violations are enforced on wrapped assistant.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_construction",
+      "line": 113,
+      "doc": "AnthropicKernel can be constructed without real SDK.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_policy_enforcement",
+      "line": 119,
+      "doc": "AnthropicKernel enforces policy via pre_execute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_with_mock_client",
+      "line": 132,
+      "doc": "AnthropicKernel.wrap works with mock client or errors cleanly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_construction",
+      "line": 155,
+      "doc": "GeminiKernel can be constructed without real SDK.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_policy_enforcement",
+      "line": 161,
+      "doc": "GeminiKernel enforces policy via pre_execute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_tool",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_memory",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_chain",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools",
+        "memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_interception",
+      "line": 208,
+      "doc": "Tools are intercepted and governed when deep hooks enabled.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_tool_not_in_allowlist",
+      "line": 224,
+      "doc": "Tool not in allowed_tools is blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_write_interception",
+      "line": 239,
+      "doc": "Memory writes are intercepted when deep hooks enabled.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_deep_hooks_when_disabled",
+      "line": 250,
+      "doc": "Deep hooks are not applied when disabled.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_agent",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_crew",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_crew_wrapping",
+      "line": 285,
+      "doc": "CrewAI crew can be wrapped with governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_crew_policy_enforcement",
+      "line": 295,
+      "doc": "CrewAI enforces policy on pre_execute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_construction",
+      "line": 317,
+      "doc": "AutoGenKernel can be constructed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_enforcement",
+      "line": 323,
+      "doc": "AutoGen kernel enforces policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_wrapping",
+      "line": 334,
+      "doc": "AutoGen agent can be wrapped.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_and_back",
+      "line": 354,
+      "doc": "Policy survives dict round-trip.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_yaml_and_back",
+      "line": 378,
+      "doc": "Policy survives YAML round-trip.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_save_and_load_file",
+      "line": 392,
+      "doc": "Policy can be saved to and loaded from a YAML file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_from_yaml",
+      "line": 415,
+      "doc": "PolicyDocument loads from YAML file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_save_to_yaml",
+      "line": 445,
+      "doc": "PolicyDocument can be saved to YAML.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_multiple_policies_from_dir",
+      "line": 480,
+      "doc": "PolicyEvaluator loads all YAML files from a directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_checker_with_custom_check",
+      "line": 504,
+      "doc": "Custom health checks are executed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_checker_degraded",
+      "line": 525,
+      "doc": "Degraded component affects overall status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_report_serialization",
+      "line": 542,
+      "doc": "HealthReport.to_dict returns valid JSON-serializable dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_evaluator",
+      "line": 569,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rules"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_async_evaluate",
+      "line": 579,
+      "doc": "AsyncPolicyEvaluator evaluates policies asynchronously.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_async_evaluate_allows",
+      "line": 600,
+      "doc": "AsyncPolicyEvaluator allows non-matching context.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_evaluations",
+      "line": 621,
+      "doc": "Multiple concurrent evaluations don't interfere.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_event_listener_fires",
+      "line": 662,
+      "doc": "Event listeners fire on emit.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_event_on_block",
+      "line": 676,
+      "doc": "POLICY_VIOLATION event fires when blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_checkpoint_event",
+      "line": 691,
+      "doc": "CHECKPOINT_CREATED event fires at checkpoint_frequency.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_listener_error_does_not_break_flow",
+      "line": 709,
+      "doc": "A failing listener does not break governance execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_policy_is_deep_copy",
+      "line": 734,
+      "doc": "Context policy is deep-copied so mutations don't leak.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_separate_contexts_independent",
+      "line": 748,
+      "doc": "Different agents get independent contexts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_validation",
+      "line": 759,
+      "doc": "Invalid context fields raise ValueError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_invalid_agent_id_pattern",
+      "line": 768,
+      "doc": "Agent ID with invalid characters raises ValueError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "custom_check",
+      "line": 510,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "bad_listener",
+      "line": 715,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestOpenAIAdapterIntegration",
+      "line": 51,
+      "doc": "Test OpenAI adapter with mock OpenAI client.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAnthropicAdapterIntegration",
+      "line": 110,
+      "doc": "Test Anthropic adapter with mock Anthropic client.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGeminiAdapterIntegration",
+      "line": 152,
+      "doc": "Test Gemini adapter with mock Gemini model.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLangChainDeepHooks",
+      "line": 179,
+      "doc": "Test LangChain deep integration hooks with mock objects.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrewAIDeepHooks",
+      "line": 267,
+      "doc": "Test CrewAI deep integration hooks.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAutoGenAdapterIntegration",
+      "line": 314,
+      "doc": "Test AutoGen adapter integration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicySerialization",
+      "line": 351,
+      "doc": "Test policy serialization round-trips.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyDocumentYAML",
+      "line": 412,
+      "doc": "Test PolicyDocument YAML loading.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHealthCheckerIntegration",
+      "line": 501,
+      "doc": "Test health checker with registered checks.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAsyncPolicyEvaluator",
+      "line": 566,
+      "doc": "Test async policy evaluation with concurrency.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGovernanceEvents",
+      "line": 659,
+      "doc": "Test event emission and listener registration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestExecutionContextIsolation",
+      "line": 731,
+      "doc": "Test that execution contexts are properly isolated.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 10,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

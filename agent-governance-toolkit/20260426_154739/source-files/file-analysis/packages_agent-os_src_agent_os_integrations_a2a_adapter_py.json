@@ -1,0 +1,203 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/a2a_adapter.py",
+  "extension": ".py",
+  "size_bytes": 9570,
+  "line_count": 279,
+  "documentation": {
+    "file_docstring": "A2A Protocol Adapter for Agent-OS\n==================================\n\nProvides kernel-level governance for A2A (Agent-to-Agent) protocol tasks.\n\nEnforces Agent-OS policies on incoming A2A task negotiations:\n- Skill-level access control (which skills are allowed/blocked)\n- Content filtering on task messages\n- Rate limiting per source agent\n- Audit trail of all A2A interactions\n\nWorks with or without the ``a2a-agentmesh`` package \u2014 accepts plain dicts\nfrom JSON-RPC endpoints as well as typed objects.\n\nExample:\n    >>> from agent_os.integrations.a2a_adapter import A2AGovernanceAdapter\n    >>>\n    >>> adapter = A2AGovernanceAdapter(\n    ...     allowed_skills=[\"search\", \"translate\"],\n    ...     blocked_patterns=[\"DROP TABLE\", \"rm -rf\"],\n    ...     min_trust_score=300,\n    ... )\n    >>>\n    >>> # Evaluate incoming A2A task request\n    >>> result = adapter.evaluate_task({\n    ...     \"skill_id\": \"search\",\n    ...     \"x-agentmesh-trust\": {\n    ...         \"source_did\": \"did:mesh:agent-a\",\n    ...         \"source_trust_score\": 500,\n    ...     },\n    ...     \"messages\": [{\"role\": \"user\", \"parts\": [{\"text\": \"Find weather\"}]}],\n    ... })\n    >>> assert result[\"allowed\"]",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Typed object (e.g. TaskEnvelope)",
+      "1. Trust metadata required",
+      "2. Skill blocked",
+      "3. Skill not in allow list",
+      "4. Trust score",
+      "5. Content check",
+      "5.5 Conversation guardian analysis",
+      "6. Rate limit",
+      "Allowed"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "A2APolicy: Policy for A2A task governance.",
+      "A2AEvaluation: Result of evaluating an A2A task request.",
+      "A2AGovernanceAdapter: Agent-OS governance adapter for A2A protocol tasks.\n\nEvaluates incoming A2A task",
+      "_extract_fields: Extract fields from a dict or typed object.",
+      "evaluate_task: Evaluate an A2A task request against policies.\n\nArgs:\n    task: Dict (from JSON-"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "evaluate_task",
+    "deny",
+    "A2AGovernanceAdapter",
+    "A2APolicy",
+    "to_dict",
+    "get_evaluations",
+    "A2AEvaluation",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "typing",
+      "conversation_guardian"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_fields",
+      "line": 122,
+      "doc": "Extract fields from a dict or typed object.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_content",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "texts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_task",
+      "line": 160,
+      "doc": "Evaluate an A2A task request against policies.\n\nArgs:\n    task: Dict (from JSON-RPC) or typed TaskEnvelope object.\n    conversation_id: Optional conversation ID for guardian analysis.\n    sender: Optional sender agent ID for guardian analysis.\n    receiver: Optional receiver agent ID for guardian analysis.\n\nReturns:\n    A2AEvaluation with allowed/denied and reason.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task"
+      ],
+      "returns": "A2AEvaluation"
+    },
+    {
+      "name": "get_evaluations",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "deny",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "reason"
+      ],
+      "returns": "A2AEvaluation"
+    }
+  ],
+  "classes": [
+    {
+      "name": "A2APolicy",
+      "line": 50,
+      "doc": "Policy for A2A task governance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "A2AEvaluation",
+      "line": 63,
+      "doc": "Result of evaluating an A2A task request.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "A2AGovernanceAdapter",
+      "line": 87,
+      "doc": "Agent-OS governance adapter for A2A protocol tasks.\n\nEvaluates incoming A2A task requests (as dicts or typed objects)\nagainst Agent-OS policies. Optionally runs a ConversationGuardian\nto detect escalation, offensive intent, and feedback loops in\ninter-agent message content.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

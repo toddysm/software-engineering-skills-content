@@ -1,0 +1,237 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/drift_detector.py",
+  "extension": ".py",
+  "size_bytes": 14927,
+  "line_count": 425,
+  "documentation": {
+    "file_docstring": "Drift Detector \u2014 detects configuration and behavioral drift across agents.\n\nCompares agent configurations, policies, and trust states across\nrepositories or environments to identify inconsistencies.\n\nUsage::\n\n    from agent_os.integrations.drift_detector import (\n        DriftDetector, DriftType,\n    )\n\n    detector = DriftDetector()\n    findings = detector.compare_configs(\n        source_config={\"max_tokens\": 4096, \"timeout\": 300},\n        target_config={\"max_tokens\": 2048, \"timeout\": 300},\n        label=\"staging-vs-prod\",\n    )\n    for f in findings:\n        print(f\"{f.drift_type.value}: {f.field} \u2014 {f.message}\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Enums & value objects \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Drift Detector \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 public comparison methods \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Group by prefix (e.g. \"agent-os/kernel\" \u2192 \"agent-os\")",
+      "Version drift across all sources that have components",
+      "\u2500\u2500 internal helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DriftType: Categories of drift that can be detected.",
+      "DriftFinding: A single drift finding.\n\nAttributes:\n    drift_type: Category of drift.\n    seve",
+      "DriftReport: Aggregate drift report.\n\nAttributes:\n    findings: All drift findings.\n    scann",
+      "DriftDetector: Detects configuration and behavioral drift across agents or environments.\n\nAll c",
+      "compare_configs: Compare two configuration dicts and return findings for each diff.\n\nArgs:\n    so",
+      "compare_policies: Compare two policy dicts and return drift findings.\n\nMissing keys on either side",
+      "compare_trust_scores: Compare trust scores, flagging differences beyond *tolerance*.\n\nArgs:\n    source",
+      "detect_version_drift: Find out-of-sync versions among components.\n\nExpects a dict mapping component na",
+      "scan: Run a comprehensive scan over multiple source dicts.\n\nEach source dict must cont",
+      "to_markdown: Render a :class:`DriftReport` as a Markdown string.\n\nArgs:\n    report: The repor"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "compare_configs",
+    "DriftFinding",
+    "DriftDetector",
+    "scan",
+    "compare_trust_scores",
+    "to_markdown",
+    "DriftReport",
+    "compare_policies",
+    "DriftType",
+    "detect_version_drift"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "compare_configs",
+      "line": 103,
+      "doc": "Compare two configuration dicts and return findings for each diff.\n\nArgs:\n    source_config: Reference configuration.\n    target_config: Configuration to compare against.\n    label: Optional human-readable label for this comparison.\n\nReturns:\n    List of :class:`DriftFinding` for every key that differs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_config",
+        "target_config",
+        "label"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compare_policies",
+      "line": 143,
+      "doc": "Compare two policy dicts and return drift findings.\n\nMissing keys on either side are flagged as *critical* drift.\n\nArgs:\n    source_policies: Reference policy set.\n    target_policies: Policy set to compare.\n\nReturns:\n    List of :class:`DriftFinding`.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_policies",
+        "target_policies"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compare_trust_scores",
+      "line": 192,
+      "doc": "Compare trust scores, flagging differences beyond *tolerance*.\n\nArgs:\n    source_scores: Reference trust scores keyed by agent id.\n    target_scores: Trust scores to compare.\n    tolerance: Maximum allowed absolute difference before flagging.\n\nReturns:\n    List of :class:`DriftFinding` for scores that drifted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_scores",
+        "target_scores",
+        "tolerance"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_version_drift",
+      "line": 253,
+      "doc": "Find out-of-sync versions among components.\n\nExpects a dict mapping component names to version strings.  When\ntwo or more distinct versions exist among *all* components that\nshare a common prefix (before the first ``-`` or ``/``), drift is\nflagged.\n\nFor simpler use, the method also detects mixed version patterns\namong *all* supplied components.\n\nArgs:\n    components: Mapping of ``component_name \u2192 version_string``.\n\nReturns:\n    List of :class:`DriftFinding` for version mismatches.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "components"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan",
+      "line": 307,
+      "doc": "Run a comprehensive scan over multiple source dicts.\n\nEach source dict must contain a ``\"label\"`` key and at least one of:\n    - ``\"config\"`` \u2014 configuration dict\n    - ``\"policies\"`` \u2014 policy dict\n    - ``\"trust_scores\"`` \u2014 agent trust score dict\n    - ``\"components\"`` \u2014 version component dict\n\nPairwise comparisons are performed between successive sources.\n\nArgs:\n    sources: List of source dicts to compare.\n\nReturns:\n    A :class:`DriftReport`.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sources"
+      ],
+      "returns": "DriftReport"
+    },
+    {
+      "name": "to_markdown",
+      "line": 371,
+      "doc": "Render a :class:`DriftReport` as a Markdown string.\n\nArgs:\n    report: The report to render.\n\nReturns:\n    Markdown-formatted string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "report"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_config_severity",
+      "line": 407,
+      "doc": "Determine severity of a config difference.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "key",
+        "src_val",
+        "tgt_val"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_config_message",
+      "line": 419,
+      "doc": "Build human-readable config diff message.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "key",
+        "src_val",
+        "tgt_val"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "DriftType",
+      "line": 38,
+      "doc": "Categories of drift that can be detected.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DriftFinding",
+      "line": 49,
+      "doc": "A single drift finding.\n\nAttributes:\n    drift_type: Category of drift.\n    severity: ``\"info\"``, ``\"warning\"``, or ``\"critical\"``.\n    source: Label for the source side.\n    target: Label for the target side.\n    field: Configuration or policy field that drifted.\n    expected: Value on the source side.\n    actual: Value on the target side.\n    message: Human-readable description.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DriftReport",
+      "line": 74,
+      "doc": "Aggregate drift report.\n\nAttributes:\n    findings: All drift findings.\n    scanned_at: UTC timestamp of the scan.\n    sources_scanned: Number of sources compared.\n    summary: Brief textual summary.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DriftDetector",
+      "line": 93,
+      "doc": "Detects configuration and behavioral drift across agents or environments.\n\nAll comparison methods return lists of :class:`DriftFinding`; the\nhigh-level :meth:`scan` method accepts a list of source dicts and\nproduces a :class:`DriftReport`.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 51,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "auth",
+      "logging"
+    ]
+  }
+}

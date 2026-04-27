@@ -1,0 +1,318 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/replay/distributed.py",
+  "extension": ".py",
+  "size_bytes": 10775,
+  "line_count": 308,
+  "documentation": {
+    "file_docstring": "Distributed trace replay \u2014 multi-agent replay with cross-boundary checks.\n\nSupports automatic delegation link discovery, per-agent replay,\nand cross-agent consistency verification.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Community Edition \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Build a reverse lookup: trace_id -> agent_id",
+      "Scan each agent's trace for delegation spans",
+      "Look for a delegated trace ID in the span's output",
+      "Merge with existing links (avoid duplicates)",
+      "Cross-agent consistency checks",
+      "Find the delegation span in the source agent",
+      "Check that the delegate trace actually exists and succeeded",
+      "Add any unvisited"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "MeshReplayState: State of a trace replay session.",
+      "AgentTraceRef: Reference to a trace belonging to a specific agent in the mesh.",
+      "DelegationLink: A delegation link between two agents in a distributed trace.",
+      "DistributedReplayResult: Result of replaying a distributed multi-agent trace.",
+      "DistributedReplayEngine: Replays multi-agent traces across mesh boundaries.\n\nReconstructs the full execut",
+      "all_diffs: All diffs across all agents.",
+      "add_agent_trace: Register a trace for an agent.",
+      "link_delegation: Link a delegation span to the delegated agent's trace.",
+      "discover_links: Auto-discover delegation links by scanning traces for DELEGATION spans.\n\nScans a",
+      "replay: Replay all registered agent traces and check cross-agent consistency.\n\nIterates "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "discover_links",
+    "all_diffs",
+    "DistributedReplayResult",
+    "success",
+    "link_delegation",
+    "DistributedReplayEngine",
+    "MeshReplayState",
+    "to_dict",
+    "add_agent_trace",
+    "execution_order",
+    "DelegationLink",
+    "replay",
+    "AgentTraceRef"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "uuid",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.engine"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "all_diffs",
+      "line": 77,
+      "doc": "All diffs across all agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "success",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_agent_trace",
+      "line": 114,
+      "doc": "Register a trace for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "trace",
+        "role"
+      ],
+      "returns": null
+    },
+    {
+      "name": "link_delegation",
+      "line": 123,
+      "doc": "Link a delegation span to the delegated agent's trace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "from_agent",
+        "to_agent",
+        "from_span_id",
+        "to_trace_id",
+        "task_description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "discover_links",
+      "line": 140,
+      "doc": "Auto-discover delegation links by scanning traces for DELEGATION spans.\n\nScans all registered agent traces for spans of kind DELEGATION,\nthen matches their output_data['delegated_trace_id'] to other\nregistered agents' traces.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "replay",
+      "line": 192,
+      "doc": "Replay all registered agent traces and check cross-agent consistency.\n\nIterates agents in execution order, replays each with a local\nReplayEngine, then validates delegation boundaries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "DistributedReplayResult"
+    },
+    {
+      "name": "_check_cross_agent",
+      "line": 227,
+      "doc": "Verify consistency across delegation boundaries.\n\nFor each delegation link, checks that the delegator's delegation\nspan output is consistent with the delegate's trace input.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execution_order",
+      "line": 275,
+      "doc": "Get the execution order of agents based on delegation links.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 303,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_visit",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MeshReplayState",
+      "line": 21,
+      "doc": "State of a trace replay session.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentTraceRef",
+      "line": 31,
+      "doc": "Reference to a trace belonging to a specific agent in the mesh.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DelegationLink",
+      "line": 48,
+      "doc": "A delegation link between two agents in a distributed trace.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DistributedReplayResult",
+      "line": 67,
+      "doc": "Result of replaying a distributed multi-agent trace.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DistributedReplayEngine",
+      "line": 103,
+      "doc": "Replays multi-agent traces across mesh boundaries.\n\nReconstructs the full execution flow across agents by following\ndelegation spans and correlating traces from different agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 43,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic"
+    ]
+  }
+}

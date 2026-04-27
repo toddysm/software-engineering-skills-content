@@ -1,0 +1,249 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/marketplace/sigstore_provenance.py",
+  "extension": ".py",
+  "size_bytes": 13902,
+  "line_count": 417,
+  "documentation": {
+    "file_docstring": "Sigstore Provenance Integration\n================================\n\nGenerates and verifies Sigstore-compatible provenance attestations for\nAGT plugin artifacts. Uses ``sigstore-python`` for keyless signing via\nOIDC identity (Fulcio) and transparency log (Rekor).\n\nThis module complements the Ed25519 manifest signing in\n``agentmesh.marketplace.signing`` by adding supply-chain provenance:\n\n- **Ed25519 signing** (``agt sign``) proves the publisher controls a key.\n- **Sigstore provenance** proves *who* built *what* from *which source*,\n  recorded in a tamper-evident transparency log.\n\nUsage::\n\n    from agentmesh.marketplace.sigstore_provenance import (\n        SigstoreProvenanceGenerator,\n        verify_provenance,\n    )\n\n    gen = SigstoreProvenanceGenerator(\n        builder_id=\"https://github.com/microsoft/agent-governance-toolkit\",\n    )\n    attestation = gen.generate(\n        artifact_path=Path(\"dist/my-plugin-1.0.0.tar.gz\"),\n        source_repo=\"https://github.com/microsoft/agent-governance-toolkit\",\n        source_commit=\"abc123\",\n    )\n    attestation.save(Path(\"dist/my-plugin-1.0.0.tar.gz.sigstore.json\"))\n\n    # Verify\n    result = verify_provenance(\n        artifact_path=Path(\"dist/my-plugin-1.0.0.tar.gz\"),\n        attestation_path=Path(\"dist/my-plugin-1.0.0.tar.gz.sigstore.json\"),\n    )\n    assert result.verified\n\nReferences:\n    - https://www.sigstore.dev/\n    - SLSA Provenance v1.0: https://slsa.dev/provenance/v1",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Verify",
+      "SLSA Provenance v1.0 predicate type",
+      "Check if cosign is available",
+      "If there's a Sigstore bundle, attempt cosign verification"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ProvenanceAttestation: A SLSA v1.0 provenance attestation for a plugin artifact.\n\nAttributes:\n    subje",
+      "_sha256_file: Compute SHA-256 hex digest of a file.",
+      "SigstoreProvenanceGenerator: Generate SLSA provenance attestations for plugin artifacts.\n\nIf ``cosign`` is av",
+      "VerificationResult: Result of verifying a provenance attestation.",
+      "verify_provenance: Verify a provenance attestation against an artifact.\n\nChecks:\n1. Artifact SHA-25",
+      "_verify_cosign_bundle: Verify a Sigstore bundle with cosign. Returns True on success.",
+      "to_slsa_statement: Serialize to an in-toto SLSA Provenance v1.0 statement.",
+      "to_dict: Serialize to a JSON-compatible dict.",
+      "save: Write attestation to a JSON file.",
+      "load: Load attestation from a JSON file."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "load",
+    "SigstoreProvenanceGenerator",
+    "to_dict",
+    "to_slsa_statement",
+    "verify_provenance",
+    "generate",
+    "save",
+    "ProvenanceAttestation",
+    "VerificationResult"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "logging",
+      "subprocess",
+      "time",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "tempfile",
+      "tempfile"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_sha256_file",
+      "line": 162,
+      "doc": "Compute SHA-256 hex digest of a file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "verify_provenance",
+      "line": 321,
+      "doc": "Verify a provenance attestation against an artifact.\n\nChecks:\n1. Artifact SHA-256 matches the attestation subject digest.\n2. If a Sigstore bundle is present, verifies it with cosign.\n\nArgs:\n    artifact_path: Path to the artifact file.\n    attestation_path: Path to the attestation JSON file.\n\nReturns:\n    A ``VerificationResult`` with verification details.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "artifact_path",
+        "attestation_path"
+      ],
+      "returns": "VerificationResult"
+    },
+    {
+      "name": "_verify_cosign_bundle",
+      "line": 381,
+      "doc": "Verify a Sigstore bundle with cosign. Returns True on success.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "artifact_path",
+        "bundle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_slsa_statement",
+      "line": 91,
+      "doc": "Serialize to an in-toto SLSA Provenance v1.0 statement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 123,
+      "doc": "Serialize to a JSON-compatible dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save",
+      "line": 131,
+      "doc": "Write attestation to a JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load",
+      "line": 140,
+      "doc": "Load attestation from a JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "path"
+      ],
+      "returns": "ProvenanceAttestation"
+    },
+    {
+      "name": "__init__",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "builder_id",
+        "use_cosign"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate",
+      "line": 194,
+      "doc": "Generate a provenance attestation for an artifact.\n\nArgs:\n    artifact_path: Path to the artifact file (e.g., .tar.gz, .whl).\n    source_repo: Source repository URI.\n    source_commit: Git commit SHA the artifact was built from.\n    metadata: Additional metadata to include.\n\nReturns:\n    A ``ProvenanceAttestation`` with SLSA v1.0 statement.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "artifact_path",
+        "source_repo",
+        "source_commit",
+        "metadata"
+      ],
+      "returns": "ProvenanceAttestation"
+    },
+    {
+      "name": "_sign_with_cosign",
+      "line": 237,
+      "doc": "Attempt to sign the attestation with cosign.\n\nReturns the Sigstore bundle dict, or None if cosign is unavailable.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attestation",
+        "artifact_path"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ProvenanceAttestation",
+      "line": 67,
+      "doc": "A SLSA v1.0 provenance attestation for a plugin artifact.\n\nAttributes:\n    subject_name: Artifact filename.\n    subject_digest: SHA-256 digest of the artifact.\n    builder_id: URI identifying the build system.\n    source_repo: Source repository URI.\n    source_commit: Git commit SHA.\n    build_timestamp: ISO-8601 build time.\n    sigstore_bundle: Raw Sigstore bundle (populated after signing).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SigstoreProvenanceGenerator",
+      "line": 171,
+      "doc": "Generate SLSA provenance attestations for plugin artifacts.\n\nIf ``cosign`` is available on PATH, the attestation is signed via\nSigstore keyless signing (Fulcio + Rekor). Otherwise, the attestation\nis generated unsigned (useful for local development and CI without\nOIDC identity).\n\nArgs:\n    builder_id: URI identifying the build system (e.g., GitHub Actions\n        workflow URL).\n    use_cosign: Whether to attempt Sigstore signing via cosign.\n        Defaults to True; falls back gracefully if cosign is absent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "VerificationResult",
+      "line": 308,
+      "doc": "Result of verifying a provenance attestation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

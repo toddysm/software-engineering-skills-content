@@ -1,0 +1,282 @@
+{
+  "path": "packages/agent-os/modules/caas/src/caas/storage/store.py",
+  "extension": ".py",
+  "size_bytes": 13754,
+  "line_count": 389,
+  "documentation": {
+    "file_docstring": "Storage module for managing documents and context.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Calculate base match score",
+      "Search in content, title, and section titles",
+      "Check for full phrase match (best)",
+      "Count occurrences for better relevance",
+      "Check for individual word matches",
+      "Check section titles and content",
+      "Only include documents with matches",
+      "Apply time decay if enabled",
+      "Store score for sorting",
+      "Sort by final score (highest first)",
+      "Convert documents to dict for JSON serialization",
+      "Convert dict back to Document objects",
+      "Calculate decay factor for the document if time decay is enabled",
+      "Create a list of sections with adjusted weights (don't mutate original)",
+      "This is the key: old documents get their weights reduced",
+      "Create a shallow copy of the section and adjust weight",
+      "Sort sections by weight (highest first)",
+      "Now sections from recent documents will rank higher",
+      "If query provided, boost sections matching the query",
+      "Query boost: 50% increase",
+      "Re-sort after query boosting",
+      "Build context string within token limit",
+      "Format section",
+      "Add partial section if there's room"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DocumentStore: In-memory document store with optional persistence.",
+      "ContextExtractor: Extracts relevant context from documents based on weights and time-based decay.",
+      "__init__: Initialize document store.\n\nArgs:\n    storage_path: Optional path for persistent",
+      "add: Add a document to the store.\n\nArgs:\n    document: The document to add\n    \nRetur",
+      "get: Retrieve a document by ID.\n\nArgs:\n    document_id: The document ID\n    \nReturns:",
+      "list_all: List all documents in the store.\n\nReturns:\n    List of all documents",
+      "list_by_type: List documents of a specific type.\n\nArgs:\n    doc_type: The document type to fil",
+      "delete: Delete a document from the store.\n\nArgs:\n    document_id: The document ID\n    \nR",
+      "search: Search documents by content or metadata with optional time-based decay ranking.\n",
+      "_save_to_disk: Save documents to disk."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ContextExtractor",
+    "delete",
+    "DocumentStore",
+    "search",
+    "add",
+    "extract_context",
+    "get",
+    "list_all",
+    "list_by_type"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "copy",
+      "json",
+      "typing",
+      "pathlib",
+      "datetime",
+      "caas.models",
+      "caas.decay"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 20,
+      "doc": "Initialize document store.\n\nArgs:\n    storage_path: Optional path for persistent storage",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "storage_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add",
+      "line": 33,
+      "doc": "Add a document to the store.\n\nArgs:\n    document: The document to add\n    \nReturns:\n    The document ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "document"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get",
+      "line": 50,
+      "doc": "Retrieve a document by ID.\n\nArgs:\n    document_id: The document ID\n    \nReturns:\n    The document if found, None otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "document_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_all",
+      "line": 62,
+      "doc": "List all documents in the store.\n\nReturns:\n    List of all documents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_by_type",
+      "line": 71,
+      "doc": "List documents of a specific type.\n\nArgs:\n    doc_type: The document type to filter by\n    \nReturns:\n    List of matching documents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "doc_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete",
+      "line": 86,
+      "doc": "Delete a document from the store.\n\nArgs:\n    document_id: The document ID\n    \nReturns:\n    True if deleted, False if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "document_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "search",
+      "line": 105,
+      "doc": "Search documents by content or metadata with optional time-based decay ranking.\n\nWhen time decay is enabled:\n- Recent documents are ranked higher than old documents\n- Formula: relevance_score = match_score * decay_factor\n- A document from Yesterday with 80% match beats Last Year with 95% match\n\nArgs:\n    query: The search query\n    enable_time_decay: Whether to apply time-based decay to ranking (default: True)\n    decay_rate: Rate of decay (default: 1.0)\n    \nReturns:\n    List of matching documents, sorted by time-weighted relevance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "enable_time_decay",
+        "decay_rate"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_to_disk",
+      "line": 196,
+      "doc": "Save documents to disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_from_disk",
+      "line": 212,
+      "doc": "Load documents from disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 228,
+      "doc": "Initialize context extractor.\n\nArgs:\n    store: The document store to use\n    enrich_metadata: Whether to enrich chunks with metadata (default: True)\n    enable_time_decay: Whether to apply time-based decay to relevance (default: True)\n    decay_rate: Rate of time decay (default: 1.0). Higher = faster decay.\n    enable_citations: Whether to include source citations (default: True)\n    detect_conflicts: Whether to detect conflicts between sources (default: True)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store",
+        "enrich_metadata",
+        "enable_time_decay",
+        "decay_rate",
+        "enable_citations",
+        "detect_conflicts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_format_section",
+      "line": 256,
+      "doc": "Format a section for output.\n\nArgs:\n    section: Section to format\n    document: Parent document for metadata\n    \nReturns:\n    Formatted section string",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "section",
+        "document"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "extract_context",
+      "line": 270,
+      "doc": "Extract context from a document with structure-aware boosting and time-based decay.\n\nNow with Context scoring support:\n- Includes source citations for transparency\n- Detects conflicts between official and practical sources\n- Presents both official and real-world information\n\nPrioritizes:\n1. Tier 1 (High Value) content over Tier 2 and Tier 3\n2. Recent documents over old documents (when time decay is enabled)\n\nFormula: Final Score = Base Weight * Decay Factor\nWhere Decay Factor = 1 / (1 + days_elapsed)\n\nResult: A document from Yesterday with 80% match beats a document \n        from Last Year with 95% match.\n\nArgs:\n    document_id: The document ID\n    query: Optional query to focus context extraction\n    max_tokens: Maximum tokens to return\n    \nReturns:\n    Tuple of (context_string, metadata)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "document_id",
+        "query",
+        "max_tokens"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "DocumentStore",
+      "line": 17,
+      "doc": "In-memory document store with optional persistence.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ContextExtractor",
+      "line": 225,
+      "doc": "Extracts relevant context from documents based on weights and time-based decay.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 56,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

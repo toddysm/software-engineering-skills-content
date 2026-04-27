@@ -1,0 +1,254 @@
+{
+  "path": "packages/agent-compliance/src/agent_compliance/lint_policy.py",
+  "extension": ".py",
+  "size_bytes": 12143,
+  "line_count": 346,
+  "documentation": {
+    "file_docstring": "Policy linter for Agent Governance Toolkit.\n\nValidates YAML policy files for common mistakes: missing required fields,\nunknown operators/actions, conflicting rules, deprecated field names,\nempty rule lists, and invalid priority values.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Known values \u2014 union of schema.py (PolicyOperator/PolicyAction) and",
+      "shared.py (VALID_OPERATORS/VALID_ACTIONS) so the linter accepts every",
+      "operator and action recognised anywhere in the governance stack.",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Result types",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Core linting logic",
+      "---------------------------------------------------------------------------",
+      "\u2500\u2500 YAML parsing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Required top-level fields \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Deprecated top-level fields \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Rules validation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Track (field, operator, value) -> action for conflict detection",
+      "\u2500\u2500 Deprecated fields inside rules \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Action validation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Condition / conditions validation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Priority validation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Conflict detection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LintMessage: A single lint finding with severity, message, and file location.",
+      "LintResult: Aggregated lint results for one or more policy files.",
+      "_find_line: Return the 1-based line number where *needle* first appears.",
+      "lint_file: Lint a single YAML policy file and return structured results.",
+      "_lint_rules: Validate individual rules and detect conflicts.",
+      "lint_path: Lint a file or directory of YAML policy files."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "lint_file",
+    "summary",
+    "errors",
+    "warnings",
+    "LintResult",
+    "to_dict",
+    "LintMessage",
+    "lint_path",
+    "passed"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "pathlib",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_find_line",
+      "line": 111,
+      "doc": "Return the 1-based line number where *needle* first appears.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "lines",
+        "needle",
+        "start"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "lint_file",
+      "line": 124,
+      "doc": "Lint a single YAML policy file and return structured results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "LintResult"
+    },
+    {
+      "name": "_lint_rules",
+      "line": 201,
+      "doc": "Validate individual rules and detect conflicts.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "rules",
+        "lines",
+        "filepath",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "lint_path",
+      "line": 322,
+      "doc": "Lint a file or directory of YAML policy files.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "LintResult"
+    },
+    {
+      "name": "__str__",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "errors",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "warnings",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "passed",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "summary",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "LintMessage",
+      "line": 47,
+      "doc": "A single lint finding with severity, message, and file location.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "LintResult",
+      "line": 68,
+      "doc": "Aggregated lint results for one or more policy files.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

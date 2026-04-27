@@ -1,0 +1,409 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_security.py",
+  "extension": ".py",
+  "size_bytes": 34935,
+  "line_count": 924,
+  "documentation": {
+    "file_docstring": "MCP Security \u2014 defense against tool poisoning, rug pulls, and protocol attacks.\n\nScreens MCP tool definitions for adversarial manipulation where attackers\nembed hidden instructions in tool descriptions/metadata that are invisible\nto users but executed by LLMs.\n\nPublic Preview protections:\n    - **Tool poisoning detection**: Catches hidden instructions, invisible\n      unicode, markdown/HTML comments, and encoded payloads in tool\n      descriptions.\n    - **Description injection**: Detects prompt injection patterns\n      embedded within MCP tool metadata.\n    - **Schema abuse**: Flags overly permissive schemas, hidden required\n      fields, and instruction-bearing default values.\n    - **Rug pull detection**: Fingerprints registered tools and alerts\n      when descriptions or schemas change silently between sessions.\n    - **Cross-server attacks**: Detects tool impersonation and\n      typosquatting across MCP server boundaries.\n    - **Audit trail**: Logs every scan with timestamp and tool identity\n      for forensic review.\n\nArchitecture:\n    MCPSecurityScanner\n        \u251c\u2500 scan_tool()       \u2014 scan a single tool definition\n        \u251c\u2500 scan_server()     \u2014 batch-scan all tools from a server\n        \u251c\u2500 register_tool()   \u2014 fingerprint a tool for rug-pull detection\n        \u251c\u2500 check_rug_pull()  \u2014 compare current definition to fingerprint\n        \u2514\u2500 audit_log         \u2014 inspection trail",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Data models",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Detection patterns (compiled at import time, following memory_guard.py style)",
+      "---------------------------------------------------------------------------",
+      "Invisible unicode characters used to hide instructions",
+      "Markdown/HTML comments that hide text from users",
+      "Instruction-like patterns hidden in descriptions",
+      "Encoded payload patterns",
+      "Data exfiltration patterns",
+      "Privilege escalation in descriptions",
+      "Role override patterns",
+      "Content after excessive whitespace (hidden instructions at the end)",
+      "Suspicious keywords in decoded base64",
+      "---------------------------------------------------------------------------",
+      "Externalised configuration dataclass",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "MCPSecurityScanner",
+      "---------------------------------------------------------------------------",
+      "-- public API ---------------------------------------------------------",
+      "-- private detection methods ------------------------------------------",
+      "1. Invisible unicode characters",
+      "2. Markdown/HTML comments hiding text",
+      "3. Encoded instructions (base64, hex)",
+      "For base64, try to decode and check for suspicious content",
+      "Long base64 in a tool description is suspicious regardless",
+      "4. Hidden instructions after excessive whitespace/newlines",
+      "5. Instruction-like patterns",
+      "Reuse prompt_injection.py detector",
+      "Role assignment patterns",
+      "Data exfiltration patterns",
+      "1. Overly permissive: top-level type is \"object\" with no properties",
+      "2. Hidden required fields with suspicious names",
+      "3. Default values containing instructions",
+      "4. Hidden instructions in property descriptions",
+      "Same tool name from a different server",
+      "Typosquatting: similar name from a different server",
+      "-- helpers ------------------------------------------------------------",
+      "Simple Levenshtein check for short names",
+      "Compute Levenshtein distance",
+      "Typosquat if 1-2 edits on names of length \u2265 4"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPThreatType: Classification of an MCP-layer threat.",
+      "MCPSeverity: Severity of an MCP threat.",
+      "MCPThreat: A single threat finding from an MCP tool scan.",
+      "ToolFingerprint: Cryptographic fingerprint of a tool definition.",
+      "ScanResult: Aggregate outcome of scanning one or more tools.",
+      "MCPSecurityConfig: Structured configuration for MCP security scanning, loadable from YAML.\n\nAttribu",
+      "load_mcp_security_config: Load MCP security configuration from a YAML file.\n\nArgs:\n    path: Path to a YAM",
+      "MCPSecurityScanner: Scans MCP tool definitions for poisoning, rug pulls, and protocol attacks.\n\nUsag",
+      "_levenshtein: Compute Levenshtein edit distance between two strings.",
+      "scan_tool: Scan a single MCP tool definition for threats.\n\nArgs:\n    tool_name: Name of the"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "MCPThreatType",
+    "MCPThreat",
+    "ToolFingerprint",
+    "MCPSecurityScanner",
+    "ScanResult",
+    "register_tool",
+    "MCPSeverity",
+    "load_mcp_security_config",
+    "check_rug_pull",
+    "scan_tool",
+    "audit_log",
+    "scan_server",
+    "MCPSecurityConfig"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "hashlib",
+      "json",
+      "logging",
+      "os",
+      "re",
+      "time",
+      "warnings",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "agent_os._mcp_metrics",
+      "agent_os.mcp_protocols",
+      "agent_os.prompt_injection",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_mcp_security_config",
+      "line": 264,
+      "doc": "Load MCP security configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML file with a ``detection_patterns`` section.\n\nReturns:\n    MCPSecurityConfig populated from the YAML data.\n\nRaises:\n    FileNotFoundError: If the config file does not exist.\n    ValueError: If the YAML is missing the ``detection_patterns`` section.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "MCPSecurityConfig"
+    },
+    {
+      "name": "_levenshtein",
+      "line": 911,
+      "doc": "Compute Levenshtein edit distance between two strings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "s",
+        "t"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 338,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_tool",
+      "line": 361,
+      "doc": "Scan a single MCP tool definition for threats.\n\nArgs:\n    tool_name: Name of the tool.\n    description: Tool description (primary attack surface).\n    schema: Optional JSON Schema for tool inputs.\n    server_name: Name of the MCP server providing this tool.\n\nReturns:\n    List of ``MCPThreat`` findings (empty if clean).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "description",
+        "schema",
+        "server_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_server",
+      "line": 421,
+      "doc": "Scan all tools from an MCP server.\n\nArgs:\n    server_name: Name of the MCP server.\n    tools: List of tool dicts with keys: ``name``, ``description``,\n        and optionally ``inputSchema``.\n\nReturns:\n    Aggregate ``ScanResult``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_name",
+        "tools"
+      ],
+      "returns": "ScanResult"
+    },
+    {
+      "name": "register_tool",
+      "line": 460,
+      "doc": "Register a tool with a cryptographic fingerprint.\n\nIf already registered, updates last_seen and increments version\nonly when the definition changed.\n\nReturns:\n    The ``ToolFingerprint`` for this tool.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "description",
+        "schema",
+        "server_name"
+      ],
+      "returns": "ToolFingerprint"
+    },
+    {
+      "name": "check_rug_pull",
+      "line": 505,
+      "doc": "Check if a tool definition changed since registration (rug pull).\n\nReturns:\n    An ``MCPThreat`` if a rug pull is detected, else ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "description",
+        "schema",
+        "server_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "audit_log",
+      "line": 548,
+      "doc": "Return a copy of the scan audit history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_hidden_instructions",
+      "line": 554,
+      "doc": "Detect hidden instructions in tool descriptions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "description",
+        "tool_name",
+        "server_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_description_injection",
+      "line": 658,
+      "doc": "Detect prompt injection patterns in tool descriptions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "description",
+        "tool_name",
+        "server_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_schema_abuse",
+      "line": 718,
+      "doc": "Check tool input schemas for suspicious patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "schema",
+        "tool_name",
+        "server_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_cross_server",
+      "line": 811,
+      "doc": "Check for cross-server attack patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "server_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_is_typosquat",
+      "line": 862,
+      "doc": "Check if two tool names are suspiciously similar (edit distance \u2264 2).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "name_a",
+        "name_b"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_record_audit",
+      "line": 875,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "tool_name",
+        "server_name",
+        "threats"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPThreatType",
+      "line": 66,
+      "doc": "Classification of an MCP-layer threat.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPSeverity",
+      "line": 77,
+      "doc": "Severity of an MCP threat.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPThreat",
+      "line": 86,
+      "doc": "A single threat finding from an MCP tool scan.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolFingerprint",
+      "line": 99,
+      "doc": "Cryptographic fingerprint of a tool definition.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ScanResult",
+      "line": 112,
+      "doc": "Aggregate outcome of scanning one or more tools.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MCPSecurityConfig",
+      "line": 218,
+      "doc": "Structured configuration for MCP security scanning, loadable from YAML.\n\nAttributes:\n    invisible_unicode_patterns: Regex strings for invisible unicode detection.\n    hidden_comment_patterns: Regex strings for hidden comments.\n    hidden_instruction_patterns: Regex strings for instruction-like text.\n    encoded_payload_patterns: Regex strings for encoded payloads.\n    exfiltration_patterns: Regex strings for data exfiltration.\n    privilege_escalation_patterns: Regex strings for privilege escalation.\n    role_override_patterns: Regex strings for role overrides.\n    excessive_whitespace_pattern: Regex string for excessive whitespace.\n    suspicious_decoded_keywords: Keywords to check in decoded payloads.\n    disclaimer: Disclaimer text shown in logs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MCPSecurityScanner",
+      "line": 324,
+      "doc": "Scans MCP tool definitions for poisoning, rug pulls, and protocol attacks.\n\nUsage::\n\n    scanner = MCPSecurityScanner()\n    threats = scanner.scan_tool(\n        \"search\", \"Search the web for information\",\n        server_name=\"web-tools\"\n    )\n    if threats:\n        print(f\"Found {len(threats)} threat(s)\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 115,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "path": "packages/agent-os/src/agent_os/policies/async_evaluator.py",
+  "extension": ".py",
+  "size_bytes": 9551,
+  "line_count": 275,
+  "documentation": {
+    "file_docstring": "Async-safe and thread-safe policy evaluator for Agent-OS governance.\n\nWraps the synchronous :class:`PolicyEvaluator` with proper concurrency\ncontrols so that it can be used safely from ``asyncio`` coroutines **and**\nfrom multiple OS threads simultaneously.\n\nConcurrency guarantees\n----------------------\n* **asyncio.Lock** guards coroutine-level access so that only one\n  ``await evaluate(...)`` executes the underlying evaluator at a time.\n* **threading.RLock** guards thread-level access for the synchronous\n  :meth:`evaluate_sync` entry-point.\n* A lightweight **read-write lock** pattern allows multiple concurrent\n  reads (evaluations) while giving exclusive access to writes\n  (policy reloads).\n* All evaluation statistics are updated atomically via the thread lock.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Concurrency statistics",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Read-write lock helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Async-safe evaluator",
+      "---------------------------------------------------------------------------",
+      "-- properties --------------------------------------------------------",
+      "-- async entry-points ------------------------------------------------",
+      "-- internal helpers --------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_rounded_duration: Round durations while preserving tiny positive measurements.",
+      "ConcurrencyStats: Tracks concurrency-related metrics for the async evaluator.\n\nAll mutations happe",
+      "_ReadWriteLock: Simple readers-writer lock built on :class:`threading.RLock`.\n\nMultiple readers ",
+      "AsyncPolicyEvaluator: Thread-safe and asyncio-safe policy evaluator.\n\nWraps :class:`PolicyEvaluator` w",
+      "average_evaluation_time: Return average evaluation latency in seconds, or 0.0.",
+      "as_dict: Serialise stats to a plain dictionary.",
+      "evaluator: Return the underlying synchronous evaluator.",
+      "evaluate: Evaluate policies against *context* with async + thread safety.\n\nAcquires the as",
+      "evaluate_sync: Thread-safe synchronous policy evaluation.\n\nUses the read side of the RW lock so",
+      "evaluate_batch: Evaluate multiple contexts concurrently.\n\nEach context is evaluated in its own a"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "release_write",
+    "ConcurrencyStats",
+    "evaluator",
+    "evaluate_sync",
+    "release_read",
+    "acquire_write",
+    "AsyncPolicyEvaluator",
+    "as_dict",
+    "average_evaluation_time",
+    "acquire_read",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "logging",
+      "threading",
+      "time",
+      "dataclasses",
+      "pathlib",
+      "typing",
+      "evaluator"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_rounded_duration",
+      "line": 37,
+      "doc": "Round durations while preserving tiny positive measurements.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "average_evaluation_time",
+      "line": 64,
+      "doc": "Return average evaluation latency in seconds, or 0.0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "as_dict",
+      "line": 70,
+      "doc": "Serialise stats to a plain dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "acquire_read",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "release_read",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "acquire_write",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "release_write",
+      "line": 113,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluator",
+      "line": 150,
+      "doc": "Return the underlying synchronous evaluator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PolicyEvaluator"
+    },
+    {
+      "name": "evaluate",
+      "line": 156,
+      "doc": "Evaluate policies against *context* with async + thread safety.\n\nAcquires the async lock (coroutine safety) and the read side of\nthe RW lock (thread safety) so that concurrent evaluations can\nproceed but a policy reload will block until all in-flight\nevaluations complete.\n\nThread-safety: YES \u2014 safe to call from multiple threads via\n``asyncio.run_coroutine_threadsafe``.\n\nReturns\n-------\nPolicyDecision\n    The result of evaluating the loaded policies.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "evaluate_sync",
+      "line": 177,
+      "doc": "Thread-safe synchronous policy evaluation.\n\nUses the read side of the RW lock so multiple threads may\nevaluate concurrently while policy reloads block.\n\nThread-safety: YES \u2014 safe to call from any OS thread.\n\nReturns\n-------\nPolicyDecision\n    The result of evaluating the loaded policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "evaluate_batch",
+      "line": 192,
+      "doc": "Evaluate multiple contexts concurrently.\n\nEach context is evaluated in its own asyncio task.  All tasks\nshare the same concurrency controls so a policy reload in\nprogress will block them.\n\nThread-safety: YES.\n\nReturns\n-------\nlist[PolicyDecision]\n    One decision per input context, in the same order.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "contexts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reload_policies",
+      "line": 213,
+      "doc": "Reload policies from *directory* with an exclusive write lock.\n\nAcquires the write side of the RW lock so that no evaluations\ncan proceed while the policy set is being replaced.\n\nThread-safety: YES.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 226,
+      "doc": "Return a snapshot of concurrency statistics.\n\nThread-safety: YES \u2014 reads are guarded by the thread lock.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_with_read_lock",
+      "line": 236,
+      "doc": "Run the evaluator under the read side of the RW lock.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "_reload_with_write_lock",
+      "line": 265,
+      "doc": "Perform the actual policy reload under the write lock.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConcurrencyStats",
+      "line": 49,
+      "doc": "Tracks concurrency-related metrics for the async evaluator.\n\nAll mutations happen under the owning evaluator's thread lock so\nindividual field updates are atomic with respect to other threads.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_ReadWriteLock",
+      "line": 86,
+      "doc": "Simple readers-writer lock built on :class:`threading.RLock`.\n\nMultiple readers can hold the lock concurrently; a writer gets\nexclusive access (no readers **and** no other writers).",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AsyncPolicyEvaluator",
+      "line": 121,
+      "doc": "Thread-safe and asyncio-safe policy evaluator.\n\nWraps :class:`PolicyEvaluator` with proper concurrency controls:\n\n* :pyobj:`asyncio.Lock` for coroutine safety within a single event\n  loop.\n* :class:`_ReadWriteLock` for thread safety \u2014 multiple concurrent\n  reads (evaluations) are allowed; writes (policy reloads) acquire\n  exclusive access.\n* Evaluation statistics (:class:`ConcurrencyStats`) are maintained\n  atomically.\n\nParameters\n----------\nevaluator:\n    The underlying synchronous evaluator to wrap.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 18,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

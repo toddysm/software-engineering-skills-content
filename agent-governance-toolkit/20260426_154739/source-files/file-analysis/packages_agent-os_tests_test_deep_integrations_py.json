@@ -1,0 +1,683 @@
+{
+  "path": "packages/agent-os/tests/test_deep_integrations.py",
+  "extension": ".py",
+  "size_bytes": 20315,
+  "line_count": 569,
+  "documentation": {
+    "file_docstring": "Tests for deep framework integration hooks (issue #73).\n\nCovers tool registry interception, memory write validation, sub-agent\nspawn detection, function call pipeline hooks, GroupChat interception,\nand state change tracking across all three adapters:\n  - LangChainKernel\n  - CrewAIKernel\n  - AutoGenKernel\n\nAll tests use mock objects \u2014 no real framework imports are required.\n\nRun with: python -m pytest tests/test_deep_integrations.py -v --tb=short",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Helpers",
+      "=============================================================================",
+      "=============================================================================",
+      "LangChain Deep Integration Tests",
+      "=============================================================================",
+      "The tool's _run should now be governed; call it",
+      "_run should still be the original (not governed)",
+      "The original's invoke was wrapped by _detect_agent_spawning",
+      "First two calls should succeed",
+      "Third call exceeds max_tool_calls used as delegation depth",
+      "=============================================================================",
+      "CrewAI Deep Integration Tests",
+      "=============================================================================",
+      "The step method on the agent should now be governed",
+      "Call it to verify interception",
+      "=============================================================================",
+      "AutoGen Deep Integration Tests",
+      "=============================================================================",
+      "Call the governed function",
+      "delegation_log should be empty (no hooks applied)",
+      "function should NOT be governed"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_mock_tool: Create a mock LangChain-style tool with _run and _arun.",
+      "_make_mock_memory: Create a mock LangChain memory with save_context.",
+      "_make_mock_chain: Create a mock LangChain chain/agent.",
+      "_make_crewai_tool: Create a mock CrewAI tool.",
+      "_make_crewai_agent: Create a mock CrewAI agent with optional tools and memory.",
+      "_make_crewai_crew: Create a mock CrewAI crew.",
+      "_make_autogen_agent: Create a mock AutoGen agent.",
+      "TestLangChainToolRegistryInterception: Test tool registry interception in the LangChain adapter.",
+      "TestLangChainMemoryInterception: Test memory write interception in the LangChain adapter.",
+      "TestLangChainSubAgentSpawnDetection: Test sub-agent spawn detection in the LangChain adapter."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestDeepHooksDisabled",
+    "TestAutoGenStateInterception",
+    "TestAutoGenGroupChatInterception",
+    "test_deep_hooks_disabled_skips_tool_interception",
+    "test_state_update_blocked_on_pii",
+    "test_state_change_tracked",
+    "test_delegation_tracked",
+    "test_memory_write_blocked_on_pii",
+    "TestCrewAIMemoryInterception",
+    "test_clean_memory_write_passes",
+    "test_function_blocked_by_allowlist",
+    "test_step_blocked_by_pattern",
+    "TestCrewAIStepInterception",
+    "test_tool_blocked_by_allowlist",
+    "test_delegation_depth_exceeded",
+    "test_function_call_governed",
+    "test_reset_tracked",
+    "test_langchain_deep_hooks_disabled",
+    "test_crewai_deep_hooks_disabled",
+    "search_func",
+    "test_autogen_deep_hooks_disabled",
+    "test_groupchat_speaker_blocked_by_pattern",
+    "test_step_interception_logs_steps",
+    "test_tool_blocked_by_pattern_in_args",
+    "test_tool_invocations_tracked",
+    "test_state_update_blocked_on_policy_pattern",
+    "TestCrewAIDelegationDetection",
+    "TestLangChainToolRegistryInterception",
+    "my_func",
+    "TestLangChainSubAgentSpawnDetection",
+    "TestLangChainMemoryInterception",
+    "dangerous_func",
+    "test_groupchat_speaker_selection_tracked",
+    "test_crewai_memory_write_blocked_on_pii",
+    "test_crewai_clean_memory_write_passes",
+    "test_memory_write_blocked_on_policy_pattern",
+    "test_function_blocked_by_pattern",
+    "test_tool_run_governed_with_allowed_tools",
+    "TestAutoGenFunctionCallPipeline"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.base",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.crewai_adapter",
+      "agent_os.integrations.autogen_adapter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_mock_tool",
+      "line": 35,
+      "doc": "Create a mock LangChain-style tool with _run and _arun.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_mock_memory",
+      "line": 45,
+      "doc": "Create a mock LangChain memory with save_context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_make_mock_chain",
+      "line": 53,
+      "doc": "Create a mock LangChain chain/agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "tools",
+        "memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_crewai_tool",
+      "line": 69,
+      "doc": "Create a mock CrewAI tool.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_crewai_agent",
+      "line": 78,
+      "doc": "Create a mock CrewAI agent with optional tools and memory.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "tools",
+        "memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_crewai_crew",
+      "line": 91,
+      "doc": "Create a mock CrewAI crew.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_autogen_agent",
+      "line": 101,
+      "doc": "Create a mock AutoGen agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "function_map",
+        "groupchat"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_run_governed_with_allowed_tools",
+      "line": 125,
+      "doc": "Tool calls should pass when the tool is in the allowlist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_blocked_by_allowlist",
+      "line": 139,
+      "doc": "Tool not in the allowlist should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_blocked_by_pattern_in_args",
+      "line": 151,
+      "doc": "Tool args matching a blocked pattern should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_invocations_tracked",
+      "line": 163,
+      "doc": "Each tool invocation should be recorded in the audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deep_hooks_disabled_skips_tool_interception",
+      "line": 180,
+      "doc": "When deep_hooks_enabled=False, tools should NOT be intercepted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_memory_write_passes",
+      "line": 198,
+      "doc": "Memory writes without sensitive data should succeed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_write_blocked_on_pii",
+      "line": 209,
+      "doc": "Memory writes containing PII patterns should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_write_blocked_on_policy_pattern",
+      "line": 223,
+      "doc": "Memory writes matching blocked patterns should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_tracked",
+      "line": 242,
+      "doc": "Sub-agent invocations should be recorded in delegation chains.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_depth_exceeded",
+      "line": 254,
+      "doc": "Exceeding max delegation depth should raise PolicyViolationError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_step_interception_logs_steps",
+      "line": 279,
+      "doc": "Individual steps within a task should be logged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_step_blocked_by_pattern",
+      "line": 294,
+      "doc": "Steps with blocked pattern content should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_crewai_memory_write_blocked_on_pii",
+      "line": 311,
+      "doc": "Memory writes containing PII should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_crewai_clean_memory_write_passes",
+      "line": 327,
+      "doc": "Memory writes without sensitive data should succeed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_tracked",
+      "line": 346,
+      "doc": "Task delegation should be tracked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_depth_exceeded",
+      "line": 359,
+      "doc": "Exceeding max delegation depth should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_function_call_governed",
+      "line": 382,
+      "doc": "Functions in function_map should be governed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_function_blocked_by_allowlist",
+      "line": 401,
+      "doc": "Functions not in allowed_tools should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_function_blocked_by_pattern",
+      "line": 418,
+      "doc": "Functions whose args match blocked patterns should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_groupchat_speaker_selection_tracked",
+      "line": 439,
+      "doc": "Speaker selections in GroupChat should be tracked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_groupchat_speaker_blocked_by_pattern",
+      "line": 455,
+      "doc": "Speaker with a blocked-pattern name should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_state_change_tracked",
+      "line": 475,
+      "doc": "State updates should be logged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_state_update_blocked_on_pii",
+      "line": 486,
+      "doc": "State updates containing PII should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_state_update_blocked_on_policy_pattern",
+      "line": 496,
+      "doc": "State updates matching blocked patterns should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_tracked",
+      "line": 507,
+      "doc": "Agent resets should be logged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_deep_hooks_disabled",
+      "line": 524,
+      "doc": "LangChain kernel with deep_hooks_enabled=False should skip hooks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_crewai_deep_hooks_disabled",
+      "line": 537,
+      "doc": "CrewAI kernel with deep_hooks_enabled=False should skip hooks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_deep_hooks_disabled",
+      "line": 554,
+      "doc": "AutoGen kernel with deep_hooks_enabled=False should skip hooks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "my_func",
+      "line": 385,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "x"
+      ],
+      "returns": null
+    },
+    {
+      "name": "dangerous_func",
+      "line": 404,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "search_func",
+      "line": 421,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "my_func",
+      "line": 557,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "x"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestLangChainToolRegistryInterception",
+      "line": 122,
+      "doc": "Test tool registry interception in the LangChain adapter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLangChainMemoryInterception",
+      "line": 195,
+      "doc": "Test memory write interception in the LangChain adapter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLangChainSubAgentSpawnDetection",
+      "line": 239,
+      "doc": "Test sub-agent spawn detection in the LangChain adapter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrewAIStepInterception",
+      "line": 276,
+      "doc": "Test step-level task execution in the CrewAI adapter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrewAIMemoryInterception",
+      "line": 308,
+      "doc": "Test memory interception for CrewAI agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrewAIDelegationDetection",
+      "line": 343,
+      "doc": "Test delegation detection in CrewAI.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAutoGenFunctionCallPipeline",
+      "line": 379,
+      "doc": "Test function call pipeline interception for AutoGen agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAutoGenGroupChatInterception",
+      "line": 436,
+      "doc": "Test GroupChat message routing interception.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAutoGenStateInterception",
+      "line": 472,
+      "doc": "Test agent state change tracking.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDeepHooksDisabled",
+      "line": 521,
+      "doc": "Verify that deep hooks can be disabled across all adapters.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,320 @@
+{
+  "path": "packages/agent-os/src/agent_os/mute.py",
+  "extension": ".py",
+  "size_bytes": 14464,
+  "line_count": 428,
+  "documentation": {
+    "file_docstring": "Mute Agent Primitives \u2014 Face/Hands Architecture as Kernel-Level Primitives.\n\nSeparates reasoning from execution with a kernel-enforced trust boundary:\n  - Face agent: reasons, plans \u2014 never executes actions\n  - Mute (Hands) agent: executes \u2014 never calls LLMs or produces text\n\nThis is the agent equivalent of Unix privilege separation (OpenSSH privsep).\n\nExample:\n    >>> from agent_os.mute import face_agent, mute_agent, ExecutionPlan, pipe\n    >>>\n    >>> @face_agent(capabilities=[\"db.read\", \"file.write\"])\n    ... async def planner(task: str) -> ExecutionPlan:\n    ...     # Can call LLM, reason, plan \u2014 but cannot execute\n    ...     return ExecutionPlan(steps=[\n    ...         ActionStep(action=\"db.read\", params={\"query\": \"SELECT 1\"})\n    ...     ])\n    >>>\n    >>> @mute_agent(capabilities=[\"db.read\", \"file.write\"])\n    ... async def executor(step: ActionStep) -> dict:\n    ...     # Can execute actions \u2014 but cannot call LLM or produce text\n    ...     return {\"rows\": [1]}\n    >>>\n    >>> result = await pipe(planner, executor, \"get me the count\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Core Data Types",
+      "=============================================================================",
+      "=============================================================================",
+      "Capability Enforcement",
+      "=============================================================================",
+      "=============================================================================",
+      "Decorators \u2014 @face_agent and @mute_agent",
+      "=============================================================================",
+      "Validate plan capabilities if specified",
+      "Enforce capability boundary",
+      "=============================================================================",
+      "Pipeline \u2014 kernel.pipe(face, hands, input)",
+      "=============================================================================",
+      "Validate decorator roles",
+      "--- Phase 1: Reasoning (Face) ---",
+      "--- Phase 2: Capability Validation (Kernel) ---",
+      "--- Phase 3: Execution (Hands) ---",
+      "Check dependencies",
+      "=============================================================================",
+      "Public API",
+      "=============================================================================",
+      "Data types",
+      "Decorators",
+      "Pipeline",
+      "Errors"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ActionStatus: Status of an individual action step.",
+      "ActionStep: A single atomic action in an execution plan.\n\nEach step maps to exactly one capa",
+      "ExecutionPlan: Structured output from a Face agent \u2014 the contract between Face and Hands.\n\nThe ",
+      "StepResult: Result of executing a single ActionStep.",
+      "PipelineResult: Full result of a Face\u2192Hands pipeline execution.",
+      "CapabilityViolation: Raised when an agent tries to use an action outside its capabilities.",
+      "_validate_plan_capabilities: Validate every step in a plan against allowed capabilities.\n\nReturns list of ste",
+      "face_agent: Decorator that marks a function as a Face (reasoning) agent.\n\nThe decorated func",
+      "mute_agent: Decorator that marks a function as a Mute (Hands/execution) agent.\n\nThe decorate",
+      "pipe: Execute a Face\u2192Hands pipeline with kernel-level validation.\n\n1. Face agent produ"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "actions_used",
+    "data",
+    "StepResult",
+    "decorator",
+    "ActionStep",
+    "PipelineResult",
+    "ActionStatus",
+    "ExecutionPlan",
+    "CapabilityViolation",
+    "mute_agent",
+    "face_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "functools",
+      "time",
+      "collections.abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_validate_plan_capabilities",
+      "line": 150,
+      "doc": "Validate every step in a plan against allowed capabilities.\n\nReturns list of step indices that are denied.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "plan",
+        "capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "face_agent",
+      "line": 169,
+      "doc": "Decorator that marks a function as a Face (reasoning) agent.\n\nThe decorated function:\n  - CAN call LLMs, reason, and produce plans\n  - MUST return an ExecutionPlan\n  - CANNOT execute side-effects (enforced by convention + audit)\n\nArgs:\n    capabilities: List of capabilities the plan is allowed to use.\n        If provided, the returned plan is validated against this set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mute_agent",
+      "line": 209,
+      "doc": "Decorator that marks a function as a Mute (Hands/execution) agent.\n\nThe decorated function:\n  - CAN execute actions (DB queries, file I/O, API calls)\n  - CANNOT call LLMs or produce unstructured text\n  - Receives a single ActionStep and returns structured data\n\nArgs:\n    capabilities: List of capabilities this executor handles.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "pipe",
+      "line": 249,
+      "doc": "Execute a Face\u2192Hands pipeline with kernel-level validation.\n\n1. Face agent produces an ExecutionPlan from the task\n2. Kernel validates plan capabilities\n3. Hands agent executes each step sequentially\n4. Full audit trail is recorded\n\nArgs:\n    face_fn: A @face_agent decorated function\n    mute_fn: A @mute_agent decorated function\n    task: Input to pass to the face agent\n    face_args: Extra keyword args for the face agent\n    halt_on_deny: Stop pipeline if any step is denied (default True)\n    halt_on_error: Stop pipeline if any step fails (default False)\n\nReturns:\n    PipelineResult with step results, audit log, and success status",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "face_fn",
+        "mute_fn",
+        "task"
+      ],
+      "returns": "PipelineResult"
+    },
+    {
+      "name": "__post_init__",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "actions_used",
+      "line": 100,
+      "doc": "Set of distinct action names used in this plan.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "data",
+      "line": 127,
+      "doc": "Convenience: collect data from all successful steps.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "action",
+        "allowed"
+      ],
+      "returns": null
+    },
+    {
+      "name": "decorator",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "decorator",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrapper",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "ExecutionPlan"
+    },
+    {
+      "name": "wrapper",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ActionStatus",
+      "line": 49,
+      "doc": "Status of an individual action step.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ActionStep",
+      "line": 59,
+      "doc": "A single atomic action in an execution plan.\n\nEach step maps to exactly one capability. The kernel validates\nthat the step's action is within the agent's granted capabilities\nbefore allowing execution.\n\nAttributes:\n    action: Capability-scoped action name (e.g. \"db.read\", \"file.write\")\n    params: Parameters for the action\n    description: Human-readable description of what this step does\n    depends_on: Indices of steps that must complete before this one",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExecutionPlan",
+      "line": 79,
+      "doc": "Structured output from a Face agent \u2014 the contract between Face and Hands.\n\nThe plan is fully enumerable: every step has a named action from a\nknown capability set. The kernel validates the entire plan before\nany step executes.\n\nAttributes:\n    steps: Ordered list of action steps\n    metadata: Optional metadata from the reasoning phase\n    plan_id: Unique identifier for this plan",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "StepResult",
+      "line": 106,
+      "doc": "Result of executing a single ActionStep.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PipelineResult",
+      "line": 117,
+      "doc": "Full result of a Face\u2192Hands pipeline execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CapabilityViolation",
+      "line": 137,
+      "doc": "Raised when an agent tries to use an action outside its capabilities.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "path": "packages/agent-compliance/src/agent_compliance/promotion.py",
+  "extension": ".py",
+  "size_bytes": 13623,
+  "line_count": 410,
+  "documentation": {
+    "file_docstring": "Agent Lifecycle Promotion Gates \u2014 maturity tracking and automated gate checks.\n\nTracks agent lifecycle stages (experimental \u2192 beta \u2192 stable) with\nautomated promotion criteria validation.  Each *gate* is a named\ncheck function that returns pass/fail with a reason.  A\n:class:`PromotionChecker` aggregates gate results into a\n:class:`PromotionReport` that indicates whether an agent is ready\nto advance to the next maturity level.\n\nUsage::\n\n    from agent_compliance.promotion import (\n        PromotionChecker, MaturityLevel,\n    )\n\n    checker = PromotionChecker()   # includes 9 built-in gates\n    report = checker.check_promotion(\n        agent_id=\"implementer\",\n        current=MaturityLevel.EXPERIMENTAL,\n        target=MaturityLevel.BETA,\n        context={\n            \"test_coverage\": 82.5,\n            \"critical_vulns\": 0,\n            \"slo_compliance_pct\": 99.2,\n            \"slo_compliance_days\": 14,\n            \"trust_score\": 0.85,\n            \"peer_reviews\": 3,\n            \"error_budget_remaining_pct\": 42.0,\n            \"has_metrics\": True,\n            \"has_logging\": True,\n            \"has_readme\": True,\n            \"has_api_docs\": True,\n            \"has_approved_change_request\": True,\n        },\n    )\n    print(report.overall_passed)   # True / False\n    print(report.blockers)         # list of failed gate names",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Enums & value objects \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Ordered progression (DEPRECATED can be reached from any level)",
+      "\u2500\u2500 Built-in gate check functions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Registry of default gates",
+      "\u2500\u2500 Promotion Checker \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 public API \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MaturityLevel: Agent lifecycle maturity stages.",
+      "PromotionGate: Definition of a single promotion gate.\n\nAttributes:\n    name: Human-readable gat",
+      "PromotionResult: Result of a single gate evaluation.\n\nAttributes:\n    gate_name: Name of the eval",
+      "PromotionReport: Aggregate promotion evaluation.\n\nAttributes:\n    agent_id: Agent being evaluated",
+      "_test_coverage_check: Requires minimum test coverage percentage.",
+      "_security_scan_check: No critical vulnerabilities allowed.",
+      "_slo_compliance_check: Meets SLO targets for a minimum number of days.",
+      "_trust_score_check: Minimum trust score threshold.",
+      "_peer_review_check: At least N peer reviews completed.",
+      "_error_budget_check: Remaining error budget above threshold."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "PromotionReport",
+    "register_gate",
+    "PromotionGate",
+    "PromotionChecker",
+    "MaturityLevel",
+    "PromotionResult",
+    "check_promotion"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_test_coverage_check",
+      "line": 132,
+      "doc": "Requires minimum test coverage percentage.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_security_scan_check",
+      "line": 141,
+      "doc": "No critical vulnerabilities allowed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_slo_compliance_check",
+      "line": 151,
+      "doc": "Meets SLO targets for a minimum number of days.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_trust_score_check",
+      "line": 167,
+      "doc": "Minimum trust score threshold.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_peer_review_check",
+      "line": 176,
+      "doc": "At least N peer reviews completed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_error_budget_check",
+      "line": 185,
+      "doc": "Remaining error budget above threshold.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_observability_check",
+      "line": 194,
+      "doc": "Metrics and logging must be configured.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_documentation_check",
+      "line": 208,
+      "doc": "README and API docs must be present.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_change_control_check",
+      "line": 222,
+      "doc": "Approved change request must exist.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "gates"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_gate",
+      "line": 304,
+      "doc": "Add a custom promotion gate.\n\nArgs:\n    gate: The gate definition to register.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "gate"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_promotion",
+      "line": 312,
+      "doc": "Evaluate all applicable gates for a proposed promotion.\n\nArgs:\n    agent_id: Agent identifier.\n    current: Current maturity level.\n    target: Desired maturity level.\n    context: Dict of metrics / signals consumed by gate check\n        functions (e.g. ``test_coverage``, ``critical_vulns``).\n\nReturns:\n    A :class:`PromotionReport` summarising gate results.\n\nRaises:\n    ValueError: If the promotion direction is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "current",
+        "target",
+        "context"
+      ],
+      "returns": "PromotionReport"
+    },
+    {
+      "name": "_validate_transition",
+      "line": 386,
+      "doc": "Raise if the transition is invalid.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "current",
+        "target"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MaturityLevel",
+      "line": 55,
+      "doc": "Agent lifecycle maturity stages.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PromotionGate",
+      "line": 73,
+      "doc": "Definition of a single promotion gate.\n\nAttributes:\n    name: Human-readable gate name.\n    check_fn: Callable ``(context: dict) -> (passed: bool, reason: str)``.\n    required_for: Set of target maturity levels where this gate applies.\n    severity: ``\"blocker\"`` (blocks promotion) or ``\"warning\"`` (advisory).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PromotionResult",
+      "line": 92,
+      "doc": "Result of a single gate evaluation.\n\nAttributes:\n    gate_name: Name of the evaluated gate.\n    passed: Whether the gate passed.\n    reason: Explanation of the outcome.\n    details: Arbitrary extra data for audit.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PromotionReport",
+      "line": 109,
+      "doc": "Aggregate promotion evaluation.\n\nAttributes:\n    agent_id: Agent being evaluated.\n    current_level: Current maturity level.\n    target_level: Target maturity level.\n    gates: Individual gate results.\n    overall_passed: ``True`` if **all** blocker gates passed.\n    blockers: Names of failed blocker gates.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PromotionChecker",
+      "line": 284,
+      "doc": "Evaluates whether an agent is ready to promote to a higher maturity level.\n\nBy default includes all 9 built-in gates.  Additional custom gates can\nbe registered via :meth:`register_gate`.\n\nArgs:\n    gates: Optional explicit gate list.  When ``None`` the built-in\n        defaults are used.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

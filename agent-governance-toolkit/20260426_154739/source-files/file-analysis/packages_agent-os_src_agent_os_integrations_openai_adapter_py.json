@@ -1,0 +1,607 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/openai_adapter.py",
+  "extension": ".py",
+  "size_bytes": 27461,
+  "line_count": 816,
+  "documentation": {
+    "file_docstring": "OpenAI Assistants Integration\n\nWraps OpenAI Assistants API with Agent OS governance.\n\nUsage:\n    from agent_os.integrations import OpenAIKernel\n    from openai import OpenAI\n\n    client = OpenAI()\n    kernel = OpenAIKernel(policy=\"strict\")\n\n    # Create assistant as normal\n    assistant = client.beta.assistants.create(\n        name=\"Trading Bot\",\n        instructions=\"You analyze market data\",\n        model=\"gpt-4-turbo\"\n    )\n\n    # Wrap for governance\n    governed_assistant = kernel.wrap(assistant, client)\n\n    # All runs are now governed!\n    thread = governed_assistant.create_thread()\n    governed_assistant.add_message(thread.id, \"Analyze AAPL\")\n    run = governed_assistant.run(thread.id)  # Governed execution\n\nFeatures:\n- Pre-execution policy checks\n- Tool call interception and validation\n- Real-time run monitoring\n- SIGKILL support (cancel run on violation)\n- Full audit trail",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create assistant as normal",
+      "Wrap for governance",
+      "All runs are now governed!",
+      "Token tracking",
+      "Transient error base classes for retry detection",
+      "=========================================================================",
+      "Thread Management",
+      "=========================================================================",
+      "=========================================================================",
+      "Message Management",
+      "=========================================================================",
+      "Pre-check: blocked patterns",
+      "=========================================================================",
+      "Run Execution (Core Governance)",
+      "=========================================================================",
+      "Pre-check",
+      "Validate tools against policy",
+      "Create run",
+      "Poll until complete (with governance checks)",
+      "Pre-check",
+      "Create streaming run",
+      "Check for cancellation",
+      "Yield event",
+      "Check for SIGKILL",
+      "Update token counts",
+      "Check token limit",
+      "Handle different statuses",
+      "Tool calls need approval",
+      "Unknown status",
+      "Record tool call",
+      "Check tool call count",
+      "Validate function name",
+      "Check human approval requirement",
+      "Execute via tool registry if available",
+      "Submit outputs",
+      "=========================================================================",
+      "Signal Handling",
+      "=========================================================================",
+      "=========================================================================",
+      "Utility",
+      "=========================================================================",
+      "============================================================================",
+      "Convenience Functions",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AssistantContext: Extended execution context for OpenAI Assistants.\n\nTracks assistant-specific sta",
+      "_is_transient: Return True if the exception is a transient OpenAI error.",
+      "retry_with_backoff: Call *fn* with exponential backoff + jitter on transient errors.\n\nArgs:\n    fn: ",
+      "OpenAIKernel: OpenAI Assistants adapter for Agent OS.\n\nProvides governance for:\n- Assistant cr",
+      "GovernedAssistant: OpenAI Assistant wrapped with Agent OS governance.\n\nAll API calls are intercepte",
+      "PolicyViolationError: Raised when an assistant action violates governance policy.\n\nContains a human-re",
+      "RunCancelledException: Raised when a run is forcibly cancelled via SIGKILL.\n\nIndicates that ``cancel_ru",
+      "wrap: Quick wrapper for OpenAI Assistants.\n\nExample::\n\n    from agent_os.integrations.",
+      "wrap_assistant: Quick wrapper for OpenAI Assistants.\n\n.. deprecated::\n    Use :func:`wrap` inste",
+      "__init__: Initialise the OpenAI governance kernel.\n\nArgs:\n    policy: Governance policy to"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "list_messages",
+    "register_tool",
+    "get_token_usage",
+    "wrap_assistant",
+    "delete_thread",
+    "OpenAIKernel",
+    "id",
+    "name",
+    "get_context",
+    "sigstop",
+    "wrap",
+    "PolicyViolationError",
+    "run",
+    "unwrap",
+    "run_stream",
+    "AssistantContext",
+    "GovernedAssistant",
+    "RunCancelledException",
+    "create_thread",
+    "is_cancelled",
+    "add_message",
+    "sigkill",
+    "retry_with_backoff",
+    "health_check",
+    "get_thread",
+    "cancel_run"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "logging",
+      "random",
+      "time",
+      "collections.abc",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "base",
+      "warnings",
+      "warnings"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_is_transient",
+      "line": 83,
+      "doc": "Return True if the exception is a transient OpenAI error.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "exc"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "retry_with_backoff",
+      "line": 88,
+      "doc": "Call *fn* with exponential backoff + jitter on transient errors.\n\nArgs:\n    fn: Callable to invoke.\n    max_retries: Number of retry attempts after the initial call.\n    base_delay: Base delay in seconds for backoff calculation.\n    max_delay: Upper bound for the computed delay.\n\nReturns:\n    The return value of *fn*.\n\nRaises:\n    The last caught exception if all retries are exhausted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "fn"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "wrap",
+      "line": 776,
+      "doc": "Quick wrapper for OpenAI Assistants.\n\nExample::\n\n    from agent_os.integrations.openai_adapter import wrap\n\n    governed = wrap(my_assistant, openai_client)\n    result = governed.run(thread_id)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "assistant",
+        "client",
+        "policy",
+        "max_retries",
+        "timeout_seconds"
+      ],
+      "returns": "GovernedAssistant"
+    },
+    {
+      "name": "wrap_assistant",
+      "line": 797,
+      "doc": "Quick wrapper for OpenAI Assistants.\n\n.. deprecated::\n    Use :func:`wrap` instead.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "assistant",
+        "client",
+        "policy",
+        "max_retries",
+        "timeout_seconds"
+      ],
+      "returns": "GovernedAssistant"
+    },
+    {
+      "name": "__init__",
+      "line": 153,
+      "doc": "Initialise the OpenAI governance kernel.\n\nArgs:\n    policy: Governance policy to enforce. When ``None`` the default\n        ``GovernancePolicy`` is used.\n    max_retries: Maximum number of retry attempts for transient\n        OpenAI errors (default 3).\n    timeout_seconds: Default timeout in seconds for operations\n        (default 300).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "max_retries",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 178,
+      "doc": "Wrap an OpenAI Assistant with governance.\n\nThis is the primary wrapping method, consistent with all other\nadapters.  OpenAI Assistants require both an assistant object\n**and** a client, so ``client`` must be provided.\n\nArgs:\n    agent: OpenAI Assistant object.\n    client: OpenAI client instance (required).\n\nReturns:\n    GovernedAssistant with full governance.\n\nRaises:\n    TypeError: If *client* is not provided.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap_assistant",
+      "line": 218,
+      "doc": "Wrap an OpenAI Assistant with governance.\n\n.. deprecated::\n    Use :meth:`wrap` instead::\n\n        governed = kernel.wrap(assistant, client)\n\nArgs:\n    assistant: OpenAI Assistant object.\n    client: OpenAI client instance.\n\nReturns:\n    GovernedAssistant with full governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "assistant",
+        "client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unwrap",
+      "line": 241,
+      "doc": "Retrieve the original unwrapped assistant.\n\nArgs:\n    governed_agent: A ``GovernedAssistant`` or any object.\n\nReturns:\n    The original OpenAI assistant object if *governed_agent* is a\n    ``GovernedAssistant``; otherwise returns *governed_agent* as-is.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "cancel_run",
+      "line": 255,
+      "doc": "Cancel a run (SIGKILL equivalent).\n\nImmediately marks the run as cancelled locally and issues a cancel\nrequest to the OpenAI API.  If the API call fails (e.g. the run\nhas already completed), the error is silently ignored.\n\nArgs:\n    thread_id: The thread the run belongs to.\n    run_id: The run to cancel.\n    client: OpenAI client used to issue the cancellation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "run_id",
+        "client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_cancelled",
+      "line": 276,
+      "doc": "Check whether a run has been cancelled via :meth:`cancel_run`.\n\nArgs:\n    run_id: The run identifier to check.\n\nReturns:\n    ``True`` if the run was previously cancelled.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "run_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "health_check",
+      "line": 287,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "assistant",
+        "client",
+        "kernel",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_tool",
+      "line": 331,
+      "doc": "Register a tool function for automatic execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "func"
+      ],
+      "returns": null
+    },
+    {
+      "name": "id",
+      "line": 336,
+      "doc": "Assistant ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "name",
+      "line": 341,
+      "doc": "Assistant name",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "create_thread",
+      "line": 349,
+      "doc": "Create a new conversation thread.\n\nThe thread ID is automatically recorded in the execution context\nfor audit purposes.\n\nArgs:\n    **kwargs: Forwarded to ``client.beta.threads.create()``.\n\nReturns:\n    The newly created OpenAI thread object.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_thread",
+      "line": 365,
+      "doc": "Retrieve an existing thread by ID.\n\nArgs:\n    thread_id: The thread to retrieve.\n\nReturns:\n    The OpenAI thread object.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "delete_thread",
+      "line": 376,
+      "doc": "Delete a thread and remove it from the execution context.\n\nArgs:\n    thread_id: The thread to delete.\n\nReturns:\n    ``True`` if the thread was successfully deleted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "add_message",
+      "line": 394,
+      "doc": "Add a message to a thread with pre-execution policy checks.\n\nThe message content is validated against ``blocked_patterns`` before\nbeing sent to the OpenAI API.\n\nArgs:\n    thread_id: Target thread.\n    content: Message text.\n    role: Message role (default ``\"user\"``).\n    **kwargs: Additional parameters forwarded to the API.\n\nReturns:\n    The created OpenAI message object.\n\nRaises:\n    PolicyViolationError: If the content matches a blocked pattern.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "content",
+        "role"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "list_messages",
+      "line": 431,
+      "doc": "List messages in a thread.\n\nArgs:\n    thread_id: The thread whose messages to list.\n    **kwargs: Additional parameters (e.g. ``limit``, ``order``).\n\nReturns:\n    A list of message objects in the thread.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "run",
+      "line": 450,
+      "doc": "Execute a governed run.\n\nThis is the primary method for executing the assistant.\nAll tool calls and outputs are validated against policy.\n\nArgs:\n    thread_id: Thread to run on\n    instructions: Optional override instructions\n    tools: Optional tools to enable\n    poll_interval: How often to check run status\n    **kwargs: Additional run parameters\n\nReturns:\n    Completed run object\n\nRaises:\n    PolicyViolationError: If policy is violated\n    RunCancelledException: If run was SIGKILL'd",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "instructions",
+        "tools",
+        "poll_interval"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "run_stream",
+      "line": 505,
+      "doc": "Stream a governed run.\n\nYields events as they arrive, with real-time policy checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "instructions"
+      ],
+      "returns": "Generator"
+    },
+    {
+      "name": "_poll_run",
+      "line": 538,
+      "doc": "Poll run status with governance checks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "run_id",
+        "poll_interval"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_handle_tool_calls",
+      "line": 589,
+      "doc": "Handle tool calls with policy validation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "run"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_validate_tools",
+      "line": 669,
+      "doc": "Validate tools against policy",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sigkill",
+      "line": 683,
+      "doc": "Send SIGKILL to a running assistant \u2014 immediately cancels the run.\n\nThis is the primary mechanism for forcibly stopping a governed\nassistant that has violated policy or needs emergency termination.\n\nArgs:\n    thread_id: Thread containing the run.\n    run_id: The run to kill.\n\nExample:\n    >>> governed.sigkill(thread_id=\"thread_abc\", run_id=\"run_xyz\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "run_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sigstop",
+      "line": 698,
+      "doc": "Send SIGSTOP to a running assistant.\n\n.. note::\n\n    The OpenAI Assistants API does not support pausing a run, so\n    this behaves identically to :meth:`sigkill` (cancels the run).\n\nArgs:\n    thread_id: Thread containing the run.\n    run_id: The run to stop.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "thread_id",
+        "run_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_context",
+      "line": 716,
+      "doc": "Return the execution context containing the full audit trail.\n\nReturns:\n    The ``AssistantContext`` for this governed assistant, including\n    thread IDs, run IDs, function call history, and token usage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AssistantContext"
+    },
+    {
+      "name": "get_token_usage",
+      "line": 725,
+      "doc": "Return cumulative token usage statistics.\n\nReturns:\n    A dict with keys ``prompt_tokens``, ``completion_tokens``,\n    ``total_tokens``, and ``limit``.\n\nExample:\n    >>> governed.get_token_usage()\n    {'prompt_tokens': 120, 'completion_tokens': 80, 'total_tokens': 200, 'limit': 10000}",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__getattr__",
+      "line": 743,
+      "doc": "Proxy attribute access to the underlying OpenAI assistant.\n\nAllows transparent access to assistant properties (e.g. ``model``,\n``instructions``) that are not explicitly overridden by this wrapper.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AssistantContext",
+      "line": 53,
+      "doc": "Extended execution context for OpenAI Assistants.\n\nTracks assistant-specific state including thread IDs, run IDs,\nfunction call history, and cumulative token usage for governance\nenforcement.\n\nAttributes:\n    assistant_id: The OpenAI assistant identifier.\n    thread_ids: List of thread IDs created during this session.\n    run_ids: List of run IDs executed during this session.\n    function_calls: History of function/tool calls made by the assistant.\n    prompt_tokens: Cumulative prompt tokens consumed across all runs.\n    completion_tokens: Cumulative completion tokens consumed across all runs.",
+      "is_public": true,
+      "bases": [
+        "ExecutionContext"
+      ],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "OpenAIKernel",
+      "line": 131,
+      "doc": "OpenAI Assistants adapter for Agent OS.\n\nProvides governance for:\n- Assistant creation/modification\n- Thread management\n- Run execution\n- Tool/function calls\n- File operations\n\nExample:\n    kernel = OpenAIKernel(policy=GovernancePolicy(\n        max_tokens=10000,\n        allowed_tools=[\"code_interpreter\", \"retrieval\"],\n        blocked_patterns=[\"password\", \"api_key\", \"secret\"]\n    ))\n\n    governed = kernel.wrap(assistant, client)\n    result = governed.run(thread_id)",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedAssistant",
+      "line": 311,
+      "doc": "OpenAI Assistant wrapped with Agent OS governance.\n\nAll API calls are intercepted for policy enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 752,
+      "doc": "Raised when an assistant action violates governance policy.\n\nContains a human-readable reason describing which policy was violated.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RunCancelledException",
+      "line": 761,
+      "doc": "Raised when a run is forcibly cancelled via SIGKILL.\n\nIndicates that ``cancel_run`` (or ``sigkill``) was invoked, either\ndirectly or automatically by the governance layer (e.g. token limit\nexceeded, disallowed tool call).",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 93,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

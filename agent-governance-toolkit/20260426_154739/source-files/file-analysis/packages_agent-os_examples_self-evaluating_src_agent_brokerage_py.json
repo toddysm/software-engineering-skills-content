@@ -1,0 +1,416 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/agent_brokerage.py",
+  "extension": ".py",
+  "size_bytes": 21804,
+  "line_count": 599,
+  "documentation": {
+    "file_docstring": "Agent Brokerage Layer - The API Economy for Specialized Agents\n\nThis module implements an agent marketplace and brokerage system where:\n1. Agents publish their capabilities and pricing (utility-based, not subscriptions)\n2. Orchestrators can discover and select agents based on task requirements\n3. Micro-payments are made per API call, not monthly subscriptions\n4. Agents compete on price, speed, and quality\n\nThe Lesson:\nThe future is an API Economy. Specialized agent developers won't sell subscriptions;\nthey will sell Utility and get paid by the API call.\n\nKey Components:\n- AgentListing: Agent with pricing and capabilities\n- AgentMarketplace: Registry of available agents\n- AgentBroker: Selects best agent for a task based on bidding\n- MicroPaymentTracker: Tracks usage and costs",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Base score from success rate (0-30 points)",
+      "Speed score - faster is better (0-30 points)",
+      "Normalize latency (assuming 0-5000ms range)",
+      "Pricing score - cheaper is better (0-40 points)",
+      "Normalize price (assuming $0-$1 range)",
+      "Apply user constraints",
+      "Filter by capability",
+      "Filter by price",
+      "Filter by success rate",
+      "Get relevant agents",
+      "Calculate bid score",
+      "Sort bids by score (highest first)",
+      "Request bids from agents",
+      "Select best agent",
+      "Get the agent",
+      "Execute the task",
+      "Calculate actual cost",
+      "Note: Token counting is a placeholder (set to 0)",
+      "In production, this would use a token counter library",
+      "to calculate actual tokens from request/response",
+      "Record execution",
+      "Calculate averages",
+      "Budget PDF OCR Agent - Cheap but slower",
+      "Premium PDF OCR Agent - Expensive but faster",
+      "Text Summarization Agent"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PricingModel: Pricing models for agents.",
+      "AgentPricing: Pricing information for an agent.\n\nExample:\n    - PDF OCR Agent: $0.01 per execu",
+      "AgentListing: An agent listing in the marketplace.\n\nIncludes agent metadata, pricing, and exec",
+      "AgentBid: A bid from an agent for a task.",
+      "TaskExecution: Record of a task execution through the brokerage.",
+      "AgentMarketplace: Registry of available agents.\n\nThis is where agents publish their capabilities a",
+      "AgentBroker: The Agent Broker - Selects the best agent for a task.\n\nThis is the \"Orchestrator",
+      "create_sample_agents: Create sample agents for demonstration.\n\nReturns:\n    List of sample agent listi",
+      "calculate_cost: Calculate cost based on usage.\n\nNote: This implementation allows for hybrid pric",
+      "to_dict: Convert to dictionary."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "unregister_agent",
+    "list_all_agents",
+    "to_dict",
+    "TaskExecution",
+    "select_agent",
+    "request_bids",
+    "AgentBroker",
+    "AgentBid",
+    "AgentMarketplace",
+    "create_sample_agents",
+    "PricingModel",
+    "get_agent",
+    "calculate_cost",
+    "calculate_score",
+    "AgentPricing",
+    "register_agent",
+    "execute_task",
+    "AgentListing",
+    "discover_agents",
+    "get_usage_report"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "json",
+      "time"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_sample_agents",
+      "line": 545,
+      "doc": "Create sample agents for demonstration.\n\nReturns:\n    List of sample agent listings",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "calculate_cost",
+      "line": 55,
+      "doc": "Calculate cost based on usage.\n\nNote: This implementation allows for hybrid pricing models where\nbase_price is always charged and additional costs are added based\non the model type. For pure per-token or per-second pricing,\nset base_price to 0.0.\n\nExamples:\n- Pure per-execution: base_price=0.01, model=PER_EXECUTION\n- Pure per-token: base_price=0.0, per_token_price=0.002, model=PER_TOKEN\n- Hybrid: base_price=0.01, per_token_price=0.001, model=PER_TOKEN\n\nArgs:\n    tokens: Number of tokens processed\n    seconds: Execution time in seconds\n\nReturns:\n    Total cost in dollars",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tokens",
+        "seconds"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "to_dict",
+      "line": 86,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate_score",
+      "line": 115,
+      "doc": "Calculate a score for this agent for a given task.\n\nScoring is based on:\n- Success rate: 30% weight (reliability)\n- Speed (latency): 30% weight (performance)\n- Pricing: 40% weight (cost)\n\nUser constraints act as hard filters:\n- max_budget: Eliminates agents exceeding budget\n- max_latency_ms: Eliminates agents too slow\n\nNote: Capability matching is done during agent discovery/bidding,\nnot in scoring. Only agents with relevant capabilities receive bids.\n\nReturns:\n    Score between 0 and 1 (higher is better)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task",
+        "user_constraints"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "to_dict",
+      "line": 161,
+      "doc": "Convert to dictionary (excluding executor).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 188,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 215,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 237,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 240,
+      "doc": "Register an agent in the marketplace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_agent",
+      "line": 244,
+      "doc": "Remove an agent from the marketplace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "discover_agents",
+      "line": 251,
+      "doc": "Discover agents matching criteria.\n\nArgs:\n    capability_filter: Filter by capability (e.g., \"pdf_ocr\")\n    max_price: Maximum price per execution\n    min_success_rate: Minimum success rate (0-1)\n\nReturns:\n    List of matching agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability_filter",
+        "max_price",
+        "min_success_rate"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent",
+      "line": 286,
+      "doc": "Get an agent by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_all_agents",
+      "line": 290,
+      "doc": "List all registered agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "marketplace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request_bids",
+      "line": 314,
+      "doc": "Request bids from all capable agents.\n\nArgs:\n    task: Description of the task\n    task_metadata: Additional task information\n    user_constraints: User constraints (max budget, max latency, etc.)\n\nReturns:\n    List of bids from agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task",
+        "task_metadata",
+        "user_constraints"
+      ],
+      "returns": null
+    },
+    {
+      "name": "select_agent",
+      "line": 356,
+      "doc": "Select the best agent based on strategy.\n\nArgs:\n    bids: List of bids from agents\n    selection_strategy: Strategy for selection\n        - \"best_value\": Best overall score (default)\n        - \"cheapest\": Lowest cost\n        - \"fastest\": Lowest latency\n        - \"most_reliable\": Highest success rate\n\nReturns:\n    Selected bid, or None if no bids",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bids",
+        "selection_strategy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_task",
+      "line": 384,
+      "doc": "Execute a task by selecting and running the best agent.\n\nArgs:\n    task: Description of the task\n    task_metadata: Additional task information\n    user_constraints: User constraints (max budget, max latency)\n    selection_strategy: Strategy for agent selection\n    verbose: Print execution details\n\nReturns:\n    Execution result with agent response, cost, and metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task",
+        "task_metadata",
+        "user_constraints",
+        "selection_strategy",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_usage_report",
+      "line": 503,
+      "doc": "Get a usage and cost report.\n\nReturns:\n    Report with total cost, executions, and breakdown by agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PricingModel",
+      "line": 31,
+      "doc": "Pricing models for agents.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentPricing",
+      "line": 40,
+      "doc": "Pricing information for an agent.\n\nExample:\n    - PDF OCR Agent: $0.01 per execution, ~2s latency\n    - Advanced OCR Agent: $0.05 per execution, ~0.5s latency (faster)",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentListing",
+      "line": 99,
+      "doc": "An agent listing in the marketplace.\n\nIncludes agent metadata, pricing, and executor function.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentBid",
+      "line": 176,
+      "doc": "A bid from an agent for a task.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TaskExecution",
+      "line": 202,
+      "doc": "Record of a task execution through the brokerage.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentMarketplace",
+      "line": 229,
+      "doc": "Registry of available agents.\n\nThis is where agents publish their capabilities and pricing.\nThink of it like an \"App Store\" for AI agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentBroker",
+      "line": 295,
+      "doc": "The Agent Broker - Selects the best agent for a task.\n\nThis is the \"Orchestrator\" that:\n1. Receives a task from the user\n2. Requests bids from available agents\n3. Selects the best agent based on cost, speed, and quality\n4. Executes the task with the selected agent\n5. Tracks costs (micro-payments)\n\nThe User pays the Orchestrator, and the Orchestrator pays the Agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 62,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

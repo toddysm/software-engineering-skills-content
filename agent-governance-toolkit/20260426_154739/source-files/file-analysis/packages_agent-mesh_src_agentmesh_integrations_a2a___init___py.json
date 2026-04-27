@@ -1,0 +1,282 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/integrations/a2a/__init__.py",
+  "extension": ".py",
+  "size_bytes": 10204,
+  "line_count": 322,
+  "documentation": {
+    "file_docstring": "A2A Protocol Integration for AgentMesh\n=======================================\n\nProvides A2A Agent Cards and trust-gated task delegation using the\nAI Card standard for identity verification.\n\nIdentity is handled by AI Card (https://github.com/agent-card/ai-card),\nnot embedded directly in A2A Agent Cards. The A2A integration focuses\non task delegation, state management, and protocol-level concerns.\n\nExample:\n    >>> from agentmesh.integrations.a2a import A2AAgentCard, A2ATrustProvider\n    >>> from agentmesh.identity import AgentIdentity\n    >>>\n    >>> identity = AgentIdentity.create(\n    ...     name=\"sql-agent\",\n    ...     sponsor=\"human@example.com\",\n    ...     capabilities=[\"execute:sql\", \"read:database\"],\n    ... )\n    >>> card = A2AAgentCard.from_identity(identity, url=\"https://agent.example.com\")\n    >>>\n    >>> # Standard A2A Agent Card JSON (identity via AI Card)\n    >>> card.to_json()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Standard A2A fields",
+      "AI Card provides identity, trust, and verifiable metadata",
+      "Reference AI Card for identity instead of embedding",
+      "Trust metadata",
+      "Check cache",
+      "Verify via AI Card",
+      "Use TrustBridge for handshake if available",
+      "Cache successful verification",
+      "Convenience exports"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "A2ATaskState: A2A Protocol task states.",
+      "A2AAgentCard: A2A Agent Card backed by AI Card for identity.\n\nStandard A2A fields (name, url, ",
+      "A2ATask: A2A Protocol task with trust metadata.",
+      "A2ATrustProvider: Trust provider for A2A Protocol interactions.\n\nVerifies agent identity via AI Ca",
+      "agent_did: Agent DID from AI Card identity.",
+      "trust_score: Trust score from AI Card verifiable metadata.",
+      "capabilities: Capabilities from AI Card attestations.",
+      "from_identity: Create an A2A Agent Card from an AgentIdentity.\n\nIdentity is stored in an AICard",
+      "to_json: Export as A2A-compatible JSON.\n\nIdentity is referenced via ``ai_card_url`` point",
+      "to_dict: Export as dictionary."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "from_identity",
+    "get_trust_footer",
+    "capabilities",
+    "verify_signature",
+    "A2ATaskState",
+    "to_dict",
+    "A2ATask",
+    "trust_score",
+    "to_json",
+    "agent_did",
+    "A2ATrustProvider",
+    "A2AAgentCard"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "hashlib",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "enum",
+      "agentmesh.integrations.ai_card.schema"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "agent_did",
+      "line": 75,
+      "doc": "Agent DID from AI Card identity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "trust_score",
+      "line": 82,
+      "doc": "Trust score from AI Card verifiable metadata.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "capabilities",
+      "line": 89,
+      "doc": "Capabilities from AI Card attestations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_identity",
+      "line": 96,
+      "doc": "Create an A2A Agent Card from an AgentIdentity.\n\nIdentity is stored in an AICard; the A2A card references it.\n\nArgs:\n    identity: An ``AgentIdentity`` with a private key.\n    url: A2A service endpoint URL.\n    description: Agent description.\n    skills: A2A skill definitions.\n\nReturns:\n    An ``A2AAgentCard`` with a signed AI Card.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "identity",
+        "url",
+        "description",
+        "skills"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_json",
+      "line": 136,
+      "doc": "Export as A2A-compatible JSON.\n\nIdentity is referenced via ``ai_card_url`` pointing to the\nagent's ``/.well-known/ai-card.json`` endpoint rather than\nembedded directly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "indent"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 164,
+      "doc": "Export as dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_signature",
+      "line": 168,
+      "doc": "Verify identity via the underlying AI Card signature.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "trust_bridge",
+        "min_trust_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_peer",
+      "line": 212,
+      "doc": "Verify peer agent before task interaction.\n\nVerification uses the AI Card attached to the peer's A2A card.\n\nArgs:\n    peer_did: Peer agent's DID.\n    peer_card: Optional peer's A2A Agent Card.\n\nReturns:\n    True if peer is trusted.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "peer_card"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "create_task",
+      "line": 266,
+      "doc": "Create A2A task with trust verification.\n\nArgs:\n    peer_did: Target agent DID.\n    message: Task message.\n    peer_card: Optional target's A2A Agent Card.\n\nReturns:\n    ``A2ATask`` if trust verified, ``None`` otherwise.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "message",
+        "peer_card"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_footer",
+      "line": 304,
+      "doc": "Get trust verification footer for A2A messages.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "A2ATaskState",
+      "line": 44,
+      "doc": "A2A Protocol task states.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "A2AAgentCard",
+      "line": 55,
+      "doc": "A2A Agent Card backed by AI Card for identity.\n\nStandard A2A fields (name, url, skills, capabilities) live here.\nCryptographic identity (DID, signing, trust scores) is delegated\nto the underlying AICard instance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "A2ATask",
+      "line": 176,
+      "doc": "A2A Protocol task with trust metadata.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "A2ATrustProvider",
+      "line": 193,
+      "doc": "Trust provider for A2A Protocol interactions.\n\nVerifies agent identity via AI Card before allowing task delegation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_cve_feed.py",
+  "extension": ".py",
+  "size_bytes": 8217,
+  "line_count": 235,
+  "documentation": {
+    "file_docstring": "MCP CVE feed integration \u2014 track known vulnerabilities in MCP server packages.\n\nQueries public CVE databases (NVD, OSV) for vulnerabilities affecting\nMCP server dependencies. Integrates with the MCP security scanner to\nflag connections to servers running vulnerable versions.\n\nUsage::\n\n    from agent_os.mcp_cve_feed import McpCveFeed, VulnerabilityRecord\n\n    feed = McpCveFeed()\n    feed.add_package(\"@modelcontextprotocol/sdk\", version=\"1.2.0\")\n    feed.add_package(\"mcp-server-sqlite\", version=\"0.3.1\")\n\n    vulns = feed.check_all()\n    for v in vulns:\n        print(f\"{v.package} {v.version}: {v.cve_id} ({v.severity})\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "OSV.dev API \u2014 free, no auth required, covers npm/PyPI/crates/Go",
+      "Check cache",
+      "Extract severity",
+      "Extract CVE ID",
+      "Extract fixed version",
+      "References"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "VulnerabilityRecord: A known vulnerability affecting an MCP server package.",
+      "PackageEntry: A tracked MCP server package.",
+      "McpCveFeed: Track CVE vulnerabilities for MCP server packages.\n\nQueries OSV.dev for known vu",
+      "add_package: Register an MCP server package for vulnerability tracking.",
+      "remove_package: Remove a package from tracking.",
+      "tracked_packages: List all tracked packages.",
+      "check_package: Check a single package for known vulnerabilities via OSV.dev.\n\nArgs:\n    name: P",
+      "check_all: Check all tracked packages for vulnerabilities.\n\nReturns:\n    Combined list of a",
+      "has_critical: Check if any tracked package has a CRITICAL vulnerability.",
+      "summary: Get vulnerability count by severity."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "add_package",
+    "check_all",
+    "summary",
+    "add_manual_advisory",
+    "has_critical",
+    "VulnerabilityRecord",
+    "tracked_packages",
+    "check_package",
+    "remove_package",
+    "PackageEntry",
+    "McpCveFeed"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "urllib.request",
+      "dataclasses",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cache_ttl_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_package",
+      "line": 79,
+      "doc": "Register an MCP server package for vulnerability tracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version",
+        "ecosystem"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_package",
+      "line": 88,
+      "doc": "Remove a package from tracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "tracked_packages",
+      "line": 95,
+      "doc": "List all tracked packages.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_package",
+      "line": 99,
+      "doc": "Check a single package for known vulnerabilities via OSV.dev.\n\nArgs:\n    name: Package name (e.g., \"@modelcontextprotocol/sdk\").\n    version: Package version string.\n    ecosystem: Package ecosystem (npm, PyPI, crates.io, Go).\n\nReturns:\n    List of VulnerabilityRecord for known vulnerabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version",
+        "ecosystem"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_all",
+      "line": 123,
+      "doc": "Check all tracked packages for vulnerabilities.\n\nReturns:\n    Combined list of all vulnerabilities found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has_critical",
+      "line": 135,
+      "doc": "Check if any tracked package has a CRITICAL vulnerability.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "summary",
+      "line": 139,
+      "doc": "Get vulnerability count by severity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_query_osv",
+      "line": 146,
+      "doc": "Query OSV.dev API for vulnerabilities.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version",
+        "ecosystem"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_parse_osv_response",
+      "line": 170,
+      "doc": "Parse OSV API response into VulnerabilityRecord list.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "package",
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_manual_advisory",
+      "line": 228,
+      "doc": "Add a manually discovered vulnerability (not from OSV).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "record"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "VulnerabilityRecord",
+      "line": 39,
+      "doc": "A known vulnerability affecting an MCP server package.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PackageEntry",
+      "line": 55,
+      "doc": "A tracked MCP server package.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "McpCveFeed",
+      "line": 63,
+      "doc": "Track CVE vulnerabilities for MCP server packages.\n\nQueries OSV.dev for known vulnerabilities. Results are cached\nper check cycle to avoid repeated API calls.\n\nArgs:\n    cache_ttl_seconds: How long to cache results. Default 3600 (1 hour).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,397 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/encryption/x3dh.py",
+  "extension": ".py",
+  "size_bytes": 12920,
+  "line_count": 370,
+  "documentation": {
+    "file_docstring": "X3DH (Extended Triple Diffie-Hellman) key agreement.\n\nImplements the Signal X3DH specification for establishing shared secrets\nbetween agents. Uses AGT's Ed25519 identity keys converted to X25519\nfor the Diffie-Hellman operations.\n\nReference: https://signal.org/docs/specifications/x3dh/",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Remove the OTK from the bundle",
+      "4 (or 3) DH computations",
+      "Verify: the signature was created by ed25519.sign(signed_pre_key, ed25519_private)",
+      "Prepend 32 bytes of 0xFF as specified by Signal X3DH"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "X25519KeyPair: An X25519 key pair for Diffie-Hellman operations.",
+      "SignedPreKey: A signed pre-key: X25519 public key + Ed25519 signature.",
+      "OneTimePreKey: A one-time pre-key consumed during X3DH.",
+      "PreKeyBundle: Public pre-key bundle published by an agent for X3DH.\n\nContains the agent's iden",
+      "PreKeyStore: Protocol for storing and retrieving pre-key bundles.",
+      "InMemoryPreKeyStore: Thread-safe in-memory pre-key store for development and testing.",
+      "X3DHResult: Result of an X3DH key agreement.",
+      "X3DHKeyManager: Manages X3DH key material for an agent.\n\nGenerates identity keys, signed pre-key",
+      "_kdf: Derive a 32-byte shared secret from the concatenated DH outputs.",
+      "generate: Generate a new random X25519 key pair."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "store_bundle",
+    "generate_one_time_pre_keys",
+    "X25519KeyPair",
+    "X3DHResult",
+    "SignedPreKey",
+    "respond",
+    "get_public_bundle",
+    "PreKeyBundle",
+    "consume_one_time_key",
+    "OneTimePreKey",
+    "InMemoryPreKeyStore",
+    "generate_signed_pre_key",
+    "get_bundle",
+    "PreKeyStore",
+    "from_ed25519",
+    "X3DHKeyManager",
+    "initiate",
+    "generate",
+    "from_ed25519_keys"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "secrets",
+      "dataclasses",
+      "typing",
+      "cryptography.hazmat.primitives.hashes",
+      "cryptography.hazmat.primitives.kdf.hkdf",
+      "nacl.bindings",
+      "nacl.signing",
+      "nacl.signing",
+      "nacl.exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_kdf",
+      "line": 360,
+      "doc": "Derive a 32-byte shared secret from the concatenated DH outputs.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "ikm"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "generate",
+      "line": 42,
+      "doc": "Generate a new random X25519 key pair.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls"
+      ],
+      "returns": "X25519KeyPair"
+    },
+    {
+      "name": "from_ed25519",
+      "line": 49,
+      "doc": "Convert an Ed25519 key pair to X25519 via birational map.\n\nArgs:\n    ed25519_private: 64-byte Ed25519 secret key.\n    ed25519_public: 32-byte Ed25519 public key.\n\nReturns:\n    The corresponding X25519 key pair.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "ed25519_private",
+        "ed25519_public"
+      ],
+      "returns": "X25519KeyPair"
+    },
+    {
+      "name": "get_bundle",
+      "line": 105,
+      "doc": "Retrieve a pre-key bundle for the given agent DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "store_bundle",
+      "line": 109,
+      "doc": "Store a pre-key bundle for the given agent DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "bundle"
+      ],
+      "returns": null
+    },
+    {
+      "name": "consume_one_time_key",
+      "line": 113,
+      "doc": "Mark a one-time pre-key as consumed. Returns True if it existed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "key_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_bundle",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "store_bundle",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "bundle"
+      ],
+      "returns": null
+    },
+    {
+      "name": "consume_one_time_key",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "key_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "from_ed25519_keys",
+      "line": 179,
+      "doc": "Create an X3DH key manager from Ed25519 identity keys.\n\nArgs:\n    private_key: 64-byte Ed25519 secret key.\n    public_key: 32-byte Ed25519 public key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "private_key",
+        "public_key"
+      ],
+      "returns": "X3DHKeyManager"
+    },
+    {
+      "name": "generate_signed_pre_key",
+      "line": 193,
+      "doc": "Generate a new signed pre-key and sign it with the Ed25519 identity key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SignedPreKey"
+    },
+    {
+      "name": "generate_one_time_pre_keys",
+      "line": 211,
+      "doc": "Generate a batch of one-time pre-keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "count"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_public_bundle",
+      "line": 222,
+      "doc": "Build a public pre-key bundle for distribution.\n\nArgs:\n    otk_id: Optional one-time pre-key ID to include.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "otk_id"
+      ],
+      "returns": "PreKeyBundle"
+    },
+    {
+      "name": "initiate",
+      "line": 248,
+      "doc": "Perform X3DH as the initiator.\n\nArgs:\n    peer_bundle: The responder's public pre-key bundle.\n\nReturns:\n    X3DHResult with the shared secret and ephemeral public key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_bundle"
+      ],
+      "returns": "X3DHResult"
+    },
+    {
+      "name": "respond",
+      "line": 284,
+      "doc": "Perform X3DH as the responder.\n\nArgs:\n    peer_identity_key: Initiator's X25519 identity public key.\n    ephemeral_public_key: Initiator's ephemeral X25519 public key.\n    used_one_time_key_id: ID of the one-time pre-key the initiator used, if any.\n\nReturns:\n    X3DHResult with the same shared secret the initiator derived.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_identity_key",
+        "ephemeral_public_key",
+        "used_one_time_key_id"
+      ],
+      "returns": "X3DHResult"
+    },
+    {
+      "name": "_verify_signed_pre_key",
+      "line": 327,
+      "doc": "Verify the signed pre-key signature against the Ed25519 identity key.\n\nFail-closed: if identity_key_ed is missing or verification fails, raises.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "bundle"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "X25519KeyPair",
+      "line": 35,
+      "doc": "An X25519 key pair for Diffie-Hellman operations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SignedPreKey",
+      "line": 69,
+      "doc": "A signed pre-key: X25519 public key + Ed25519 signature.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "OneTimePreKey",
+      "line": 78,
+      "doc": "A one-time pre-key consumed during X3DH.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PreKeyBundle",
+      "line": 86,
+      "doc": "Public pre-key bundle published by an agent for X3DH.\n\nContains the agent's identity public key (X25519), a signed pre-key,\nand optionally a one-time pre-key.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PreKeyStore",
+      "line": 102,
+      "doc": "Protocol for storing and retrieving pre-key bundles.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InMemoryPreKeyStore",
+      "line": 118,
+      "doc": "Thread-safe in-memory pre-key store for development and testing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "X3DHResult",
+      "line": 153,
+      "doc": "Result of an X3DH key agreement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "X3DHKeyManager",
+      "line": 163,
+      "doc": "Manages X3DH key material for an agent.\n\nGenerates identity keys, signed pre-keys, and one-time pre-keys,\nand performs the X3DH key agreement protocol.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/model_upgrade.py",
+  "extension": ".py",
+  "size_bytes": 22184,
+  "line_count": 571,
+  "documentation": {
+    "file_docstring": "Model Upgrade Manager - Lifecycle Management for Wisdom Database\n\nThis module implements the \"Upgrade Purge\" strategy for active memory management.\nWhen upgrading the base model (e.g., GPT-3.5 \u2192 GPT-4), it audits the wisdom database\nand removes lessons that the new model can handle natively.\n\nPhilosophy:\n- Lessons are often just band-aids for a model\n- When you upgrade, many band-aids become redundant\n- The wisdom database should get smaller and more specialized over time\n- Only edge cases the new model can't handle should remain",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import prioritization framework",
+      "Load environment variables",
+      "Configuration constants",
+      "Initialize OpenAI client only if API key is available",
+      "Load upgrade log",
+      "If we don't have the original query, we can't test",
+      "Build system prompt with baseline only (no specific lessons)",
+      "Execute with new model",
+      "Evaluate the response",
+      "Extract JSON from response",
+      "Extract failure scenarios from improvements",
+      "Test each scenario",
+      "Test with new model and baseline instructions only",
+      "Determine if the lesson is redundant",
+      "New model handles it natively - lesson is redundant!",
+      "New model still struggles - lesson is critical!",
+      "Filter out redundant improvements",
+      "Update wisdom database",
+      "Add metadata about the purge",
+      "Save updated wisdom",
+      "Also purge from prioritization framework if enabled",
+      "Log the upgrade",
+      "Get redundant lesson queries",
+      "Filter out redundant safety corrections",
+      "Save corrections using prioritization framework's method",
+      "If method doesn't exist or is unavailable, skip silently",
+      "Step 1: Audit",
+      "Step 2: Purge (if auto_purge enabled)",
+      "Check for API key",
+      "Initialize upgrade manager",
+      "Example: Upgrade to a new model",
+      "Define baseline instructions for the new model",
+      "Perform upgrade (audit + purge)",
+      "Review audit results",
+      "Optionally, manually purge after review",
+      "purge_results = manager.purge_redundant_lessons(report['audit_results'], verbose=True)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ModelUpgradeManager: Manages the upgrade purge process when base models are upgraded.\n\nThe workflow:\n",
+      "main: Example usage of the model upgrade manager.",
+      "_load_upgrade_log: Load the model upgrade log from disk.\n\nReturns:\n    Dict containing:\n        - u",
+      "_save_upgrade_log: Save the model upgrade log to disk.\nPersists the current upgrade history and mod",
+      "_extract_failure_scenarios: Extract failure scenarios from the improvements history.\n\nEach improvement repre",
+      "_test_scenario_with_baseline: Test a failure scenario against the new model with baseline instructions only.\n\n",
+      "_evaluate_response: Evaluate how well the agent responded to a query.\n\nReturns a score from 0 to 1.",
+      "audit_wisdom_database: Audit the wisdom database against a new model.\n\nArgs:\n    new_model: The new mod",
+      "purge_redundant_lessons: Purge redundant lessons from the wisdom database.\n\nArgs:\n    audit_results: Resu",
+      "_purge_from_prioritization: Purge redundant safety corrections from prioritization framework.\n\nSimilar logic"
+    ]
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "purge_redundant_lessons",
+    "ModelUpgradeManager",
+    "perform_upgrade",
+    "main",
+    "audit_wisdom_database"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "typing",
+      "datetime",
+      "openai",
+      "dotenv",
+      "agent",
+      "prioritization"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 531,
+      "doc": "Example usage of the model upgrade manager.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "wisdom_file",
+        "upgrade_log_file",
+        "enable_prioritization"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_upgrade_log",
+      "line": 70,
+      "doc": "Load the model upgrade log from disk.\n\nReturns:\n    Dict containing:\n        - upgrades: List of upgrade records\n        - current_model: Name of current model (or None)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_upgrade_log",
+      "line": 92,
+      "doc": "Save the model upgrade log to disk.\nPersists the current upgrade history and model information.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_failure_scenarios",
+      "line": 100,
+      "doc": "Extract failure scenarios from the improvements history.\n\nEach improvement represents a past failure that caused the system\nto learn a new lesson. We need to test if the new model can handle\nthese scenarios without the learned lessons.\n\nReturns:\n    List of scenario dictionaries, each containing:\n        - version: Version number when lesson was learned\n        - timestamp: When the lesson was learned\n        - critique: The critique that prompted learning\n        - query: Original query that failed\n        - response: Original agent response that failed",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_test_scenario_with_baseline",
+      "line": 132,
+      "doc": "Test a failure scenario against the new model with baseline instructions only.\n\nArgs:\n    query: The original query that caused the failure\n    new_model: The new model to test with\n    baseline_instructions: Baseline instructions (without specific lessons)\n\nReturns:\n    Tuple of (response, score) where score is 0-1",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "new_model",
+        "baseline_instructions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_response",
+      "line": 181,
+      "doc": "Evaluate how well the agent responded to a query.\n\nReturns a score from 0 to 1.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "agent_response"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "audit_wisdom_database",
+      "line": 232,
+      "doc": "Audit the wisdom database against a new model.\n\nArgs:\n    new_model: The new model to test with (e.g., \"gpt-4o\", \"gpt-4\")\n    baseline_instructions: Baseline instructions without specific lessons\n    score_threshold: Score threshold to consider a scenario \"solved\" (default: 0.8)\n    verbose: Print detailed audit information\n\nReturns:\n    Audit report with redundant lessons identified",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_model",
+        "baseline_instructions",
+        "score_threshold",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "purge_redundant_lessons",
+      "line": 341,
+      "doc": "Purge redundant lessons from the wisdom database.\n\nArgs:\n    audit_results: Results from audit_wisdom_database()\n    verbose: Print purge details\n\nReturns:\n    Purge report",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit_results",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_purge_from_prioritization",
+      "line": 426,
+      "doc": "Purge redundant safety corrections from prioritization framework.\n\nSimilar logic: if the new model handles a failure scenario natively,\nwe should remove the corresponding safety correction.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit_results",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "perform_upgrade",
+      "line": 469,
+      "doc": "Perform a complete model upgrade with audit and purge.\n\nArgs:\n    new_model: The new model to upgrade to\n    baseline_instructions: Baseline instructions for the new model\n    score_threshold: Score threshold for redundancy detection\n    auto_purge: Automatically purge redundant lessons\n    verbose: Print detailed information\n\nReturns:\n    Complete upgrade report",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_model",
+        "baseline_instructions",
+        "score_threshold",
+        "auto_purge",
+        "verbose"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ModelUpgradeManager",
+      "line": 37,
+      "doc": "Manages the upgrade purge process when base models are upgraded.\n\nThe workflow:\n1. Extract failure scenarios from the improvements history\n2. Test each scenario against the new model WITHOUT the learned lessons\n3. If the new model handles it natively, mark the lesson as redundant\n4. Purge redundant lessons from the wisdom database",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 73,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

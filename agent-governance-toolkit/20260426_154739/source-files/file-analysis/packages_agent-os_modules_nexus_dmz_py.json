@@ -1,0 +1,334 @@
+{
+  "path": "packages/agent-os/modules/nexus/dmz.py",
+  "extension": ".py",
+  "size_bytes": 13998,
+  "line_count": 444,
+  "documentation": {
+    "file_docstring": "DMZ Protocol\n\nExtension of IATP for secure data handoff between agents.\nImplements the REQUEST_ESCROW verb and data handling policies.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Retention",
+      "Permissions",
+      "Audit",
+      "Encryption",
+      "Parties",
+      "Data (only hash, not actual content)",
+      "Policy",
+      "Encryption",
+      "Timestamps",
+      "Signer",
+      "Signature",
+      "Verification",
+      "Policy signing",
+      "Key release",
+      "Data access",
+      "Completion",
+      "Audit",
+      "Storage",
+      "Compute data hash",
+      "Generate encryption key",
+      "Encrypt data (placeholder - would use proper encryption)",
+      "Create request",
+      "Create transfer record",
+      "Store",
+      "Add audit entry",
+      "Verify signer is the intended receiver",
+      "Verify transfer hasn't expired",
+      "Create signed policy",
+      "Update transfer",
+      "Add audit entry",
+      "Store signed policy",
+      "Verify requester",
+      "Verify policy signed",
+      "Verify not expired",
+      "Get key",
+      "Update transfer",
+      "Add audit entry",
+      "Clean up key (data should be deleted per policy)",
+      "Derive a 256-bit key via SHA-256 to ensure correct length"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DataHandlingPolicy: Policy that receiving agent must sign before getting decryption key.\n\nEnsures da",
+      "DMZRequest: Request to share data through the secure DMZ.",
+      "SignedPolicy: A policy that has been signed by the receiving agent.",
+      "DMZTransfer: Record of a DMZ data transfer.",
+      "DMZProtocol: Implements the DMZ (Demilitarized Zone) protocol for secure data sharing.\n\nFlow:",
+      "compute_hash: Compute deterministic policy hash.",
+      "initiate_transfer: Initiate a secure data transfer through DMZ.\n\nArgs:\n    sender_did: DID of sendi",
+      "sign_policy: Sign a data handling policy to receive access.\n\nThe receiving agent must sign th",
+      "release_key: Release decryption key after policy is signed.\n\nOnly releases key if:\n1. Request",
+      "record_data_access: Record that data was accessed (for audit)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "SignedPolicy",
+    "get_transfer",
+    "compute_hash",
+    "has_signed_policy",
+    "DMZTransfer",
+    "get_audit_trail",
+    "DMZProtocol",
+    "DataHandlingPolicy",
+    "DMZRequest"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "hashlib",
+      "uuid",
+      "dataclasses",
+      "json",
+      "secrets",
+      "cryptography.hazmat.primitives.ciphers.aead",
+      "cryptography.hazmat.primitives.ciphers.aead"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "compute_hash",
+      "line": 67,
+      "doc": "Compute deterministic policy hash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "initiate_transfer",
+      "line": 187,
+      "doc": "Initiate a secure data transfer through DMZ.\n\nArgs:\n    sender_did: DID of sending agent\n    receiver_did: DID of receiving agent\n    data: The actual data to transfer (will be encrypted)\n    classification: Data classification level\n    policy: Required data handling policy\n    expiry_hours: Hours until request expires",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "sender_did",
+        "receiver_did",
+        "data",
+        "classification",
+        "policy",
+        "expiry_hours"
+      ],
+      "returns": "DMZRequest"
+    },
+    {
+      "name": "sign_policy",
+      "line": 249,
+      "doc": "Sign a data handling policy to receive access.\n\nThe receiving agent must sign the policy before getting\nthe decryption key.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id",
+        "signer_did",
+        "signature"
+      ],
+      "returns": "SignedPolicy"
+    },
+    {
+      "name": "release_key",
+      "line": 302,
+      "doc": "Release decryption key after policy is signed.\n\nOnly releases key if:\n1. Requester is the intended receiver\n2. Policy has been signed\n3. Transfer hasn't expired",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id",
+        "requester_did"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "record_data_access",
+      "line": 352,
+      "doc": "Record that data was accessed (for audit).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id",
+        "accessor_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "complete_transfer",
+      "line": 371,
+      "doc": "Mark transfer as complete.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id"
+      ],
+      "returns": "DMZTransfer"
+    },
+    {
+      "name": "get_transfer",
+      "line": 394,
+      "doc": "Get transfer by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id"
+      ],
+      "returns": "DMZTransfer"
+    },
+    {
+      "name": "get_audit_trail",
+      "line": 400,
+      "doc": "Get audit trail for a transfer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has_signed_policy",
+      "line": 405,
+      "doc": "Check if agent has signed policy for a transfer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_encrypt_data",
+      "line": 410,
+      "doc": "Encrypt data with AES-256-GCM.\n\nRequires the ``cryptography`` package (``pip install cryptography``).\nFalls back to a clearly-marked no-op if not installed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "key"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_decrypt_data",
+      "line": 430,
+      "doc": "Decrypt data encrypted with AES-256-GCM.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "encrypted",
+        "key"
+      ],
+      "returns": "bytes"
+    }
+  ],
+  "classes": [
+    {
+      "name": "DataHandlingPolicy",
+      "line": 18,
+      "doc": "Policy that receiving agent must sign before getting decryption key.\n\nEnsures data handling compliance between agents.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DMZRequest",
+      "line": 75,
+      "doc": "Request to share data through the secure DMZ.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SignedPolicy",
+      "line": 124,
+      "doc": "A policy that has been signed by the receiving agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DMZTransfer",
+      "line": 143,
+      "doc": "Record of a DMZ data transfer.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DMZProtocol",
+      "line": 169,
+      "doc": "Implements the DMZ (Demilitarized Zone) protocol for secure data sharing.\n\nFlow:\n1. Agent A sends REQUEST_ESCROW with data hash to Nexus\n2. Nexus holds the encrypted data reference\n3. Agent B signs the DataHandlingPolicy\n4. Nexus releases decryption key to Agent B\n5. All operations are logged for compliance",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 23,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

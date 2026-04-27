@@ -1,0 +1,231 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_sliding_rate_limiter.py",
+  "extension": ".py",
+  "size_bytes": 6650,
+  "line_count": 184,
+  "documentation": {
+    "file_docstring": "Sliding-window rate limiting for MCP tool invocations.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPSlidingRateLimiter: Thread-safe per-agent sliding-window rate limiter.\n\nThe limiter tracks recent ca",
+      "__init__: Initialize the sliding-window limiter.\n\nArgs:\n    max_calls_per_window: Maximum ",
+      "try_acquire: Try to acquire budget for an agent.\n\nArgs:\n    agent_id: Agent identifier whose ",
+      "get_remaining_budget: Return remaining calls in the active window.\n\nArgs:\n    agent_id: Agent identifi",
+      "get_call_count: Return the number of calls inside the active window.\n\nArgs:\n    agent_id: Agent ",
+      "reset: Clear state for a single agent.\n\nArgs:\n    agent_id: Agent identifier whose buck",
+      "reset_all: Clear state for every agent.\n\nThis removes all retained timestamps from every tr",
+      "cleanup_expired: Prune expired entries from all agents and return the number removed.\n\nReturns:\n "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_remaining_budget",
+    "cleanup_expired",
+    "MCPSlidingRateLimiter",
+    "try_acquire",
+    "reset",
+    "reset_all",
+    "get_call_count"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "threading",
+      "time",
+      "typing",
+      "agent_os.mcp_protocols"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 26,
+      "doc": "Initialize the sliding-window limiter.\n\nArgs:\n    max_calls_per_window: Maximum calls allowed within a single\n        sliding window.\n    window_size: Size of the sliding window in seconds.\n    rate_limit_store: Optional persistence backend for per-agent\n        buckets. Defaults to the in-memory bucket store.\n    clock: Monotonic clock used to timestamp calls.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "try_acquire",
+      "line": 57,
+      "doc": "Try to acquire budget for an agent.\n\nArgs:\n    agent_id: Agent identifier whose budget should be decremented.\n\nReturns:\n    ``True`` when a call can proceed inside the active window,\n    otherwise ``False``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_remaining_budget",
+      "line": 81,
+      "doc": "Return remaining calls in the active window.\n\nArgs:\n    agent_id: Agent identifier to inspect.\n\nReturns:\n    The number of additional calls the agent may make before the\n    current window is exhausted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_call_count",
+      "line": 101,
+      "doc": "Return the number of calls inside the active window.\n\nArgs:\n    agent_id: Agent identifier to inspect.\n\nReturns:\n    The number of calls retained inside the current sliding window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "reset",
+      "line": 120,
+      "doc": "Clear state for a single agent.\n\nArgs:\n    agent_id: Agent identifier whose bucket should be reset.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_all",
+      "line": 130,
+      "doc": "Clear state for every agent.\n\nThis removes all retained timestamps from every tracked bucket.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cleanup_expired",
+      "line": 139,
+      "doc": "Prune expired entries from all agents and return the number removed.\n\nReturns:\n    The total number of expired timestamps removed across all tracked\n    agent buckets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_get_bucket_lock",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_prune_expired",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "timestamps",
+        "cutoff"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_bucket",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_tracked_agent_ids",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_normalize_agent_id",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agent_id"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPSlidingRateLimiter",
+      "line": 17,
+      "doc": "Thread-safe per-agent sliding-window rate limiter.\n\nThe limiter tracks recent call timestamps per normalized agent identifier\nand enforces a bounded number of calls within a moving time window. Bucket\npersistence and the clock are injectable so callers can externalize state\nor drive the limiter deterministically in tests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

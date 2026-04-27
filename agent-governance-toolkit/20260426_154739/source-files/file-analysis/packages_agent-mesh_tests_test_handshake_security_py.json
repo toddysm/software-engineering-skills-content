@@ -1,0 +1,438 @@
+{
+  "path": "packages/agent-mesh/tests/test_handshake_security.py",
+  "extension": ".py",
+  "size_bytes": 17297,
+  "line_count": 493,
+  "documentation": {
+    "file_docstring": "Security regression tests for the trust handshake.\n\nVerifies the fix for the MSRC-reported DID fabrication vulnerability:\nfabricated DIDs must be rejected, only registered identities with valid\nEd25519 signatures may pass the handshake.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Core MSRC PoC \u2014 fabricated DID must be rejected",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Registry-backed handshake \u2014 registered identity passes",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Revoked / suspended identity rejection",
+      "---------------------------------------------------------------------------",
+      "Revoke agent_b",
+      "---------------------------------------------------------------------------",
+      "No-registry rejects all peers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Signature tampering detection",
+      "---------------------------------------------------------------------------",
+      "Manually create a challenge and get a valid response",
+      "Tamper with the signature",
+      "Agent C tries to impersonate B by signing a response for B's DID",
+      "---------------------------------------------------------------------------",
+      "S360 WI 1140377 \u2014 Self-reported trust score / capability inflation",
+      "---------------------------------------------------------------------------",
+      "Get a valid challenge/response",
+      "Registry trust score is the default (~500), require 900",
+      "Must reject based on registry score, not self-reported 999",
+      "Trust score should come from registry, not arbitrary self-report",
+      "agent_b only has [\"read:data\", \"write:reports\"]",
+      "Require admin:delete which is NOT in the registry",
+      "Capabilities must come from registry, not self-reported",
+      "Agent C creates a valid response for itself",
+      "Verify with expected_peer_did=agent_b, but response is from agent_c"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_registry: Create a registry pre-populated with the given identities.",
+      "TestFabricatedDIDRejection: Reproduce the exact MSRC PoC scenario and verify it is now blocked.",
+      "TestRegisteredIdentityHandshake: Registered identities with valid Ed25519 keys pass the handshake.",
+      "TestRevokedIdentityRejection: Revoked or suspended identities must be rejected.",
+      "TestNoRegistryRejectsAll: Without a registry, all peers must be rejected.",
+      "TestSignatureTampering: Tampered signatures must be detected and rejected.",
+      "TestTrustScoreInflation: Self-reported trust scores must be ignored in favour of the registry.",
+      "TestCapabilityInflation: Self-reported capabilities must be ignored in favour of the registry.",
+      "TestDIDBindingEnforcement: Response DID must match the expected peer DID.",
+      "test_fabricated_did_rejected_via_bridge: TrustBridge.verify_peer() rejects a completely fabricated DID."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestRevokedIdentityRejection",
+    "TestRegisteredIdentityHandshake",
+    "TestNoRegistryRejectsAll",
+    "TestFabricatedDIDRejection",
+    "TestDIDBindingEnforcement",
+    "TestTrustScoreInflation",
+    "TestCapabilityInflation",
+    "TestSignatureTampering"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "base64",
+      "pytest",
+      "agentmesh.identity.agent_id",
+      "agentmesh.trust.bridge",
+      "agentmesh.trust.handshake",
+      "secrets",
+      "agentmesh.trust.handshake"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_registry",
+      "line": 27,
+      "doc": "Create a registry pre-populated with the given identities.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "IdentityRegistry"
+    },
+    {
+      "name": "_make_identity",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "capabilities"
+      ],
+      "returns": "AgentIdentity"
+    },
+    {
+      "name": "test_fabricated_did_rejected_via_bridge",
+      "line": 51,
+      "doc": "TrustBridge.verify_peer() rejects a completely fabricated DID.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fabricated_did_rejected_via_handshake",
+      "line": 69,
+      "doc": "TrustHandshake.initiate() rejects a fabricated DID.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_fabricated_dids_all_rejected",
+      "line": 88,
+      "doc": "Multiple fabricated DIDs are all rejected (no accumulation).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registered_peer_passes",
+      "line": 119,
+      "doc": "A registered peer with a valid identity passes the handshake.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutual_handshake_with_registry",
+      "line": 142,
+      "doc": "Both agents can verify each other when both are in the registry.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bridge_stores_verified_peer",
+      "line": 166,
+      "doc": "TrustBridge stores a verified peer in its peers dict.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_peer_rejected",
+      "line": 195,
+      "doc": "A revoked identity is rejected during handshake.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_suspended_peer_rejected",
+      "line": 215,
+      "doc": "A suspended identity is rejected during handshake.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_registry_rejects_peer",
+      "line": 242,
+      "doc": "TrustHandshake without a registry rejects all peers.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bridge_without_registry_rejects_peer",
+      "line": 254,
+      "doc": "TrustBridge without a registry rejects all peers.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tampered_signature_rejected",
+      "line": 272,
+      "doc": "A response with a tampered signature is rejected.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrong_key_signature_rejected",
+      "line": 307,
+      "doc": "A response signed by a different agent's key is rejected.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_inflated_self_reported_trust_score_rejected",
+      "line": 352,
+      "doc": "A peer cannot inflate its trust score to pass a threshold.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registry_trust_score_used_in_result",
+      "line": 384,
+      "doc": "The result uses the registry trust score, not self-reported.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fake_capabilities_rejected",
+      "line": 408,
+      "doc": "A peer cannot claim capabilities it does not have in the registry.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registry_capabilities_used_in_result",
+      "line": 439,
+      "doc": "The HandshakeResult uses registry capabilities, not self-reported.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_substitution_rejected",
+      "line": 463,
+      "doc": "A response for a different DID than requested is rejected.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestFabricatedDIDRejection",
+      "line": 47,
+      "doc": "Reproduce the exact MSRC PoC scenario and verify it is now blocked.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRegisteredIdentityHandshake",
+      "line": 115,
+      "doc": "Registered identities with valid Ed25519 keys pass the handshake.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRevokedIdentityRejection",
+      "line": 191,
+      "doc": "Revoked or suspended identities must be rejected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestNoRegistryRejectsAll",
+      "line": 238,
+      "doc": "Without a registry, all peers must be rejected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSignatureTampering",
+      "line": 268,
+      "doc": "Tampered signatures must be detected and rejected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustScoreInflation",
+      "line": 348,
+      "doc": "Self-reported trust scores must be ignored in favour of the registry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCapabilityInflation",
+      "line": 404,
+      "doc": "Self-reported capabilities must be ignored in favour of the registry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDIDBindingEnforcement",
+      "line": 459,
+      "doc": "Response DID must match the expected peer DID.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, auth"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth"
+    ]
+  }
+}

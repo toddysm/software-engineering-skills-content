@@ -1,0 +1,506 @@
+{
+  "path": "packages/agent-os/examples/defi-sentinel/demo.py",
+  "extension": ".py",
+  "size_bytes": 19570,
+  "line_count": 573,
+  "documentation": {
+    "file_docstring": "DeFi Risk Sentinel Demo - Proactive Hack Prevention\n\nThis demo showcases:\n- Mute Agent pattern (speed + silence)\n- Sub-second attack response (<500ms)\n- SIGKILL permission for emergency stops\n- Kernel/User space separation (guardian survives sim crash)\n\nUsage:\n    python demo.py --attack reentrancy\n    python demo.py --attack flash_loan\n    python demo.py --attack all",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Attack metadata (for demo)",
+      "Attack signatures (calldata patterns)",
+      "Attack pattern signatures",
+      "High gas price (urgency indicator)",
+      "Large value transfer",
+      "Known attack function signature",
+      "High gas limit (complex operation)",
+      "Simulate some work",
+      "Analyze transaction",
+      "In demo, we already know if it's an attack",
+      "In production, this would analyze the trace",
+      "Small chance of false positive (for realism)",
+      "Create block action",
+      "Wire up the pipeline",
+      "Simulate and respond",
+      "Generate and inject attack",
+      "Inject into mempool (triggers full pipeline)",
+      "Wait for processing",
+      "Get result",
+      "Also run some legitimate transactions",
+      "Summary",
+      "Final summary"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AttackType: Known DeFi attack vectors",
+      "TxStatus: Transaction status",
+      "Transaction: Simulated blockchain transaction",
+      "SimulationResult: Result of attack simulation",
+      "BlockAction: Action taken by Guardian agent",
+      "Mempool: Simulated Ethereum mempool",
+      "SentryAgent: Sentry Agent - Monitors mempool for suspicious transactions\n\nFilters patterns th",
+      "SimAgent: Sim Agent - Simulates transaction execution\n\nForks blockchain state locally and ",
+      "GuardianAgent: Guardian Agent - Emergency response with SIGKILL permission\n\nMUTE AGENT PATTERN:",
+      "DeFiSentinel: Complete DeFi Sentinel system\n\nCoordinates: Sentry \u2192 Sim \u2192 Guardian pipeline"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "run_all_attacks",
+    "SentryAgent",
+    "SimulationResult",
+    "execute_sigkill",
+    "respond",
+    "TxStatus",
+    "sign",
+    "run_attack_simulation",
+    "SimAgent",
+    "AttackType",
+    "generate_attack",
+    "Mempool",
+    "subscribe",
+    "add_transaction",
+    "main",
+    "simulate",
+    "Transaction",
+    "DeFiSentinel",
+    "BlockAction",
+    "should_block",
+    "on_transaction",
+    "generate_legitimate_tx",
+    "GuardianAgent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "hashlib",
+      "random",
+      "secrets",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "uuid",
+      "argparse"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 534,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "should_block",
+      "line": 77,
+      "doc": "Decision: should we block this transaction?",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "sign",
+      "line": 91,
+      "doc": "Sign the action (simulated IATP)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_transaction",
+      "line": 103,
+      "doc": "Add transaction to mempool",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "subscribe",
+      "line": 109,
+      "doc": "Subscribe to new transactions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_attack",
+      "line": 113,
+      "doc": "Generate a simulated attack transaction",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attack_type"
+      ],
+      "returns": "Transaction"
+    },
+    {
+      "name": "generate_legitimate_tx",
+      "line": 164,
+      "doc": "Generate a normal transaction",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Transaction"
+    },
+    {
+      "name": "__init__",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "mempool"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_transaction",
+      "line": 203,
+      "doc": "Analyze incoming transaction",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_suspicion",
+      "line": 212,
+      "doc": "Calculate suspicion score based on heuristics",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "subscribe",
+      "line": 234,
+      "doc": "Subscribe to suspicious transaction alerts",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "simulate",
+      "line": 250,
+      "doc": "Simulate transaction execution\n\nIn production, this would:\n1. Fork chain state using Ganache/Anvil\n2. Execute transaction\n3. Compare state before/after\n4. Detect value extraction patterns",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx"
+      ],
+      "returns": "SimulationResult"
+    },
+    {
+      "name": "_generate_call_trace",
+      "line": 284,
+      "doc": "Generate simulated call trace",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_detect_attack",
+      "line": 315,
+      "doc": "Detect attack from call trace",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx",
+        "call_trace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "respond",
+      "line": 346,
+      "doc": "Respond to simulation result\n\nMUTE PATTERN: Returns None if no action needed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sim_result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_sigkill",
+      "line": 372,
+      "doc": "Execute SIGKILL - Emergency protocol pause\n\nThis is kernel-level authority - cannot be blocked",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "contract_addr"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 394,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_on_suspicious_tx",
+      "line": 405,
+      "doc": "Handle suspicious transaction alert",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tx",
+        "suspicion_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_attack_simulation",
+      "line": 422,
+      "doc": "Run a specific attack simulation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attack_type",
+        "verbose"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "run_all_attacks",
+      "line": 484,
+      "doc": "Run all attack simulations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AttackType",
+      "line": 30,
+      "doc": "Known DeFi attack vectors",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TxStatus",
+      "line": 39,
+      "doc": "Transaction status",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Transaction",
+      "line": 48,
+      "doc": "Simulated blockchain transaction",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SimulationResult",
+      "line": 66,
+      "doc": "Result of attack simulation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BlockAction",
+      "line": 83,
+      "doc": "Action taken by Guardian agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Mempool",
+      "line": 96,
+      "doc": "Simulated Ethereum mempool",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SentryAgent",
+      "line": 177,
+      "doc": "Sentry Agent - Monitors mempool for suspicious transactions\n\nFilters patterns that indicate potential attacks:\n- Flash loan initiation\n- Unusual gas prices\n- Known attack contract interactions",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SimAgent",
+      "line": 239,
+      "doc": "Sim Agent - Simulates transaction execution\n\nForks blockchain state locally and executes transaction\nto predict outcome. Target: <200ms simulation time.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GuardianAgent",
+      "line": 329,
+      "doc": "Guardian Agent - Emergency response with SIGKILL permission\n\nMUTE AGENT PATTERN:\n- Returns NULL (no action) for legitimate transactions\n- Returns ACTION (PAUSE/BLOCK) only for confirmed attacks\n- Has kernel-level SIGKILL permission to force-stop protocols",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DeFiSentinel",
+      "line": 387,
+      "doc": "Complete DeFi Sentinel system\n\nCoordinates: Sentry \u2192 Sim \u2192 Guardian pipeline",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 55,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

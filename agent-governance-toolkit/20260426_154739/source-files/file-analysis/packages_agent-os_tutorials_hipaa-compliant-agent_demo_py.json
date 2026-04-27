@@ -1,0 +1,346 @@
+{
+  "path": "packages/agent-os/tutorials/hipaa-compliant-agent/demo.py",
+  "extension": ".py",
+  "size_bytes": 16580,
+  "line_count": 431,
+  "documentation": {
+    "file_docstring": "Agent OS -- HIPAA-Compliant Agent Demo\n\nNo API keys needed. Run with:\n    python demo.py\n\nThis demo:\n  1. Creates a mock healthcare agent\n  2. Shows PHI pattern detection (SSN, MRN, phone, email blocked)\n  3. Shows human approval required for medical record access\n  4. Shows minimum necessary enforcement (bulk queries blocked)\n  5. Shows safe queries passing through (appointments, general health info)\n  6. Shows immutable audit logging with tamper detection",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Add project root to path so we can import agent_os",
+      "\u2500\u2500 ANSI colors \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 PHI Pattern Definitions (the 18 HIPAA identifiers) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Minimum necessary: block bulk patient queries",
+      "Human approval triggers",
+      "\u2500\u2500 Immutable Audit Log \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Mock Healthcare Agent \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 The Demo \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Part 1: PHI Pattern Detection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Build policy with HIPAA-specific blocked patterns",
+      "Set up event listeners for audit logging",
+      "Test PHI queries -- these should all be BLOCKED",
+      "If governance didn't catch it, our PHI check still flags it",
+      "\u2500\u2500 Part 2: Human-in-the-Loop for Patient Data Access \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "-- Part 3: Minimum Necessary Enforcement ---------------------",
+      "\u2500\u2500 Part 4: Safe Queries Pass Through \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Part 5: Immutable Audit Log \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Show recent audit entries",
+      "Verify integrity",
+      "\u2500\u2500 Part 6: HIPAA Policy Template \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Summary \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "HIPAAAuditLog: Tamper-evident audit log with hash chaining.",
+      "MockHealthcareAgent: A mock healthcare agent that simulates patient query handling.",
+      "check_phi_patterns: Check if query contains any PHI patterns.",
+      "check_minimum_necessary: Check if query violates minimum necessary principle.",
+      "check_approval_required: Check if query requires human approval.",
+      "verify_integrity: Verify no entries have been tampered with."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "verify_integrity",
+    "info",
+    "header",
+    "check_approval_required",
+    "invoke",
+    "check_minimum_necessary",
+    "run",
+    "check_phi_patterns",
+    "log",
+    "step",
+    "HIPAAAuditLog",
+    "on_blocked",
+    "main",
+    "ok",
+    "blocked",
+    "on_violation",
+    "on_policy_check",
+    "warn",
+    "MockHealthcareAgent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "sys",
+      "os",
+      "re",
+      "hashlib",
+      "datetime",
+      "agent_os.integrations",
+      "agent_os.integrations.base",
+      "agent_os.integrations.langchain_adapter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "header",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "step",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "num",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "ok",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "blocked",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "info",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "warn",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_phi_patterns",
+      "line": 156,
+      "doc": "Check if query contains any PHI patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_minimum_necessary",
+      "line": 164,
+      "doc": "Check if query violates minimum necessary principle.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_approval_required",
+      "line": 172,
+      "doc": "Check if query requires human approval.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "query",
+        "result",
+        "policy",
+        "phi_category"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_integrity",
+      "line": 124,
+      "doc": "Verify no entries have been tampered with.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "invoke",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_policy_check",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_violation",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_blocked",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "event"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "HIPAAAuditLog",
+      "line": 98,
+      "doc": "Tamper-evident audit log with hash chaining.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockHealthcareAgent",
+      "line": 138,
+      "doc": "A mock healthcare agent that simulates patient query handling.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

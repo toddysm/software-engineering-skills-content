@@ -1,0 +1,560 @@
+{
+  "path": "demo/maf_governance_demo.py",
+  "extension": ".py",
+  "size_bytes": 47611,
+  "line_count": 1225,
+  "documentation": {
+    "file_docstring": "Agent Governance Toolkit \u2014 Live Governance Demo\n\nDemonstrates real-time governance enforcement using REAL LLM calls\n(OpenAI / Azure OpenAI) with the full governance middleware stack.\n\nFour scenarios are exercised end-to-end:\n  1. Policy Enforcement   \u2014 YAML rules intercept real LLM requests\n  2. Capability Sandboxing \u2014 tool-call interception on live function-calling\n  3. Rogue Agent Detection \u2014 behavioral anomaly scoring with auto-quarantine\n  4. Blocked Content       \u2014 governance blocks dangerous prompts before the LLM\n\nRequires:\n  - OPENAI_API_KEY  or  (AZURE_OPENAI_API_KEY + AZURE_OPENAI_ENDPOINT)\n  - pip install openai\n\nUsage:\n  python demo/maf_governance_demo.py\n  python demo/maf_governance_demo.py --model gpt-4o        # Use a specific model\n  python demo/maf_governance_demo.py --verbose              # Show raw LLM responses",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Ensure the toolkit packages are importable (editable installs).",
+      "---------------------------------------------------------------------------",
+      "Suppress library-level log messages to keep terminal output clean.",
+      "-- Governance toolkit imports ---------------------------------------------",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "ANSI colour helpers",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "LLM client setup \u2014 supports OpenAI, Azure OpenAI, and Google Gemini",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Sentinel to identify the backend type",
+      "Extract the user prompt for the fallback",
+      "Return a synthetic response so governance pipeline still runs end-to-end",
+      "Map OpenAI tools to Gemini function declarations",
+      "Convert OpenAI messages \u2192 Gemini contents",
+      "Normalize response",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "MAF-compatible shims that wrap REAL LLM calls",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Scenario 1: Policy Enforcement with REAL LLM",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "OpenAI tools definition for the research agent",
+      "--- 1a: Allowed request \u2014 real LLM search ----------------------------",
+      "The call_next callback makes the REAL LLM call",
+      "Truncate to 120 chars for display",
+      "--- 1b: Denied request \u2014 policy blocks BEFORE hitting LLM ------------",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Scenario 2: Capability Sandboxing with REAL function calling",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Ask the LLM to do data analysis \u2014 it decides which tools to call",
+      "Manually exercise the middleware with representative tool calls",
+      "Ensure we also test denied tools if the LLM was well-behaved",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Scenario 3: Rogue Agent Detection (real behavioral analysis)",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "--- 3a: Establish baseline with real LLM call ------------------------",
+      "Make a real LLM call as the \"normal\" agent action",
+      "--- 3b: Anomalous burst \u2014 50 rapid calls trigger quarantine ----------",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Scenario 4: Blocked Content (policy stops dangerous prompts)",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Audit Summary",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Adversarial Scenario: Attack Resilience Testing",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "For the tool alias attack, also test capability guard",
+      "Summary box",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Main",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Default model per backend"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "C: ANSI escape helpers \u2014 degrades gracefully on dumb terminals.",
+      "_detect_backend: Detect which LLM backend to use from environment variables.",
+      "_create_client: Create an LLM client, auto-detecting backend from env vars.\n\nReturns:\n    (clien",
+      "_llm_call: Make a real LLM call, dispatching to the correct backend.\n\nReturns a normalized ",
+      "_NormalizedChoice: Normalized LLM response for cross-backend compatibility.",
+      "_openai_call: OpenAI / Azure OpenAI chat completion call.",
+      "_gemini_call: Google Gemini GenerativeAI call, translating OpenAI-style messages.",
+      "_NormalizedToolCall: Normalized tool call across backends.",
+      "_convert_schema: Convert JSON Schema to Gemini Schema proto.",
+      "_AgentContext: Wraps a real LLM call behind the MAF AgentContext interface."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "print_audit_summary",
+    "function",
+    "C"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "argparse",
+      "asyncio",
+      "json",
+      "os",
+      "sys",
+      "time",
+      "dataclasses",
+      "pathlib",
+      "typing",
+      "logging",
+      "agent_os.policies.evaluator",
+      "agent_os.policies.schema",
+      "agent_os.integrations.maf_adapter",
+      "agentmesh.governance.audit",
+      "agent_sre.anomaly.rogue_detector",
+      "google.generativeai",
+      "google.generativeai",
+      "google.generativeai",
+      "openai",
+      "openai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_banner",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "_section",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "title"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_agent_msg",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent",
+        "msg"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_tree",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "icon",
+        "colour",
+        "label",
+        "detail"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_tree_last",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "icon",
+        "colour",
+        "label",
+        "detail"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_detect_backend",
+      "line": 144,
+      "doc": "Detect which LLM backend to use from environment variables.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "_create_client",
+      "line": 155,
+      "doc": "Create an LLM client, auto-detecting backend from env vars.\n\nReturns:\n    (client, backend_name) tuple.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_llm_call",
+      "line": 208,
+      "doc": "Make a real LLM call, dispatching to the correct backend.\n\nReturns a normalized response object with .text and .tool_calls attributes.\nOn API error, returns a fallback response with the error description.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "messages"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_openai_call",
+      "line": 265,
+      "doc": "OpenAI / Azure OpenAI chat completion call.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "messages"
+      ],
+      "returns": "_NormalizedResponse"
+    },
+    {
+      "name": "_gemini_call",
+      "line": 285,
+      "doc": "Google Gemini GenerativeAI call, translating OpenAI-style messages.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "genai_module",
+        "model",
+        "messages"
+      ],
+      "returns": "_NormalizedResponse"
+    },
+    {
+      "name": "_convert_schema",
+      "line": 367,
+      "doc": "Convert JSON Schema to Gemini Schema proto.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "schema"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "scenario_1_policy_enforcement",
+      "line": 466,
+      "doc": "Demonstrate declarative YAML policy enforcement with real LLM calls.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "audit_log",
+        "verbose"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "scenario_2_capability_sandboxing",
+      "line": 637,
+      "doc": "Demonstrate Ring-2 tool capability enforcement with real function calling.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "audit_log",
+        "verbose"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "scenario_3_rogue_detection",
+      "line": 752,
+      "doc": "Demonstrate behavioral anomaly detection with real LLM calls.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "audit_log",
+        "verbose"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "scenario_4_blocked_content",
+      "line": 899,
+      "doc": "Show governance blocking a secrets-access prompt before it reaches the LLM.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "audit_log",
+        "verbose"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "print_audit_summary",
+      "line": 971,
+      "doc": "Print the final audit trail summary with integrity verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scenario_adversarial_attacks",
+      "line": 1017,
+      "doc": "Run adversarial attack scenarios to test governance resilience.\n\nProbes 4 attack vectors: prompt injection, tool alias bypass,\ntrust score manipulation, and SQL policy bypass. Reports whether\neach attack was blocked by the governance middleware.\n\nReturns:\n    Number of audit entries generated during the adversarial scenarios.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "client",
+        "model",
+        "audit_log",
+        "verbose"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "main",
+      "line": 1140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "function",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_name",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 424,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "function_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "real_llm_call",
+      "line": 491,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "should_not_be_called",
+      "line": 542,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "tool_exec",
+      "line": 727,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "real_call",
+      "line": 927,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "adversarial_call",
+      "line": 1078,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "C",
+      "line": 76,
+      "doc": "ANSI escape helpers \u2014 degrades gracefully on dumb terminals.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "_NormalizedChoice",
+      "line": 250,
+      "doc": "Normalized LLM response for cross-backend compatibility.",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_NormalizedResponse",
+      "line": 257,
+      "doc": "No documentation",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_NormalizedToolCall",
+      "line": 357,
+      "doc": "Normalized tool call across backends.",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_Agent",
+      "line": 401,
+      "doc": "No documentation",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_Function",
+      "line": 406,
+      "doc": "No documentation",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "_AgentContext",
+      "line": 410,
+      "doc": "Wraps a real LLM call behind the MAF AgentContext interface.",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "_FunctionContext",
+      "line": 421,
+      "doc": "Wraps a real tool call behind the MAF FunctionInvocationContext interface.",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 115,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

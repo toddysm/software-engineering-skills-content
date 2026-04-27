@@ -1,0 +1,654 @@
+{
+  "path": "packages/agent-sre/tests/unit/test_adversarial_chaos.py",
+  "extension": ".py",
+  "size_bytes": 13079,
+  "line_count": 334,
+  "documentation": {
+    "file_docstring": "Tests for adversarial chaos engineering \u2014 red-team experiments.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "FaultType enum \u2014 new adversarial values",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Fault factory methods \u2014 adversarial",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "AttackTechnique and AttackResult enums",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "PlaybookStep and AdversarialPlaybook creation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Built-in playbooks",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "AdversarialRunner",
+      "---------------------------------------------------------------------------",
+      "All injection steps should be blocked",
+      "Register only prompt injection defence; escalation playbook has",
+      "mixed techniques so some steps bypass.",
+      "owasp-privilege-escalation has 3 steps: jailbreak (PROMPT_INJECTION",
+      "mapped), policy_manipulation (POLICY_BYPASS mapped), credential_theft",
+      "(PRIVILEGE_ESCALATION mapped). Only jailbreak defended.",
+      "Register all adversarial fault types",
+      "---------------------------------------------------------------------------",
+      "PlaybookResult scoring",
+      "---------------------------------------------------------------------------",
+      "70% is passing; verify partial score below 70 fails",
+      "owasp-privilege-escalation: 3 steps \u2014 only 1/3 blocked (33.3%)",
+      "---------------------------------------------------------------------------",
+      "ChaosLibrary adversarial templates",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_instantiate_adversarial_template",
+    "TestEnums",
+    "test_attack_technique_values",
+    "TestBuiltinPlaybooks",
+    "test_run_all_returns_list",
+    "TestAdversarialFaultFactories",
+    "test_builtin_categories",
+    "test_adversarial_fault_to_dict",
+    "TestPlaybookResultScoring",
+    "test_adversarial_exfiltration_template_exists",
+    "test_full_defence_across_all_playbooks",
+    "test_runner_bypasses_when_no_fault_registered",
+    "test_playbook_with_steps",
+    "test_privilege_escalation",
+    "test_privilege_escalation_type_exists",
+    "test_each_builtin_has_steps",
+    "test_policy_bypass_type_exists",
+    "test_data_exfiltration",
+    "test_data_exfiltration_type_exists",
+    "test_tool_abuse",
+    "test_builtin_count",
+    "test_builtin_ids",
+    "test_score_all_blocked",
+    "test_attack_result_values",
+    "test_identity_spoofing_type_exists",
+    "test_playbook_creation",
+    "TestAdversarialFaultTypes",
+    "test_adversarial_injection_template_exists",
+    "test_list_adversarial_category",
+    "test_prompt_injection_custom",
+    "test_tool_abuse_type_exists",
+    "test_score_threshold",
+    "TestAdversarialRunner",
+    "test_runner_blocks_when_fault_registered",
+    "test_partial_defence",
+    "test_policy_bypass",
+    "TestPlaybookCreation",
+    "test_adversarial_escalation_template_exists",
+    "TestLibraryAdversarialTemplates",
+    "test_adversarial_category_in_categories",
+    "test_prompt_injection_defaults",
+    "test_identity_spoofing",
+    "test_playbook_step",
+    "test_prompt_injection_type_exists",
+    "test_score_none_blocked"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "agent_sre.chaos.adversarial",
+      "agent_sre.chaos.engine",
+      "agent_sre.chaos.library"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_prompt_injection_type_exists",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_bypass_type_exists",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_privilege_escalation_type_exists",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_data_exfiltration_type_exists",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_abuse_type_exists",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_identity_spoofing_type_exists",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prompt_injection_defaults",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prompt_injection_custom",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_bypass",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_privilege_escalation",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_data_exfiltration",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_abuse",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_identity_spoofing",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_adversarial_fault_to_dict",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_attack_technique_values",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_attack_result_values",
+      "line": 106,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_playbook_step",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_playbook_creation",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_playbook_with_steps",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_builtin_count",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_builtin_ids",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_builtin_categories",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_each_builtin_has_steps",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_experiment",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "faults"
+      ],
+      "returns": "ChaosExperiment"
+    },
+    {
+      "name": "test_runner_blocks_when_fault_registered",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_runner_bypasses_when_no_fault_registered",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_run_all_returns_list",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_partial_defence",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_defence_across_all_playbooks",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_all_blocked",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_none_blocked",
+      "line": 275,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_threshold",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_adversarial_injection_template_exists",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_adversarial_escalation_template_exists",
+      "line": 307,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_adversarial_exfiltration_template_exists",
+      "line": 313,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_adversarial_category",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_adversarial_category_in_categories",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_instantiate_adversarial_template",
+      "line": 328,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestAdversarialFaultTypes",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAdversarialFaultFactories",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEnums",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPlaybookCreation",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBuiltinPlaybooks",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAdversarialRunner",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPlaybookResultScoring",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLibraryAdversarialTemplates",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Minimal mixed concerns"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": []
+  }
+}

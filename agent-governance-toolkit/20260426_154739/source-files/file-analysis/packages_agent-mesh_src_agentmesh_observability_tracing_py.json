@@ -1,0 +1,500 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/observability/tracing.py",
+  "extension": ".py",
+  "size_bytes": 17240,
+  "line_count": 489,
+  "documentation": {
+    "file_docstring": "OpenTelemetry Tracing Integration.\n\nProvides distributed tracing for AgentMesh operations including\ntrust handshakes, identity verification, scope chains, and policy checks.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check if OpenTelemetry is available",
+      "Attempt to import OTLP exporter separately (may not be installed)",
+      "OpenTelemetry not installed, skip setup",
+      "Get endpoint from env or parameter",
+      "No endpoint configured, skip",
+      "Create resource",
+      "Create tracer provider",
+      "Create OTLP exporter",
+      "Add span processor",
+      "Set global tracer provider",
+      "Tracing not available",
+      "Set attributes",
+      "Set standard attributes",
+      "Return appropriate wrapper based on function type",
+      "Set attributes",
+      "------------------------------------------------------------------",
+      "Internal helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Public decorators",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Context propagation for distributed agent-to-agent tracing",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Private helpers",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "setup_tracing: Setup OpenTelemetry tracing.\n\nArgs:\n    service_name: Service name for traces\n  ",
+      "get_tracer: Get tracer instance.",
+      "trace_operation: Decorator to trace an operation.\n\nArgs:\n    operation_name: Name of the operatio",
+      "TraceContext: Context manager for manual tracing.",
+      "configure_tracing: Configure OpenTelemetry tracing with optional OTLP or console export.\n\nArgs:\n   ",
+      "MeshTracer: OpenTelemetry tracer for AgentMesh trust operations.\n\nProvides decorators for in",
+      "inject_context: Inject current trace context into *headers* for outgoing agent calls.\n\nArgs:\n   ",
+      "extract_context: Extract trace context from incoming *headers*.\n\nArgs:\n    headers: Dict containi",
+      "_arg: Safely get a positional argument.",
+      "set_attribute: Set attribute on current span."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "setup_tracing",
+    "get_tracer",
+    "trace_verification",
+    "trace_operation",
+    "decorator",
+    "set_attribute",
+    "extract_context",
+    "MeshTracer",
+    "add_event",
+    "trace_delegation",
+    "sync_wrapper",
+    "trace_handshake",
+    "trace_policy_check",
+    "inject_context",
+    "configure_tracing",
+    "TraceContext",
+    "enabled"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "functools",
+      "inspect",
+      "os",
+      "time",
+      "opentelemetry",
+      "opentelemetry.sdk.trace",
+      "opentelemetry.sdk.trace.export",
+      "opentelemetry.sdk.resources",
+      "opentelemetry.propagate",
+      "opentelemetry.exporter.otlp.proto.grpc.trace_exporter",
+      "opentelemetry",
+      "opentelemetry.sdk.trace",
+      "opentelemetry.sdk.trace.export",
+      "opentelemetry.exporter.otlp.proto.grpc.trace_exporter",
+      "opentelemetry.sdk.resources",
+      "opentelemetry",
+      "inspect"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "setup_tracing",
+      "line": 41,
+      "doc": "Setup OpenTelemetry tracing.\n\nArgs:\n    service_name: Service name for traces\n    endpoint: OTLP endpoint (default: from OTEL_EXPORTER_OTLP_ENDPOINT env)\n    insecure: Whether to use insecure connection (default: False, use TLS)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "service_name",
+        "endpoint",
+        "insecure"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_tracer",
+      "line": 90,
+      "doc": "Get tracer instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_operation",
+      "line": 99,
+      "doc": "Decorator to trace an operation.\n\nArgs:\n    operation_name: Name of the operation\n    agent_did: Optional agent DID\n    trust_score: Optional trust score\n    policy_result: Optional policy result (ALLOW/DENY)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "operation_name",
+        "agent_did",
+        "trust_score",
+        "policy_result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "configure_tracing",
+      "line": 235,
+      "doc": "Configure OpenTelemetry tracing with optional OTLP or console export.\n\nArgs:\n    service_name: Service name for traces.\n    endpoint: OTLP endpoint. Falls back to OTEL_EXPORTER_OTLP_ENDPOINT env var.\n    console: If True, add a ConsoleSpanExporter for local debugging.\n\nReturns:\n    TracerProvider if OTel is available, else None.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "service_name",
+        "endpoint",
+        "console"
+      ],
+      "returns": null
+    },
+    {
+      "name": "inject_context",
+      "line": 450,
+      "doc": "Inject current trace context into *headers* for outgoing agent calls.\n\nArgs:\n    headers: Mutable dict that will receive trace propagation headers.\n\nReturns:\n    The same *headers* dict (for convenience).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "headers"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "extract_context",
+      "line": 465,
+      "doc": "Extract trace context from incoming *headers*.\n\nArgs:\n    headers: Dict containing W3C traceparent / tracestate headers.\n\nReturns:\n    An OpenTelemetry Context token, or None when OTel is unavailable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "headers"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_arg",
+      "line": 485,
+      "doc": "Safely get a positional argument.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "args",
+        "idx",
+        "default"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "decorator",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "operation_name",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__enter__",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__exit__",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_attribute",
+      "line": 224,
+      "doc": "Set attribute on current span.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_event",
+      "line": 229,
+      "doc": "Add event to current span.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "attributes"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_name",
+        "endpoint"
+      ],
+      "returns": null
+    },
+    {
+      "name": "enabled",
+      "line": 297,
+      "doc": "Return True when OpenTelemetry is available.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_wrap",
+      "line": 305,
+      "doc": "Create a decorator that wraps a function with a span.\n\nArgs:\n    span_name: Name for the OTel span.\n    attr_extractor: Callable receiving (*args, **kwargs, result=...)\n        and returning a dict of span attributes.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "span_name",
+        "attr_extractor"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "trace_handshake",
+      "line": 366,
+      "doc": "Decorator for trust handshake operations.\n\nExpected keyword arguments on the wrapped function:\n    agent_did, peer_did.  The return value should expose a\n    ``result`` attribute or be a string describing the outcome.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "F"
+    },
+    {
+      "name": "trace_verification",
+      "line": 387,
+      "doc": "Decorator for identity verification operations.\n\nExpected keyword arguments: agent_did, method.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "F"
+    },
+    {
+      "name": "trace_delegation",
+      "line": 403,
+      "doc": "Decorator for scope chain operations.\n\nExpected keyword arguments: delegator_did, delegatee_did, chain_depth.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "F"
+    },
+    {
+      "name": "trace_policy_check",
+      "line": 426,
+      "doc": "Decorator for governance policy evaluation.\n\nExpected keyword arguments: policy_name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "F"
+    },
+    {
+      "name": "async_wrapper",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "sync_wrapper",
+      "line": 146,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "decorator",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func"
+      ],
+      "returns": "F"
+    },
+    {
+      "name": "_extract",
+      "line": 374,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "_extract",
+      "line": 393,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "_extract",
+      "line": 409,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "_extract",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "async_wrapper",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "sync_wrapper",
+      "line": 338,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TraceContext",
+      "line": 181,
+      "doc": "Context manager for manual tracing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MeshTracer",
+      "line": 276,
+      "doc": "OpenTelemetry tracer for AgentMesh trust operations.\n\nProvides decorators for instrumenting handshakes, identity verification,\nscope chains, and governance policy checks with OTel spans following\nagent-sre attribute naming conventions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 63,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,387 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/trust/capability.py",
+  "extension": ".py",
+  "size_bytes": 12654,
+  "line_count": 399,
+  "documentation": {
+    "file_docstring": "Capability Scoping\n\nSimple string-based capability scope checking.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Capability specification",
+      "Grant metadata",
+      "Scope restrictions",
+      "Timing",
+      "Status",
+      "Simple string-based scope check",
+      "V30: Only allow prefix match at colon boundaries to prevent",
+      "\"read\" matching \"readwrite:secret\". Require the granted",
+      "capability to be a colon-delimited prefix of the requested one.",
+      "Fall back to component matching",
+      "Check resource ID if scoped",
+      "Denied capabilities (blocklist)",
+      "Check denied first",
+      "Check for matching grant",
+      "Track by grantor"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CapabilityGrant: A specific capability grant to an agent.\n\nCapabilities follow the format: action",
+      "CapabilityScope: Complete capability scope for an agent.\n\nAggregates all grants and provides capa",
+      "CapabilityRegistry: Central registry for capability grants.\n\nTracks who has what capabilities across",
+      "parse_capability: Parse a capability string into (action, resource, qualifier).",
+      "create: Create a new capability grant from a capability string.",
+      "is_valid: Check if the grant is currently active and not expired.",
+      "matches: Check if this grant satisfies a requested capability.\n\nUses simple startswith ma",
+      "revoke: Revoke this grant immediately.",
+      "add_grant: Add a capability grant to this scope.\n\nArgs:\n    grant: The ``CapabilityGrant`` ",
+      "has_capability: Check if the agent has a specific capability.\n\nChecks the deny list first, then "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "deny",
+    "grant",
+    "matches",
+    "get_scope",
+    "is_valid",
+    "create",
+    "parse_capability",
+    "check",
+    "revoke",
+    "revoke_from",
+    "get_capabilities",
+    "CapabilityRegistry",
+    "CapabilityScope",
+    "filter_capabilities",
+    "cleanup_expired",
+    "revoke_all",
+    "revoke_all_from",
+    "add_grant",
+    "CapabilityGrant",
+    "has_capability",
+    "get_agents_with_capability"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "parse_capability",
+      "line": 58,
+      "doc": "Parse a capability string into (action, resource, qualifier).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "capability"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create",
+      "line": 71,
+      "doc": "Create a new capability grant from a capability string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "capability",
+        "granted_to",
+        "granted_by",
+        "resource_ids",
+        "expires_at"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_valid",
+      "line": 93,
+      "doc": "Check if the grant is currently active and not expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "matches",
+      "line": 101,
+      "doc": "Check if this grant satisfies a requested capability.\n\nUses simple startswith matching for scope checking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "requested",
+        "resource_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "revoke",
+      "line": 141,
+      "doc": "Revoke this grant immediately.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_grant",
+      "line": 160,
+      "doc": "Add a capability grant to this scope.\n\nArgs:\n    grant: The ``CapabilityGrant`` to add.\n\nRaises:\n    ValueError: If the grant's ``granted_to`` does not match\n        this scope's ``agent_did``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "grant"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has_capability",
+      "line": 174,
+      "doc": "Check if the agent has a specific capability.\n\nChecks the deny list first, then searches for a valid,\nmatching grant.\n\nArgs:\n    capability: Capability string to check (e.g.\n        ``\"read:data\"``).\n    resource_id: Optional resource ID for scoped checks.\n\nReturns:\n    ``True`` if the capability is not denied and a matching\n    valid grant exists.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability",
+        "resource_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_capabilities",
+      "line": 204,
+      "doc": "Get all active capability strings for this agent.\n\nReturns:\n    De-duplicated list of capability strings from grants that\n    are currently valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "filter_capabilities",
+      "line": 217,
+      "doc": "Filter a list of requested capabilities to only those allowed.\n\nArgs:\n    requested: Capability strings the caller wants to use.\n\nReturns:\n    Subset of *requested* that this scope permits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "requested"
+      ],
+      "returns": null
+    },
+    {
+      "name": "deny",
+      "line": 228,
+      "doc": "Add a capability to the deny list.\n\nDenied capabilities take precedence over any matching grants.\n\nArgs:\n    capability: Capability string to deny (e.g.\n        ``\"write:data\"``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revoke_all",
+      "line": 240,
+      "doc": "Revoke all active grants in this scope.\n\nReturns:\n    Number of grants that were revoked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "revoke_from",
+      "line": 253,
+      "doc": "Revoke all active grants issued by a specific grantor.\n\nArgs:\n    grantor_did: DID of the grantor whose grants should be\n        revoked.\n\nReturns:\n    Number of grants that were revoked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "grantor_did"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "cleanup_expired",
+      "line": 270,
+      "doc": "Remove expired and revoked grants from the scope.\n\nReturns:\n    Number of grants that were removed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 288,
+      "doc": "Initialise an empty capability registry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_scope",
+      "line": 293,
+      "doc": "Get or create the capability scope for an agent.\n\nArgs:\n    agent_did: The agent's decentralized identifier.\n\nReturns:\n    The existing ``CapabilityScope``, or a new empty one if\n    the agent was not previously registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "CapabilityScope"
+    },
+    {
+      "name": "grant",
+      "line": 307,
+      "doc": "Grant a capability to an agent.\n\nCreates a ``CapabilityGrant``, adds it to the agent's scope,\nand tracks it by grantor for bulk revocation.\n\nArgs:\n    capability: Capability string (e.g. ``\"read:data\"``).\n    to_agent: DID of the agent receiving the grant.\n    from_agent: DID of the agent issuing the grant.\n    resource_ids: Optional specific resource IDs to scope the\n        grant to.\n\nReturns:\n    The newly created ``CapabilityGrant``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability",
+        "to_agent",
+        "from_agent",
+        "resource_ids"
+      ],
+      "returns": "CapabilityGrant"
+    },
+    {
+      "name": "check",
+      "line": 346,
+      "doc": "Check if an agent has a specific capability.\n\nArgs:\n    agent_did: The agent's decentralized identifier.\n    capability: Capability string to check.\n    resource_id: Optional resource ID for scoped checks.\n\nReturns:\n    ``True`` if a valid matching grant exists for the agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "capability",
+        "resource_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "revoke_all_from",
+      "line": 367,
+      "doc": "Revoke all grants issued by a specific grantor.\n\nUseful when a grantor agent is compromised and all grants it\nissued must be invalidated immediately.\n\nArgs:\n    grantor_did: DID of the grantor whose grants should be\n        revoked across all agent scopes.\n\nReturns:\n    Total number of grants that were revoked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "grantor_did"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_agents_with_capability",
+      "line": 385,
+      "doc": "Get all agent DIDs that currently hold a capability.\n\nArgs:\n    capability: Capability string to search for.\n\nReturns:\n    List of agent DIDs that have a valid grant matching the\n    requested capability.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CapabilityGrant",
+      "line": 15,
+      "doc": "A specific capability grant to an agent.\n\nCapabilities follow the format: action:resource[:qualifier]\nExamples:\n- read:data\n- write:reports\n- execute:tools:calculator\n- admin:*",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityScope",
+      "line": 147,
+      "doc": "Complete capability scope for an agent.\n\nAggregates all grants and provides capability checking.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityRegistry",
+      "line": 281,
+      "doc": "Central registry for capability grants.\n\nTracks who has what capabilities across the mesh.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 63,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

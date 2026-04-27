@@ -1,0 +1,326 @@
+{
+  "path": "packages/agent-os/modules/control-plane/benchmark.py",
+  "extension": ".py",
+  "size_bytes": 20904,
+  "line_count": 565,
+  "documentation": {
+    "file_docstring": "Comparative Study: Prompt-Based Safety vs Control Plane Governance\n\nThis benchmark compares two approaches to AI agent safety:\n1. Baseline: Prompt-based safety (probabilistic)\n2. Experimental: Agent Control Plane with Mute Agent (deterministic)\n\nThe experiment tests Safety Violation Rate (SVR), Token Efficiency, and Latency.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Add parent directory to path for imports",
+      "Import control plane components",
+      "Simulate LLM reasoning and token generation",
+      "Real LLMs can be fooled by sophisticated prompts",
+      "Check for obvious dangerous patterns",
+      "Note: This is a SIMULATION of an LLM with safety prompts",
+      "Real LLMs may or may not catch these depending on context",
+      "Prompt injections and jailbreaks are harder for prompts to detect",
+      "Simulate that the baseline catches ~70% of direct violations",
+      "but only ~40% of injection/jailbreak attempts",
+      "Simulate jailbreak detection (these often bypass prompt-based safety)",
+      "Baseline catches direct violations better, but misses jailbreaks often",
+      "Catch 80% of direct violations",
+      "Missed by prompt-based safety (the other 20%)",
+      "Only catch 30% of jailbreak attempts (they're designed to bypass prompts)",
+      "Jailbreak succeeded",
+      "Check if it's a valid SELECT query",
+      "Other requests - baseline might be uncertain",
+      "Create control plane with constraint enforcement",
+      "Create a Mute Agent with SQL read-only and file read capabilities",
+      "Add file read capability for safe paths",
+      "Create agent with restrictive permissions",
+      "Enable Mute Agent validation",
+      "Classify the prompt to determine action type",
+      "Execute through control plane",
+      "Mute Agent returns NULL for blocked requests (0 tokens)",
+      "Allowed request - minimal response",
+      "Detect SQL queries",
+      "Detect file operations",
+      "Detect code execution",
+      "Default to database query",
+      "Test Baseline (Prompt-Based Safety)",
+      "Test Control Plane (Mute Agent)",
+      "Count violations and false positives",
+      "Calculate rates",
+      "Calculate averages",
+      "Safety Violation Rate (THE KILL SHOT)",
+      "False Positive Rate",
+      "Token Efficiency",
+      "Latency",
+      "Summary counts",
+      "Write baseline results",
+      "Write control plane results",
+      "Show dataset statistics",
+      "Get all prompts",
+      "Run benchmark",
+      "Calculate metrics",
+      "Print comparison",
+      "Save to CSV"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "BenchmarkResult: Result of a single test run",
+      "AggregateMetrics: Aggregate metrics for an approach",
+      "BaselineAgent: Baseline: Prompt-Based Safety (Probabilistic)\n\nUses a system prompt to instruct ",
+      "ControlPlaneAgent: Experimental: Agent Control Plane with Mute Agent (Deterministic)\n\nUses the Agen",
+      "run_benchmark: Run the comparative benchmark on both approaches.\n\nReturns:\n    (baseline_result",
+      "calculate_metrics: Calculate aggregate metrics from results",
+      "print_metrics_comparison: Print a formatted comparison of metrics",
+      "save_results_csv: Save detailed results to CSV",
+      "save_summary_csv: Save summary metrics to CSV",
+      "main: Main benchmark execution"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "BaselineAgent",
+    "AggregateMetrics",
+    "print_metrics_comparison",
+    "ControlPlaneAgent",
+    "calculate_metrics",
+    "main",
+    "validate_safe_file_read",
+    "save_summary_csv",
+    "BenchmarkResult",
+    "save_results_csv",
+    "run_benchmark",
+    "process_request"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "sys",
+      "os",
+      "time",
+      "csv",
+      "typing",
+      "datetime",
+      "dataclasses",
+      "benchmark.red_team_dataset",
+      "src.agent_control_plane",
+      "src.agent_control_plane.agent_kernel",
+      "src.agent_control_plane.mute_agent",
+      "random",
+      "random"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "run_benchmark",
+      "line": 271,
+      "doc": "Run the comparative benchmark on both approaches.\n\nReturns:\n    (baseline_results, control_plane_results)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "prompts",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate_metrics",
+      "line": 338,
+      "doc": "Calculate aggregate metrics from results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results"
+      ],
+      "returns": "AggregateMetrics"
+    },
+    {
+      "name": "print_metrics_comparison",
+      "line": 381,
+      "doc": "Print a formatted comparison of metrics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "baseline_metrics",
+        "cp_metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save_results_csv",
+      "line": 456,
+      "doc": "Save detailed results to CSV",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "baseline_results",
+        "cp_results",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save_summary_csv",
+      "line": 504,
+      "doc": "Save summary metrics to CSV",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "baseline_metrics",
+        "cp_metrics",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 528,
+      "doc": "Main benchmark execution",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process_request",
+      "line": 93,
+      "doc": "Process a request using prompt-based safety.\n\nIn a real implementation, this would call an LLM with the safety prompt.\nFor the benchmark, we simulate LLM behavior by detecting dangerous patterns.\n\nReturns:\n    (was_blocked, response, token_count)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process_request",
+      "line": 225,
+      "doc": "Process a request using the Agent Control Plane.\n\nReturns:\n    (was_blocked, response, token_count)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_classify_prompt",
+      "line": 250,
+      "doc": "Classify prompt into action type and parameters",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_safe_file_read",
+      "line": 179,
+      "doc": "Validate file reads are in safe directories",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "BenchmarkResult",
+      "line": 43,
+      "doc": "Result of a single test run",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AggregateMetrics",
+      "line": 58,
+      "doc": "Aggregate metrics for an approach",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BaselineAgent",
+      "line": 72,
+      "doc": "Baseline: Prompt-Based Safety (Probabilistic)\n\nUses a system prompt to instruct the agent not to perform harmful actions.\nThis is the traditional approach and relies on the LLM to interpret\nand follow the safety instructions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ControlPlaneAgent",
+      "line": 162,
+      "doc": "Experimental: Agent Control Plane with Mute Agent (Deterministic)\n\nUses the Agent Control Plane to enforce capabilities deterministically.\nThe agent can ONLY execute actions within its defined capabilities.\nOut-of-scope requests are blocked at the kernel level, not by the LLM.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 60,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

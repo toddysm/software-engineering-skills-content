@@ -1,0 +1,419 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/audit.py",
+  "extension": ".py",
+  "size_bytes": 16445,
+  "line_count": 512,
+  "documentation": {
+    "file_docstring": "Audit Log\n\nAppend-only JSON log with Merkle tree integrity verification.\nEntries added via AuditLog or MerkleAuditChain get automatic hash chaining.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Event details",
+      "Context",
+      "Data (sanitized - no secrets)",
+      "Outcome",
+      "Policy evaluation",
+      "Chaining \u2014 populated automatically by MerkleAuditChain.add_entry()",
+      "Metadata",
+      "\u2500\u2500 CloudEvents v1.0 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Backward-compatible alias",
+      "Set previous hash",
+      "Compute and set hash",
+      "First entry \u2014 initialize tree",
+      "Check if we need to expand the tree capacity",
+      "Double capacity: pad leaves with empty nodes, add new tree level",
+      "Add new root level",
+      "Place new leaf",
+      "Update path from leaf to root",
+      "Create leaf nodes",
+      "Pad to power of 2",
+      "Build tree bottom-up",
+      "Find entry index",
+      "Verify entry's own hash",
+      "Verify chain",
+      "Backward-compatible alias",
+      "Write to external sink if configured",
+      "Index"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AuditEntry: Single audit log entry.\n\nAll fields are preserved for API compatibility.\nHash fi",
+      "MerkleNode: Node in a Merkle tree used for audit verification.\n\nAttributes:\n    hash: SHA-25",
+      "MerkleAuditChain: Merkle tree for efficient audit verification.\n\nAllows:\n- Efficient verification ",
+      "AuditLog: Append-only audit logging system.\n\nEntries are stored in a simple list with inde",
+      "compute_hash: Compute the SHA-256 hash of this entry's canonical fields.\n\nReturns:\n    Hex-enc",
+      "verify_hash: Verify that this entry's stored hash matches a fresh computation.\n\nReturns:\n    ",
+      "to_cloudevent: Serialize this entry as a CloudEvents v1.0 JSON envelope.",
+      "add_entry: Add an entry and update the Merkle tree incrementally.",
+      "_rebuild_tree: Rebuild Merkle tree from entries (full rebuild, used for verification).",
+      "get_root_hash: Get the current Merkle root hash."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_entry",
+    "verify_hash",
+    "verify_integrity",
+    "export_cloudevents",
+    "get_proof",
+    "query",
+    "compute_hash",
+    "MerkleNode",
+    "verify_chain",
+    "verify_proof",
+    "export",
+    "MerkleAuditChain",
+    "get_entries_for_agent",
+    "get_root_hash",
+    "log",
+    "add_entry",
+    "AuditEntry",
+    "to_cloudevent",
+    "AuditLog",
+    "get_entries_by_type"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "datetime",
+      "typing",
+      "pydantic",
+      "hashlib",
+      "json",
+      "uuid",
+      "audit_backends"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "compute_hash",
+      "line": 62,
+      "doc": "Compute the SHA-256 hash of this entry's canonical fields.\n\nReturns:\n    Hex-encoded SHA-256 digest.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "verify_hash",
+      "line": 82,
+      "doc": "Verify that this entry's stored hash matches a fresh computation.\n\nReturns:\n    ``True`` if ``entry_hash`` equals ``compute_hash()``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_cloudevent",
+      "line": 104,
+      "doc": "Serialize this entry as a CloudEvents v1.0 JSON envelope.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 163,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_entry",
+      "line": 168,
+      "doc": "Add an entry and update the Merkle tree incrementally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_rebuild_tree",
+      "line": 238,
+      "doc": "Rebuild Merkle tree from entries (full rebuild, used for verification).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_root_hash",
+      "line": 282,
+      "doc": "Get the current Merkle root hash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_proof",
+      "line": 286,
+      "doc": "Get a Merkle inclusion proof for an entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_proof",
+      "line": 310,
+      "doc": "Verify a Merkle inclusion proof.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry_hash",
+        "proof",
+        "root_hash"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "verify_chain",
+      "line": 328,
+      "doc": "Verify the entire chain integrity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 366,
+      "doc": "Log an audit event.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "agent_did",
+        "action",
+        "resource",
+        "data",
+        "outcome",
+        "policy_decision",
+        "trace_id"
+      ],
+      "returns": "AuditEntry"
+    },
+    {
+      "name": "get_entry",
+      "line": 406,
+      "doc": "Get an audit entry by its unique ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_entries_for_agent",
+      "line": 413,
+      "doc": "Get the most recent entries for a specific agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_entries_by_type",
+      "line": 425,
+      "doc": "Get the most recent entries of a given event type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query",
+      "line": 437,
+      "doc": "Query audit entries with optional filters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "event_type",
+        "start_time",
+        "end_time",
+        "outcome",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_integrity",
+      "line": 466,
+      "doc": "Always valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_proof",
+      "line": 470,
+      "doc": "Get tamper-proof evidence for a specific entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export",
+      "line": 489,
+      "doc": "Export the audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "start_time",
+        "end_time"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_cloudevents",
+      "line": 505,
+      "doc": "Export audit entries as CloudEvents v1.0 JSON envelopes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "start_time",
+        "end_time"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AuditEntry",
+      "line": 23,
+      "doc": "Single audit log entry.\n\nAll fields are preserved for API compatibility.\nHash fields are populated when entries are added via\n:class:`MerkleAuditChain` or :class:`AuditLog`.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MerkleNode",
+      "line": 131,
+      "doc": "Node in a Merkle tree used for audit verification.\n\nAttributes:\n    hash: SHA-256 hash of this node.\n    left_child: Hash of the left child node (``None`` for leaves).\n    right_child: Hash of the right child node (``None`` for leaves).\n    is_leaf: Whether this node is a leaf in the tree.\n    entry_id: Audit entry ID (populated only for leaf nodes).",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MerkleAuditChain",
+      "line": 153,
+      "doc": "Merkle tree for efficient audit verification.\n\nAllows:\n- Efficient verification of single entries\n- Proof that an entry exists in the log\n- Detection of any tampering",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AuditLog",
+      "line": 350,
+      "doc": "Append-only audit logging system.\n\nEntries are stored in a simple list with indexes for querying.\nAn optional external :class:`~audit_backends.AuditSink` can be\nprovided to persist entries to an external store with cryptographic\nintegrity.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 75,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

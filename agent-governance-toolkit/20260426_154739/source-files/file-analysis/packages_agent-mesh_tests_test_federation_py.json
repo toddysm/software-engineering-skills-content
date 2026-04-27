@@ -1,0 +1,1008 @@
+{
+  "path": "packages/agent-mesh/tests/test_federation.py",
+  "extension": ".py",
+  "size_bytes": 33350,
+  "line_count": 888,
+  "documentation": {
+    "file_docstring": "Tests for cross-organizational federation governance (issue #93).\n\nCovers:\n- OrgPolicy model creation and YAML roundtrip\n- OrgTrustAgreement lifecycle (creation, expiration, revocation)\n- PolicyDelegation (category scoping, constraints)\n- FederationEngine mutual enforcement\n- Edge cases (same-org, missing policies, blocklists)\n- ORGANIZATION scope in conflict resolution",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 OrgPolicy Model Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 OrgTrustAgreement Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 PolicyDelegation Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 InMemoryFederationStore Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 FederationEngine Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Policy Delegation in Engine Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 ORGANIZATION Scope in Conflict Resolution \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 PolicyCategory Enum Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Additional Edge-Case Tests \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Both denial reasons must appear in the merged reason/trace",
+      "Only one policy for org-a (no duplicates)",
+      ".yml is loaded second, so it overwrites .yaml"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_org_policy: Create a test OrgPolicy.",
+      "_pii_deny_rule: Rule that denies PII-containing actions.",
+      "_export_deny_rule: Rule that denies data exports.",
+      "_setup_engine: Set up a FederationEngine with pre-loaded data.",
+      "TestOrgPolicy: OrgPolicy model creation and evaluation.",
+      "TestOrgTrustAgreement: Trust agreement lifecycle.",
+      "TestPolicyDelegation: Policy delegation model tests.",
+      "TestInMemoryFederationStore: CRUD operations on the in-memory store.",
+      "TestFederationEngine: Core mutual enforcement engine tests.",
+      "TestFederationDelegation: Delegation overrides in the federation engine."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestFederationDelegation",
+    "TestFederationEngine",
+    "test_same_org_still_allowed_with_empty_store",
+    "test_org_policy_crud",
+    "test_organization_scope_specificity",
+    "TestInMemoryFederationStore",
+    "TestPolicyDelegation",
+    "test_missing_caller_policy_fail_closed",
+    "test_delegation_with_expired_trust_agreement_fails",
+    "test_federation_decision_has_trace",
+    "test_disabled_rule_skipped",
+    "test_data_classification_field",
+    "test_category_string_roundtrip",
+    "TestDelegationWithExpiredTrust",
+    "test_evaluate_deny_default",
+    "test_not_yet_expired",
+    "test_constraints",
+    "TestMutualEnforcementBothDeny",
+    "TestOrgPolicy",
+    "test_trust_score_at_threshold_allowed",
+    "test_trust_agreement_crud",
+    "test_delegation_wrong_category_no_override",
+    "test_delegation_with_constraints_met",
+    "test_expired_delegation_not_applied",
+    "test_organization_scope_exists",
+    "test_same_org_bypasses_federation",
+    "test_different_orgs_yaml_and_yml",
+    "test_trust_score_below_threshold_denied",
+    "TestFederationEngineEmptyStore",
+    "test_delegation_crud",
+    "test_missing_callee_policy_fail_closed",
+    "test_evaluate_allow_default",
+    "test_covers_orgs_mutual",
+    "test_revocation",
+    "test_mutual_enforcement_caller_denies",
+    "test_blocklist_caller_blocks_callee",
+    "test_expiration",
+    "test_delegation_with_constraints_not_met",
+    "test_both_deny_reasons_in_trace",
+    "test_mutual_enforcement_both_deny",
+    "test_no_trust_agreement_denied",
+    "test_yaml_and_yml_same_org_no_duplicate",
+    "test_organization_between_agent_and_global",
+    "test_evaluate_priority_ordering",
+    "test_general_category_covers_all",
+    "test_mutual_enforcement_both_allow",
+    "test_mutual_enforcement_callee_denies",
+    "TestOrgTrustAgreement",
+    "test_agent_overrides_organization",
+    "test_all_categories_exist",
+    "test_covers_category",
+    "TestOrganizationScope",
+    "test_creation",
+    "test_empty_store_has_no_policies",
+    "test_covers_orgs_directional",
+    "test_delegation_overrides_caller_deny",
+    "test_blocklist_callee_blocks_caller",
+    "TestOrganizationScopeOrdering",
+    "test_yaml_roundtrip",
+    "test_full_specificity_chain",
+    "test_creation_defaults",
+    "TestPolicyCategory",
+    "test_cross_org_denied_with_empty_store",
+    "test_organization_wins_over_global_in_resolver",
+    "test_expired_agreement_denied",
+    "test_evaluate_deny",
+    "TestFileFederationStoreYamlYml"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "pytest",
+      "agentmesh.governance.federation",
+      "agentmesh.governance.conflict_resolution",
+      "agentmesh.governance.conflict_resolution",
+      "agentmesh.governance.conflict_resolution",
+      "agentmesh.governance.conflict_resolution",
+      "agentmesh.governance.federation",
+      "agentmesh.governance.federation",
+      "agentmesh.governance.conflict_resolution",
+      "agentmesh.governance.conflict_resolution"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_org_policy",
+      "line": 35,
+      "doc": "Create a test OrgPolicy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "org_id",
+        "rules",
+        "default_action",
+        "blocked_orgs",
+        "min_trust"
+      ],
+      "returns": "OrgPolicy"
+    },
+    {
+      "name": "_pii_deny_rule",
+      "line": 53,
+      "doc": "Rule that denies PII-containing actions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "OrgPolicyRule"
+    },
+    {
+      "name": "_export_deny_rule",
+      "line": 65,
+      "doc": "Rule that denies data exports.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "OrgPolicyRule"
+    },
+    {
+      "name": "_setup_engine",
+      "line": 77,
+      "doc": "Set up a FederationEngine with pre-loaded data.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "caller_policy",
+        "callee_policy",
+        "agreements",
+        "delegations"
+      ],
+      "returns": "FederationEngine"
+    },
+    {
+      "name": "test_creation",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_deny",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_allow_default",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_deny_default",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_priority_ordering",
+      "line": 128,
+      "doc": "Lower priority number wins.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_disabled_rule_skipped",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_yaml_roundtrip",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_data_classification_field",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_creation_defaults",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_covers_orgs_mutual",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_covers_orgs_directional",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expiration",
+      "line": 198,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_not_yet_expired",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revocation",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_covers_category",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_general_category_covers_all",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_creation",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_covers_category",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expiration",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_constraints",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revocation",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_policy_crud",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_agreement_crud",
+      "line": 312,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_crud",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_org_bypasses_federation",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_trust_agreement_denied",
+      "line": 348,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutual_enforcement_both_allow",
+      "line": 357,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutual_enforcement_caller_denies",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutual_enforcement_callee_denies",
+      "line": 378,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutual_enforcement_both_deny",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_below_threshold_denied",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_at_threshold_allowed",
+      "line": 412,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_agreement_denied",
+      "line": 423,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_caller_blocks_callee",
+      "line": 437,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_callee_blocks_caller",
+      "line": 447,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_caller_policy_fail_closed",
+      "line": 457,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_callee_policy_fail_closed",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_federation_decision_has_trace",
+      "line": 474,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_overrides_caller_deny",
+      "line": 492,
+      "doc": "When caller denies PII but has delegated PII to callee, allow.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_wrong_category_no_override",
+      "line": 508,
+      "doc": "Delegation for DATA_EXPORT doesn't help when PII is denied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_with_constraints_met",
+      "line": 524,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_with_constraints_not_met",
+      "line": 542,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_delegation_not_applied",
+      "line": 560,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_organization_scope_exists",
+      "line": 582,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_organization_scope_specificity",
+      "line": 587,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_overrides_organization",
+      "line": 618,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_specificity_chain",
+      "line": 649,
+      "doc": "AGENT > ORGANIZATION > TENANT > GLOBAL.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_categories_exist",
+      "line": 678,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_category_string_roundtrip",
+      "line": 687,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_both_deny_reasons_in_trace",
+      "line": 699,
+      "doc": "Both caller and callee deny \u2014 trace must contain both reasons.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_with_expired_trust_agreement_fails",
+      "line": 728,
+      "doc": "Even with a valid delegation, an expired trust agreement \u2192 deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_yaml_and_yml_same_org_no_duplicate",
+      "line": 759,
+      "doc": "If org_a.yaml and org_a.yml both define 'org-a', store has one entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_different_orgs_yaml_and_yml",
+      "line": 792,
+      "doc": "Different orgs in .yaml and .yml are both loaded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_org_still_allowed_with_empty_store",
+      "line": 818,
+      "doc": "Same-org bypass works even with empty store.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cross_org_denied_with_empty_store",
+      "line": 824,
+      "doc": "Cross-org with no policies and no agreements \u2192 deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_store_has_no_policies",
+      "line": 831,
+      "doc": "Verify the store is truly empty.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_organization_between_agent_and_global",
+      "line": 842,
+      "doc": "ORGANIZATION specificity is greater than GLOBAL, less than AGENT.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_organization_wins_over_global_in_resolver",
+      "line": 861,
+      "doc": "Resolver picks ORGANIZATION over GLOBAL at same priority.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestOrgPolicy",
+      "line": 99,
+      "doc": "OrgPolicy model creation and evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOrgTrustAgreement",
+      "line": 178,
+      "doc": "Trust agreement lifecycle.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyDelegation",
+      "line": 244,
+      "doc": "Policy delegation model tests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestInMemoryFederationStore",
+      "line": 299,
+      "doc": "CRUD operations on the in-memory store.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFederationEngine",
+      "line": 339,
+      "doc": "Core mutual enforcement engine tests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFederationDelegation",
+      "line": 489,
+      "doc": "Delegation overrides in the federation engine.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOrganizationScope",
+      "line": 579,
+      "doc": "Verify ORGANIZATION scope ranks correctly in conflict resolution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyCategory",
+      "line": 675,
+      "doc": "Verify the extensible category taxonomy.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMutualEnforcementBothDeny",
+      "line": 696,
+      "doc": "Verify that when BOTH orgs deny, both denial reasons appear in trace.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDelegationWithExpiredTrust",
+      "line": 725,
+      "doc": "Delegation should not help if the trust agreement is expired.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFileFederationStoreYamlYml",
+      "line": 756,
+      "doc": "FileFederationStore handles both .yaml and .yml without duplicates.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFederationEngineEmptyStore",
+      "line": 815,
+      "doc": "FederationEngine with an empty store (no policies, no agreements).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOrganizationScopeOrdering",
+      "line": 839,
+      "doc": "ORGANIZATION scope must rank between AGENT and GLOBAL.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 14,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

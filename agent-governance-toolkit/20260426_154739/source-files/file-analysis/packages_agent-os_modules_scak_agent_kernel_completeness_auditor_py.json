@@ -1,0 +1,187 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/completeness_auditor.py",
+  "extension": ".py",
+  "size_bytes": 10205,
+  "line_count": 237,
+  "documentation": {
+    "file_docstring": "Completeness Auditor - Detects and fixes agent \"Laziness\".\n\nThis implements Differential Auditing: instead of auditing every interaction,\nwe only audit when the agent gives up with a \"Negative Result\".\n\nThe Shadow Teacher Model attempts the same sub-task, and if it succeeds,\nwe generate a \"Competence Patch\" to prevent future laziness.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Simulate teacher model attempting the same task",
+      "Compare agent vs teacher",
+      "Teacher succeeded where agent gave up - this is LAZINESS",
+      "Teacher also couldn't find data - agent was correct",
+      "Simulate teacher model's superior reasoning",
+      "In reality, this would be an actual API call to o1-preview or similar",
+      "Pattern: Looking for logs",
+      "Teacher checks additional locations",
+      "Teacher found it by checking archived partitions",
+      "Pattern: Looking for projects/resources",
+      "Teacher verifies against complete registry",
+      "Pattern: Database queries",
+      "Teacher uses proper time window",
+      "Default: Teacher also couldn't find data",
+      "Build gap analysis based on give-up signal type",
+      "Generate specific, actionable patch based on the pattern",
+      "Add context about the specific failure"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CompletenessAuditor: The Shadow Auditor that detects agent laziness.\n\nWhen an agent outputs a \"Negati",
+      "__init__: Initialize the Completeness Auditor.\n\nArgs:\n    teacher_model: High-reasoning mo",
+      "audit_give_up: Audit an agent's give-up outcome using the Teacher Model.\n\nThis is \"Differential",
+      "_run_teacher_model: Simulate running the teacher model on the same task.\n\nIn a real system, this wou",
+      "_analyze_gap: Analyze what the agent missed.\n\nThis is the key insight: identifying the specifi",
+      "_generate_competence_patch: Generate a \"Competence Patch\" - a lesson to prevent future laziness.\n\nThis is NO",
+      "get_audit_stats: Get statistics about auditing activity.",
+      "get_audit_history: Get audit history."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_audit_stats",
+    "get_audit_history",
+    "CompletenessAuditor",
+    "audit_give_up"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "uuid",
+      "typing",
+      "datetime",
+      "models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 35,
+      "doc": "Initialize the Completeness Auditor.\n\nArgs:\n    teacher_model: High-reasoning model for auditing (e.g., \"o1-preview\", \"o1\", \"claude-opus\")",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "teacher_model"
+      ],
+      "returns": null
+    },
+    {
+      "name": "audit_give_up",
+      "line": 47,
+      "doc": "Audit an agent's give-up outcome using the Teacher Model.\n\nThis is \"Differential Auditing\" - we only audit specific give-up signals,\nnot every interaction (which would be too expensive).\n\nArgs:\n    outcome: The agent outcome with give-up signal\n    \nReturns:\n    CompletenessAudit with findings",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome"
+      ],
+      "returns": "CompletenessAudit"
+    },
+    {
+      "name": "_run_teacher_model",
+      "line": 105,
+      "doc": "Simulate running the teacher model on the same task.\n\nIn a real system, this would:\n1. Spin up a high-reasoning model (o1-preview, o1, etc.)\n2. Give it the same user prompt\n3. Give it enhanced context/tools\n4. Capture its response\n\nFor demonstration, we simulate based on patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_analyze_gap",
+      "line": 166,
+      "doc": "Analyze what the agent missed.\n\nThis is the key insight: identifying the specific gap in the agent's\nreasoning or search strategy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome",
+        "teacher_result"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_generate_competence_patch",
+      "line": 188,
+      "doc": "Generate a \"Competence Patch\" - a lesson to prevent future laziness.\n\nThis is NOT just correcting the answer; it's a strategic instruction\nthat addresses the systematic gap in the agent's behavior.\n\nExample patches:\n- \"When searching logs, always check archived partitions if recent logs are empty.\"\n- \"Before reporting 'not found', verify all registry sources including archived items.\"\n- \"Use proper time windows for 'recent' queries: last 7 days for logs, 30 days for records.\"",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome",
+        "gap_analysis",
+        "teacher_result"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_audit_stats",
+      "line": 225,
+      "doc": "Get statistics about auditing activity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_audit_history",
+      "line": 235,
+      "doc": "Get audit history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CompletenessAuditor",
+      "line": 24,
+      "doc": "The Shadow Auditor that detects agent laziness.\n\nWhen an agent outputs a \"Negative Result\" (e.g., \"No data found\"),\nthe system spins up a \"Teacher Model\" to attempt the same sub-task.\n\nIf the teacher succeeds where the agent gave up, we identify the gap\nand generate a competence patch.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 40,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

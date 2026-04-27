@@ -1,0 +1,439 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/reward/engine.py",
+  "extension": ".py",
+  "size_bytes": 16081,
+  "line_count": 461,
+  "documentation": {
+    "file_docstring": "Reward Engine\n\nSingle-dimension trust scoring with per-agent reward signals.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Update frequency",
+      "Thresholds",
+      "Dimension weights (kept for API compatibility, not used in scoring)",
+      "Single trust score (0.0-1.0)",
+      "Current score",
+      "Dimension scores",
+      "Recent signals",
+      "History",
+      "Status",
+      "Trim if needed",
+      "Immediate recalculation for critical signals",
+      "Calculate efficiency (1.0 = perfect, 0.0 = over budget)",
+      "Calculate dimension scores",
+      "Weighted by recency",
+      "Calculate weighted total",
+      "Scale to 0-1000",
+      "Update state",
+      "Check for revocation",
+      "Notify callbacks"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RewardConfig: Configuration for the reward engine.",
+      "AgentRewardState: Current reward state for an agent.",
+      "RewardEngine: The Reward Agent - runtime learning, not static rules.\n\nScores every action agai",
+      "validate_weights: Always passes.",
+      "add_signal: Add a reward signal.",
+      "record_score: Record score in history.",
+      "get_agent_score: Get current trust score for an agent.",
+      "record_signal: Record a reward signal for an agent.\n\nArgs:\n    agent_did: The agent's DID\n    d",
+      "record_policy_compliance: Record a policy compliance signal.",
+      "record_resource_usage: Record resource efficiency signal."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_score_explanation",
+    "record_policy_compliance",
+    "validate_weights",
+    "record_resource_usage",
+    "AgentRewardState",
+    "get_health_report",
+    "record_output_quality",
+    "get_agents_at_risk",
+    "add_signal",
+    "update_weights",
+    "record_security_event",
+    "record_score",
+    "on_revocation",
+    "get_agent_score",
+    "stop_background_updates",
+    "record_signal",
+    "RewardEngine",
+    "RewardConfig",
+    "record_collaboration"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "asyncio",
+      "agentmesh.constants",
+      "scoring"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "validate_weights",
+      "line": 47,
+      "doc": "Always passes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "add_signal",
+      "line": 77,
+      "doc": "Add a reward signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_score",
+      "line": 85,
+      "doc": "Record score in history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_score",
+      "line": 117,
+      "doc": "Get current trust score for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "TrustScore"
+    },
+    {
+      "name": "record_signal",
+      "line": 122,
+      "doc": "Record a reward signal for an agent.\n\nArgs:\n    agent_did: The agent's DID\n    dimension: Which dimension this affects\n    value: Signal value (0.0 = bad, 1.0 = good)\n    source: Where the signal came from\n    details: Optional details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "dimension",
+        "value",
+        "source",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_policy_compliance",
+      "line": 155,
+      "doc": "Record a policy compliance signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "compliant",
+        "policy_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_resource_usage",
+      "line": 170,
+      "doc": "Record resource efficiency signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "tokens_used",
+        "tokens_budget",
+        "compute_ms",
+        "compute_budget_ms"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_output_quality",
+      "line": 193,
+      "doc": "Record output quality signal from downstream consumer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "accepted",
+        "consumer",
+        "rejection_reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_security_event",
+      "line": 209,
+      "doc": "Record security posture signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "within_boundary",
+        "event_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_collaboration",
+      "line": 224,
+      "doc": "Record collaboration health signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "handoff_successful",
+        "peer_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_recalculate_score",
+      "line": 238,
+      "doc": "Recalculate trust score from recent signals.\n\nScore is calculated as weighted sum of dimension scores,\nwhere each dimension is the average of recent signals.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "TrustScore"
+    },
+    {
+      "name": "_trigger_revocation",
+      "line": 306,
+      "doc": "Trigger automatic credential revocation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_revocation",
+      "line": 323,
+      "doc": "Register callback for automatic revocations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_score_explanation",
+      "line": 327,
+      "doc": "Get fully explainable breakdown of an agent's score.\n\nReturns breakdown and contributing factors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_trend",
+      "line": 361,
+      "doc": "Calculate score trend.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_get_or_create_state",
+      "line": 380,
+      "doc": "Get or create agent state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "AgentRewardState"
+    },
+    {
+      "name": "start_background_updates",
+      "line": 389,
+      "doc": "Start background score updates.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop_background_updates",
+      "line": 397,
+      "doc": "Stop background updates.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_weights",
+      "line": 401,
+      "doc": "Update dimension weights.\n\nWeight changes effective within 60s.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_compliance",
+        "resource_efficiency",
+        "output_quality",
+        "security_posture",
+        "collaboration_health"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_agents_at_risk",
+      "line": 427,
+      "doc": "Get agents with scores approaching revocation threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_health_report",
+      "line": 436,
+      "doc": "Get longitudinal health report.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "days"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RewardConfig",
+      "line": 27,
+      "doc": "Configuration for the reward engine.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentRewardState",
+      "line": 52,
+      "doc": "Current reward state for an agent.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RewardEngine",
+      "line": 93,
+      "doc": "The Reward Agent - runtime learning, not static rules.\n\nScores every action against 5 dimensions:\n1. Policy Compliance - Did the action violate any policy?\n2. Resource Efficiency - Was compute/token usage proportionate?\n3. Output Quality - Did downstream accept or reject output?\n4. Security Posture - Did agent stay in trust boundary?\n5. Collaboration Health - Did inter-agent handoffs complete?\n\nFeatures:\n- Per-agent trust scores updated every \u226430s\n- Automatic credential revocation on breach\n- Operator-tunable weights\n- Fully explainable scores",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 59,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

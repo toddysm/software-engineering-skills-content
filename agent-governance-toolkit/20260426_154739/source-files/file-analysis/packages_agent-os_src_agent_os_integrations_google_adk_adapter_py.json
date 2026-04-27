@@ -1,0 +1,500 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/google_adk_adapter.py",
+  "extension": ".py",
+  "size_bytes": 23380,
+  "line_count": 633,
+  "documentation": {
+    "file_docstring": "Google ADK (Agent Development Kit) Integration for Agent-OS\n============================================================\n\nProvides kernel-level governance for Google ADK agent workflows.\n\nFeatures:\n- Extends BaseIntegration with wrap/unwrap for ADK agents\n- Policy enforcement via ADK's native callback hooks\n- before_tool_callback / after_tool_callback for tool governance\n- before_agent_callback / after_agent_callback for agent lifecycle\n- Content filtering with blocked patterns\n- Tool allow/block lists\n- Human approval workflow for sensitive tools\n- Token/call budget tracking\n- Full audit trail of tool calls and agent runs\n- Works without google-adk installed (graceful import handling)\n- Compatible with LlmAgent, SequentialAgent, ParallelAgent, LoopAgent\n\nExample:\n    >>> from agent_os.integrations.google_adk_adapter import GoogleADKKernel\n    >>> from google.adk.agents import LlmAgent\n    >>>\n    >>> kernel = GoogleADKKernel(\n    ...     max_tool_calls=10,\n    ...     blocked_tools=[\"exec_code\", \"shell\"],\n    ...     blocked_patterns=[\"DROP TABLE\", \"rm -rf\"],\n    ...     require_human_approval=True,\n    ...     sensitive_tools=[\"delete_file\", \"send_email\"],\n    ... )\n    >>>\n    >>> # Option A: callback injection\n    >>> agent = LlmAgent(\n    ...     model=\"gemini-2.5-flash\",\n    ...     name=\"assistant\",\n    ...     tools=[my_tool],\n    ...     **kernel.get_callbacks(),\n    ... )\n    >>>\n    >>> # Option B: wrap the agent object\n    >>> agent = kernel.wrap(LlmAgent(model=\"gemini-2.5-flash\", name=\"assistant\"))",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Graceful import of google-adk",
+      "Convenience kwargs (create PolicyConfig automatically)",
+      "Initialize BaseIntegration with a GovernancePolicy mapped from PolicyConfig",
+      "Counters",
+      "Audit trail",
+      "Violations collected",
+      "Human approval tracking",
+      "Wrapped agents registry",
+      "------------------------------------------------------------------",
+      "BaseIntegration abstract methods",
+      "------------------------------------------------------------------",
+      "Inject callbacks if the agent supports them",
+      "------------------------------------------------------------------",
+      "Internal helpers",
+      "------------------------------------------------------------------",
+      "If sensitive_tools is specified, only those need approval",
+      "Otherwise all tools need approval when require_human_approval is True",
+      "------------------------------------------------------------------",
+      "ADK Callback Hooks",
+      "------------------------------------------------------------------",
+      "Check timeout",
+      "Check tool count",
+      "Check budget",
+      "Check tool allowed",
+      "Check content in arguments",
+      "Human approval check",
+      "Track budget spend",
+      "Check output content",
+      "Check timeout",
+      "Check agent call count",
+      "Check output content if it's a string",
+      "------------------------------------------------------------------",
+      "Human Approval API",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_adk_available: Raise a helpful error when the ``google-adk`` package is missing.",
+      "PolicyConfig: Policy configuration for Google ADK governance.",
+      "PolicyViolationError: Raised when a governance policy is violated.",
+      "AuditEvent: Single audit trail entry.",
+      "GoogleADKKernel: Governance kernel for Google ADK.\n\nExtends BaseIntegration and provides callback",
+      "wrap: Wrap an ADK agent with governance callbacks.\n\nInjects before/after callbacks int",
+      "unwrap: Remove governance wrapper and return the original agent.\n\nSince ``wrap`` modifie",
+      "_default_violation_handler: Default handler called when a policy violation occurs.\n\nLogs the violation at ER",
+      "_record: Append an audit event to the internal audit log.\n\nRecords the event only when lo",
+      "_check_tool_allowed: Check whether a tool is permitted by the active ADK policy.\n\nArgs:\n    tool_name"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "deny",
+    "after_tool_callback",
+    "reset",
+    "before_agent_callback",
+    "get_pending_approvals",
+    "GoogleADKKernel",
+    "get_violations",
+    "approve",
+    "wrap",
+    "PolicyViolationError",
+    "before_tool_callback",
+    "unwrap",
+    "get_stats",
+    "get_callbacks",
+    "PolicyConfig",
+    "get_audit_log",
+    "AuditEvent",
+    "health_check",
+    "after_agent_callback"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "typing",
+      "base",
+      "google.adk.agents"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_adk_available",
+      "line": 66,
+      "doc": "Raise a helpful error when the ``google-adk`` package is missing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "description",
+        "severity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "on_violation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 196,
+      "doc": "Wrap an ADK agent with governance callbacks.\n\nInjects before/after callbacks into the agent if it has the\nexpected ADK callback attributes. Otherwise returns a wrapper\nobject that delegates attribute access to the original agent.\n\nWorks without google-adk installed (for testing with mocks).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 218,
+      "doc": "Remove governance wrapper and return the original agent.\n\nSince ``wrap`` modifies agents in-place (injecting callbacks),\n``unwrap`` clears the callbacks back to ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_default_violation_handler",
+      "line": 235,
+      "doc": "Default handler called when a policy violation occurs.\n\nLogs the violation at ERROR level. Override by passing a custom\non_violation callable to the kernel constructor.\n\nArgs:\n    error: The PolicyViolationError that was raised.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record",
+      "line": 246,
+      "doc": "Append an audit event to the internal audit log.\n\nRecords the event only when log_all_calls is enabled.\n\nArgs:\n    event_type: Short string label for the event.\n    agent_name: Name of the ADK agent generating the event.\n    details: Arbitrary dict of additional context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "agent_name",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_tool_allowed",
+      "line": 266,
+      "doc": "Check whether a tool is permitted by the active ADK policy.\n\nArgs:\n    tool_name: Name of the ADK tool to check.\n\nReturns:\n    Tuple of (allowed: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_content",
+      "line": 281,
+      "doc": "Scan a string for policy-blocked patterns.\n\nArgs:\n    content: The text to scan.\n\nReturns:\n    Tuple of (allowed: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_timeout",
+      "line": 296,
+      "doc": "Check whether the kernel has exceeded its configured timeout.\n\nReturns:\n    Tuple of (within_limit: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_budget",
+      "line": 307,
+      "doc": "Check whether a tool call would exceed the configured cost budget.\n\nArgs:\n    cost: Cost units to add for this call (default 1.0).\n\nReturns:\n    Tuple of (within_budget: bool, reason: str).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cost"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_needs_approval",
+      "line": 324,
+      "doc": "Check if a tool call requires human approval.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_raise_violation",
+      "line": 334,
+      "doc": "Create, record, and surface a PolicyViolationError.\n\nAppends the error to the violations list and calls on_violation.\n\nArgs:\n    policy_name: Short identifier for the violated policy rule.\n    description: Human-readable description of the violation.\n\nReturns:\n    The constructed PolicyViolationError (caller may raise it).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "description"
+      ],
+      "returns": "PolicyViolationError"
+    },
+    {
+      "name": "before_tool_callback",
+      "line": 355,
+      "doc": "ADK before_tool_callback \u2014 called before each tool execution.\n\nCompatible with ADK's ToolContext. If tool_context is not an ADK\nToolContext (e.g., in tests), falls back to kwargs for tool_name/tool_args.\n\nReturns:\n    None to allow execution, or a dict with an error to block it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "after_tool_callback",
+      "line": 432,
+      "doc": "ADK after_tool_callback \u2014 called after each tool execution.\n\nInspects tool output for blocked patterns.\n\nReturns:\n    The (possibly modified) tool_result, or a dict with error if blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_context",
+        "tool_result"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "before_agent_callback",
+      "line": 468,
+      "doc": "ADK before_agent_callback \u2014 called before agent starts processing.\n\nReturns:\n    None to allow, or a Content-like object to skip the agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback_context"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "after_agent_callback",
+      "line": 496,
+      "doc": "ADK after_agent_callback \u2014 called after agent finishes.\n\nChecks agent output for blocked content.\n\nReturns:\n    The content (possibly modified), or a dict with error if blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback_context",
+        "content"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "approve",
+      "line": 527,
+      "doc": "Approve a pending tool call by its call_id.\n\nReturns True if the call was pending and is now approved.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "call_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "deny",
+      "line": 541,
+      "doc": "Deny a pending tool call by its call_id.\n\nReturns True if the call was pending and is now denied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "call_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_pending_approvals",
+      "line": 554,
+      "doc": "Return all pending approval requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 562,
+      "doc": "Reset counters and start time (for new execution runs).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 569,
+      "doc": "Return the full audit trail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_violations",
+      "line": 573,
+      "doc": "Return all collected violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 577,
+      "doc": "Get governance statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_callbacks",
+      "line": 598,
+      "doc": "Return a dict of all callbacks suitable for unpacking into LlmAgent.\n\nUsage:\n    agent = LlmAgent(..., **kernel.get_callbacks())",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 612,
+      "doc": "Return adapter health status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyConfig",
+      "line": 76,
+      "doc": "Policy configuration for Google ADK governance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 97,
+      "doc": "Raised when a governance policy is violated.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AuditEvent",
+      "line": 108,
+      "doc": "Single audit trail entry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GoogleADKKernel",
+      "line": 117,
+      "doc": "Governance kernel for Google ADK.\n\nExtends BaseIntegration and provides callback functions that plug\ndirectly into ADK's before_tool_callback, after_tool_callback,\nbefore_agent_callback, and after_agent_callback hooks.\n\nSupports human approval workflows for sensitive tools and\ntoken/call budget tracking.",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 71,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

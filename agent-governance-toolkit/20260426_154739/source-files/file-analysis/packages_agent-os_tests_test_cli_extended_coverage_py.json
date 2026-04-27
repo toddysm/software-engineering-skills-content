@@ -1,0 +1,1411 @@
+{
+  "path": "packages/agent-os/tests/test_cli_extended_coverage.py",
+  "extension": ".py",
+  "size_bytes": 31753,
+  "line_count": 899,
+  "documentation": {
+    "file_docstring": "Extended CLI module test coverage for agent-os.\n\nCovers CLI commands and helpers that lack sufficient test coverage:\n  - cmd_check with file scanning and JSON output\n  - cmd_review (simulated CMVK review)\n  - cmd_install_hooks and hook content generation\n  - cmd_health (text and JSON output)\n  - cmd_status (text and JSON formats)\n  - PolicyChecker rule matching (destructive SQL, secrets, injection, XSS)\n  - PolicyViolation data model\n  - Environment variable configuration\n  - Argument parsing and subcommand routing\n  - Edge cases: empty files, binary files, unknown extensions",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "PolicyChecker \u2014 Comprehensive Rule Coverage",
+      "============================================================================",
+      "-- Destructive SQL ---------------------------------------------------",
+      "-- File Deletion -----------------------------------------------------",
+      "-- Secret Exposure ---------------------------------------------------",
+      "-- Privilege Escalation ----------------------------------------------",
+      "-- Code Injection ----------------------------------------------------",
+      "-- XSS ---------------------------------------------------------------",
+      "-- Language Filtering ------------------------------------------------",
+      "Markdown is 'unknown' language, SQL rules specify specific languages",
+      "but the rules include 'python', etc. \u2014 verify behavior",
+      "The key test is that language-specific rules respect their filter",
+      "-- Edge Cases --------------------------------------------------------",
+      "============================================================================",
+      "cmd_check \u2014 File Checking Command",
+      "============================================================================",
+      "============================================================================",
+      "cmd_review \u2014 Code Review Command",
+      "============================================================================",
+      "JSON output may be preceded by text output; extract last JSON block",
+      "Find start of JSON object",
+      "============================================================================",
+      "cmd_install_hooks",
+      "============================================================================",
+      "============================================================================",
+      "cmd_health",
+      "============================================================================",
+      "============================================================================",
+      "cmd_status",
+      "============================================================================",
+      "============================================================================",
+      "Environment Configuration",
+      "============================================================================",
+      "============================================================================",
+      "Main Entry Point Argument Routing",
+      "============================================================================",
+      "============================================================================",
+      "Audit CSV Export",
+      "============================================================================",
+      "============================================================================",
+      "Validate Command \u2014 Strict Mode & Multiple Files",
+      "============================================================================",
+      "In strict mode, unknown fields generate warnings (not errors)",
+      "Unknown rule type is a warning, not error, so file still validates",
+      "============================================================================",
+      "Colors & Formatting Edge Cases",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestPolicyCheckerRules: Test PolicyChecker detects all rule categories.",
+      "TestCmdCheck: Test the check command.",
+      "TestCmdReview: Test the review command.",
+      "TestCmdInstallHooks: Test the install-hooks command.",
+      "TestCmdHealth: Test the health command.",
+      "TestCmdStatus: Test the status command.",
+      "TestEnvConfig: Test environment variable configuration.",
+      "TestMainRouting: Test main() argument routing to subcommands.",
+      "TestAuditCsvExport: Test audit CSV export functionality.",
+      "TestCmdValidateExtended: Extended validate command tests."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_review_with_cmvk",
+    "test_detects_github_token",
+    "test_main_routes_to_init",
+    "test_detects_shutil_rmtree",
+    "test_validate_strict_mode_warns_unknown_fields",
+    "TestMainRouting",
+    "test_detects_hardcoded_password",
+    "test_detects_os_system_injection",
+    "test_audit_csv_export",
+    "TestEnvConfig",
+    "test_check_clean_file",
+    "test_language_detection",
+    "test_configure_logging_invalid_level",
+    "test_main_routes_to_status",
+    "test_review_clean_file",
+    "test_review_json_format_with_cmvk",
+    "test_detects_private_key",
+    "test_detects_exec",
+    "test_health_text_format",
+    "TestCmdReview",
+    "TestPolicyCheckerRules",
+    "TestCmdHealth",
+    "test_get_config_path_default",
+    "test_validate_mixed_valid_invalid",
+    "test_detects_hardcoded_api_key",
+    "test_get_env_config_defaults",
+    "test_install_hooks_no_git_dir",
+    "test_detects_os_remove",
+    "test_unknown_extension_gets_universal_rules",
+    "test_validate_invalid_rule_type",
+    "test_get_config_path_from_args",
+    "test_main_handles_file_not_found",
+    "test_status_json_format",
+    "test_nonexistent_file_raises",
+    "test_empty_file_no_violations",
+    "test_detects_delete_without_where",
+    "TestCmdInstallHooks",
+    "test_detects_chmod_777",
+    "test_health_json_format",
+    "TestCmdValidateExtended",
+    "test_detects_aws_access_key",
+    "test_check_multiple_files",
+    "test_detects_rm_rf",
+    "test_install_hooks_creates_hook",
+    "test_detects_truncate_table",
+    "test_check_nonexistent_file",
+    "TestColorsEdgeCases",
+    "test_detects_sudo",
+    "test_configure_logging_valid_level",
+    "test_check_violation_file",
+    "TestCmdCheck",
+    "test_sql_rules_not_applied_to_md",
+    "test_install_hooks_force_overwrites",
+    "test_violation_attributes",
+    "test_status_text_format",
+    "TestAuditCsvExport",
+    "TestCmdStatus",
+    "test_install_hooks_append_idempotent",
+    "test_safe_select_no_violations",
+    "test_detects_drop_table",
+    "test_main_routes_to_check",
+    "test_detects_innerhtml",
+    "test_check_no_files_shows_usage",
+    "test_supports_color_with_ci_env",
+    "test_validate_multiple_files",
+    "test_main_routes_to_metrics",
+    "test_supports_color_with_no_color_env",
+    "test_get_config_path_from_env",
+    "test_detects_eval",
+    "InitArgs",
+    "AuditArgs",
+    "test_check_json_output",
+    "test_review_nonexistent_file",
+    "test_get_env_config_custom",
+    "test_main_keyboard_interrupt",
+    "test_review_with_violations",
+    "Args",
+    "test_install_hooks_append",
+    "test_install_hooks_no_overwrite_without_force"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "argparse",
+      "json",
+      "os",
+      "sys",
+      "tempfile",
+      "pathlib",
+      "unittest.mock",
+      "pytest",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "logging",
+      "agent_os.cli",
+      "logging",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "csv",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli",
+      "agent_os.cli"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_checker",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_drop_table",
+      "line": 44,
+      "doc": "DROP TABLE is flagged as critical.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_delete_without_where",
+      "line": 52,
+      "doc": "DELETE FROM without WHERE is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_truncate_table",
+      "line": 59,
+      "doc": "TRUNCATE TABLE is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_safe_select_no_violations",
+      "line": 66,
+      "doc": "Safe SELECT query produces no violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_rm_rf",
+      "line": 75,
+      "doc": "rm -rf is flagged as critical.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_shutil_rmtree",
+      "line": 83,
+      "doc": "shutil.rmtree is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_os_remove",
+      "line": 90,
+      "doc": "os.remove is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_hardcoded_api_key",
+      "line": 99,
+      "doc": "Hardcoded API key is flagged as critical.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_hardcoded_password",
+      "line": 107,
+      "doc": "Hardcoded password is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_aws_access_key",
+      "line": 114,
+      "doc": "AWS Access Key ID pattern is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_private_key",
+      "line": 121,
+      "doc": "Private key header is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_github_token",
+      "line": 128,
+      "doc": "GitHub token pattern is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_sudo",
+      "line": 137,
+      "doc": "sudo is flagged in shell scripts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_chmod_777",
+      "line": 144,
+      "doc": "chmod 777 is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_eval",
+      "line": 154,
+      "doc": "eval() is flagged in Python.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_exec",
+      "line": 161,
+      "doc": "exec() is flagged in Python.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_os_system_injection",
+      "line": 168,
+      "doc": "os.system with dynamic input is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_detects_innerhtml",
+      "line": 178,
+      "doc": "innerHTML assignment is flagged in JavaScript.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sql_rules_not_applied_to_md",
+      "line": 188,
+      "doc": "SQL rules should not trigger on markdown files.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_extension_gets_universal_rules",
+      "line": 200,
+      "doc": "Unknown file extensions still get universal rules (secrets etc.).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_file_no_violations",
+      "line": 209,
+      "doc": "Empty file produces no violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nonexistent_file_raises",
+      "line": 216,
+      "doc": "Checking a non-existent file raises FileNotFoundError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_attributes",
+      "line": 221,
+      "doc": "PolicyViolation objects have all expected attributes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_language_detection",
+      "line": 234,
+      "doc": "_get_language maps extensions correctly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_clean_file",
+      "line": 256,
+      "doc": "Clean file produces exit code 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_violation_file",
+      "line": 271,
+      "doc": "File with violations returns exit code 1.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_json_output",
+      "line": 286,
+      "doc": "JSON format output contains expected structure.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_no_files_shows_usage",
+      "line": 305,
+      "doc": "No files and no --staged shows usage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_nonexistent_file",
+      "line": 318,
+      "doc": "Non-existent file returns exit code 1.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_multiple_files",
+      "line": 331,
+      "doc": "Multiple files can be checked at once.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_review_nonexistent_file",
+      "line": 357,
+      "doc": "Reviewing a non-existent file returns 1.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_review_clean_file",
+      "line": 370,
+      "doc": "Reviewing a clean file without CMVK returns 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_review_with_violations",
+      "line": 385,
+      "doc": "File with violations returns 1 when not using CMVK.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_review_with_cmvk",
+      "line": 400,
+      "doc": "CMVK review runs simulated multi-model review.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_review_json_format_with_cmvk",
+      "line": 415,
+      "doc": "CMVK review JSON output includes model_results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_hooks_no_git_dir",
+      "line": 452,
+      "doc": "Install hooks fails if .git does not exist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_hooks_creates_hook",
+      "line": 468,
+      "doc": "Install hooks creates pre-commit file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_hooks_no_overwrite_without_force",
+      "line": 485,
+      "doc": "Existing hook is not overwritten without --force.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_hooks_force_overwrites",
+      "line": 505,
+      "doc": "--force overwrites existing hook.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_hooks_append",
+      "line": 525,
+      "doc": "--append adds Agent OS check to existing hook.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_hooks_append_idempotent",
+      "line": 543,
+      "doc": "Appending when check already present is a no-op.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_text_format",
+      "line": 567,
+      "doc": "Health command with text format outputs component status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_json_format",
+      "line": 579,
+      "doc": "Health command with JSON format returns valid JSON.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_status_text_format",
+      "line": 602,
+      "doc": "Status command with text format outputs version.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_status_json_format",
+      "line": 614,
+      "doc": "Status command with JSON format returns structured data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_env_config_defaults",
+      "line": 637,
+      "doc": "Default env config without environment variables.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_env_config_custom",
+      "line": 644,
+      "doc": "Custom environment variables are picked up.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_configure_logging_valid_level",
+      "line": 656,
+      "doc": "configure_logging sets valid log levels.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_configure_logging_invalid_level",
+      "line": 664,
+      "doc": "Invalid log level defaults to WARNING.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_config_path_from_args",
+      "line": 671,
+      "doc": "Config path from explicit args takes precedence.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_config_path_from_env",
+      "line": 677,
+      "doc": "Config path from AGENTOS_CONFIG env var when no arg.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_config_path_default",
+      "line": 684,
+      "doc": "Default config path is current directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_routes_to_init",
+      "line": 700,
+      "doc": "main routes 'init' to cmd_init.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_routes_to_check",
+      "line": 712,
+      "doc": "main routes 'check' to cmd_check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_routes_to_status",
+      "line": 725,
+      "doc": "main routes 'status' to cmd_status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_routes_to_metrics",
+      "line": 736,
+      "doc": "main routes 'metrics' to cmd_metrics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_handles_file_not_found",
+      "line": 747,
+      "doc": "main returns 1 for FileNotFoundError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_main_keyboard_interrupt",
+      "line": 758,
+      "doc": "main returns 130 on KeyboardInterrupt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_csv_export",
+      "line": 779,
+      "doc": "Audit with CSV export creates a valid CSV file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_strict_mode_warns_unknown_fields",
+      "line": 817,
+      "doc": "Strict mode warns about unknown fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_multiple_files",
+      "line": 832,
+      "doc": "Multiple policy files can be validated at once.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_mixed_valid_invalid",
+      "line": 847,
+      "doc": "Mix of valid and invalid files returns error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_invalid_rule_type",
+      "line": 862,
+      "doc": "Unknown rule type generates a warning.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "capsys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_supports_color_with_no_color_env",
+      "line": 889,
+      "doc": "NO_COLOR env var disables color support.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_supports_color_with_ci_env",
+      "line": 895,
+      "doc": "CI env var disables color support.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestPolicyCheckerRules",
+      "line": 35,
+      "doc": "Test PolicyChecker detects all rule categories.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCmdCheck",
+      "line": 253,
+      "doc": "Test the check command.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCmdReview",
+      "line": 354,
+      "doc": "Test the review command.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCmdInstallHooks",
+      "line": 449,
+      "doc": "Test the install-hooks command.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCmdHealth",
+      "line": 564,
+      "doc": "Test the health command.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCmdStatus",
+      "line": 599,
+      "doc": "Test the status command.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEnvConfig",
+      "line": 634,
+      "doc": "Test environment variable configuration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMainRouting",
+      "line": 697,
+      "doc": "Test main() argument routing to subcommands.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditCsvExport",
+      "line": 776,
+      "doc": "Test audit CSV export functionality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCmdValidateExtended",
+      "line": 814,
+      "doc": "Extended validate command tests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestColorsEdgeCases",
+      "line": 886,
+      "doc": "Test Colors utility edge cases.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 376,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 406,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 421,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 457,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 474,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 493,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 533,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 551,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 571,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 583,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 606,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 618,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "InitArgs",
+      "line": 784,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AuditArgs",
+      "line": 792,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 823,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 840,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 855,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Args",
+      "line": 870,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

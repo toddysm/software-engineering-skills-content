@@ -1,0 +1,733 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/tracing/__init__.py",
+  "extension": ".py",
+  "size_bytes": 24955,
+  "line_count": 786,
+  "documentation": {
+    "file_docstring": "A2A/MCP Protocol-Aware Distributed Tracing for Agent-SRE.\n\nExtends the replay trace model with protocol-level context propagation,\nenabling end-to-end visibility across agent-to-agent (A2A) and\nmodel-context-protocol (MCP) boundaries.\n\nAlso provides OpenTelemetry native export with agent semantic conventions:\n- conventions: Custom attribute names and span kind constants\n- spans: Helpers to create attributed OTel spans\n- metrics: Agent-specific metric instruments\n- exporters: OTLP gRPC/HTTP and console exporter setup\n\nComponents:\n- ProtocolSpan: Enriched span with protocol metadata (A2A task IDs, MCP request IDs)\n- TraceContext: W3C-style context propagation for cross-agent traces\n- ProtocolTracer: Instruments A2A and MCP calls with correlated spans\n- SpanLink: Cross-trace links for fan-out / fan-in patterns\n- ProtocolTimeline: Ordered view across protocol boundaries\n\nUsage:\n    tracer = ProtocolTracer(agent_id=\"orchestrator\")\n\n    # Trace an A2A call\n    with tracer.a2a_call(\"worker-agent\", task=\"summarize\") as span:\n        # inject context into outgoing A2A request\n        headers = tracer.inject(span)\n        response = call_agent(headers=headers)\n        span.set_response(response)\n\n    # Trace an MCP tool call\n    with tracer.mcp_call(\"search-server\", tool=\"web_search\", params={\"q\": \"test\"}) as span:\n        result = mcp_client.call_tool(\"web_search\", {\"q\": \"test\"})\n        span.set_response(result)\n\n    report = tracer.report()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Trace an A2A call",
+      "inject context into outgoing A2A request",
+      "Trace an MCP tool call",
+      "---------------------------------------------------------------------------",
+      "Protocol types",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "W3C-compatible trace context",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Span links (cross-trace correlation)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Protocol-enriched span",
+      "---------------------------------------------------------------------------",
+      "Protocol-specific metadata",
+      "A2A-specific",
+      "MCP-specific",
+      "---------------------------------------------------------------------------",
+      "Protocol timeline",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Tracing report",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Protocol tracer",
+      "---------------------------------------------------------------------------",
+      "-----------------------------------------------------------------------",
+      "A2A tracing",
+      "-----------------------------------------------------------------------",
+      "-----------------------------------------------------------------------",
+      "MCP tracing",
+      "-----------------------------------------------------------------------",
+      "-----------------------------------------------------------------------",
+      "Generic HTTP / internal tracing",
+      "-----------------------------------------------------------------------",
+      "-----------------------------------------------------------------------",
+      "Context propagation",
+      "-----------------------------------------------------------------------",
+      "-----------------------------------------------------------------------",
+      "Server-side span creation",
+      "-----------------------------------------------------------------------",
+      "Link back to caller's span (span_id in traceparent = caller's span)",
+      "-----------------------------------------------------------------------",
+      "Timeline & reporting",
+      "-----------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "OpenTelemetry native export \u2014 public API re-exports",
+      "---------------------------------------------------------------------------",
+      "Conventions \u2014 attributes",
+      "Conventions \u2014 span kinds",
+      "Span helpers",
+      "Metrics",
+      "Exporters",
+      "Protocol tracing (existing)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ProtocolType: Supported agent communication protocols.",
+      "SpanRole: Role of the current agent in a protocol span.",
+      "TraceContext: W3C Trace Context propagation header.\n\nSerialises to/from the ``traceparent`` fo",
+      "SpanLink: Link between spans across trace boundaries.\n\nUsed for fan-out patterns where one",
+      "ProtocolSpan: A span enriched with protocol-level metadata.\n\nWraps the core ``Span`` from repl",
+      "ProtocolTimelineEntry: A single event in the protocol timeline.",
+      "TracingReport: Summary report from a ProtocolTracer session.",
+      "ProtocolTracer: Instruments A2A and MCP calls with correlated, protocol-aware spans.\n\nProvides c",
+      "to_traceparent: Serialise as W3C traceparent header value.",
+      "from_traceparent: Parse a W3C traceparent header value."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ProtocolTimelineEntry",
+    "ProtocolSpan",
+    "inject",
+    "to_dict",
+    "receive_mcp",
+    "protocol_breakdown",
+    "duration_ms",
+    "from_traceparent",
+    "to_headers",
+    "trace",
+    "child",
+    "a2a_call",
+    "TracingReport",
+    "total_duration_ms",
+    "mcp_calls",
+    "from_headers",
+    "total_cost_usd",
+    "report",
+    "SpanRole",
+    "agent_id",
+    "receive_a2a",
+    "set_error",
+    "add_link",
+    "TraceContext",
+    "http_call",
+    "span_id",
+    "ProtocolType",
+    "ProtocolTracer",
+    "a2a_calls",
+    "error_count",
+    "extract",
+    "SpanLink",
+    "context",
+    "mcp_call",
+    "trace_id",
+    "protocol_spans",
+    "to_traceparent",
+    "set_response"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "time",
+      "uuid",
+      "contextlib",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_sre.replay.capture",
+      "agent_sre.tracing.conventions",
+      "agent_sre.tracing.exporters",
+      "agent_sre.tracing.metrics",
+      "agent_sre.tracing.spans",
+      "collections.abc"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_traceparent",
+      "line": 97,
+      "doc": "Serialise as W3C traceparent header value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "from_traceparent",
+      "line": 103,
+      "doc": "Parse a W3C traceparent header value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "value"
+      ],
+      "returns": "TraceContext"
+    },
+    {
+      "name": "child",
+      "line": 114,
+      "doc": "Create a child context linked to this context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "TraceContext"
+    },
+    {
+      "name": "to_headers",
+      "line": 122,
+      "doc": "Export as HTTP headers for injection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_headers",
+      "line": 131,
+      "doc": "Extract trace context from HTTP headers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "headers"
+      ],
+      "returns": "TraceContext"
+    },
+    {
+      "name": "to_dict",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "span_id",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "duration_ms",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_response",
+      "line": 209,
+      "doc": "Record a protocol response and finish the span.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_error",
+      "line": 218,
+      "doc": "Mark the span as failed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_link",
+      "line": 222,
+      "doc": "Add a cross-trace link.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "span_id",
+        "relationship"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "a2a_calls",
+      "line": 298,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "mcp_calls",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "error_count",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "total_cost_usd",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "total_duration_ms",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "protocol_breakdown",
+      "line": 319,
+      "doc": "Count of spans per protocol type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "parent_context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_id",
+      "line": 382,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "agent_id",
+      "line": 386,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "context",
+      "line": 390,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "TraceContext"
+    },
+    {
+      "name": "a2a_call",
+      "line": 398,
+      "doc": "Trace an outgoing A2A call.\n\nArgs:\n    target_agent: ID of the agent being called.\n    task: Task description or A2A task ID.\n    target_url: URL of the target agent.\n    message_id: A2A message ID for correlation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "contextmanager"
+      ],
+      "args": [
+        "self",
+        "target_agent",
+        "task",
+        "target_url",
+        "message_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mcp_call",
+      "line": 455,
+      "doc": "Trace an outgoing MCP tool call.\n\nArgs:\n    server_id: ID of the MCP server.\n    tool: Tool name being invoked.\n    params: Tool call parameters.\n    request_id: MCP JSON-RPC request ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "contextmanager"
+      ],
+      "args": [
+        "self",
+        "server_id",
+        "tool",
+        "params",
+        "request_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "http_call",
+      "line": 512,
+      "doc": "Trace a generic HTTP call.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "contextmanager"
+      ],
+      "args": [
+        "self",
+        "target",
+        "method",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "inject",
+      "line": 556,
+      "doc": "Produce propagation headers for an outgoing call.\n\nReturns a dict suitable for merging into HTTP headers / A2A metadata.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "pspan"
+      ],
+      "returns": null
+    },
+    {
+      "name": "extract",
+      "line": 565,
+      "doc": "Extract a TraceContext from incoming headers.\n\nUse on the *server* side to correlate incoming spans with the\ncaller's trace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "headers"
+      ],
+      "returns": "TraceContext"
+    },
+    {
+      "name": "receive_a2a",
+      "line": 577,
+      "doc": "Create a server-side span for an incoming A2A request.\n\nCall this on the *receiving* agent to link the incoming\nrequest back to the caller's trace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "caller_agent",
+        "headers",
+        "task"
+      ],
+      "returns": "ProtocolSpan"
+    },
+    {
+      "name": "receive_mcp",
+      "line": 620,
+      "doc": "Create a server-side span for an incoming MCP request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "caller_id",
+        "headers",
+        "tool"
+      ],
+      "returns": "ProtocolSpan"
+    },
+    {
+      "name": "_build_timeline",
+      "line": 662,
+      "doc": "Build a chronological timeline from protocol spans.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "report",
+      "line": 680,
+      "doc": "Generate a tracing report with all protocol spans and timeline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "TracingReport"
+    },
+    {
+      "name": "trace",
+      "line": 694,
+      "doc": "Access the underlying trace object.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "Trace"
+    },
+    {
+      "name": "protocol_spans",
+      "line": 699,
+      "doc": "All protocol spans recorded so far.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ProtocolType",
+      "line": 60,
+      "doc": "Supported agent communication protocols.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SpanRole",
+      "line": 70,
+      "doc": "Role of the current agent in a protocol span.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TraceContext",
+      "line": 84,
+      "doc": "W3C Trace Context propagation header.\n\nSerialises to/from the ``traceparent`` format:\n``{version}-{trace_id}-{span_id}-{flags}``",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SpanLink",
+      "line": 148,
+      "doc": "Link between spans across trace boundaries.\n\nUsed for fan-out patterns where one span triggers multiple\ndownstream traces (e.g., orchestrator calling 3 workers).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ProtocolSpan",
+      "line": 174,
+      "doc": "A span enriched with protocol-level metadata.\n\nWraps the core ``Span`` from replay/capture and adds protocol\ncontext (A2A task IDs, MCP request IDs, context propagation).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ProtocolTimelineEntry",
+      "line": 257,
+      "doc": "A single event in the protocol timeline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TracingReport",
+      "line": 287,
+      "doc": "Summary report from a ProtocolTracer session.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ProtocolTracer",
+      "line": 346,
+      "doc": "Instruments A2A and MCP calls with correlated, protocol-aware spans.\n\nProvides context managers for tracing individual protocol calls and\nproduces a ``TracingReport`` with timeline and cross-trace links.\n\nUsage:\n    tracer = ProtocolTracer(agent_id=\"orchestrator\")\n\n    with tracer.a2a_call(\"worker\", task=\"summarize\") as span:\n        headers = tracer.inject(span)\n        result = call_a2a_agent(headers=headers)\n        span.set_response(result)\n\n    with tracer.mcp_call(\"search-server\", tool=\"web_search\") as span:\n        result = mcp.call_tool(\"web_search\", {})\n        span.set_response(result)\n\n    report = tracer.report()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "path": "examples/mcp-trust-verified-server/server.py",
+  "extension": ".py",
+  "size_bytes": 7171,
+  "line_count": 201,
+  "documentation": {
+    "file_docstring": "MCP Trust-Verified Server \u2014 demonstrates trust-gated tool access.\n\nDEMO ONLY: This example accepts agent_did and trust_score as client-supplied\ntool arguments. In production, agent identity and trust scores must come from\na verified source (identity registry, trust server) \u2014 never from the calling\nagent itself.\n\nThree tools with escalating trust requirements:\n  - read_file:       low trust (300), no special capabilities\n  - write_file:      medium trust (600), requires \"fs_write\" capability\n  - query_database:  high trust (800), requires \"db_query\", rate-limited\n\nEach tool call is authorized through a TrustProxy before execution.\nTools are fingerprinted with MCPSecurityScanner for rug-pull detection.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Trust proxy \u2014 enforces per-tool trust thresholds and capabilities",
+      "Security scanner \u2014 fingerprints tool definitions to detect rug pulls",
+      "---------------------------------------------------------------------------",
+      "Server setup",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Governance layer",
+      "---------------------------------------------------------------------------",
+      "Step 1: Configure the trust proxy with per-tool policies.",
+      "Step 2: Register tool fingerprints for rug-pull detection.",
+      "Simple audit log \u2014 collects AuthResult records for review.",
+      "Fail closed \u2014 any authorization error means deny.",
+      "---------------------------------------------------------------------------",
+      "Tool definitions",
+      "---------------------------------------------------------------------------",
+      "Simulated file read (replace with real I/O in production)",
+      "---------------------------------------------------------------------------",
+      "Shutdown summary",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Entry point",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_authorize: Authorize a tool call and record the result. Fail-closed on errors.",
+      "read_file: Read a file by path. Requires minimum trust score of 300.\n\nArgs:\n    path: File ",
+      "write_file: Write content to a file. Requires trust >= 600 and fs_write capability.\n\nArgs:\n ",
+      "query_database: Execute a read-only SQL query. Requires trust >= 800, db_query capability, rate-"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "query_database",
+    "write_file",
+    "read_file"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "atexit",
+      "mcp.server.fastmcp",
+      "mcp_trust_proxy",
+      "agent_os.mcp_security"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_authorize",
+      "line": 105,
+      "doc": "Authorize a tool call and record the result. Fail-closed on errors.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tool_name",
+        "agent_did",
+        "trust_score",
+        "capabilities"
+      ],
+      "returns": "AuthResult"
+    },
+    {
+      "name": "read_file",
+      "line": 133,
+      "doc": "Read a file by path. Requires minimum trust score of 300.\n\nArgs:\n    path: File path to read.\n    agent_did: The calling agent's DID (e.g. \"did:mesh:abc123\").\n    trust_score: The agent's current trust score (0-1000).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path",
+        "agent_did",
+        "trust_score"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "write_file",
+      "line": 149,
+      "doc": "Write content to a file. Requires trust >= 600 and fs_write capability.\n\nArgs:\n    path: Destination file path.\n    content: Content to write.\n    agent_did: The calling agent's DID.\n    trust_score: The agent's current trust score (0-1000).\n    capabilities: List of agent capabilities (must include \"fs_write\").",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path",
+        "content",
+        "agent_did",
+        "trust_score",
+        "capabilities"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "query_database",
+      "line": 167,
+      "doc": "Execute a read-only SQL query. Requires trust >= 800, db_query capability, rate-limited to 10/min.\n\nArgs:\n    sql: The SQL query to execute (read-only).\n    agent_did: The calling agent's DID.\n    trust_score: The agent's current trust score (0-1000).\n    capabilities: List of agent capabilities (must include \"db_query\").",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sql",
+        "agent_did",
+        "trust_score",
+        "capabilities"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_print_summary",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 8,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

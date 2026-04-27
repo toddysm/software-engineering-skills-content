@@ -1,0 +1,250 @@
+{
+  "path": "agent-governance-typescript/src/encryption/mesh-client.ts",
+  "extension": ".ts",
+  "size_bytes": 15915,
+  "line_count": 510,
+  "documentation": {
+    "file_docstring": "AgentMesh transport client \u2014 WebSocket connection to relay with plaintext-peer support, KNOCK pending queue, and wsFactory hook. Spec: docs/specs/AGENTMESH-WIRE-1.0.md Sections 9, 10, 12 Features added for AzureClaw compatibility: - plaintextPeers: bypass E2E encryption for legacy peers (e.g., Rust controller) - wsFactory: custom WebSocket constructor for HTTPS_PROXY CONNECT tunneling - KNOCK pending queue: handle race between KNOCK and first message",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "High-level mesh client for agent-to-agent communication. Manages WebSocket connection to the relay, session establishment (KNOCK + X3DH), and message encryption/decryption. Supports plaintext peers for legacy interop.",
+      "\u2500\u2500 Plaintext peers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Connection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Request any messages queued while offline (inbox replay)",
+      "Disconnect and reconnect to the relay. Resets the WebSocket connection and sends a fresh connect + fetch_pending sequence, triggering inbox replay for any messages queued while offline.",
+      "\u2500\u2500 Sending \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Legacy plaintext path \u2014 no encryption",
+      "Encrypted path",
+      "\u2500\u2500 Session establishment \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Check for existing session",
+      "Send KNOCK",
+      "X3DH + SecureChannel",
+      "\u2500\u2500 Handlers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Heartbeat \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Frame handling \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "ACK processed \u2014 nothing to do",
+      "Check KNOCK pending queue \u2014 wait for resolution if KNOCK is in-flight",
+      "Wait for KNOCK resolution",
+      "Legacy plaintext",
+      "Encrypted",
+      "Send ACK",
+      "Notify handlers",
+      "Handle a batch of pending messages replayed by the relay on reconnect. The relay may respond to a fetch_pending frame with a pending_messages frame containing an array of queued messages. Each message is dispatched through the standard handleMessage path.",
+      "Register as pending",
+      "Evaluate via registered handlers",
+      "Resolve pending",
+      "\u2500\u2500 Utilities \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Use Buffer in Node.js to avoid stack overflow on large payloads",
+      "Browser fallback \u2014 loop-based"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MeshClient"
+  ],
+  "imports": {
+    "internal": [
+      "./channel",
+      "./x3dh",
+      "./ratchet"
+    ],
+    "external": [],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "addPlaintextPeer",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "removePlaintextPeer",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "isPlaintextPeer",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "connect",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "disconnect",
+      "line": 118,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "reconnect",
+      "line": 133,
+      "doc": "Disconnect and reconnect to the relay.         Resets the WebSocket connection and sends a fresh connect +     fetch_pen",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "send",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true
+    },
+    {
+      "name": "closeSession",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "sendHeartbeat",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "handleFrame",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "handleMessage",
+      "line": 333,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "handlePendingMessages",
+      "line": 395,
+      "doc": "Handle a batch of pending messages replayed by the relay on reconnect.         The relay may respond to a fetch_pending ",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "handleKnock",
+      "line": 404,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true
+    },
+    {
+      "name": "handleKnockAccept",
+      "line": 459,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "handleKnockReject",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "sendFrame",
+      "line": 471,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "incrementSessionCount",
+      "line": 477,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "uint8ToBase64",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "base64ToUint8",
+      "line": 499,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "WebSocketFactory",
+      "line": 20,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MeshClientOptions",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "MeshSession",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "kind": "interface"
+    },
+    {
+      "name": "KnockResolver",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "kind": "type_alias"
+    },
+    {
+      "name": "MeshClient",
+      "line": 53,
+      "doc": "High-level mesh client for agent-to-agent communication.     Manages WebSocket connection to the relay, session establishment   (KNOCK + X3DH), and message encryption. Supports   plaintext peers for l",
+      "is_public": true,
+      "extends": null,
+      "implements": []
+    }
+  ],
+  "complexity_score": 54,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,1047 @@
+{
+  "path": "packages/agent-mesh/tests/test_trust_decay.py",
+  "extension": ".py",
+  "size_bytes": 24936,
+  "line_count": 665,
+  "documentation": {
+    "file_docstring": "Tests for Trust Decay.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Basic score management",
+      "=============================================================================",
+      "=============================================================================",
+      "Interaction graph",
+      "=============================================================================",
+      "=============================================================================",
+      "Trust event processing",
+      "=============================================================================",
+      "B should be affected (propagation through interaction graph)",
+      "=============================================================================",
+      "Temporal decay",
+      "=============================================================================",
+      "Simulate 2 hours without positive signals",
+      "Score should be 805 (500 default + bonus) \u2014 no decay",
+      "Should not go below 100 from decay alone",
+      "=============================================================================",
+      "Regime detection",
+      "=============================================================================",
+      "=============================================================================",
+      "Health report & queries",
+      "=============================================================================",
+      "=============================================================================",
+      "Decay over time (inactive agents)",
+      "=============================================================================",
+      "1 more hour passes (now 2 hours since last positive)",
+      "=============================================================================",
+      "Configurable decay rate",
+      "=============================================================================",
+      "decay = 100 * 1 = 100, but effective_decay = min(100, max(0, 800-100)) = 100",
+      "=============================================================================",
+      "Minimum floor",
+      "=============================================================================",
+      "effective_decay = min(50, max(0, 101-100)) = 1",
+      "=============================================================================",
+      "Active agents don't decay",
+      "=============================================================================",
+      "Record a positive signal to reset the clock",
+      "_last_positive now ~= now, so hours_since \u2248 0",
+      "Nearly no time elapsed",
+      "Simulate activity every 10 minutes for 5 hours",
+      "Score shouldn't have decayed meaningfully",
+      "=============================================================================",
+      "Proportional to inactivity",
+      "=============================================================================",
+      "5.0 * 4 = 20.0",
+      "=============================================================================",
+      "Multiple agents decay independently",
+      "=============================================================================",
+      "=============================================================================",
+      "Decay stops when agent is removed",
+      "=============================================================================",
+      "Remove agent from scores",
+      "=============================================================================",
+      "Trust recovery after decay",
+      "=============================================================================",
+      "Recover",
+      "Apply decay again immediately \u2014 should be negligible",
+      "=============================================================================",
+      "Edge cases",
+      "=============================================================================",
+      "10 * (1/3600) \u2248 0.003 \u2014 negligible",
+      "effective_decay = min(1000, max(0, 100.5-100)) = 0.5",
+      "=============================================================================",
+      "Interaction with trust threshold gates during decay",
+      "=============================================================================",
+      "Trust events fire callbacks, but temporal decay does not",
+      "(verify current behavior)",
+      "apply_temporal_decay does NOT fire callbacks (by design)",
+      "Apply event penalty",
+      "Apply decay on top"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestInteractionGraph: Interaction graph is not active.",
+      "TestRegimeDetection: Regime detection is not active.",
+      "TestDecayOverTime: Trust score decays over time when agent is inactive.",
+      "TestConfigurableDecayRate: Decay rate is configurable.",
+      "TestMinimumFloor: Trust score has a minimum floor \u2014 decay doesn't go below 100.",
+      "TestActivityResetsDecay: Active agents don't decay \u2014 decay resets on activity.",
+      "TestDecayProportionality: Decay is proportional to inactivity duration.",
+      "TestMultiAgentDecay: Multiple agents decay independently.",
+      "TestDecayAfterRemoval: Decay stops when agent is removed from the engine.",
+      "TestTrustRecovery: Trust recovery after decay period."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_get_neighbors_empty",
+    "TestDecayProportionality",
+    "test_direct_impact",
+    "test_frequent_activity_keeps_score_stable",
+    "test_very_long_inactivity_hits_floor",
+    "test_decay_below_warning_threshold",
+    "TestTrustEvents",
+    "test_two_agents_different_inactivity",
+    "test_decay_floor",
+    "test_always_returns_none",
+    "test_critical_event",
+    "test_positive_signal",
+    "TestRegimeDetection",
+    "TestActivityResetsDecay",
+    "TestThresholdGatesDuringDecay",
+    "test_propagation_to_neighbor",
+    "test_decay_after_one_hour",
+    "test_positive_signal_resets_decay_clock",
+    "test_linear_scaling",
+    "test_recovery_resets_decay_clock",
+    "test_max_score_with_decay",
+    "test_default_score",
+    "test_higher_decay_rate_causes_more_decay",
+    "test_large_decay_rate",
+    "TestTemporalDecay",
+    "test_remaining_agents_still_decay",
+    "test_floor_enforced_for_score_just_above",
+    "test_removed_agent_not_in_deltas",
+    "test_alerts_list",
+    "test_score_slightly_above_floor_with_large_decay",
+    "test_no_decay_for_newly_registered_agent",
+    "test_no_decay_with_recent_positive",
+    "TestInteractionGraph",
+    "test_small_decay_rate",
+    "TestDecayAfterRemoval",
+    "test_set_score",
+    "test_score_clamped",
+    "test_decay_without_positive_signals",
+    "test_callback_never_fires",
+    "TestMultiAgentDecay",
+    "test_score_at_floor_no_further_decay",
+    "test_three_agents_independent_floors",
+    "test_positive_signal_recovers_score",
+    "TestConfigurableDecayRate",
+    "TestMinimumFloor",
+    "test_activity_prevents_decay_accumulation",
+    "test_very_short_decay_window",
+    "test_decay_after_three_hours",
+    "test_event_penalty_plus_decay_compound",
+    "test_double_inactivity_double_decay",
+    "test_recovery_above_decay_floor",
+    "test_agent_count",
+    "test_successive_decay_applications",
+    "engine",
+    "TestQueries",
+    "test_record_interaction_noop",
+    "TestEdgeCases",
+    "test_zero_decay_rate",
+    "TestScoreManagement",
+    "test_propagation_depth_limit",
+    "test_set_score_clamps_below_zero",
+    "test_simultaneous_decay_same_timestamp",
+    "test_health_report",
+    "test_decay_below_revocation_threshold",
+    "test_decay_stops_at_floor",
+    "test_score_change_callback_fires_on_decay",
+    "test_decay_after_half_hour",
+    "test_no_propagation_without_edges",
+    "test_score_change_callback",
+    "test_decay_crosses_tier_boundary",
+    "TestDecayOverTime",
+    "test_active_agent_unaffected_by_inactive_peer",
+    "TestTrustRecovery"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "time",
+      "pytest",
+      "agentmesh.reward.trust_decay",
+      "agentmesh.constants",
+      "agentmesh.constants",
+      "agentmesh.constants"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "engine",
+      "line": 14,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_default_score",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_score",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_clamped",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_positive_signal",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_interaction_noop",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_neighbors_empty",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_direct_impact",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_critical_event",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_propagation_to_neighbor",
+      "line": 81,
+      "doc": "Trust events propagate to neighbors via interaction graph.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_propagation_depth_limit",
+      "line": 94,
+      "doc": "No propagation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_propagation_without_edges",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_change_callback",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_without_positive_signals",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_decay_with_recent_positive",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_floor",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_always_returns_none",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_callback_never_fires",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_count",
+      "line": 183,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_report",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_alerts_list",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_after_one_hour",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_after_three_hours",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_after_half_hour",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_decay_for_newly_registered_agent",
+      "line": 234,
+      "doc": "Agents without _last_positive entry default to now \u2014 no decay.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_successive_decay_applications",
+      "line": 242,
+      "doc": "Calling apply_temporal_decay multiple times accumulates decay.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_higher_decay_rate_causes_more_decay",
+      "line": 267,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_zero_decay_rate",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_small_decay_rate",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_large_decay_rate",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_stops_at_floor",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_at_floor_no_further_decay",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_floor_enforced_for_score_just_above",
+      "line": 331,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_score_clamps_below_zero",
+      "line": 340,
+      "doc": "set_score itself clamps at 0 (hard floor).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_positive_signal_resets_decay_clock",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_activity_prevents_decay_accumulation",
+      "line": 366,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_frequent_activity_keeps_score_stable",
+      "line": 376,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_double_inactivity_double_decay",
+      "line": 399,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_linear_scaling",
+      "line": 412,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_two_agents_different_inactivity",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_active_agent_unaffected_by_inactive_peer",
+      "line": 442,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_three_agents_independent_floors",
+      "line": 454,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_removed_agent_not_in_deltas",
+      "line": 477,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_remaining_agents_still_decay",
+      "line": 488,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_positive_signal_recovers_score",
+      "line": 510,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_recovery_above_decay_floor",
+      "line": 523,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_recovery_resets_decay_clock",
+      "line": 535,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_long_inactivity_hits_floor",
+      "line": 557,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_short_decay_window",
+      "line": 565,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_score_with_decay",
+      "line": 574,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_slightly_above_floor_with_large_decay",
+      "line": 582,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_simultaneous_decay_same_timestamp",
+      "line": 591,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_below_warning_threshold",
+      "line": 611,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_below_revocation_threshold",
+      "line": 620,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decay_crosses_tier_boundary",
+      "line": 629,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_change_callback_fires_on_decay",
+      "line": 638,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_event_penalty_plus_decay_compound",
+      "line": 651,
+      "doc": "Trust event penalty and temporal decay compound.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestScoreManagement",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestInteractionGraph",
+      "line": 48,
+      "doc": "Interaction graph is not active.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustEvents",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTemporalDecay",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRegimeDetection",
+      "line": 162,
+      "doc": "Regime detection is not active.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestQueries",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDecayOverTime",
+      "line": 205,
+      "doc": "Trust score decays over time when agent is inactive.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestConfigurableDecayRate",
+      "line": 264,
+      "doc": "Decay rate is configurable.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMinimumFloor",
+      "line": 311,
+      "doc": "Trust score has a minimum floor \u2014 decay doesn't go below 100.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestActivityResetsDecay",
+      "line": 351,
+      "doc": "Active agents don't decay \u2014 decay resets on activity.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDecayProportionality",
+      "line": 396,
+      "doc": "Decay is proportional to inactivity duration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMultiAgentDecay",
+      "line": 427,
+      "doc": "Multiple agents decay independently.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDecayAfterRemoval",
+      "line": 474,
+      "doc": "Decay stops when agent is removed from the engine.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustRecovery",
+      "line": 507,
+      "doc": "Trust recovery after decay period.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 554,
+      "doc": "Edge cases: very long inactivity, very short decay windows.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestThresholdGatesDuringDecay",
+      "line": 608,
+      "doc": "Interaction with trust threshold gates during decay.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 6,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

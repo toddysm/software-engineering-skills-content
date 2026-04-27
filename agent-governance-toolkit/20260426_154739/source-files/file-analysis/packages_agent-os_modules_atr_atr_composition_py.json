@@ -1,0 +1,725 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/composition.py",
+  "extension": ".py",
+  "size_bytes": 20767,
+  "line_count": 645,
+  "documentation": {
+    "file_docstring": "Tool composition for ATR.\n\nProvides mechanisms for chaining and composing tools declaratively.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Run async function in event loop",
+      "Run sync function in executor",
+      "Try to match to first parameter",
+      "Return first success",
+      "Return first success",
+      "All completed tasks failed",
+      "Builder pattern for creating compositions"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CompositionError: Error during tool composition.",
+      "ExecutionMode: How to execute composed tools.",
+      "ToolResult: Result from a composed tool execution.\n\nAttributes:\n    value: The result value.",
+      "ToolStep: Abstract base for a step in a tool composition.",
+      "FunctionStep: A step that executes a function.\n\nExample:\n    >>> step = FunctionStep(my_functi",
+      "Pipeline: A sequential composition of tool steps.\n\nEach step's output becomes the next ste",
+      "ParallelExecution: Execute multiple steps in parallel.\n\nExample:\n    >>> parallel = ParallelExecuti",
+      "ConditionalStep: Execute different steps based on a condition.\n\nExample:\n    >>> conditional = Co",
+      "FallbackStep: Try multiple steps until one succeeds.\n\nExample:\n    >>> fallback = FallbackStep",
+      "ToolChain: Fluent builder for creating tool compositions.\n\nExample:\n    >>> chain = (ToolCh"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ExecutionMode",
+    "unwrap_or",
+    "parallel",
+    "name",
+    "then",
+    "fail",
+    "execute",
+    "unwrap",
+    "ToolStep",
+    "ToolChain",
+    "ToolResult",
+    "fallback",
+    "ParallelExecution",
+    "ConditionalStep",
+    "Pipeline",
+    "branch",
+    "ok",
+    "CompositionError",
+    "compose",
+    "map",
+    "flat_map",
+    "FunctionStep",
+    "build",
+    "FallbackStep"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "inspect",
+      "abc",
+      "dataclasses",
+      "enum",
+      "typing",
+      "concurrent.futures"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "compose",
+      "line": 635,
+      "doc": "Convenience function to compose tools.\n\nExample:\n    >>> pipeline = compose(parse, process, format, name=\"my_pipeline\")\n    >>> result = pipeline.execute(data, {})",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Pipeline"
+    },
+    {
+      "name": "ok",
+      "line": 64,
+      "doc": "Create a successful result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "value",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "fail",
+      "line": 69,
+      "doc": "Create a failed result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "error",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "map",
+      "line": 73,
+      "doc": "Transform the result value if successful.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": null
+    },
+    {
+      "name": "flat_map",
+      "line": 85,
+      "doc": "Chain with another operation that returns a ToolResult.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unwrap",
+      "line": 96,
+      "doc": "Get the value or raise if failed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "T"
+    },
+    {
+      "name": "unwrap_or",
+      "line": 102,
+      "doc": "Get the value or return default if failed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "default"
+      ],
+      "returns": "T"
+    },
+    {
+      "name": "execute",
+      "line": 113,
+      "doc": "Execute this step synchronously.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_async",
+      "line": 118,
+      "doc": "Execute this step asynchronously.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 124,
+      "doc": "Name of this step.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 137,
+      "doc": "Initialize function step.\n\nArgs:\n    func: The function to execute.\n    name: Name for this step (defaults to function name).\n    input_mapping: Optional function to transform input to kwargs.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func",
+        "name",
+        "input_mapping"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "execute",
+      "line": 159,
+      "doc": "Execute the function synchronously.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_async",
+      "line": 179,
+      "doc": "Execute the function asynchronously.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_prepare_kwargs",
+      "line": 196,
+      "doc": "Prepare kwargs for function call.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 225,
+      "doc": "Initialize pipeline.\n\nArgs:\n    steps: List of steps to execute in order.\n    name: Name for this pipeline.\n    stop_on_error: Whether to stop if a step fails.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps",
+        "name",
+        "stop_on_error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 243,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "execute",
+      "line": 246,
+      "doc": "Execute all steps sequentially.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_async",
+      "line": 268,
+      "doc": "Execute all steps sequentially (async).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "then",
+      "line": 290,
+      "doc": "Add a step to the pipeline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "step"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 309,
+      "doc": "Initialize parallel execution.\n\nArgs:\n    steps: Steps to execute in parallel.\n    name: Name for this composition.\n    collect_all: If True, wait for all. If False, return first success.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps",
+        "name",
+        "collect_all"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "execute",
+      "line": 330,
+      "doc": "Execute all steps in parallel using threads.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_async",
+      "line": 361,
+      "doc": "Execute all steps in parallel using asyncio.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 418,
+      "doc": "Initialize conditional step.\n\nArgs:\n    condition: Function that returns True or False.\n    if_true: Step to execute if condition is True.\n    if_false: Step to execute if condition is False (optional).\n    name: Name for this step.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "condition",
+        "if_true",
+        "if_false",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 439,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "execute",
+      "line": 442,
+      "doc": "Execute based on condition.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_async",
+      "line": 456,
+      "doc": "Execute based on condition (async).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 485,
+      "doc": "Initialize fallback step.\n\nArgs:\n    steps: Steps to try in order until one succeeds.\n    name: Name for this step.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 500,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "execute",
+      "line": 503,
+      "doc": "Try steps until one succeeds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_async",
+      "line": 517,
+      "doc": "Try steps until one succeeds (async).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 546,
+      "doc": "Initialize tool chain builder.\n\nArgs:\n    name: Name for the resulting composition.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "then",
+      "line": 555,
+      "doc": "Add a sequential step.\n\nArgs:\n    step: ToolStep or callable to add.\n\nReturns:\n    Self for chaining.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "step"
+      ],
+      "returns": null
+    },
+    {
+      "name": "parallel",
+      "line": 569,
+      "doc": "Add parallel execution.\n\nArgs:\n    steps: Steps to run in parallel.\n    collect_all: Whether to wait for all or return first.\n\nReturns:\n    Self for chaining.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps",
+        "collect_all"
+      ],
+      "returns": null
+    },
+    {
+      "name": "branch",
+      "line": 587,
+      "doc": "Add conditional branching.\n\nArgs:\n    condition: Condition function.\n    if_true: Step if condition is True.\n    if_false: Step if condition is False.\n\nReturns:\n    Self for chaining.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "condition",
+        "if_true",
+        "if_false"
+      ],
+      "returns": null
+    },
+    {
+      "name": "fallback",
+      "line": 611,
+      "doc": "Add fallback execution.\n\nArgs:\n    steps: Steps to try until one succeeds.\n\nReturns:\n    Self for chaining.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "steps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "build",
+      "line": 626,
+      "doc": "Build the final pipeline.\n\nReturns:\n    Pipeline ready for execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Pipeline"
+    }
+  ],
+  "classes": [
+    {
+      "name": "CompositionError",
+      "line": 31,
+      "doc": "Error during tool composition.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionMode",
+      "line": 37,
+      "doc": "How to execute composed tools.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolResult",
+      "line": 46,
+      "doc": "Result from a composed tool execution.\n\nAttributes:\n    value: The result value.\n    success: Whether execution succeeded.\n    error: Error if execution failed.\n    tool_name: Name of the tool that produced this result.\n    metadata: Additional execution metadata.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolStep",
+      "line": 109,
+      "doc": "Abstract base for a step in a tool composition.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FunctionStep",
+      "line": 129,
+      "doc": "A step that executes a function.\n\nExample:\n    >>> step = FunctionStep(my_function, name=\"process_data\")\n    >>> result = step.execute(input_data, {})",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Pipeline",
+      "line": 211,
+      "doc": "A sequential composition of tool steps.\n\nEach step's output becomes the next step's input.\n\nExample:\n    >>> pipeline = Pipeline([\n    ...     FunctionStep(parse_input),\n    ...     FunctionStep(process_data),\n    ...     FunctionStep(format_output),\n    ... ], name=\"data_pipeline\")\n    >>> result = pipeline.execute(raw_input, {})",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ParallelExecution",
+      "line": 297,
+      "doc": "Execute multiple steps in parallel.\n\nExample:\n    >>> parallel = ParallelExecution([\n    ...     FunctionStep(fetch_from_api_a),\n    ...     FunctionStep(fetch_from_api_b),\n    ... ], name=\"parallel_fetch\")\n    >>> result = parallel.execute(query, {})\n    >>> results = result.value  # List of results from both",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ConditionalStep",
+      "line": 407,
+      "doc": "Execute different steps based on a condition.\n\nExample:\n    >>> conditional = ConditionalStep(\n    ...     condition=lambda x, ctx: x.get('type') == 'pdf',\n    ...     if_true=FunctionStep(parse_pdf),\n    ...     if_false=FunctionStep(parse_text),\n    ... )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FallbackStep",
+      "line": 474,
+      "doc": "Try multiple steps until one succeeds.\n\nExample:\n    >>> fallback = FallbackStep([\n    ...     FunctionStep(primary_api),\n    ...     FunctionStep(backup_api),\n    ...     FunctionStep(cache_lookup),\n    ... ])",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ToolChain",
+      "line": 533,
+      "doc": "Fluent builder for creating tool compositions.\n\nExample:\n    >>> chain = (ToolChain(name=\"process_document\")\n    ...     .then(parse_input)\n    ...     .then(validate_data)\n    ...     .parallel([extract_text, extract_images])\n    ...     .then(merge_results)\n    ...     .build())\n    >>> result = chain.execute(document, {})",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 102,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

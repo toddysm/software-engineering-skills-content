@@ -1,0 +1,435 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/mcp_adapter.py",
+  "extension": ".py",
+  "size_bytes": 24647,
+  "line_count": 653,
+  "documentation": {
+    "file_docstring": "MCP (Model Context Protocol) Adapter - Agent Control Plane Integration\n\nThis adapter provides governance for MCP-compliant tool and resource servers.\nMCP is Anthropic's open standard for connecting AI agents to external tools,\ndata sources, and services.\n\nThe MCP adapter intercepts MCP protocol messages (tools/call, resources/read, etc.)\nand applies Agent Control Plane governance before allowing execution.\n\nUsage:\n    from agent_control_plane import AgentControlPlane\n    from agent_control_plane.mcp_adapter import MCPAdapter, MCPServer\n    \n    # Setup control plane\n    control_plane = AgentControlPlane()\n    agent_context = control_plane.create_agent(\"my-agent\", permissions)\n    \n    # Create governed MCP server\n    mcp_server = MCPServer(\n        server_name=\"file-server\",\n        transport=\"stdio\",\n        control_plane=control_plane,\n        agent_context=agent_context\n    )\n    \n    # Register tools\n    mcp_server.register_tool(\"read_file\", handle_read_file)\n    mcp_server.register_resource(\"file://\", handle_file_resource)\n    \n    # All MCP calls are now governed!\n    mcp_server.start()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Setup control plane",
+      "Create governed MCP server",
+      "Register tools",
+      "All MCP calls are now governed!",
+      "Mapping from MCP operations to ActionTypes",
+      "Tool operations",
+      "Resource operations",
+      "Specific tool patterns",
+      "Merge default mapping with custom mapping",
+      "Register available tools and resources",
+      "Parse the JSON-RPC message",
+      "Route to appropriate handler based on method",
+      "Unknown method",
+      "Success response",
+      "Governance blocked the action",
+      "Other errors",
+      "Return only tools that the agent has permission to use",
+      "Map to ActionType",
+      "Security: Unknown tools are denied by default",
+      "THE KERNEL CHECK - This is where governance happens",
+      "Action is BLOCKED",
+      "If we have a handler, delegate to it",
+      "Otherwise return the result from the control plane",
+      "Return only resources the agent can access",
+      "Determine appropriate action type for this resource",
+      "Check permission for this resource",
+      "Determine action type based on URI scheme",
+      "Check permission",
+      "If we have a handler, delegate to it",
+      "Otherwise return a placeholder",
+      "Prompts are generally safe to list",
+      "Prompts are generally safe to retrieve",
+      "Check exact match",
+      "Pattern matching",
+      "Security: Return None for unknown tools (deny by default)",
+      "Create the adapter"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPMessageType: MCP protocol message types.\n\nEnumerates the JSON-RPC methods defined by the Mode",
+      "MCPAdapter: MCP Protocol Adapter with Agent Control Plane Governance.\n\nIntercepts MCP protoc",
+      "MCPServer: Simplified MCP Server with built-in governance.\n\nProvides a high-level API for c",
+      "create_governed_mcp_server: Convenience function to create a governed MCP server.\n\nArgs:\n    control_plane: ",
+      "__init__: Initialize the MCP adapter.\n\nArgs:\n    control_plane: The AgentControlPlane inst",
+      "handle_message: Handle an MCP protocol message with governance.\n\nThis is the main entry point fo",
+      "_handle_tools_list: Handle tools/list - return list of available tools.",
+      "_handle_tools_call: Handle tools/call \u2014 execute a tool with governance.\n\nMaps the tool name to an ``",
+      "_handle_resources_list: Handle resources/list - return list of available resources.",
+      "_handle_resources_read: Handle resources/read \u2014 read a resource with governance.\n\nDetermines the ``Actio"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "start",
+    "handle_request",
+    "MCPMessageType",
+    "register_tool",
+    "register_resource",
+    "handle_message",
+    "MCPAdapter",
+    "create_governed_mcp_server",
+    "add_tool_mapping",
+    "MCPServer"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "json",
+      "logging",
+      "datetime",
+      "enum",
+      "agent_kernel",
+      "control_plane"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_governed_mcp_server",
+      "line": 626,
+      "doc": "Convenience function to create a governed MCP server.\n\nArgs:\n    control_plane: Agent Control Plane instance\n    agent_id: Agent ID\n    server_name: Name for the MCP server\n    permissions: Optional agent permissions\n    transport: Transport method (\"stdio\" or \"sse\")\n    \nReturns:\n    A governed MCPServer instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id",
+        "server_name",
+        "permissions",
+        "transport"
+      ],
+      "returns": "MCPServer"
+    },
+    {
+      "name": "__init__",
+      "line": 153,
+      "doc": "Initialize the MCP adapter.\n\nArgs:\n    control_plane: The AgentControlPlane instance for governance\n    agent_context: The AgentContext for the agent using this adapter\n    mcp_handler: Optional MCP message handler to wrap\n    tool_mapping: Optional custom mapping from tool names to ActionTypes\n    on_block: Optional callback when an action is blocked\n    logger: Optional logger instance",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "control_plane",
+        "agent_context",
+        "mcp_handler",
+        "tool_mapping",
+        "on_block",
+        "logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_message",
+      "line": 192,
+      "doc": "Handle an MCP protocol message with governance.\n\nThis is the main entry point for MCP messages. It parses the\nJSON-RPC message, applies governance checks via the control plane,\nand returns the result.\n\nArgs:\n    message: MCP JSON-RPC 2.0 message containing ``jsonrpc``,\n        ``method``, ``params``, and ``id`` fields.\n\nReturns:\n    A JSON-RPC 2.0 response dict. On success, contains a\n    ``\"result\"`` key. On failure (governance block or error),\n    contains an ``\"error\"`` key with ``\"code\"`` and ``\"message\"``.\n\nRaises:\n    PermissionError: Internally raised when governance blocks an\n        action; caught and converted to a JSON-RPC error response.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_tools_list",
+      "line": 255,
+      "doc": "Handle tools/list - return list of available tools.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_tools_call",
+      "line": 267,
+      "doc": "Handle tools/call \u2014 execute a tool with governance.\n\nMaps the tool name to an ``ActionType``, checks permissions via\nthe control plane, and either delegates to the registered handler\nor returns the control plane result.\n\nArgs:\n    params: JSON-RPC params containing ``\"name\"`` and ``\"arguments\"``.\n\nReturns:\n    Tool execution result dict with MCP ``content`` format.\n\nRaises:\n    PermissionError: If the tool is unknown or governance denies\n        the action.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_resources_list",
+      "line": 328,
+      "doc": "Handle resources/list - return list of available resources.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_resources_read",
+      "line": 343,
+      "doc": "Handle resources/read \u2014 read a resource with governance.\n\nDetermines the ``ActionType`` from the URI scheme and checks\npermissions before returning resource contents.\n\nArgs:\n    params: JSON-RPC params containing ``\"uri\"``.\n\nReturns:\n    Resource contents dict with MCP ``contents`` format.\n\nRaises:\n    PermissionError: If governance denies the resource read.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_prompts_list",
+      "line": 396,
+      "doc": "Handle prompts/list - list available prompts.\n\nTODO: Implement actual prompt management when needed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_prompts_get",
+      "line": 405,
+      "doc": "Handle prompts/get - get a specific prompt.\n\nTODO: Implement actual prompt retrieval when needed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "params"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_map_tool_to_action",
+      "line": 418,
+      "doc": "Map an MCP tool name to an ``ActionType``.\n\nResolution order:\n1. Exact match in ``self.tool_mapping`` (case-insensitive).\n2. Pattern-based heuristics (e.g. names containing ``\"read\"``\n   and ``\"file\"`` map to ``FILE_READ``).\n3. Returns ``None`` for unrecognized tools (deny-by-default).\n\nArgs:\n    tool_name: The MCP tool name to resolve.\n\nReturns:\n    The corresponding ``ActionType``, or ``None`` if the tool\n    cannot be mapped (triggering a denial).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_map_resource_to_action",
+      "line": 463,
+      "doc": "Map a resource URI to an ActionType.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri"
+      ],
+      "returns": "ActionType"
+    },
+    {
+      "name": "_check_permission",
+      "line": 474,
+      "doc": "Check if the agent has permission for an action.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type",
+        "parameters"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_create_error_response",
+      "line": 483,
+      "doc": "Create a JSON-RPC error response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "msg_id",
+        "code",
+        "message"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "register_tool",
+      "line": 494,
+      "doc": "Register an MCP tool.\n\nArgs:\n    tool_name: Name of the tool\n    tool_info: Tool metadata (description, input schema, etc.)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "tool_info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_resource",
+      "line": 505,
+      "doc": "Register an MCP resource.\n\nArgs:\n    uri_pattern: URI pattern (e.g., \"file://\", \"db://\")\n    resource_info: Resource metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri_pattern",
+        "resource_info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_tool_mapping",
+      "line": 516,
+      "doc": "Add a custom tool to ActionType mapping.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 555,
+      "doc": "Initialize an MCP server.\n\nArgs:\n    server_name: Name of the MCP server\n    control_plane: Agent Control Plane instance\n    agent_context: Agent context\n    transport: Transport method (\"stdio\" or \"sse\")\n    logger: Optional logger",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_name",
+        "control_plane",
+        "agent_context",
+        "transport",
+        "logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_tool",
+      "line": 586,
+      "doc": "Register a tool with the server.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "handler",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_resource",
+      "line": 598,
+      "doc": "Register a resource with the server.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri_pattern",
+        "handler",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_request",
+      "line": 608,
+      "doc": "Handle an MCP request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "start",
+      "line": 612,
+      "doc": "Start the MCP server (placeholder for actual implementation).\n\nNote: This is a simplified server implementation. For production use,\nyou would need to implement:\n- Actual transport handling (stdio, SSE, HTTP)\n- Request/response queuing\n- Connection management\n- Error recovery",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPMessageType",
+      "line": 47,
+      "doc": "MCP protocol message types.\n\nEnumerates the JSON-RPC methods defined by the Model Context Protocol\nspecification. Each value corresponds to a method string sent in the\n``\"method\"`` field of an MCP JSON-RPC 2.0 request.\n\nAttributes:\n    TOOLS_LIST: List available tools on the server.\n    TOOLS_CALL: Invoke a registered tool by name.\n    RESOURCES_LIST: List available resources (files, databases, etc.).\n    RESOURCES_READ: Read the contents of a specific resource URI.\n    PROMPTS_LIST: List available prompt templates.\n    PROMPTS_GET: Retrieve a specific prompt template by name.\n    COMPLETION: Request a completion (reserved for future use).\n\nExample:\n    >>> msg_type = MCPMessageType.TOOLS_CALL\n    >>> msg_type.value\n    'tools/call'",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPAdapter",
+      "line": 96,
+      "doc": "MCP Protocol Adapter with Agent Control Plane Governance.\n\nIntercepts MCP protocol messages and applies governance rules before\nforwarding to the actual MCP server or client. MCP uses JSON-RPC 2.0\nfor communication, with specific methods like:\n\n- ``tools/list``: List available tools\n- ``tools/call``: Execute a tool\n- ``resources/list``: List available resources\n- ``resources/read``: Read a resource\n\nThe adapter ensures all operations respect agent permissions and\npolicies defined in the control plane. Unknown tools are denied by\ndefault (secure-by-default).\n\nArgs:\n    control_plane: The ``AgentControlPlane`` instance for governance.\n    agent_context: The ``AgentContext`` for the agent using this adapter.\n    mcp_handler: Optional upstream MCP message handler to delegate to\n        after governance checks pass.\n    tool_mapping: Optional custom mapping from tool names to\n        ``ActionType`` values. Merged with ``DEFAULT_MCP_MAPPING``.\n    on_block: Optional callback invoked when an action is blocked.\n        Receives ``(tool_name, arguments, check_result)``.\n    logger: Optional logger instance.\n\nAttributes:\n    registered_tools: Dictionary of tool name to tool metadata.\n    registered_resources: Dictionary of URI pattern to resource metadata.\n    tool_mapping: Combined mapping of tool/operation names to\n        ``ActionType`` values used for governance decisions.\n\nExample:\n    >>> from agent_control_plane import AgentControlPlane\n    >>> from agent_control_plane.mcp_adapter import MCPAdapter\n    >>>\n    >>> cp = AgentControlPlane()\n    >>> ctx = cp.create_agent(\"my-agent\")\n    >>> adapter = MCPAdapter(control_plane=cp, agent_context=ctx)\n    >>>\n    >>> # Register a tool\n    >>> adapter.register_tool(\"read_file\", {\n    ...     \"name\": \"read_file\",\n    ...     \"description\": \"Read a file from disk\",\n    ...     \"inputSchema\": {\"type\": \"object\", \"properties\": {\"path\": {\"type\": \"string\"}}}\n    ... })\n    >>>\n    >>> # Handle an MCP request \u2014 governance is applied automatically\n    >>> response = adapter.handle_message({\n    ...     \"jsonrpc\": \"2.0\",\n    ...     \"id\": 1,\n    ...     \"method\": \"tools/call\",\n    ...     \"params\": {\"name\": \"read_file\", \"arguments\": {\"path\": \"/tmp/data.txt\"}}\n    ... })",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MCPServer",
+      "line": 522,
+      "doc": "Simplified MCP Server with built-in governance.\n\nProvides a high-level API for creating an MCP-compliant server with\nAgent Control Plane governance built in. Wraps an ``MCPAdapter``\ninternally and exposes convenience methods for tool and resource\nregistration.\n\nArgs:\n    server_name: Human-readable name for this MCP server.\n    control_plane: ``AgentControlPlane`` instance for governance.\n    agent_context: ``AgentContext`` representing the server's agent.\n    transport: Transport method \u2014 ``\"stdio\"`` (default) or ``\"sse\"``.\n    logger: Optional logger instance.\n\nAttributes:\n    adapter: The underlying ``MCPAdapter`` that handles governance.\n    server_name: Name of this server.\n    transport: Active transport method.\n\nExample:\n    >>> from agent_control_plane import AgentControlPlane\n    >>> from agent_control_plane.mcp_adapter import MCPServer\n    >>>\n    >>> cp = AgentControlPlane()\n    >>> ctx = cp.create_agent(\"file-agent\")\n    >>> server = MCPServer(\"file-server\", cp, ctx, transport=\"stdio\")\n    >>>\n    >>> server.register_tool(\"read_file\", handle_read, \"Read a file\")\n    >>> server.register_resource(\"file://\", handle_resource, \"File resources\")\n    >>> server.start()  # All calls are now governed",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 79,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

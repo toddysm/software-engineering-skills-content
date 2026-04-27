@@ -1,0 +1,158 @@
+{
+  "path": "packages/agent-os/src/agent_os/supervisor.py",
+  "extension": ".py",
+  "size_bytes": 5256,
+  "line_count": 148,
+  "documentation": {
+    "file_docstring": "Supervisor Hierarchy \u2014 Enforces layered supervision with a deterministic trust root.\n\nLevel 0 (root) MUST be a deterministic (non-LLM) trust root.\nMiddle levels (1\u2013N) may be agent-based supervisors.\nEscalation always terminates at the trust root.\n\nExample:\n    >>> from agent_os.trust_root import TrustRoot\n    >>> from agent_os.supervisor import SupervisorHierarchy\n    >>> from agent_os.integrations.base import GovernancePolicy\n    >>>\n    >>> root = TrustRoot(policies=[GovernancePolicy()])\n    >>> hierarchy = SupervisorHierarchy(trust_root=root)\n    >>> hierarchy.register_supervisor(\"trust-root\", level=0, is_agent=False)\n    >>> hierarchy.register_supervisor(\"safety-agent\", level=1, is_agent=True)\n    >>> hierarchy.validate_hierarchy()\n    []",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "------------------------------------------------------------------",
+      "Registration",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Validation",
+      "------------------------------------------------------------------",
+      "Ensure no gaps in levels (every level between 0 and max has a supervisor)",
+      "------------------------------------------------------------------",
+      "Authority chain & escalation",
+      "------------------------------------------------------------------",
+      "Final decision always comes from the deterministic trust root"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_Supervisor: Internal record for a registered supervisor.",
+      "SupervisorHierarchy: Manages the layered supervisor chain with a deterministic trust root.\n\nArgs:\n   ",
+      "register_supervisor: Register a supervisor at a given level.\n\nArgs:\n    name: Unique supervisor name.",
+      "validate_hierarchy: Check hierarchy rules and return a list of violations (empty = valid).\n\nRules:\n-",
+      "get_authority_chain: Return the ordered chain of supervisor names that would evaluate *action*.\n\nThe ",
+      "escalate: Escalate *action* up the hierarchy starting above *from_level*.\n\nEach level is c"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "validate_hierarchy",
+    "get_authority_chain",
+    "SupervisorHierarchy",
+    "register_supervisor",
+    "escalate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "typing",
+      "agent_os.trust_root"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trust_root"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_supervisor",
+      "line": 55,
+      "doc": "Register a supervisor at a given level.\n\nArgs:\n    name: Unique supervisor name.\n    level: Hierarchy level (0 = root, higher = closer to workers).\n    is_agent: Whether this supervisor is an LLM-based agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "level",
+        "is_agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_hierarchy",
+      "line": 74,
+      "doc": "Check hierarchy rules and return a list of violations (empty = valid).\n\nRules:\n- Level 0 MUST exist and MUST be deterministic (not an LLM agent).\n- Middle levels (1\u2013N) may be agent-based.\n- Each level present must have at least one supervisor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_authority_chain",
+      "line": 107,
+      "doc": "Return the ordered chain of supervisor names that would evaluate *action*.\n\nThe chain goes from the lowest (closest to workers) up to the trust root.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "escalate",
+      "line": 115,
+      "doc": "Escalate *action* up the hierarchy starting above *from_level*.\n\nEach level is consulted in descending order.  If the action reaches\nlevel 0 the trust root makes the **final, non-overridable** decision.\n\nArgs:\n    action: Dict with ``tool`` and ``arguments``.\n    from_level: The level that initiated escalation.\n\nReturns:\n    TrustDecision from the trust root (always deterministic).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "from_level"
+      ],
+      "returns": "TrustDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "_Supervisor",
+      "line": 32,
+      "doc": "Internal record for a registered supervisor.",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SupervisorHierarchy",
+      "line": 40,
+      "doc": "Manages the layered supervisor chain with a deterministic trust root.\n\nArgs:\n    trust_root: The deterministic TrustRoot that serves as level-0 authority.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 18,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "auth"
+    ]
+  }
+}

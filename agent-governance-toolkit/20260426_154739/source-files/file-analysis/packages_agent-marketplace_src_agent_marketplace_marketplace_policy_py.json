@@ -1,0 +1,198 @@
+{
+  "path": "packages/agent-marketplace/src/agent_marketplace/marketplace_policy.py",
+  "extension": ".py",
+  "size_bytes": 9948,
+  "line_count": 267,
+  "documentation": {
+    "file_docstring": "Marketplace Policy Enforcement\n\nDefines marketplace-level policies for MCP server allowlist/blocklist\nenforcement, plugin type restrictions, and signature requirements.\nOperators can declare which MCP servers are permitted for plugins.\nSupports organization-scoped policy overrides (Issues #733, #737).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Policy models",
+      "---------------------------------------------------------------------------",
+      "Merge allowed plugin types: base + org additions",
+      "Merge MCP server policy if org has overrides",
+      "Merge: org inherits base restrictions, can add more allowed servers",
+      "Org cannot un-block servers blocked at enterprise level",
+      "Org can only allow servers already in the enterprise allowlist",
+      "---------------------------------------------------------------------------",
+      "Policy loading",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Compliance evaluation",
+      "---------------------------------------------------------------------------",
+      "-- Signature requirement ------------------------------------------------",
+      "-- Plugin type restriction ----------------------------------------------",
+      "-- MCP server policy (org-aware) ----------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPServerPolicy: Controls which MCP servers plugins are allowed to use.",
+      "OrgMarketplacePolicy: Organization-scoped marketplace policy that inherits from enterprise base.",
+      "MarketplacePolicy: Top-level marketplace policy controlling plugin admission.",
+      "ComplianceResult: Result of evaluating a plugin against a marketplace policy.",
+      "load_marketplace_policy: Load a marketplace policy from a YAML file.\n\nArgs:\n    path: Path to the policy ",
+      "evaluate_plugin_compliance: Check whether a plugin manifest complies with a marketplace policy.\n\nArgs:\n    m",
+      "get_effective_policy: Resolve effective policy for an organization (base + org overrides).\n\nWhen *orga",
+      "get_effective_mcp_policy: Get effective MCP server policy for an organization.\n\nOrg policies inherit from "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MarketplacePolicy",
+    "load_marketplace_policy",
+    "get_effective_mcp_policy",
+    "OrgMarketplacePolicy",
+    "ComplianceResult",
+    "MCPServerPolicy",
+    "get_effective_policy",
+    "evaluate_plugin_compliance",
+    "validate_mode"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "pathlib",
+      "typing",
+      "yaml",
+      "pydantic",
+      "agent_marketplace.exceptions",
+      "agent_marketplace.manifest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_marketplace_policy",
+      "line": 172,
+      "doc": "Load a marketplace policy from a YAML file.\n\nArgs:\n    path: Path to the policy YAML file.\n\nReturns:\n    Parsed MarketplacePolicy.\n\nRaises:\n    MarketplaceError: If the file is missing or invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "MarketplacePolicy"
+    },
+    {
+      "name": "evaluate_plugin_compliance",
+      "line": 203,
+      "doc": "Check whether a plugin manifest complies with a marketplace policy.\n\nArgs:\n    manifest: The plugin manifest to evaluate.\n    policy: The marketplace policy to enforce.\n    mcp_servers: Optional list of MCP server names declared by the plugin.\n        When ``None``, MCP declaration checks that require a server list\n        will flag a violation if ``require_declaration`` is enabled.\n    organization: Optional organization name.  When provided the\n        effective MCP policy is resolved via\n        :meth:`MarketplacePolicy.get_effective_mcp_policy`.\n\nReturns:\n    A :class:`ComplianceResult` indicating compliance status and any\n    violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "manifest",
+        "policy",
+        "mcp_servers",
+        "organization"
+      ],
+      "returns": "ComplianceResult"
+    },
+    {
+      "name": "validate_mode",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_effective_policy",
+      "line": 97,
+      "doc": "Resolve effective policy for an organization (base + org overrides).\n\nWhen *organization* is ``None`` or the org has no overrides, the base\nenterprise policy is returned unchanged.  Otherwise the base policy is\nmerged with the org-specific additions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "organization"
+      ],
+      "returns": "MarketplacePolicy"
+    },
+    {
+      "name": "get_effective_mcp_policy",
+      "line": 123,
+      "doc": "Get effective MCP server policy for an organization.\n\nOrg policies inherit from the base (enterprise) MCP policy.\nOrg can add to allowlist but cannot remove base restrictions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "organization"
+      ],
+      "returns": "MCPServerPolicy"
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPServerPolicy",
+      "line": 33,
+      "doc": "Controls which MCP servers plugins are allowed to use.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OrgMarketplacePolicy",
+      "line": 64,
+      "doc": "Organization-scoped marketplace policy that inherits from enterprise base.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MarketplacePolicy",
+      "line": 73,
+      "doc": "Top-level marketplace policy controlling plugin admission.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ComplianceResult",
+      "line": 157,
+      "doc": "Result of evaluating a plugin against a marketplace policy.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 34,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

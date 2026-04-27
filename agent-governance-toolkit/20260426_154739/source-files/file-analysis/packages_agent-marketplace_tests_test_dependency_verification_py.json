@@ -1,0 +1,242 @@
+{
+  "path": "packages/agent-marketplace/tests/test_dependency_verification.py",
+  "extension": ".py",
+  "size_bytes": 8093,
+  "line_count": 219,
+  "documentation": {
+    "file_docstring": "Regression tests for MSRC [112466] \u2014 dependency verification bypass.\n\nVerifies that the ``verify`` flag is correctly propagated through\n``_resolve_dependencies``, preventing unsigned dependencies from being\ninstalled when the caller requests ``verify=True``.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "MSRC PoC \u2014 unsigned dependency must be rejected when verify=True",
+      "---------------------------------------------------------------------------",
+      "Register a signed parent that depends on an unsigned child",
+      "Installing with verify=True must reject the unsigned dependency",
+      "The unsigned dependency must NOT be on disk",
+      "verify=False should allow unsigned deps",
+      "Chain: parent \u2192 child \u2192 grandchild (all signed)",
+      "Trace the verify flag at each install call",
+      "Every install call must have verify=True",
+      "Create a second signer (untrusted) for the dependency"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_registry_and_keys: Create a registry, signer, and trusted-keys dict for testing.",
+      "_signed_manifest: Create and sign a plugin manifest.",
+      "_unsigned_manifest: Create an unsigned plugin manifest.",
+      "TestDependencyVerificationPropagation: Reproduce the MSRC [112466] PoC and verify the fix.",
+      "TestFailClosedVerification: Verify install() fails closed when verify=True.",
+      "test_unsigned_dependency_rejected_when_verify_true: verify=True on parent must propagate to dependencies.",
+      "test_unsigned_dependency_allowed_when_verify_false: verify=False explicitly skips verification for all deps.",
+      "test_verify_flag_trace_through_dependency_chain: Trace that verify= is passed correctly at every level.",
+      "test_untrusted_author_dependency_rejected: Dependency signed by untrusted author is rejected with verify=True.",
+      "test_unsigned_plugin_rejected: A plugin with no signature is rejected when verify=True."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "traced_install",
+    "test_unsigned_dependency_allowed_when_verify_false",
+    "test_unsigned_dependency_rejected_when_verify_true",
+    "TestFailClosedVerification",
+    "test_unsigned_plugin_rejected",
+    "test_untrusted_author_dependency_rejected",
+    "test_verify_flag_trace_through_dependency_chain",
+    "TestDependencyVerificationPropagation",
+    "test_unknown_author_rejected"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "functools",
+      "pathlib",
+      "pytest",
+      "cryptography.hazmat.primitives.asymmetric",
+      "agent_marketplace.installer",
+      "agent_marketplace.manifest",
+      "agent_marketplace.registry",
+      "agent_marketplace.signing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_registry_and_keys",
+      "line": 28,
+      "doc": "Create a registry, signer, and trusted-keys dict for testing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_signed_manifest",
+      "line": 37,
+      "doc": "Create and sign a plugin manifest.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "signer",
+        "name",
+        "author",
+        "deps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_unsigned_manifest",
+      "line": 50,
+      "doc": "Create an unsigned plugin manifest.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "author",
+        "deps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unsigned_dependency_rejected_when_verify_true",
+      "line": 70,
+      "doc": "verify=True on parent must propagate to dependencies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unsigned_dependency_allowed_when_verify_false",
+      "line": 92,
+      "doc": "verify=False explicitly skips verification for all deps.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_flag_trace_through_dependency_chain",
+      "line": 110,
+      "doc": "Trace that verify= is passed correctly at every level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_untrusted_author_dependency_rejected",
+      "line": 152,
+      "doc": "Dependency signed by untrusted author is rejected with verify=True.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unsigned_plugin_rejected",
+      "line": 186,
+      "doc": "A plugin with no signature is rejected when verify=True.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_author_rejected",
+      "line": 198,
+      "doc": "A plugin signed by unknown author is rejected when verify=True.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "traced_install",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestDependencyVerificationPropagation",
+      "line": 67,
+      "doc": "Reproduce the MSRC [112466] PoC and verify the fix.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFailClosedVerification",
+      "line": 183,
+      "doc": "Verify install() fails closed when verify=True.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 6,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

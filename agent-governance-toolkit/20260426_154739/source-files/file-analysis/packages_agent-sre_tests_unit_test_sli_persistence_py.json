@@ -1,0 +1,572 @@
+{
+  "path": "packages/agent-sre/tests/unit/test_sli_persistence.py",
+  "extension": ".py",
+  "size_bytes": 12237,
+  "line_count": 313,
+  "documentation": {
+    "file_docstring": "Tests for SLI persistence backends and CalibrationDeltaSLI.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "InMemoryMeasurementStore",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SQLiteMeasurementStore",
+      "---------------------------------------------------------------------------",
+      "Construct a path under home that looks like a file:// URI",
+      "---------------------------------------------------------------------------",
+      "SLI integration: SQLite store survives \"restart\" (re-open)",
+      "---------------------------------------------------------------------------",
+      "Simulate restart: new SLI instance, same db file",
+      "---------------------------------------------------------------------------",
+      "CalibrationDeltaSLI",
+      "---------------------------------------------------------------------------",
+      "10 predictions at 0.8 confidence, 8 succeed \u2192 aggregate delta \u2248 0",
+      "Predict 0.9 but only 50% succeed \u2192 aggregate delta \u2248 0.4",
+      "Single prediction: 0.8 predicted, fails \u2192 delta = |0.8 - 0| = 0.8 \u2192 NOT compliant",
+      "0.8 > 0.10 target \u2192 0% compliant",
+      "10 predictions at 0.9, 9 succeed \u2192 aggregate delta converges to 0 \u2192 all compliant",
+      "Final aggregate delta \u2248 0 \u2192 all window measurements should be compliant",
+      "No predictions yet \u2192 collect() should return 0.0"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "test_thread_safety_concurrent_appends: Concurrent appends must not corrupt internal state.",
+      "test_file_uri_etc_passwd_raises: file:///etc/passwd should be rejected as outside safe directories.",
+      "test_file_uri_inside_home_accepted: file:// URI resolving inside home dir should be accepted.",
+      "test_remote_file_uri_raises: file://hostname/path (remote) should be rejected.",
+      "test_path_outside_safe_dirs_raises: /var/log/syslog is outside home/tmp/cwd \u2014 should be rejected.",
+      "test_excessively_long_path_raises: Paths > 4096 chars should be rejected.",
+      "test_thread_safety_in_memory_store: Concurrent appends to SQLiteMeasurementStore(:memory:) must not race."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_clear_by_name",
+    "test_remote_file_uri_raises",
+    "test_query_filters_by_name",
+    "test_append_and_query",
+    "test_file_uri_inside_home_accepted",
+    "test_thread_safety_concurrent_appends",
+    "test_file_uri_etc_passwd_raises",
+    "test_sqlite_backend_works",
+    "test_compliance_counts_at_or_below_target",
+    "test_ftp_uri_scheme_raises",
+    "store",
+    "test_thread_safety_in_memory_store",
+    "test_collect_returns_current_delta",
+    "TestCalibrationDeltaSLI",
+    "test_overconfident_calibration",
+    "TestSQLiteMeasurementStore",
+    "test_path_outside_safe_dirs_raises",
+    "test_invalid_uri_scheme_raises",
+    "test_metadata_roundtrip",
+    "worker",
+    "test_memory_path_accepted",
+    "TestSLIWithSQLiteStore",
+    "test_query_since_filters_old_measurements",
+    "test_perfect_calibration",
+    "test_compliance_well_calibrated_series",
+    "test_default_store_is_in_memory",
+    "test_query_respects_since_cutoff",
+    "test_excessively_long_path_raises",
+    "test_query_by_name_isolation",
+    "TestInMemoryMeasurementStore",
+    "test_clear_all",
+    "test_measurements_survive_sli_recreation",
+    "test_results_in_ascending_order",
+    "test_sqlite_store_accepted"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "threading",
+      "pytest",
+      "agent_sre.slo.indicators",
+      "agent_sre.slo.persistence",
+      "pathlib",
+      "threading"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_append_and_query",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_query_respects_since_cutoff",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_query_filters_by_name",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_by_name",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_all",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thread_safety_concurrent_appends",
+      "line": 75,
+      "doc": "Concurrent appends must not corrupt internal state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "store",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SQLiteMeasurementStore"
+    },
+    {
+      "name": "test_append_and_query",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_query_since_filters_old_measurements",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_query_by_name_isolation",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_by_name",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_all",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_metadata_roundtrip",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_results_in_ascending_order",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_uri_scheme_raises",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ftp_uri_scheme_raises",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_path_accepted",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_uri_etc_passwd_raises",
+      "line": 173,
+      "doc": "file:///etc/passwd should be rejected as outside safe directories.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_uri_inside_home_accepted",
+      "line": 178,
+      "doc": "file:// URI resolving inside home dir should be accepted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_remote_file_uri_raises",
+      "line": 187,
+      "doc": "file://hostname/path (remote) should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_path_outside_safe_dirs_raises",
+      "line": 192,
+      "doc": "/var/log/syslog is outside home/tmp/cwd \u2014 should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_excessively_long_path_raises",
+      "line": 197,
+      "doc": "Paths > 4096 chars should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thread_safety_in_memory_store",
+      "line": 203,
+      "doc": "Concurrent appends to SQLiteMeasurementStore(:memory:) must not race.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_measurements_survive_sli_recreation",
+      "line": 233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_store_is_in_memory",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sqlite_store_accepted",
+      "line": 251,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_perfect_calibration",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_overconfident_calibration",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compliance_counts_at_or_below_target",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compliance_well_calibrated_series",
+      "line": 290,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_collect_returns_current_delta",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sqlite_backend_works",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "worker",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "idx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "worker",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestInMemoryMeasurementStore",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSQLiteMeasurementStore",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSLIWithSQLiteStore",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCalibrationDeltaSLI",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

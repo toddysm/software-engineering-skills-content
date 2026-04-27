@@ -1,0 +1,600 @@
+{
+  "path": "packages/agent-os/examples/customer-service/main.py",
+  "extension": ".py",
+  "size_bytes": 27977,
+  "line_count": 812,
+  "documentation": {
+    "file_docstring": "Customer Support Auto-Responder Agent\n=====================================\n\nProduction-grade AI-powered customer support with Agent OS governance.\n\nFeatures:\n- Multi-model response verification (CMVK)\n- RAG-based knowledge retrieval (90% lookup, 10% reasoning)\n- Automatic ticket classification\n- Policy enforcement (no false promises, discount limits)\n- Human escalation for sensitive topics\n- CSAT tracking and quality metrics\n\nBenchmarkable: \"Resolved 2,400 tickets, 4.7/5 satisfaction\"",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================",
+      "CONFIGURATION",
+      "============================================================",
+      "Policy Rules",
+      "Classification keywords",
+      "============================================================",
+      "DATA MODELS",
+      "============================================================",
+      "============================================================",
+      "KNOWLEDGE BASE (RAG)",
+      "============================================================",
+      "Score articles by keyword matches",
+      "Sort by score and return top_k",
+      "Use best match",
+      "============================================================",
+      "POLICY ENFORCEMENT",
+      "============================================================",
+      "Check for PII leakage",
+      "Check for promises (forbidden words)",
+      "Check for unauthorized discounts",
+      "Check response length",
+      "Check for competitor mentions",
+      "Check escalation triggers",
+      "Check auto-escalate keywords",
+      "============================================================",
+      "VERIFICATION (CMVK)",
+      "============================================================",
+      "Simulate model verification",
+      "In production: await self.call_model(model, query, response)",
+      "Simulated: high agreement for KB-sourced responses",
+      "============================================================",
+      "TICKET CLASSIFIER",
+      "============================================================",
+      "Determine category",
+      "Determine priority",
+      "Urgent indicators",
+      "High priority indicators",
+      "Low priority indicators",
+      "Complaints are always high",
+      "============================================================",
+      "METRICS & MONITORING",
+      "============================================================",
+      "============================================================",
+      "MAIN AGENT",
+      "============================================================",
+      "Initialize components",
+      "Ticket storage",
+      "Store ticket",
+      "Step 1: Classify",
+      "Step 2: Check escalation",
+      "Step 3: Search knowledge base",
+      "Step 4: Policy check",
+      "Step 5: Verification",
+      "Step 6: Determine if human review needed",
+      "Update metrics",
+      "Final output",
+      "Add greeting based on time",
+      "Redact PII",
+      "Remove promises",
+      "Truncate if too long",
+      "============================================================",
+      "DEMO",
+      "============================================================",
+      "Demo tickets"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Customer: Customer profile.",
+      "Ticket: Support ticket.",
+      "KnowledgeArticle: Knowledge base article.",
+      "Response: Agent response to a ticket.",
+      "KnowledgeBase: Vector-based knowledge retrieval.\n90% of responses should come from KB (lookup).",
+      "PolicyEngine: Enforce support policies on responses.",
+      "CrossModelVerifier: Verify responses across multiple models.\nHigh consensus = high confidence.",
+      "TicketClassifier: Classify tickets by category and priority.",
+      "SupportMetrics: Track support metrics for quality monitoring.",
+      "CustomerSupportAgent: Production customer support auto-responder.\n\nPipeline:\n1. Classify ticket\n2. Che"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "service path",
+      "main/entry-point function detected",
+      "special file: main.py"
+    ]
+  },
+  "exports": [
+    "SupportMetrics",
+    "search",
+    "needs_escalation",
+    "record_csat",
+    "PolicyEngine",
+    "Customer",
+    "redact_pii",
+    "add_article",
+    "get_answer",
+    "record_ticket",
+    "CrossModelVerifier",
+    "get_metrics",
+    "TicketStatus",
+    "KnowledgeBase",
+    "Priority",
+    "Response",
+    "KnowledgeArticle",
+    "TicketClassifier",
+    "TicketCategory",
+    "CustomerSupportAgent",
+    "get_summary",
+    "check_response",
+    "classify",
+    "record_violation",
+    "Ticket"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "hashlib",
+      "json",
+      "re",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "collections"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "demo",
+      "line": 743,
+      "doc": "Demonstrate the customer support agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_sample_kb",
+      "line": 214,
+      "doc": "Load sample knowledge base articles.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_article",
+      "line": 288,
+      "doc": "Add article to knowledge base.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "article"
+      ],
+      "returns": null
+    },
+    {
+      "name": "search",
+      "line": 294,
+      "doc": "Search knowledge base for relevant articles.\nIn production, this would use vector similarity (Pinecone/ChromaDB).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "top_k"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_answer",
+      "line": 312,
+      "doc": "Get answer from knowledge base.\nReturns: (answer, source_ids, confidence)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 336,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_response",
+      "line": 340,
+      "doc": "Check response against policy rules.\nReturns: (is_valid, list_of_violations)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "needs_escalation",
+      "line": 380,
+      "doc": "Check if message requires human escalation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "redact_pii",
+      "line": 396,
+      "doc": "Redact PII from text.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 414,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_response",
+      "line": 417,
+      "doc": "Verify response consistency across models.\nReturns: (agreement_score, model_opinions)\n\nIn production, this calls actual model APIs.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "classify",
+      "line": 451,
+      "doc": "Classify ticket category and priority.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "subject",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 497,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_ticket",
+      "line": 506,
+      "doc": "Record ticket handling metrics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ticket",
+        "response_time",
+        "resolved",
+        "escalated"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_csat",
+      "line": 517,
+      "doc": "Record customer satisfaction score (1-5).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_violation",
+      "line": 521,
+      "doc": "Record policy violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ticket_id",
+        "violations"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_summary",
+      "line": 529,
+      "doc": "Get metrics summary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 561,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "role"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_ticket",
+      "line": 581,
+      "doc": "Handle a support ticket end-to-end.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "ticket"
+      ],
+      "returns": "Response"
+    },
+    {
+      "name": "_format_kb_response",
+      "line": 681,
+      "doc": "Format KB answer into customer-friendly response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kb_answer",
+        "ticket"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_generate_fallback_response",
+      "line": 701,
+      "doc": "Generate response when KB doesn't have good match.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ticket"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_sanitize_response",
+      "line": 714,
+      "doc": "Sanitize response to fix policy violations.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response",
+        "violations"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_metrics",
+      "line": 734,
+      "doc": "Get agent performance metrics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TicketCategory",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Priority",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TicketStatus",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Customer",
+      "line": 147,
+      "doc": "Customer profile.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Ticket",
+      "line": 159,
+      "doc": "Support ticket.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KnowledgeArticle",
+      "line": 175,
+      "doc": "Knowledge base article.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Response",
+      "line": 186,
+      "doc": "Agent response to a ticket.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KnowledgeBase",
+      "line": 202,
+      "doc": "Vector-based knowledge retrieval.\n90% of responses should come from KB (lookup).\n10% require LLM reasoning.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyEngine",
+      "line": 333,
+      "doc": "Enforce support policies on responses.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CrossModelVerifier",
+      "line": 408,
+      "doc": "Verify responses across multiple models.\nHigh consensus = high confidence.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TicketClassifier",
+      "line": 448,
+      "doc": "Classify tickets by category and priority.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SupportMetrics",
+      "line": 494,
+      "doc": "Track support metrics for quality monitoring.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CustomerSupportAgent",
+      "line": 548,
+      "doc": "Production customer support auto-responder.\n\nPipeline:\n1. Classify ticket\n2. Check for escalation triggers\n3. Search knowledge base (90% lookup)\n4. Generate response with policy enforcement\n5. Verify with CMVK\n6. Human review for low confidence",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 82,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,381 @@
+{
+  "path": "packages/agent-lightning/src/agent_lightning_gov/runner.py",
+  "extension": ".py",
+  "size_bytes": 11391,
+  "line_count": 344,
+  "documentation": {
+    "file_docstring": "GovernedRunner - Agent-Lightning Runner with Policy Enforcement\n================================================================\n\nWraps agent execution with Agent OS kernel governance.\nPolicy violations during training become learning signals.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Track violations across rollouts",
+      "Hook into kernel's policy check",
+      "Hook into kernel's signal dispatch",
+      "Execute through kernel",
+      "Fallback: direct agent call (no governance)",
+      "Emit to Agent-Lightning if available",
+      "Emit violation summary",
+      "Emit signal summary",
+      "Agent-Lightning not available"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PolicyViolationType: Types of policy violations.",
+      "PolicyViolation: Record of a policy violation during execution.",
+      "GovernedRollout: Rollout with governance metadata.",
+      "GovernedRunner: Agent-Lightning compatible runner with Agent OS governance.\n\nThis runner wraps a",
+      "PolicyViolationError: Raised when a policy violation blocks execution.",
+      "__post_init__: Calculate penalty based on severity.",
+      "__post_init__: Calculate total penalty from violations.",
+      "__init__: Initialize governed runner.\n\nArgs:\n    kernel: Agent OS KernelSpace with loaded ",
+      "init: Initialize runner with agent.\n\nThis is called once during setup, not for each wo",
+      "init_worker: Configure worker-local state.\n\nArgs:\n    worker_id: Unique worker identifier\n   "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "PolicyViolation",
+    "GovernedRunner",
+    "init",
+    "init_worker",
+    "PolicyViolationType",
+    "get_violation_rate",
+    "PolicyViolationError",
+    "teardown",
+    "GovernedRollout",
+    "teardown_worker",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "time",
+      "agentlightning.emitter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 43,
+      "doc": "Calculate penalty based on severity.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__post_init__",
+      "line": 65,
+      "doc": "Calculate total penalty from violations.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "Initialize governed runner.\n\nArgs:\n    kernel: Agent OS KernelSpace with loaded policies\n    fail_on_violation: If True, raise exception on policy violation\n    log_violations: If True, log all violations\n    violation_callback: Optional callback for each violation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "init",
+      "line": 123,
+      "doc": "Initialize runner with agent.\n\nThis is called once during setup, not for each worker.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "init_worker",
+      "line": 133,
+      "doc": "Configure worker-local state.\n\nArgs:\n    worker_id: Unique worker identifier\n    store: LightningStore for coordination",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker_id",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "teardown",
+      "line": 145,
+      "doc": "Release resources.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "teardown_worker",
+      "line": 152,
+      "doc": "Release worker resources.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "worker_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_setup_kernel_hooks",
+      "line": 156,
+      "doc": "Set up kernel hooks to capture violations and signals.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_violation",
+      "line": 166,
+      "doc": "Handle a policy violation from the kernel.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "description",
+        "severity",
+        "blocked"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_signal",
+      "line": 197,
+      "doc": "Handle a kernel signal.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_clear_current_state",
+      "line": 202,
+      "doc": "Clear state for new rollout.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "step",
+      "line": 207,
+      "doc": "Execute a single task with governance.\n\nThis is the main entry point for Agent-Lightning integration.\n\nArgs:\n    input: Task input\n    resources: Optional named resources\n    mode: Rollout mode (\"train\" or \"eval\")\n    event: Cooperative stop signal\n\nReturns:\n    GovernedRollout with execution results and violation data",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input"
+      ],
+      "returns": "GovernedRollout"
+    },
+    {
+      "name": "iter",
+      "line": 274,
+      "doc": "Run continuously, processing tasks from the store.\n\nArgs:\n    event: Cooperative stop signal",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_next_task",
+      "line": 289,
+      "doc": "Get next task from store.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_submit_rollout",
+      "line": 295,
+      "doc": "Submit rollout to store.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "rollout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_emit_governance_spans",
+      "line": 300,
+      "doc": "Emit governance data as Agent-Lightning spans.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rollout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_violation_rate",
+      "line": 324,
+      "doc": "Get the violation rate across all rollouts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_stats",
+      "line": 330,
+      "doc": "Get runner statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "violation"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyViolationType",
+      "line": 24,
+      "doc": "Types of policy violations.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyViolation",
+      "line": 33,
+      "doc": "Record of a policy violation during execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GovernedRollout",
+      "line": 55,
+      "doc": "Rollout with governance metadata.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GovernedRunner",
+      "line": 70,
+      "doc": "Agent-Lightning compatible runner with Agent OS governance.\n\nThis runner wraps agent execution in the kernel, enforcing policies\nand collecting violation data that can be used as RL training signals.\n\nExample:\n    >>> from agent_os import KernelSpace\n    >>> from agent_os.policies import SQLPolicy, CostControlPolicy\n    >>>\n    >>> kernel = KernelSpace(policy=[\n    ...     SQLPolicy(deny=[\"DROP\", \"DELETE\"]),\n    ...     CostControlPolicy(max_cost_usd=100)\n    ... ])\n    >>>\n    >>> runner = GovernedRunner(kernel)\n    >>>\n    >>> # Use with Agent-Lightning trainer\n    >>> from agentlightning import Trainer\n    >>> trainer = Trainer(runner=runner, algorithm=\"GRPO\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 339,
+      "doc": "Raised when a policy violation blocks execution.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,417 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/src/core/tools.py",
+  "extension": ".py",
+  "size_bytes": 16812,
+  "line_count": 443,
+  "documentation": {
+    "file_docstring": "Shared Tool Interface - Mock Infrastructure API\n\nThis module provides a realistic mock infrastructure API that both baseline\nand Mute agents interact with. It simulates AWS/Azure/Kubernetes-style\noperations with proper state management, permissions, and failure modes.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Track API call statistics",
+      "Initialize with some default services",
+      "Service A - Running in prod",
+      "Service B - Running in dev",
+      "Service C - Partial state (zombie)",
+      "Filter based on permissions",
+      "**CRITICAL**: Update context focus",
+      "Check permissions",
+      "Check state - can't restart partial/zombie services",
+      "Success - restart the service",
+      "Get associated service",
+      "Can't rollback partial deployments",
+      "Success",
+      "Only SRE/Admin can force delete",
+      "Remove service"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ResourceState: States that infrastructure resources can be in.",
+      "Environment: Environment types.",
+      "UserRole: User permission roles.",
+      "User: Represents a user with permissions.",
+      "Service: Represents a service/application.",
+      "Deployment: Represents a deployment operation.",
+      "Artifact: Represents a build artifact.",
+      "SessionContext: Tracks session state - what the user is currently focused on.\nThis is critical f",
+      "MockInfrastructureAPI: Mock infrastructure API simulating AWS/Azure/Kubernetes operations.\n\nThis provid",
+      "can_write_to: Check if user has write permissions for environment."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "reset_statistics",
+    "get_system_state",
+    "to_dict",
+    "MockInfrastructureAPI",
+    "get_service_logs",
+    "scale_service",
+    "update_focus",
+    "Deployment",
+    "rollback_deployment",
+    "can_write_to",
+    "restart_service",
+    "UserRole",
+    "Environment",
+    "get_api_statistics",
+    "ResourceState",
+    "Service",
+    "Artifact",
+    "User",
+    "can_read_from",
+    "force_delete",
+    "SessionContext"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "can_write_to",
+      "line": 49,
+      "doc": "Check if user has write permissions for environment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "env"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "can_read_from",
+      "line": 57,
+      "doc": "Check if user has read permissions for environment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "env"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 73,
+      "doc": "Convert to dictionary representation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 96,
+      "doc": "Convert to dictionary representation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 116,
+      "doc": "Convert to dictionary representation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_focus",
+      "line": 138,
+      "doc": "Update current focus to a service.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 153,
+      "doc": "Initialize with some default infrastructure state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_initialize_default_state",
+      "line": 167,
+      "doc": "Set up initial infrastructure state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_log_api_call",
+      "line": 206,
+      "doc": "Log an API call for analysis.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "params",
+        "success",
+        "user",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_system_state",
+      "line": 221,
+      "doc": "Get current system state - like `kubectl get all`.\n\nThis is what the baseline agent can query to understand context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_service_logs",
+      "line": 245,
+      "doc": "Get logs for a service.\n\n**Side effect**: Updates context to mark this service as currently viewed.\nThis is critical for the \"Stale State\" scenario.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_id",
+        "context",
+        "lines"
+      ],
+      "returns": null
+    },
+    {
+      "name": "restart_service",
+      "line": 277,
+      "doc": "Restart a service.\n\nThis is the high-stakes operation that agents might get wrong.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_id",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scale_service",
+      "line": 323,
+      "doc": "Scale a service to a specific number of replicas.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_id",
+        "replicas",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "rollback_deployment",
+      "line": 359,
+      "doc": "Rollback a deployment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "deployment_id",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "force_delete",
+      "line": 398,
+      "doc": "Force delete a service in zombie/partial state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_id",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_api_statistics",
+      "line": 426,
+      "doc": "Get statistics about API usage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_statistics",
+      "line": 440,
+      "doc": "Reset API call statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ResourceState",
+      "line": 18,
+      "doc": "States that infrastructure resources can be in.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Environment",
+      "line": 28,
+      "doc": "Environment types.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "UserRole",
+      "line": 35,
+      "doc": "User permission roles.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "User",
+      "line": 44,
+      "doc": "Represents a user with permissions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Service",
+      "line": 63,
+      "doc": "Represents a service/application.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Deployment",
+      "line": 87,
+      "doc": "Represents a deployment operation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Artifact",
+      "line": 109,
+      "doc": "Represents a build artifact.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SessionContext",
+      "line": 127,
+      "doc": "Tracks session state - what the user is currently focused on.\nThis is critical for disambiguating commands like \"restart it\".",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MockInfrastructureAPI",
+      "line": 146,
+      "doc": "Mock infrastructure API simulating AWS/Azure/Kubernetes operations.\n\nThis provides the \"arena\" where both agents compete on equal footing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

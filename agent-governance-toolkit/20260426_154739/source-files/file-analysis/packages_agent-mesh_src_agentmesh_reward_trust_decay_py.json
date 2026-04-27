@@ -1,0 +1,412 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/reward/trust_decay.py",
+  "extension": ".py",
+  "size_bytes": 12154,
+  "line_count": 341,
+  "documentation": {
+    "file_docstring": "Trust Decay\n\nBehavioral trust decay with network effects.\n\nExtends the RewardEngine with:\n1. Trust contagion \u2014 if agent A trusts B, and B fails, A's score decays\n   proportionally to their interaction density.\n2. Temporal decay \u2014 trust scores decay over time when no positive signals\n   are received.\n3. Behavioral regime detection \u2014 detects sudden behavioural shifts via\n   KL divergence between recent and historical action distributions.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Data structures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "NetworkTrustEngine \u2014 basic linear decay implementation",
+      "---------------------------------------------------------------------------",
+      "Agent scores (0 \u2013 1000)",
+      "Interaction graph: (from_did, to_did) \u2192 InteractionEdge",
+      "Action history: agent_did \u2192 list of (timestamp, action_type)",
+      "Event log",
+      "Regime alerts",
+      "Last positive signal time per agent",
+      "Callbacks",
+      "-- Score management -----------------------------------------------------",
+      "-- Interaction graph ----------------------------------------------------",
+      "-- Trust events ---------------------------------------------------------",
+      "Direct impact",
+      "Propagation",
+      "Notify callbacks",
+      "-- Temporal decay -------------------------------------------------------",
+      "-- Regime detection -----------------------------------------------------",
+      "-- Callbacks ------------------------------------------------------------",
+      "-- Queries --------------------------------------------------------------",
+      "-- Internal helpers -----------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustEvent: A trust-relevant event for an agent.",
+      "InteractionEdge: Weighted directed edge in the interaction graph.",
+      "RegimeChangeAlert: Alert when an agent's behaviour shifts suddenly.",
+      "NetworkTrustEngine: Network-aware trust engine with temporal decay and regime detection.\n\nParameters",
+      "weight: Normalised interaction weight (0\u20131, saturates at 100 interactions).",
+      "record_interaction: Record an interaction between two agents.",
+      "get_neighbors: Return (peer_did, interaction_weight) pairs for *agent_did*.",
+      "record_action: Record an action for regime detection.",
+      "record_positive_signal: Record a positive signal (prevents decay, small score bump).",
+      "process_trust_event: Process a trust event with network propagation.\n\nReturns a dict of {agent_did: s"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "InteractionEdge",
+    "record_positive_signal",
+    "get_health_report",
+    "weight",
+    "get_score",
+    "TrustEvent",
+    "agent_count",
+    "record_action",
+    "get_neighbors",
+    "record_interaction",
+    "on_regime_change",
+    "on_score_change",
+    "process_trust_event",
+    "RegimeChangeAlert",
+    "detect_regime_change",
+    "alerts",
+    "NetworkTrustEngine",
+    "set_score",
+    "apply_temporal_decay"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "math",
+      "time",
+      "collections",
+      "dataclasses",
+      "typing",
+      "agentmesh.constants"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "weight",
+      "line": 56,
+      "doc": "Normalised interaction weight (0\u20131, saturates at 100 interactions).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "decay_rate",
+        "propagation_factor",
+        "propagation_depth",
+        "regime_threshold",
+        "history_window_hours",
+        "baseline_days"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_score",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "set_score",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_interaction",
+      "line": 145,
+      "doc": "Record an interaction between two agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "from_did",
+        "to_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_neighbors",
+      "line": 153,
+      "doc": "Return (peer_did, interaction_weight) pairs for *agent_did*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_action",
+      "line": 165,
+      "doc": "Record an action for regime detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_positive_signal",
+      "line": 169,
+      "doc": "Record a positive signal (prevents decay, small score bump).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "bonus"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process_trust_event",
+      "line": 175,
+      "doc": "Process a trust event with network propagation.\n\nReturns a dict of {agent_did: score_delta} for every affected agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_propagate",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_did",
+        "severity",
+        "depth",
+        "visited",
+        "deltas"
+      ],
+      "returns": null
+    },
+    {
+      "name": "apply_temporal_decay",
+      "line": 232,
+      "doc": "Simple linear decay for agents without recent positive signals.\n\nCall this periodically (e.g. every minute).  Returns deltas.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_regime_change",
+      "line": 253,
+      "doc": "Check if *agent_did* has shifted behaviour recently.\n\nUses KL divergence between the recent action distribution\nand the historical baseline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_regime_change",
+      "line": 297,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_score_change",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agent_count",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "alerts",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_health_report",
+      "line": 313,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_to_distribution",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "actions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_kl_divergence",
+      "line": 331,
+      "doc": "KL(P || Q) with Laplace smoothing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "p",
+        "q"
+      ],
+      "returns": "float"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustEvent",
+      "line": 36,
+      "doc": "A trust-relevant event for an agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "InteractionEdge",
+      "line": 47,
+      "doc": "Weighted directed edge in the interaction graph.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RegimeChangeAlert",
+      "line": 62,
+      "doc": "Alert when an agent's behaviour shifts suddenly.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "NetworkTrustEngine",
+      "line": 77,
+      "doc": "Network-aware trust engine with temporal decay and regime detection.\n\nParameters\n----------\ndecay_rate : float\n    Per-hour decay applied when an agent has no positive signals.\npropagation_factor : float\n    Fraction of a trust event's impact that propagates to neighbours.\npropagation_depth : int\n    How many hops a trust event propagates in the interaction graph.\nregime_threshold : float\n    KL divergence above which a regime change is flagged.\nhistory_window_hours : int\n    How many hours of actions count as \"recent\" for regime detection.\nbaseline_days : int\n    How many days of history form the \"historical\" baseline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

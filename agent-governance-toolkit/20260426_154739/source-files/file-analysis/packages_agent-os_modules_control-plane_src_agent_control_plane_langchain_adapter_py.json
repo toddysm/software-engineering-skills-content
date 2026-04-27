@@ -1,0 +1,291 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/langchain_adapter.py",
+  "extension": ".py",
+  "size_bytes": 16515,
+  "line_count": 424,
+  "documentation": {
+    "file_docstring": "LangChain Client Adapter - Drop-In Middleware for Agent Control Plane\n\nThis adapter wraps LangChain clients to automatically intercept and govern\ntool calls made by LangChain agents. It provides similar integration as the \nOpenAI adapter, but for LangChain's framework.\n\nUsage:\n    from langchain.chat_models import ChatOpenAI\n    from agent_control_plane import AgentControlPlane\n    from agent_control_plane.langchain_adapter import LangChainAdapter\n    \n    # Standard setup\n    llm = ChatOpenAI(temperature=0)\n    control_plane = AgentControlPlane()\n    agent_context = control_plane.create_agent(\"my-agent\", permissions)\n    \n    # Wrap with adapter\n    governed_llm = LangChainAdapter(\n        control_plane=control_plane,\n        agent_context=agent_context,\n        langchain_client=llm\n    )\n    \n    # Use in LangChain agents\n    from langchain.agents import initialize_agent\n    agent = initialize_agent(tools, governed_llm, agent=\"zero-shot-react-description\")\n    agent.run(\"Your task here\")\n    # Tool calls are automatically governed by the control plane!",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Standard setup",
+      "Wrap with adapter",
+      "Use in LangChain agents",
+      "Tool calls are automatically governed by the control plane!",
+      "Mapping from common LangChain tool names to ActionType",
+      "File operations",
+      "Code execution",
+      "Database operations",
+      "API calls",
+      "Search and retrieval",
+      "Before (ungoverned):",
+      "After (governed):",
+      "Same API, but now with governance!",
+      "Merge default mapping with custom mapping",
+      "Store original methods to wrap",
+      "Wrap the client methods",
+      "LangChain uses different methods depending on the version",
+      "We wrap common invocation methods",
+      "Call the original method",
+      "Check if the result contains tool calls or actions",
+      "LangChain formats vary, so we handle multiple formats",
+      "Check each tool call",
+      "Handle AIMessage format (newer LangChain versions)",
+      "Handle additional_kwargs format",
+      "Handle list of generations",
+      "Parse arguments if they're a JSON string",
+      "Map tool name to ActionType",
+      "Security: Unknown tools are denied by default",
+      "THE KERNEL CHECK - This is where governance happens",
+      "Check permission through control plane",
+      "Action is BLOCKED by the control plane",
+      "Call the optional callback",
+      "Raise an exception to prevent execution",
+      "This follows the \"Mute Agent\" pattern - return NULL/error",
+      "Check exact match first",
+      "Pattern matching for common variations",
+      "Check if it's a write operation",
+      "Proxy common LangChain methods to the wrapped client",
+      "Use in LangChain agents"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LangChainAdapter: LangChain Client Adapter with Agent Control Plane Governance.\n\nThis class wraps ",
+      "create_governed_langchain_client: Convenience function to create a governed LangChain client.\n\nThis creates both t",
+      "__init__: Initialize the LangChain adapter.\n\nArgs:\n    control_plane: The AgentControlPlan",
+      "_wrap_client: Wrap the LangChain client's methods to intercept tool calls.",
+      "_governed_call: Wrapped __call__ method with governance.",
+      "_governed_generate: Wrapped generate method with governance.",
+      "_governed_invoke: Wrapped invoke method with governance.",
+      "_execute_with_governance: Execute the original method while intercepting tool calls.\n\nThis is the core gov",
+      "_extract_tool_calls: Extract tool calls from LangChain result.\n\nLangChain can return results in vario",
+      "_check_tool_call: Check a single tool call against the control plane.\n\nArgs:\n    tool_call: Dictio"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "add_tool_mapping",
+    "get_statistics",
+    "LangChainAdapter",
+    "create_governed_langchain_client"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "json",
+      "logging",
+      "datetime",
+      "agent_kernel",
+      "control_plane"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_governed_langchain_client",
+      "line": 372,
+      "doc": "Convenience function to create a governed LangChain client.\n\nThis creates both the agent in the control plane and the adapter,\nproviding a one-line setup for governed LangChain interactions.\n\nArgs:\n    control_plane: The AgentControlPlane instance\n    agent_id: ID for the agent\n    langchain_client: The LangChain LLM or agent to wrap\n    permissions: Optional permissions for the agent\n    tool_mapping: Optional custom tool name mappings\n    \nReturns:\n    A LangChainAdapter ready to use\n    \nExample:\n    from langchain.chat_models import ChatOpenAI\n    from agent_control_plane import AgentControlPlane, PermissionLevel, ActionType\n    from agent_control_plane.langchain_adapter import create_governed_langchain_client\n    \n    control_plane = AgentControlPlane()\n    llm = ChatOpenAI(temperature=0)\n    \n    governed_llm = create_governed_langchain_client(\n        control_plane,\n        \"my-agent\",\n        llm,\n        permissions={\n            ActionType.FILE_READ: PermissionLevel.READ_ONLY,\n            ActionType.DATABASE_QUERY: PermissionLevel.READ_ONLY\n        }\n    )\n    \n    # Use in LangChain agents\n    from langchain.agents import initialize_agent\n    agent = initialize_agent(tools, governed_llm, agent=\"zero-shot-react-description\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id",
+        "langchain_client",
+        "permissions",
+        "tool_mapping"
+      ],
+      "returns": "LangChainAdapter"
+    },
+    {
+      "name": "__init__",
+      "line": 102,
+      "doc": "Initialize the LangChain adapter.\n\nArgs:\n    control_plane: The AgentControlPlane instance for governance\n    agent_context: The AgentContext for the agent using this client\n    langchain_client: The original LangChain LLM or agent instance\n    tool_mapping: Optional custom mapping from tool names to ActionTypes\n    on_block: Optional callback called when an action is blocked\n              Signature: on_block(tool_name: str, tool_args: dict, result: dict)\n    logger: Optional logger instance",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "control_plane",
+        "agent_context",
+        "langchain_client",
+        "tool_mapping",
+        "on_block",
+        "logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_client",
+      "line": 146,
+      "doc": "Wrap the LangChain client's methods to intercept tool calls.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_governed_call",
+      "line": 163,
+      "doc": "Wrapped __call__ method with governance.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_governed_generate",
+      "line": 167,
+      "doc": "Wrapped generate method with governance.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_governed_invoke",
+      "line": 171,
+      "doc": "Wrapped invoke method with governance.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_execute_with_governance",
+      "line": 175,
+      "doc": "Execute the original method while intercepting tool calls.\n\nThis is the core governance logic that checks tool calls against\nthe control plane before allowing execution.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "original_method"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_tool_calls",
+      "line": 200,
+      "doc": "Extract tool calls from LangChain result.\n\nLangChain can return results in various formats depending on the\nagent type and version. This method handles common formats.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_tool_call",
+      "line": 236,
+      "doc": "Check a single tool call against the control plane.\n\nArgs:\n    tool_call: Dictionary with 'name', 'args', and optionally 'id'",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_call"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_map_tool_to_action",
+      "line": 294,
+      "doc": "Map a LangChain tool name to an ActionType.\n\nThis uses both the provided mapping and pattern matching\nto handle various naming conventions.\n\nArgs:\n    tool_name: The name of the tool from LangChain\n    \nReturns:\n    ActionType if mapped, None if unknown",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_tool_mapping",
+      "line": 338,
+      "doc": "Add a custom tool name to ActionType mapping.\n\nArgs:\n    tool_name: The name of the tool as used in LangChain\n    action_type: The ActionType it should map to",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 349,
+      "doc": "Get statistics about the adapter's activity.\n\nReturns:\n    Dictionary with statistics from the control plane",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__getattr__",
+      "line": 367,
+      "doc": "Proxy all other attributes to the wrapped client.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "LangChainAdapter",
+      "line": 79,
+      "doc": "LangChain Client Adapter with Agent Control Plane Governance.\n\nThis class wraps a LangChain LLM or agent to provide automatic governance\nof tool calls. It intercepts tool invocations and checks them against the\ncontrol plane's policies before allowing execution.\n\nThe adapter works by wrapping the tool execution layer, similar to how\nthe OpenAI adapter wraps chat completions.\n\nExample:\n    # Before (ungoverned):\n    from langchain.chat_models import ChatOpenAI\n    llm = ChatOpenAI()\n    agent = initialize_agent(tools, llm, agent=\"zero-shot-react-description\")\n    \n    # After (governed):\n    governed_llm = LangChainAdapter(control_plane, agent_context, llm)\n    agent = initialize_agent(tools, governed_llm, agent=\"zero-shot-react-description\")\n    # Same API, but now with governance!",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

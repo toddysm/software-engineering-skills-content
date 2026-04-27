@@ -1,0 +1,556 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/ipc_pipes.py",
+  "extension": ".py",
+  "size_bytes": 19129,
+  "line_count": 580,
+  "documentation": {
+    "file_docstring": "Typed IPC Pipes - Inter-Agent Communication with Policy Enforcement.\n\nThis module implements typed pipes for agent-to-agent communication,\ninspired by UNIX pipes but with policy enforcement at the kernel level.\n\nInstead of \"Workflow Builders\" (bloat), real engineers use pipes:\n    AgentA | PolicyCheck | AgentB\n\nDesign Philosophy:\n    - Type safety: Only matching types can connect\n    - Policy enforcement: Every message passes through policy check\n    - Backpressure: Slow consumers don't crash fast producers\n    - Audit trail: All pipe traffic is logged to flight recorder\n\nExample:\n    # Create a typed pipe\n    pipe = TypedPipe[ResearchResult, SummaryRequest](\"research-to-summary\")\n    \n    # Connect agents via pipe with policy enforcement\n    pipeline = (\n        research_agent\n        | PolicyCheckPipe(allowed_types=[ResearchResult])\n        | summary_agent\n    )\n    \n    # Execute pipeline\n    result = await pipeline.execute(input_data)\n\nThis is the IATP extension for secure inter-agent communication.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create a typed pipe",
+      "Connect agents via pipe with policy enforcement",
+      "Execute pipeline",
+      "Type variables for generic pipes",
+      "Policy enforcement metadata",
+      "Type information for runtime checking",
+      "Policy enforcement callback",
+      "Audit callback",
+      "Policy check",
+      "Type checking",
+      "Apply transform if configured",
+      "Queue message (with backpressure)",
+      "Set up policy check",
+      "Integration with control plane PolicyEngine",
+      "This would integrate with the actual policy engine",
+      "For now, always allow",
+      "Call agent's process method",
+      "Create initial message",
+      "For pipes, send and receive",
+      "For agent stages, process directly",
+      "Generic stage with process method",
+      "Update target agent for next stage",
+      "========== Convenience Functions =========="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PipeState: State of a pipe.",
+      "PipeMessage: A message flowing through a pipe.\n\nEvery message carries metadata for policy enf",
+      "PipeConfig: Configuration for a typed pipe.",
+      "PipeEndpoint: Protocol for pipe endpoints (can send or receive).",
+      "TypedPipe: A typed pipe for inter-agent communication.\n\nType parameters:\n    T_In: Type of ",
+      "PolicyCheckPipe: A pipe that only performs policy checking (pass-through).\n\nUse this in pipelines",
+      "PipelineStage: Protocol for pipeline stages.",
+      "AgentPipelineStage: Wraps an agent as a pipeline stage.\n\nExample:\n    stage = AgentPipelineStage(my_",
+      "Pipeline: A pipeline of connected stages.\n\nExample:\n    pipeline = Pipeline([\n        Agen",
+      "create_pipeline: Create a pipeline from stages."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "create_pipeline",
+    "PolicyCheckPipe",
+    "PipeState",
+    "PipelineStage",
+    "to_dict",
+    "set_policy_check",
+    "PipeMessage",
+    "open",
+    "PipeEndpoint",
+    "TypedPipe",
+    "AgentPipelineStage",
+    "PipeConfig",
+    "get_stats",
+    "state",
+    "pipe_agents",
+    "Pipeline",
+    "close",
+    "add_stage",
+    "set_audit_callback"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "asyncio",
+      "hashlib",
+      "json",
+      "logging",
+      "queue",
+      "threading"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_pipeline",
+      "line": 554,
+      "doc": "Create a pipeline from stages.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Pipeline"
+    },
+    {
+      "name": "pipe_agents",
+      "line": 559,
+      "doc": "Create a simple two-agent pipeline with policy check.\n\nExample:\n    pipeline = pipe_agents(\n        research_agent, \"research\",\n        summary_agent, \"summary\",\n        policy_engine=my_policy_engine\n    )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "source_agent",
+        "source_id",
+        "target_agent",
+        "target_id",
+        "policy_engine"
+      ],
+      "returns": "Pipeline"
+    },
+    {
+      "name": "__post_init__",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "send",
+      "line": 126,
+      "doc": "Send a message through the pipe.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "receive",
+      "line": 130,
+      "doc": "Receive a message from the pipe.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "config",
+        "transform"
+      ],
+      "returns": null
+    },
+    {
+      "name": "state",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PipeState"
+    },
+    {
+      "name": "open",
+      "line": 177,
+      "doc": "Open the pipe for communication.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "close",
+      "line": 182,
+      "doc": "Close the pipe.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_policy_check",
+      "line": 187,
+      "doc": "Set the policy check callback.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "check"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_audit_callback",
+      "line": 194,
+      "doc": "Set the audit callback for message logging.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "send",
+      "line": 201,
+      "doc": "Send a message through the pipe.\n\nReturns True if message was sent, False if rejected by policy.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "receive",
+      "line": 280,
+      "doc": "Receive a message from the pipe.\n\nReturns None if pipe is closed or timeout occurs.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 302,
+      "doc": "Get pipe statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "policy_engine",
+        "allowed_types"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_with_engine",
+      "line": 340,
+      "doc": "Check message against policy engine.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "process",
+      "line": 359,
+      "doc": "Process a message and optionally produce output.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__or__",
+      "line": 363,
+      "doc": "Support pipe operator: stage1 | stage2",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 376,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "agent_id",
+        "process_method",
+        "input_type",
+        "output_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process",
+      "line": 390,
+      "doc": "Process a message through the agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__or__",
+      "line": 413,
+      "doc": "Support pipe operator.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "stages",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_stage",
+      "line": 441,
+      "doc": "Add a stage to the pipeline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "stage"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__or__",
+      "line": 446,
+      "doc": "Support pipe operator: pipeline | stage",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute",
+      "line": 453,
+      "doc": "Execute the pipeline with input data.\n\nReturns the final message, or None if pipeline filtered it out.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_streaming",
+      "line": 513,
+      "doc": "Execute pipeline with streaming output.\n\nYields messages as they flow through stages.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_data",
+        "trace_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PipeState",
+      "line": 59,
+      "doc": "State of a pipe.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PipeMessage",
+      "line": 70,
+      "doc": "A message flowing through a pipe.\n\nEvery message carries metadata for policy enforcement and auditing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PipeConfig",
+      "line": 110,
+      "doc": "Configuration for a typed pipe.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PipeEndpoint",
+      "line": 123,
+      "doc": "Protocol for pipe endpoints (can send or receive).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "TypedPipe",
+      "line": 135,
+      "doc": "A typed pipe for inter-agent communication.\n\nType parameters:\n    T_In: Type of messages this pipe accepts\n    T_Out: Type of messages this pipe produces\n\nExample:\n    pipe = TypedPipe[ResearchQuery, ResearchResult](\"research-pipe\")\n    await pipe.send(PipeMessage(ResearchQuery(topic=\"AI Safety\")))\n    result = await pipe.receive()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyCheckPipe",
+      "line": 314,
+      "doc": "A pipe that only performs policy checking (pass-through).\n\nUse this in pipelines to enforce policy at specific points:\n    agent_a | PolicyCheckPipe(policy_engine) | agent_b",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PipelineStage",
+      "line": 356,
+      "doc": "Protocol for pipeline stages.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "AgentPipelineStage",
+      "line": 368,
+      "doc": "Wraps an agent as a pipeline stage.\n\nExample:\n    stage = AgentPipelineStage(my_agent, input_type=\"Query\", output_type=\"Response\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Pipeline",
+      "line": 418,
+      "doc": "A pipeline of connected stages.\n\nExample:\n    pipeline = Pipeline([\n        AgentPipelineStage(research_agent, \"research\"),\n        PolicyCheckPipe(),\n        AgentPipelineStage(summary_agent, \"summary\"),\n    ])\n    \n    result = await pipeline.execute(input_message)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 65,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

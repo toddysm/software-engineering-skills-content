@@ -1,0 +1,290 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_message_signer.py",
+  "extension": ".py",
+  "size_bytes": 9596,
+  "line_count": 273,
+  "documentation": {
+    "file_docstring": "HMAC signing and replay protection for MCP messages.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPSignedEnvelope: A signed MCP message envelope.",
+      "MCPVerificationResult: The result of verifying a signed MCP envelope.",
+      "MCPMessageSigner: Sign and verify MCP messages with replay protection.\n\nThe signer produces tamper",
+      "__init__: Initialize the signer and replay-protection settings.\n\nArgs:\n    signing_key: Sh",
+      "from_base64_key: Build a signer from a base64-encoded shared secret.\n\nArgs:\n    base64_key: Share",
+      "generate_key: Return a new 256-bit signing key.\n\nReturns:\n    A cryptographically random 32-by",
+      "cached_nonce_count: Return the number of tracked nonces.\n\nReturns:\n    The number of replay-protecti",
+      "sign_message: Create a signed message envelope.\n\nArgs:\n    payload: Serialized MCP payload to ",
+      "verify_message: Verify an envelope's signature and replay metadata.\n\nArgs:\n    envelope: Signed ",
+      "cleanup_nonce_cache: Remove expired nonces and return the number removed.\n\nReturns:\n    The number of"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "generate_key",
+    "failed",
+    "sign_message",
+    "verify_message",
+    "success",
+    "from_base64_key",
+    "MCPMessageSigner",
+    "cached_nonce_count",
+    "MCPSignedEnvelope",
+    "cleanup_nonce_cache",
+    "MCPVerificationResult"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "hashlib",
+      "hmac",
+      "logging",
+      "secrets",
+      "threading",
+      "uuid",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "agent_os.mcp_protocols"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_utcnow",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "datetime"
+    },
+    {
+      "name": "success",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "payload",
+        "sender_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "failed",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 65,
+      "doc": "Initialize the signer and replay-protection settings.\n\nArgs:\n    signing_key: Shared secret used to compute HMAC signatures.\n    replay_window: Maximum permitted clock skew and replay horizon.\n    nonce_cache_cleanup_interval: Minimum interval between automatic\n        nonce cleanup passes.\n    max_nonce_cache_size: Maximum number of nonces retained by the\n        default in-memory nonce store.\n    nonce_store: Optional nonce persistence backend. Defaults to the\n        in-memory LRU nonce store.\n    nonce_generator: Optional nonce factory for deterministic testing\n        or custom nonce generation strategies.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signing_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_base64_key",
+      "line": 112,
+      "doc": "Build a signer from a base64-encoded shared secret.\n\nArgs:\n    base64_key: Shared secret encoded as ASCII base64 text.\n\nReturns:\n    A configured ``MCPMessageSigner`` instance using the decoded key\n    bytes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "base64_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_key",
+      "line": 128,
+      "doc": "Return a new 256-bit signing key.\n\nReturns:\n    A cryptographically random 32-byte signing key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "bytes"
+    },
+    {
+      "name": "cached_nonce_count",
+      "line": 137,
+      "doc": "Return the number of tracked nonces.\n\nReturns:\n    The number of replay-protection nonces currently retained by the\n    backing store when the store exposes a ``count`` helper.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "sign_message",
+      "line": 148,
+      "doc": "Create a signed message envelope.\n\nArgs:\n    payload: Serialized MCP payload to sign.\n    sender_id: Optional sender identifier included in the signature.\n\nReturns:\n    A signed envelope containing the payload, nonce, timestamp, and\n    computed signature.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "sender_id"
+      ],
+      "returns": "MCPSignedEnvelope"
+    },
+    {
+      "name": "verify_message",
+      "line": 180,
+      "doc": "Verify an envelope's signature and replay metadata.\n\nArgs:\n    envelope: Signed message envelope to validate.\n\nReturns:\n    ``MCPVerificationResult`` describing whether the envelope is valid\n    and, on success, exposing the verified payload and sender identity.\n    Invalid signatures, replayed nonces, or unexpected errors fail\n    closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "envelope"
+      ],
+      "returns": "MCPVerificationResult"
+    },
+    {
+      "name": "cleanup_nonce_cache",
+      "line": 225,
+      "doc": "Remove expired nonces and return the number removed.\n\nReturns:\n    The number of expired nonces removed from the backing store.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_compute_signature",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_build_canonical_string",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "_maybe_cleanup_locked",
+      "line": 266,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_cleanup_nonce_cache_locked",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "now"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPSignedEnvelope",
+      "line": 24,
+      "doc": "A signed MCP message envelope.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MCPVerificationResult",
+      "line": 35,
+      "doc": "The result of verifying a signed MCP envelope.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MCPMessageSigner",
+      "line": 56,
+      "doc": "Sign and verify MCP messages with replay protection.\n\nThe signer produces tamper-evident envelopes and tracks nonces inside a\nreplay window so previously accepted messages cannot be replayed\nindefinitely. Persistence and nonce generation are injectable to support\ndeterministic tests and external storage backends.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 17,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

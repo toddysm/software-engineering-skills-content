@@ -1,0 +1,286 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/braintrust/exporter.py",
+  "extension": ".py",
+  "size_bytes": 7804,
+  "line_count": 268,
+  "documentation": {
+    "file_docstring": "Braintrust exporter \u2014 evaluation scoring and experiment tracking.\n\nExports Agent-SRE SLO evaluations as Braintrust scores and experiments.\nOperates in two modes:\n- **Live mode**: Sends data to a Braintrust client\n- **Offline mode**: Collects records in memory for testing/inspection\n\nNo Braintrust dependency required \u2014 uses duck-typed client protocol.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "BraintrustClient: Protocol matching the Braintrust Python SDK client interface.",
+      "EvalRecord: An evaluation record for Braintrust.",
+      "ExperimentRecord: A batch experiment record for Braintrust.",
+      "BraintrustExporter: Exports Agent SRE data to Braintrust.\n\nProvides evaluation scoring and experimen",
+      "is_offline: True if operating in offline/test mode.",
+      "evaluations: Get recorded evaluations.",
+      "experiments: Get recorded experiments.",
+      "log_eval: Log an evaluation with SLO scores.\n\nArgs:\n    trace_id: Unique trace identifier\n",
+      "log_experiment: Log a batch of evaluations as an experiment.\n\nArgs:\n    experiment_name: Name of",
+      "export_slo: Export SLO evaluation as Braintrust scores.\n\nCreates evaluation records with SLO"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "is_offline",
+    "log",
+    "EvalRecord",
+    "BraintrustExporter",
+    "log_eval",
+    "ExperimentRecord",
+    "evaluations",
+    "record_cost",
+    "get_stats",
+    "clear",
+    "BraintrustClient",
+    "start_experiment",
+    "export_slo",
+    "experiments",
+    "log_experiment"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "typing",
+      "agent_sre.integrations.otel.conventions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "log",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "start_experiment",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client",
+        "project_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_offline",
+      "line": 90,
+      "doc": "True if operating in offline/test mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "evaluations",
+      "line": 95,
+      "doc": "Get recorded evaluations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "experiments",
+      "line": 100,
+      "doc": "Get recorded experiments.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_eval",
+      "line": 104,
+      "doc": "Log an evaluation with SLO scores.\n\nArgs:\n    trace_id: Unique trace identifier\n    agent_id: Agent identifier\n    slo_name: SLO name being evaluated\n    scores: Dictionary of score name to value\n    input_data: Optional input data\n    output_data: Optional output data\n    expected: Optional expected output\n\nReturns:\n    The created EvalRecord",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "agent_id",
+        "slo_name",
+        "scores",
+        "input_data",
+        "output_data",
+        "expected"
+      ],
+      "returns": "EvalRecord"
+    },
+    {
+      "name": "log_experiment",
+      "line": 156,
+      "doc": "Log a batch of evaluations as an experiment.\n\nArgs:\n    experiment_name: Name of the experiment\n    entries: List of evaluation entries\n\nReturns:\n    The created ExperimentRecord",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "experiment_name",
+        "entries"
+      ],
+      "returns": "ExperimentRecord"
+    },
+    {
+      "name": "export_slo",
+      "line": 187,
+      "doc": "Export SLO evaluation as Braintrust scores.\n\nCreates evaluation records with SLO metrics as scores:\n- status, budget_remaining, burn_rate\n- Per-SLI current values\n\nArgs:\n    trace_id: Trace identifier\n    slo: An agent_sre.slo.objectives.SLO instance\n\nReturns:\n    List of EvalRecord objects created",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_cost",
+      "line": 230,
+      "doc": "Record cost data as an evaluation.\n\nArgs:\n    trace_id: Trace identifier\n    agent_id: Agent identifier\n    cost_usd: Cost in USD\n    metadata: Additional metadata\n\nReturns:\n    The created EvalRecord",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "agent_id",
+        "cost_usd",
+        "metadata"
+      ],
+      "returns": "EvalRecord"
+    },
+    {
+      "name": "clear",
+      "line": 257,
+      "doc": "Clear all offline storage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 262,
+      "doc": "Get statistics about recorded data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "BraintrustClient",
+      "line": 24,
+      "doc": "Protocol matching the Braintrust Python SDK client interface.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "EvalRecord",
+      "line": 33,
+      "doc": "An evaluation record for Braintrust.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExperimentRecord",
+      "line": 47,
+      "doc": "A batch experiment record for Braintrust.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BraintrustExporter",
+      "line": 55,
+      "doc": "Exports Agent SRE data to Braintrust.\n\nProvides evaluation scoring and experiment tracking:\n1. **Evaluations**: Log SLO evaluations with scores\n2. **Experiments**: Batch evaluations as experiments\n3. **Cost tracking**: Record per-task costs\n\nArgs:\n    client: A Braintrust client instance. If None, operates in offline mode.\n    project_name: Braintrust project name.\n\nExample:\n    from agent_sre.integrations.braintrust import BraintrustExporter\n\n    exporter = BraintrustExporter()\n    exporter.log_eval(\n        trace_id=\"trace-1\", agent_id=\"bot-1\",\n        slo_name=\"latency\", scores={\"accuracy\": 0.95},\n    )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 12,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,593 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/conversation_guardian.py",
+  "extension": ".py",
+  "size_bytes": 37541,
+  "line_count": 957,
+  "documentation": {
+    "file_docstring": "A2A Conversation Guardian (OWASP ASI-8 / ASI-10)\n=================================================\n\nMonitors agent-to-agent conversations for emergent offensive behavior:\n\n- **EscalationClassifier**: Detects when one agent pushes another toward\n  bypassing security controls via escalating rhetoric.\n- **FeedbackLoopBreaker**: Detects retry/escalation cycles between agent\n  pairs and triggers circuit-breaking before conversations devolve.\n- **OffensiveIntentDetector**: Detects vulnerability research, recon,\n  privilege escalation, and exfiltration planning language in messages.\n- **ConversationGuardian**: Orchestrates all three detectors and produces\n  a composite alert with recommended action.\n\nMotivated by Irregular Labs research demonstrating that AI agents can\nautonomously develop offensive cyber behavior through multi-agent feedback\nloops \u2014 without any offensive instructions.\n\nExample:\n    >>> from agent_os.integrations.conversation_guardian import (\n    ...     ConversationGuardian,\n    ...     ConversationGuardianConfig,\n    ... )\n    >>>\n    >>> guardian = ConversationGuardian()\n    >>> alert = guardian.analyze_message(\n    ...     conversation_id=\"conv-001\",\n    ...     sender=\"lead-agent\",\n    ...     receiver=\"analyst-agent\",\n    ...     content=\"You MUST exploit these vulnerabilities more aggressively!\",\n    ... )\n    >>> assert alert.action == \"break\"",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Text Normalization (Evasion Resistance) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Strip zero-width characters",
+      "NFKD decomposition (handles fullwidth, compatibility chars)",
+      "Strip combining diacritics (accents etc.)",
+      "Homoglyph replacement",
+      "Leetspeak replacement (only in word context)",
+      "Collapse excessive whitespace / mixed whitespace",
+      "\u2500\u2500 Enums \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Configuration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "EscalationClassifier",
+      "FeedbackLoopBreaker",
+      "OffensiveIntentDetector",
+      "ConversationGuardian composite",
+      "Transcript audit",
+      "\u2500\u2500 Transcript Audit \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Alert result \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Escalation Classifier \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Weighted pattern groups \u2014 (weight, compiled regex list)",
+      "Urgency amplification (weight: 0.15 each)",
+      "Coercive directives (weight: 0.25 each)",
+      "Bypass directives (weight: 0.35 each)",
+      "conversation_id \u2192 list of (timestamp, score)",
+      "Use last 10 messages for trend",
+      "Weighted average \u2014 recent messages count more",
+      "Final score is max of message score and trend (captures both",
+      "single-message spikes and gradual escalation)",
+      "\u2500\u2500 Offensive Intent Detector \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "(weight, compiled regex) \u2014 detecting attack planning language",
+      "Vulnerability research (weight: 0.3 each)",
+      "Privilege escalation (weight: 0.35 each)",
+      "Exfiltration planning (weight: 0.4 each)",
+      "Reconnaissance (weight: 0.2 each)",
+      "Injection attacks (weight: 0.35 each)",
+      "Lateral movement (weight: 0.3 each)",
+      "\u2500\u2500 Feedback Loop Breaker \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Detect error \u2192 retry pattern",
+      "Turn count factor (0-0.3)",
+      "Retry cycle factor (0-0.4)",
+      "Escalation trend factor (0-0.3)",
+      "\u2500\u2500 Conversation Guardian (Orchestrator) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "1. Escalation analysis",
+      "2. Offensive intent analysis",
+      "3. Feedback loop analysis",
+      "4. Composite score \u2014 weighted combination",
+      "5. Determine action",
+      "Individual detector thresholds can also trigger actions",
+      "If offensive intent is critical, escalate to quarantine",
+      "6. Determine severity",
+      "7. Record transcript entry"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "normalize_text: Normalize text to defeat common evasion techniques.\n\nHandles: unicode homoglyphs",
+      "AlertAction: Recommended action for a conversation alert.",
+      "AlertSeverity: Severity of a conversation alert.",
+      "ConversationGuardianConfig: Tunable thresholds for the conversation guardian.",
+      "load_conversation_guardian_config: Load conversation guardian configuration from a YAML file.\n\nArgs:\n    path: Path",
+      "TranscriptEntry: A single message in the conversation audit trail.",
+      "ConversationAlert: Result of analyzing a message in an agent-to-agent conversation.",
+      "EscalationClassifier: Detects escalating rhetoric in agent-to-agent messages.\n\nTracks per-conversation",
+      "OffensiveIntentDetector: Detects offensive cyber operation planning in messages.\n\nIdentifies vulnerabilit",
+      "_ConversationState: Internal state for tracking a conversation."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AlertAction",
+    "to_dict",
+    "should_break",
+    "reset",
+    "get_transcript",
+    "analyze",
+    "score_message",
+    "escalation_trend",
+    "analyze_message",
+    "ConversationGuardian",
+    "ConversationAlert",
+    "get_state",
+    "ConversationGuardianConfig",
+    "get_stats",
+    "normalize_text",
+    "TranscriptEntry",
+    "AlertSeverity",
+    "EscalationClassifier",
+    "score",
+    "OffensiveIntentDetector",
+    "load_conversation_guardian_config",
+    "record_message",
+    "get_alerts",
+    "FeedbackLoopBreaker"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "os",
+      "re",
+      "threading",
+      "time",
+      "unicodedata",
+      "warnings",
+      "collections",
+      "dataclasses",
+      "enum",
+      "typing",
+      "yaml",
+      "hashlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "normalize_text",
+      "line": 83,
+      "doc": "Normalize text to defeat common evasion techniques.\n\nHandles: unicode homoglyphs, leetspeak, zero-width characters,\nexcessive whitespace, combining diacritics, fullwidth characters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "load_conversation_guardian_config",
+      "line": 163,
+      "doc": "Load conversation guardian configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML file with a ``thresholds`` section.\n\nReturns:\n    ConversationGuardianConfig populated from the YAML data.\n\nRaises:\n    FileNotFoundError: If the config file does not exist.\n    ValueError: If the YAML is missing the ``thresholds`` section.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "ConversationGuardianConfig"
+    },
+    {
+      "name": "to_dict",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 257,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 331,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold",
+        "critical_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "score_message",
+      "line": 341,
+      "doc": "Score a single message for escalation patterns.\n\nMatches against both original and normalized text to catch\nevasion while preserving regular detection.\n\nReturns:\n    Tuple of (score in [0, 1], list of matched pattern descriptions).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze",
+      "line": 360,
+      "doc": "Analyze a message in conversation context.\n\nConsiders both the message's own score and the trend of recent\nmessages in this conversation.\n\nReturns:\n    Tuple of (conversation escalation score, matched patterns).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id",
+        "text",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 393,
+      "doc": "Clear escalation history for a conversation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 471,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold",
+        "critical_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "score_message",
+      "line": 479,
+      "doc": "Score a message for offensive intent patterns.\n\nMatches against both original and normalized text to catch\nevasion while preserving regular detection.\n\nReturns:\n    Tuple of (score in [0, 1], list of matched pattern descriptions).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "escalation_trend",
+      "line": 515,
+      "doc": "Return slope of escalation over recent messages.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 545,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_retry_cycles",
+        "max_conversation_turns",
+        "window_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_state",
+      "line": 556,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": "_ConversationState"
+    },
+    {
+      "name": "_is_error_message",
+      "line": 561,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_message",
+      "line": 564,
+      "doc": "Record a message and return the current loop score.\n\nReturns:\n    Loop score in [0, 1]. Higher = more likely in a dangerous loop.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id",
+        "text",
+        "escalation_score",
+        "timestamp"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "score",
+      "line": 596,
+      "doc": "Compute loop score for a conversation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "should_break",
+      "line": 620,
+      "doc": "Check whether the conversation should be broken.\n\nReturns:\n    Tuple of (should_break, reason).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 641,
+      "doc": "Clear state for a conversation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_state",
+      "line": 645,
+      "doc": "Return conversation state as a dict (for audit).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 681,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze_message",
+      "line": 713,
+      "doc": "Analyze a single message in an agent-to-agent conversation.\n\nRuns all three detectors and produces a composite alert.\n\nArgs:\n    conversation_id: Unique identifier for the conversation.\n    sender: Agent ID of the message sender.\n    receiver: Agent ID of the message receiver.\n    content: The text content of the message.\n    timestamp: Optional timestamp (defaults to now).\n\nReturns:\n    ConversationAlert with scores, severity, and recommended action.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id",
+        "sender",
+        "receiver",
+        "content",
+        "timestamp"
+      ],
+      "returns": "ConversationAlert"
+    },
+    {
+      "name": "_classify_severity",
+      "line": 862,
+      "doc": "Map composite score and action to severity level.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "composite",
+        "action"
+      ],
+      "returns": "AlertSeverity"
+    },
+    {
+      "name": "get_alerts",
+      "line": 878,
+      "doc": "Retrieve alerts, optionally filtered. Thread-safe.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id",
+        "min_severity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_transcript",
+      "line": 891,
+      "doc": "Retrieve conversation transcript entries. Thread-safe.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id",
+        "min_action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 905,
+      "doc": "Return aggregate statistics. Thread-safe.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 924,
+      "doc": "Reset state. If conversation_id given, reset only that conversation. Thread-safe.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conversation_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AlertAction",
+      "line": 113,
+      "doc": "Recommended action for a conversation alert.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AlertSeverity",
+      "line": 123,
+      "doc": "Severity of a conversation alert.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ConversationGuardianConfig",
+      "line": 137,
+      "doc": "Tunable thresholds for the conversation guardian.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TranscriptEntry",
+      "line": 208,
+      "doc": "A single message in the conversation audit trail.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ConversationAlert",
+      "line": 241,
+      "doc": "Result of analyzing a message in an agent-to-agent conversation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EscalationClassifier",
+      "line": 324,
+      "doc": "Detects escalating rhetoric in agent-to-agent messages.\n\nTracks per-conversation escalation over time using a sliding window\nof recent message scores, producing a composite escalation score.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "OffensiveIntentDetector",
+      "line": 464,
+      "doc": "Detects offensive cyber operation planning in messages.\n\nIdentifies vulnerability research, privilege escalation,\nexfiltration planning, and reconnaissance language.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "_ConversationState",
+      "line": 503,
+      "doc": "Internal state for tracking a conversation.",
+      "is_public": false,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FeedbackLoopBreaker",
+      "line": 537,
+      "doc": "Detects agent-to-agent feedback loops that escalate over time.\n\nTracks retry patterns, error-retry streaks, and escalation trends\nacross conversations. Produces a loop score in [0, 1] indicating\nhow likely the conversation is in a dangerous feedback loop.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ConversationGuardian",
+      "line": 670,
+      "doc": "Orchestrates escalation, offensive intent, and loop detection\nto produce composite conversation alerts.\n\nThread-safe: all state mutations are protected by a lock.\nIncludes a transcript audit trail for post-incident analysis.\n\nIntegrates with A2AGovernanceAdapter as an additional analysis layer\non inter-agent message content.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 109,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

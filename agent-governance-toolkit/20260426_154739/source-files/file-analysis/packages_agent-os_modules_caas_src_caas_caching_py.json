@@ -1,0 +1,755 @@
+{
+  "path": "packages/agent-os/modules/caas/src/caas/caching.py",
+  "extension": ".py",
+  "size_bytes": 26364,
+  "line_count": 834,
+  "documentation": {
+    "file_docstring": "Context Caching for LLM APIs.\n\nThis module provides intelligent caching for context sent to LLM APIs,\nleveraging provider-specific caching features (Anthropic's prompt caching,\nOpenAI's predicted outputs) and local caching strategies.\n\nKey Features:\n    - Provider-agnostic caching interface\n    - Anthropic prompt caching support (cache_control breakpoints)\n    - OpenAI predicted outputs / prefix caching detection\n    - Local semantic cache for repeated queries\n    - Cache statistics and cost tracking\n    - TTL-based cache expiration\n\nCost Savings:\n    - Anthropic: Up to 90% reduction on cached prompt tokens\n    - OpenAI: 50% reduction on cached prefix tokens\n    - Local cache: 100% reduction for exact/semantic matches\n\nExample:\n    from caas.caching import (\n        ContextCache,\n        AnthropicCacheStrategy,\n        OpenAICacheStrategy,\n        CacheConfig,\n    )\n\n    # Create cache with Anthropic strategy\n    cache = ContextCache(\n        strategy=AnthropicCacheStrategy(),\n        config=CacheConfig(ttl_seconds=3600)\n    )\n\n    # Prepare messages with cache breakpoints\n    messages = cache.prepare_messages(\n        system_prompt=\"You are a helpful assistant...\",\n        context=\"Large document context here...\",\n        user_message=\"Summarize the key points\"\n    )\n\n    # Track cache hits\n    stats = cache.get_stats()\n    print(f\"Cache hit rate: {stats['hit_rate']:.1%}\")\n    print(f\"Estimated savings: ${stats['estimated_savings']:.2f}\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create cache with Anthropic strategy",
+      "Prepare messages with cache breakpoints",
+      "Track cache hits",
+      "Anthropic pricing (as of 2024)",
+      "Claude 3.5 Sonnet: $3/M input, $0.30/M cached input",
+      "System prompt with caching (if provided and long enough)",
+      "Add context as second block with caching",
+      "Context only (no system prompt)",
+      "Add conversation messages",
+      "Cost without caching",
+      "Cost with caching (90% reduction)",
+      "Savings",
+      "Token savings (conceptually, same tokens but cheaper)",
+      "OpenAI pricing (GPT-4o as of 2024)",
+      "Combine system prompt and context (static content first)",
+      "Add conversation messages",
+      "Cost without caching",
+      "Cost with caching (50% reduction)",
+      "Savings",
+      "Token savings (50% in cost terms)",
+      "Assume average cost of $2/M tokens",
+      "Check expiration",
+      "Move to end (most recently used)",
+      "Update access stats",
+      "Remove oldest entries if at capacity",
+      "Check for cached response",
+      "Make API call",
+      "Skip caching for small contexts",
+      "Check local cache first",
+      "No local hit - check if provider caching is enabled",
+      "Provider caching is handled at message preparation time",
+      "We return a result indicating provider cache should be used",
+      "Cache miss",
+      "Don't cache small contexts",
+      "Convenience function for creating caches",
+      "Anthropic cache",
+      "OpenAI cache",
+      "Local-only cache"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CacheProvider: Supported LLM providers for caching.",
+      "CacheType: Types of cache hits.",
+      "CacheConfig: Configuration for context caching.\n\nAttributes:\n    ttl_seconds: Time-to-live fo",
+      "CacheEntry: A single cache entry.\n\nAttributes:\n    key: Cache key (hash of content)\n    cont",
+      "CacheResult: Result of a cache lookup.\n\nAttributes:\n    cache_type: Type of cache hit (or mis",
+      "CacheStats: Statistics for cache performance.\n\nAttributes:\n    total_requests: Total number ",
+      "CacheStrategy: Abstract base class for provider-specific caching strategies.",
+      "AnthropicCacheStrategy: Caching strategy for Anthropic API.\n\nImplements Anthropic's prompt caching featu",
+      "OpenAICacheStrategy: Caching strategy for OpenAI API.\n\nImplements OpenAI's automatic prompt caching w",
+      "LocalCacheStrategy: Local-only caching strategy.\n\nUses a local LRU cache to store and retrieve respo"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "compute_key",
+    "is_expired",
+    "estimate_savings",
+    "invalidate",
+    "to_dict",
+    "strategy",
+    "cleanup",
+    "OpenAICacheStrategy",
+    "config",
+    "provider",
+    "store",
+    "ContextCache",
+    "CacheEntry",
+    "put",
+    "remove",
+    "LRUCache",
+    "hit_rate",
+    "get_stats",
+    "CacheType",
+    "reset_stats",
+    "CacheConfig",
+    "AnthropicCacheStrategy",
+    "CacheProvider",
+    "LocalCacheStrategy",
+    "cleanup_expired",
+    "CacheStats",
+    "CacheResult",
+    "clear",
+    "lookup",
+    "get",
+    "create_cache",
+    "CacheStrategy",
+    "prepare_messages"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "time",
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "collections",
+      "threading"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_cache",
+      "line": 797,
+      "doc": "Create a context cache for a specific provider.\n\nArgs:\n    provider: Provider name or CacheProvider enum\n    **kwargs: Additional config options passed to CacheConfig\n    \nReturns:\n    Configured ContextCache instance\n\nExample:\n    # Anthropic cache\n    cache = create_cache(\"anthropic\", ttl_seconds=3600)\n    \n    # OpenAI cache\n    cache = create_cache(\"openai\", max_entries=500)\n    \n    # Local-only cache\n    cache = create_cache(\"local\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "provider"
+      ],
+      "returns": "ContextCache"
+    },
+    {
+      "name": "is_expired",
+      "line": 122,
+      "doc": "Check if this entry has expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ttl_seconds"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "hit_rate",
+      "line": 170,
+      "doc": "Calculate overall cache hit rate.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "to_dict",
+      "line": 177,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "provider",
+      "line": 197,
+      "doc": "Return the provider this strategy is for.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CacheProvider"
+    },
+    {
+      "name": "prepare_messages",
+      "line": 202,
+      "doc": "Prepare messages with caching hints.\n\nArgs:\n    system_prompt: Optional system prompt\n    context: The context to cache\n    messages: The conversation messages\n    \nReturns:\n    Messages formatted for the provider with cache hints",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "system_prompt",
+        "context",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "estimate_savings",
+      "line": 222,
+      "doc": "Estimate token and cost savings from caching.\n\nArgs:\n    token_count: Number of tokens in the cached content\n    is_cached: Whether the content was cached\n    \nReturns:\n    Tuple of (tokens_saved, cost_saved_usd)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "token_count",
+        "is_cached"
+      ],
+      "returns": null
+    },
+    {
+      "name": "provider",
+      "line": 257,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CacheProvider"
+    },
+    {
+      "name": "prepare_messages",
+      "line": 260,
+      "doc": "Prepare messages with Anthropic cache_control breakpoints.\n\nAdds cache_control: {\"type\": \"ephemeral\"} to cacheable content blocks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_prompt",
+        "context",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "estimate_savings",
+      "line": 310,
+      "doc": "Estimate savings from Anthropic caching.\n\nReturns:\n    Tuple of (tokens_saved, cost_saved_usd)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token_count",
+        "is_cached"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_estimate_tokens",
+      "line": 334,
+      "doc": "Rough token estimation (4 chars per token).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "provider",
+      "line": 358,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CacheProvider"
+    },
+    {
+      "name": "prepare_messages",
+      "line": 361,
+      "doc": "Prepare messages for OpenAI (no special formatting needed).\n\nOpenAI caching is automatic - we just need to structure messages\nwith static content first for optimal cache hits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_prompt",
+        "context",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "estimate_savings",
+      "line": 395,
+      "doc": "Estimate savings from OpenAI caching.\n\nReturns:\n    Tuple of (tokens_saved, cost_saved_usd)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token_count",
+        "is_cached"
+      ],
+      "returns": null
+    },
+    {
+      "name": "provider",
+      "line": 429,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CacheProvider"
+    },
+    {
+      "name": "prepare_messages",
+      "line": 432,
+      "doc": "No special preparation needed for local caching.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_prompt",
+        "context",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "estimate_savings",
+      "line": 458,
+      "doc": "100% savings on local cache hits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token_count",
+        "is_cached"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 471,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_size"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get",
+      "line": 476,
+      "doc": "Get an entry from cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "ttl_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "put",
+      "line": 498,
+      "doc": "Add or update an entry in cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove",
+      "line": 508,
+      "doc": "Remove an entry from cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "clear",
+      "line": 516,
+      "doc": "Clear all entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__len__",
+      "line": 521,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "cleanup_expired",
+      "line": 525,
+      "doc": "Remove expired entries. Returns count of removed entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ttl_seconds"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 561,
+      "doc": "Initialize the context cache.\n\nArgs:\n    strategy: Provider-specific caching strategy\n    config: Cache configuration",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "strategy",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "strategy",
+      "line": 580,
+      "doc": "Get the current caching strategy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CacheStrategy"
+    },
+    {
+      "name": "config",
+      "line": 585,
+      "doc": "Get the cache configuration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CacheConfig"
+    },
+    {
+      "name": "compute_key",
+      "line": 589,
+      "doc": "Compute a cache key for content.\n\nArgs:\n    content: The content to hash\n    metadata: Optional metadata to include in key\n    \nReturns:\n    SHA-256 hash of the content",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "lookup",
+      "line": 606,
+      "doc": "Look up content in cache.\n\nArgs:\n    context: The context to look up\n    metadata: Optional metadata for key computation\n    \nReturns:\n    CacheResult with cache type and any cached content",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "metadata"
+      ],
+      "returns": "CacheResult"
+    },
+    {
+      "name": "store",
+      "line": 678,
+      "doc": "Store content in cache.\n\nArgs:\n    context: The context to cache\n    response: Optional response to cache with context\n    metadata: Optional metadata\n    \nReturns:\n    Cache key",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "response",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "prepare_messages",
+      "line": 719,
+      "doc": "Prepare messages with caching hints.\n\nUses the configured strategy to format messages for optimal caching.\n\nArgs:\n    system_prompt: Optional system prompt\n    context: Context to include (will be cached if large enough)\n    messages: Conversation messages\n    \nReturns:\n    List of messages formatted for the provider",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_prompt",
+        "context",
+        "messages"
+      ],
+      "returns": null
+    },
+    {
+      "name": "invalidate",
+      "line": 744,
+      "doc": "Invalidate a cache entry.\n\nArgs:\n    cache_key: Key of the entry to invalidate\n    \nReturns:\n    True if entry was removed, False if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cache_key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "clear",
+      "line": 760,
+      "doc": "Clear all cache entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cleanup",
+      "line": 766,
+      "doc": "Remove expired entries.\n\nReturns:\n    Number of entries removed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_stats",
+      "line": 778,
+      "doc": "Get cache statistics.\n\nReturns:\n    Dictionary with cache statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_stats",
+      "line": 789,
+      "doc": "Reset cache statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CacheProvider",
+      "line": 64,
+      "doc": "Supported LLM providers for caching.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CacheType",
+      "line": 71,
+      "doc": "Types of cache hits.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CacheConfig",
+      "line": 80,
+      "doc": "Configuration for context caching.\n\nAttributes:\n    ttl_seconds: Time-to-live for cached entries (default: 1 hour)\n    max_entries: Maximum number of entries in local cache\n    min_tokens_for_caching: Minimum tokens to consider caching\n    semantic_threshold: Similarity threshold for semantic cache (0-1)\n    enable_provider_cache: Whether to use provider-specific caching\n    enable_local_cache: Whether to use local caching\n    track_costs: Whether to track cost savings",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CacheEntry",
+      "line": 102,
+      "doc": "A single cache entry.\n\nAttributes:\n    key: Cache key (hash of content)\n    content: The cached content\n    metadata: Additional metadata\n    created_at: When the entry was created\n    last_accessed: When the entry was last accessed\n    access_count: Number of times this entry was accessed\n    token_count: Estimated token count",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CacheResult",
+      "line": 129,
+      "doc": "Result of a cache lookup.\n\nAttributes:\n    cache_type: Type of cache hit (or miss)\n    cached_content: The cached content (if hit)\n    cache_key: Key used for caching\n    token_savings: Estimated token savings\n    cost_savings: Estimated cost savings in USD",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CacheStats",
+      "line": 147,
+      "doc": "Statistics for cache performance.\n\nAttributes:\n    total_requests: Total number of cache requests\n    provider_hits: Hits from provider cache\n    local_exact_hits: Hits from local exact match\n    local_semantic_hits: Hits from local semantic match\n    misses: Cache misses\n    total_tokens_saved: Total tokens saved\n    total_cost_saved: Total cost saved in USD\n    current_entries: Current number of cache entries",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CacheStrategy",
+      "line": 192,
+      "doc": "Abstract base class for provider-specific caching strategies.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AnthropicCacheStrategy",
+      "line": 236,
+      "doc": "Caching strategy for Anthropic API.\n\nImplements Anthropic's prompt caching feature which provides:\n- 90% cost reduction on cached input tokens\n- 5-minute TTL for cached prompts\n- Requires min 1024 tokens for caching (2048 for Claude 3.5 Haiku)\n\nSee: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching",
+      "is_public": true,
+      "bases": [
+        "CacheStrategy"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OpenAICacheStrategy",
+      "line": 339,
+      "doc": "Caching strategy for OpenAI API.\n\nImplements OpenAI's automatic prompt caching which provides:\n- 50% cost reduction on cached input tokens\n- Automatic caching for prompts > 1024 tokens\n- Cache expires after 5-60 minutes of inactivity\n\nSee: https://platform.openai.com/docs/guides/prompt-caching",
+      "is_public": true,
+      "bases": [
+        "CacheStrategy"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "LocalCacheStrategy",
+      "line": 420,
+      "doc": "Local-only caching strategy.\n\nUses a local LRU cache to store and retrieve responses.\nProvides 100% savings on exact matches.",
+      "is_public": true,
+      "bases": [
+        "CacheStrategy"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "LRUCache",
+      "line": 468,
+      "doc": "Thread-safe LRU cache implementation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ContextCache",
+      "line": 537,
+      "doc": "Main context caching class.\n\nProvides unified caching interface for LLM APIs with support for:\n- Provider-specific caching (Anthropic, OpenAI)\n- Local LRU cache for exact matches\n- Statistics and cost tracking\n\nExample:\n    cache = ContextCache(\n        strategy=AnthropicCacheStrategy(),\n        config=CacheConfig(ttl_seconds=3600)\n    )\n    \n    # Check for cached response\n    result = cache.lookup(context_hash)\n    \n    if result.cache_type == CacheType.MISS:\n        # Make API call\n        response = api.complete(...)\n        cache.store(context_hash, response)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 82,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, auth"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth"
+    ]
+  }
+}

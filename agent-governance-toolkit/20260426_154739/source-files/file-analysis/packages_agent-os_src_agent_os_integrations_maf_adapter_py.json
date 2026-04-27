@@ -1,0 +1,407 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/maf_adapter.py",
+  "extension": ".py",
+  "size_bytes": 23704,
+  "line_count": 631,
+  "documentation": {
+    "file_docstring": "Microsoft Agent Framework (MAF) Governance Adapter\n\nBridges the Agent OS governance toolkit into MAF's native middleware system.\nFour composable middleware layers enforce policy, capability guards, audit\ntrails, and rogue-agent detection at every level of the agent stack:\n\n- GovernancePolicyMiddleware (AgentMiddleware): Declarative policy enforcement\n- CapabilityGuardMiddleware (FunctionMiddleware): Tool allow/deny lists\n- AuditTrailMiddleware (AgentMiddleware): Tamper-proof audit logging\n- RogueDetectionMiddleware (FunctionMiddleware): Behavioral anomaly detection\n\nEach middleware works independently and can be composed in any combination.\n\nUsage::\n\n    from agent_framework import Agent\n    from agent_os.integrations.maf_adapter import create_governance_middleware\n\n    middleware = create_governance_middleware(\n        policy_directory=\"policies/\",\n        allowed_tools=[\"web_search\", \"file_read\"],\n        enable_rogue_detection=True,\n    )\n\n    agent = Agent(\n        name=\"researcher\",\n        instructions=\"You are a research assistant.\",\n        middleware=middleware,\n    )",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Conditional MAF imports \u2014 fall back to local stubs when agent_framework",
+      "is not installed so the module remains importable for testing / linting.",
+      "---------------------------------------------------------------------------",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "1. GovernancePolicyMiddleware",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Extract the last user message text (handle empty conversations).",
+      "Message.text is the MAF accessor; fall back to str()",
+      "Build context dict for the policy evaluator.",
+      "Persist the decision in the MAF metadata for downstream middleware.",
+      "Set a user-visible response explaining the denial.",
+      "Policy allowed \u2014 log and continue the pipeline.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "2. CapabilityGuardMiddleware",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Explicit deny list takes precedence.",
+      "If an allow list is set, anything not in it is denied.",
+      "Tool is allowed \u2014 log start, execute, log completion.",
+      "Log completion with a truncated result summary.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "3. AuditTrailMiddleware",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Pre-execution audit entry.",
+      "Store the entry ID for downstream middleware / callers.",
+      "Post-execution audit entry.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "4. RogueDetectionMiddleware",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Register the expected capability profile if provided.",
+      "Feed the observation into the detector's analyzers.",
+      "Produce a composite risk assessment.",
+      "Log a warning for MEDIUM or above but allow execution.",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Convenience factory",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Determine whether we need an audit log for any layer.",
+      "1. Audit trail (outermost \u2014 captures everything).",
+      "2. Governance policy enforcement.",
+      "3. Capability guard.",
+      "4. Rogue detection (innermost \u2014 closest to actual tool execution)."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernancePolicyMiddleware: AgentMiddleware that evaluates declarative governance policies.\n\nIntercepts ever",
+      "CapabilityGuardMiddleware: FunctionMiddleware that enforces tool allow/deny lists.\n\nEach tool invocation is",
+      "AuditTrailMiddleware: AgentMiddleware that records tamper-proof audit entries.\n\nWraps every agent invo",
+      "RogueDetectionMiddleware: FunctionMiddleware that detects rogue agent behaviour.\n\nFeeds every tool invocat",
+      "create_governance_middleware: Create a complete governance middleware stack for a MAF agent.\n\nAssembles and re",
+      "process: Evaluate governance policy before agent execution.",
+      "_is_denied: Return ``True`` if *tool_name* should be blocked.",
+      "process: Guard tool invocations against capability policy.",
+      "process: Record pre/post execution audit entries with timing.",
+      "process: Assess rogue risk before allowing tool execution."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "FunctionInvocationContext",
+    "MiddlewareTermination",
+    "AgentContext",
+    "AgentMiddleware",
+    "GovernancePolicyMiddleware",
+    "Message",
+    "RogueDetectionMiddleware",
+    "create_governance_middleware",
+    "text",
+    "FunctionMiddleware",
+    "AgentResponse",
+    "CapabilityGuardMiddleware",
+    "AuditTrailMiddleware"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "pathlib",
+      "typing",
+      "agent_os.policies",
+      "agentmesh.governance",
+      "agent_sre.anomaly",
+      "agent_framework"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_governance_middleware",
+      "line": 532,
+      "doc": "Create a complete governance middleware stack for a MAF agent.\n\nAssembles and returns an ordered list of middleware instances ready\nto pass directly to a MAF ``Agent(middleware=...)`` constructor.\n\nThe stack is built bottom-up:\n\n1. :class:`AuditTrailMiddleware` (if *audit_log* provided)\n2. :class:`GovernancePolicyMiddleware` (if *policy_directory* provided)\n3. :class:`CapabilityGuardMiddleware` (if allow/deny lists provided)\n4. :class:`RogueDetectionMiddleware` (if *enable_rogue_detection*)\n\nArgs:\n    policy_directory: Path to a directory of YAML policy files.\n        When provided, a :class:`PolicyEvaluator` is created and\n        loaded with all ``*.yaml`` / ``*.yml`` files found.\n    allowed_tools: Whitelist of permitted tool names.\n    denied_tools: Blacklist of forbidden tool names.\n    agent_id: Identifier for the agent (used by audit and rogue\n        detection).\n    enable_rogue_detection: Whether to include the\n        :class:`RogueDetectionMiddleware`.\n    audit_log: Shared :class:`AuditLog` instance.  When ``None``,\n        a fresh in-memory log is created if any auditing middleware\n        is needed.\n\nReturns:\n    List of middleware instances in recommended execution order.\n\nExample::\n\n    from agent_framework import Agent\n    from agent_os.integrations.maf_adapter import create_governance_middleware\n\n    stack = create_governance_middleware(\n        policy_directory=\"policies/\",\n        allowed_tools=[\"search\", \"read_file\"],\n        agent_id=\"my-researcher\",\n    )\n    agent = Agent(name=\"researcher\", middleware=stack)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "policy_directory",
+        "allowed_tools",
+        "denied_tools",
+        "agent_id",
+        "enable_rogue_detection",
+        "audit_log"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "__init__",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "evaluator",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process",
+      "line": 125,
+      "doc": "Evaluate governance policy before agent execution.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "call_next"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 239,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "allowed_tools",
+        "denied_tools",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_is_denied",
+      "line": 249,
+      "doc": "Return ``True`` if *tool_name* should be blocked.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "process",
+      "line": 259,
+      "doc": "Guard tool invocations against capability policy.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "call_next"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit_log",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process",
+      "line": 348,
+      "doc": "Record pre/post execution audit entries with timing.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "call_next"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 434,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "detector",
+        "agent_id",
+        "capability_profile",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process",
+      "line": 452,
+      "doc": "Assess rogue risk before allowing tool execution.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "call_next"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "role",
+        "contents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "text",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernancePolicyMiddleware",
+      "line": 102,
+      "doc": "AgentMiddleware that evaluates declarative governance policies.\n\nIntercepts every agent invocation, builds a context dict from the\nincoming messages and agent metadata, and evaluates it against loaded\n:class:`~agent_os.policies.PolicyEvaluator` rules.  Denied requests\nare short-circuited with an ``AgentResponse`` explaining the\nviolation and a ``MiddlewareTermination`` is raised.\n\nArgs:\n    evaluator: Pre-configured :class:`PolicyEvaluator` with loaded\n        policy documents.\n    audit_log: Optional :class:`AuditLog` for recording decisions.",
+      "is_public": true,
+      "bases": [
+        "AgentMiddleware"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityGuardMiddleware",
+      "line": 220,
+      "doc": "FunctionMiddleware that enforces tool allow/deny lists.\n\nEach tool invocation is checked against explicit ``allowed_tools``\nand ``denied_tools`` lists.  If a tool is not permitted, the\nfunction result is set to an error string and\n``MiddlewareTermination`` is raised.\n\nWhen both ``allowed_tools`` and ``denied_tools`` are provided,\n``denied_tools`` takes precedence (a tool in both lists is denied).\n\nArgs:\n    allowed_tools: Whitelist of permitted tool names.  If ``None``,\n        all tools are allowed unless explicitly denied.\n    denied_tools: Blacklist of forbidden tool names.\n    audit_log: Optional :class:`AuditLog` for recording tool\n        invocations.",
+      "is_public": true,
+      "bases": [
+        "FunctionMiddleware"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AuditTrailMiddleware",
+      "line": 326,
+      "doc": "AgentMiddleware that records tamper-proof audit entries.\n\nWraps every agent invocation with pre- and post-execution audit\nentries, capturing timing information and the execution outcome.\nThe resulting :class:`AuditEntry` ID is stored in\n``context.metadata[\"audit_entry_id\"]`` for downstream correlation.\n\nArgs:\n    audit_log: :class:`AuditLog` instance for recording entries.\n    agent_did: Optional decentralised identifier for the agent.\n        Defaults to the MAF agent name when not provided.",
+      "is_public": true,
+      "bases": [
+        "AgentMiddleware"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RogueDetectionMiddleware",
+      "line": 416,
+      "doc": "FunctionMiddleware that detects rogue agent behaviour.\n\nFeeds every tool invocation into a\n:class:`~agent_sre.anomaly.RogueAgentDetector` and checks the\nresulting risk assessment.  High-risk agents are blocked with a\n``MiddlewareTermination``; medium-risk invocations proceed with a\nwarning logged to the audit trail.\n\nArgs:\n    detector: Pre-configured :class:`RogueAgentDetector`.\n    agent_id: Identifier for the agent being monitored.\n    capability_profile: Optional dict mapping ``\"allowed_tools\"``\n        to a list of expected tool names.  Registered with the\n        detector on construction.\n    audit_log: Optional :class:`AuditLog` for recording detections.",
+      "is_public": true,
+      "bases": [
+        "FunctionMiddleware"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentMiddleware",
+      "line": 68,
+      "doc": "Stub base class when agent_framework is absent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FunctionMiddleware",
+      "line": 71,
+      "doc": "Stub base class when agent_framework is absent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentContext",
+      "line": 74,
+      "doc": "Stub for type hints.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FunctionInvocationContext",
+      "line": 77,
+      "doc": "Stub for type hints.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentResponse",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "Message",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MiddlewareTermination",
+      "line": 93,
+      "doc": "Local fallback when agent_framework is not installed.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

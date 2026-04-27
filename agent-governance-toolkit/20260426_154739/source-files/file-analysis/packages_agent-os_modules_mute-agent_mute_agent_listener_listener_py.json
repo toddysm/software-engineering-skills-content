@@ -1,0 +1,483 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/mute_agent/listener/listener.py",
+  "extension": ".py",
+  "size_bytes": 21445,
+  "line_count": 610,
+  "documentation": {
+    "file_docstring": "Listener Agent - Layer 5 Reference Implementation\n\nThe Listener Agent is a passive observer that monitors graph states\nwithout interfering until configured thresholds are exceeded.\n\nArchitecture:\n- Consolidates: agent-control-plane, scak, iatp, caas\n- Pattern: Observer with threshold-based intervention\n- Principle: Monitor passively, intervene only when necessary\n\nThis module is pure wiring - it delegates to lower layers:\n- Knowledge graph operations \u2192 scak (intelligence layer)\n- Security validation \u2192 iatp (security layer)  \n- Context management \u2192 caas (context layer)\n- Base orchestration \u2192 agent-control-plane",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Not actively observing",
+      "Passively observing - no intervention",
+      "Detected threshold breach - evaluating response",
+      "Actively intervening",
+      "Intervention complete, returning to observation",
+      "Stopped - not operational",
+      "Threshold configuration",
+      "Observation settings",
+      "Intervention settings",
+      "Recovery settings",
+      "Create core components",
+      "Create and start listener",
+      "Listener now monitors passively...",
+      "When thresholds are exceeded, it intervenes automatically",
+      "Stop when done",
+      "Optional lower-layer adapters",
+      "Lower-layer adapters (for consolidated stack)",
+      "State observer",
+      "Current state",
+      "Observation thread",
+      "Intervention tracking",
+      "Callbacks",
+      "Notify callbacks outside lock",
+      "Start observation thread",
+      "Convert observation to threshold metrics",
+      "Evaluate against thresholds",
+      "Get maximum intervention level",
+      "Log error but continue observation",
+      "In production, this would integrate with logging framework",
+      "Wait for next observation interval",
+      "Perform observation",
+      "Evaluate thresholds",
+      "No thresholds exceeded - continue passive observation",
+      "Thresholds exceeded - evaluate intervention",
+      "Check rate limiting",
+      "Determine if intervention is needed based on level",
+      "Log only",
+      "Perform intervention",
+      "Return to observation (or recovery)",
+      "In recovery mode, continue observation with heightened awareness",
+      "Reset counter if minute has passed",
+      "Generate event ID",
+      "Determine action based on intervention level",
+      "Execute intervention action",
+      "Calculate duration",
+      "Create event record",
+      "Store and notify",
+      "Log warning - in production, integrate with alerting system",
+      "Mark pending sessions as requiring confirmation",
+      "Reject all pending sessions",
+      "Emergency halt - reject all and set protective state",
+      "If security adapter available, notify it",
+      "Check if we're back to safe levels",
+      "Calculate recovery success rate",
+      "Still unstable - may need additional intervention",
+      "=== Public API for external integration ===",
+      "Collect observations",
+      "Calibrate observer baselines"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ListenerState: States of the Listener Agent.",
+      "InterventionEvent: Record of a Listener intervention.\n\nThis provides an audit trail of when and why",
+      "ListenerConfig: Configuration for the Listener Agent.",
+      "ListenerAgent: Layer 5 Reference Implementation: The Listener Agent\n\nA passive observer that mo",
+      "__init__: Initialize the Listener Agent.\n\nArgs:\n    knowledge_graph: The graph to monitor ",
+      "state: Get current listener state.",
+      "_set_state: Set listener state with callback notification.",
+      "start: Start the Listener Agent.\n\nBegins passive observation of graph states. The liste",
+      "stop: Stop the Listener Agent.\n\nCeases observation and any ongoing intervention.",
+      "observe_once: Perform a single observation cycle.\n\nThis is useful for synchronous observation "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ListenerState",
+    "ListenerConfig",
+    "state",
+    "start",
+    "disable_threshold",
+    "get_statistics",
+    "update_threshold",
+    "calibrate",
+    "register_intervention_callback",
+    "get_intervention_history",
+    "stop",
+    "InterventionEvent",
+    "observe_once",
+    "register_state_change_callback",
+    "evaluate_thresholds",
+    "ListenerAgent",
+    "enable_threshold"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "threading",
+      "time",
+      "collections",
+      "knowledge_graph.multidimensional_graph",
+      "core.handshake_protocol",
+      "core.reasoning_agent",
+      "core.execution_agent",
+      "super_system.router",
+      "threshold_config",
+      "state_observer"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 140,
+      "doc": "Initialize the Listener Agent.\n\nArgs:\n    knowledge_graph: The graph to monitor (via scak)\n    protocol: The handshake protocol to observe\n    router: The super system router\n    config: Listener configuration\n    security_adapter: Optional adapter to iatp security layer\n    context_adapter: Optional adapter to caas context layer",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "knowledge_graph",
+        "protocol",
+        "router",
+        "config",
+        "security_adapter",
+        "context_adapter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "state",
+      "line": 199,
+      "doc": "Get current listener state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ListenerState"
+    },
+    {
+      "name": "_set_state",
+      "line": 204,
+      "doc": "Set listener state with callback notification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 217,
+      "doc": "Start the Listener Agent.\n\nBegins passive observation of graph states. The listener will\ncontinue observing until stop() is called or an intervention\nthreshold is exceeded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 239,
+      "doc": "Stop the Listener Agent.\n\nCeases observation and any ongoing intervention.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "observe_once",
+      "line": 251,
+      "doc": "Perform a single observation cycle.\n\nThis is useful for synchronous observation without starting\nthe background observation loop.\n\nArgs:\n    context: Optional context to include\n    \nReturns:\n    ObservationResult from this cycle",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "ObservationResult"
+    },
+    {
+      "name": "evaluate_thresholds",
+      "line": 266,
+      "doc": "Evaluate observation against configured thresholds.\n\nArgs:\n    observation: The observation to evaluate\n    \nReturns:\n    Tuple of (triggered_rules, max_intervention_level)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "observation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_observation_loop",
+      "line": 295,
+      "doc": "Background observation loop.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_run_observation_cycle",
+      "line": 308,
+      "doc": "Run a single observation cycle.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_can_intervene",
+      "line": 348,
+      "doc": "Check if intervention is allowed (rate limiting).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_perform_intervention",
+      "line": 359,
+      "doc": "Perform an intervention based on triggered rules.\n\nThis is where the Listener transitions from passive to active.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "triggered_rules",
+        "intervention_level",
+        "observation"
+      ],
+      "returns": "InterventionEvent"
+    },
+    {
+      "name": "_determine_action",
+      "line": 418,
+      "doc": "Determine intervention action based on level and rules.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "level",
+        "rules"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_execute_intervention_action",
+      "line": 435,
+      "doc": "Execute the determined intervention action.\n\nThis is where we wire together the lower layers:\n- Use iatp for security-related interventions\n- Use caas to update context\n- Use agent-control-plane for action blocking",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "level",
+        "rules"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_recovery_check",
+      "line": 506,
+      "doc": "Check if system has recovered after intervention.\n\nPerforms additional observations to verify system stability\nbefore returning to normal observation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_intervention_callback",
+      "line": 539,
+      "doc": "Register a callback to be notified of interventions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_state_change_callback",
+      "line": 546,
+      "doc": "Register a callback to be notified of state changes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_intervention_history",
+      "line": 553,
+      "doc": "Get recent intervention events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "count"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 563,
+      "doc": "Get listener statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_threshold",
+      "line": 579,
+      "doc": "Update a threshold value at runtime.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold_type",
+        "new_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "enable_threshold",
+      "line": 589,
+      "doc": "Enable a threshold rule.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disable_threshold",
+      "line": 593,
+      "doc": "Disable a threshold rule.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calibrate",
+      "line": 597,
+      "doc": "Calibrate baselines during known-good operation.\n\nCall this during normal operation to establish baseline\nmetrics for anomaly detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "observation_count"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ListenerState",
+      "line": 45,
+      "doc": "States of the Listener Agent.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InterventionEvent",
+      "line": 68,
+      "doc": "Record of a Listener intervention.\n\nThis provides an audit trail of when and why the Listener\ntransitioned from passive observation to active intervention.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ListenerConfig",
+      "line": 88,
+      "doc": "Configuration for the Listener Agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ListenerAgent",
+      "line": 108,
+      "doc": "Layer 5 Reference Implementation: The Listener Agent\n\nA passive observer that monitors graph states and only intervenes\nwhen configured thresholds are exceeded.\n\nDesign Principles:\n1. Passive by default - observe without interference\n2. Threshold-driven intervention - clear, configurable triggers\n3. Minimal footprint - delegate to lower layers\n4. Full audit trail - every intervention is logged\n\nUsage:\n    ```python\n    # Create core components\n    kg = MultidimensionalKnowledgeGraph()\n    protocol = HandshakeProtocol()\n    router = SuperSystemRouter(kg)\n    \n    # Create and start listener\n    listener = ListenerAgent(kg, protocol, router)\n    listener.start()\n    \n    # Listener now monitors passively...\n    # When thresholds are exceeded, it intervenes automatically\n    \n    # Stop when done\n    listener.stop()\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 65,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

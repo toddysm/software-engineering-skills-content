@@ -1,0 +1,296 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/spiffe.py",
+  "extension": ".py",
+  "size_bytes": 9389,
+  "line_count": 315,
+  "documentation": {
+    "file_docstring": "SPIFFE/SVID Integration\n\nWorkload identity using SPIFFE (Secure Production Identity Framework\nfor Everyone) and SVID (SPIFFE Verifiable Identity Documents).\n\nSPIFFE/SVID provides:\n- Mutual TLS for all agent transport\n- Zero cleartext traffic between agents\n- Standard workload identity",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Certificate data (X.509-SVID)",
+      "JWT-SVID fields",
+      "Metadata",
+      "Agent binding",
+      "AgentMesh identity",
+      "SPIFFE identity",
+      "Current SVID",
+      "Metadata",
+      "Build workload path",
+      "Check basic validity",
+      "Verify trust domain matches",
+      "Verify agent is registered"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SVID: SPIFFE Verifiable Identity Document.\n\nAn SVID is the document that carries the S",
+      "SPIFFEIdentity: SPIFFE Identity for an agent.\n\nMaps AgentMesh identity to SPIFFE workload identi",
+      "SPIFFERegistry: Registry mapping AgentMesh identities to SPIFFE identities.\n\nIn production, this",
+      "parse_spiffe_id: Parse a SPIFFE ID into trust domain and path.\n\nFormat: ``spiffe://trust-domain/p",
+      "is_valid: Check if SVID is currently valid.\n\nReturns:\n    True if the current time is with",
+      "time_remaining: Get time remaining until expiration.\n\nReturns:\n    A non-negative timedelta; zer",
+      "create: Create SPIFFE identity for an agent.\n\nSPIFFE ID format: ``spiffe://trust-domain/",
+      "issue_svid: Issue a new SVID for this identity.\n\nIn production, this would request an SVID f",
+      "get_valid_svid: Get current SVID if valid, None otherwise.\n\nReturns:\n    The current SVID if it ",
+      "needs_rotation: Check if SVID needs rotation.\n\nArgs:\n    threshold_minutes: Minutes before expir"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "needs_rotation",
+    "register",
+    "parse_spiffe_id",
+    "SVID",
+    "issue_svid",
+    "get_by_spiffe_id",
+    "is_valid",
+    "time_remaining",
+    "get",
+    "SPIFFEIdentity",
+    "validate_svid",
+    "get_valid_svid",
+    "SPIFFERegistry",
+    "create"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "parse_spiffe_id",
+      "line": 47,
+      "doc": "Parse a SPIFFE ID into trust domain and path.\n\nFormat: ``spiffe://trust-domain/path``\n\nArgs:\n    spiffe_id: The full SPIFFE ID string.\n\nReturns:\n    Tuple of (trust_domain, path).\n\nRaises:\n    ValueError: If the SPIFFE ID does not start with ``spiffe://``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "spiffe_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_valid",
+      "line": 70,
+      "doc": "Check if SVID is currently valid.\n\nReturns:\n    True if the current time is within the issued/expiry window.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "time_remaining",
+      "line": 79,
+      "doc": "Get time remaining until expiration.\n\nReturns:\n    A non-negative timedelta; zero if already expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "timedelta"
+    },
+    {
+      "name": "create",
+      "line": 112,
+      "doc": "Create SPIFFE identity for an agent.\n\nSPIFFE ID format: ``spiffe://trust-domain/agentmesh/org/agent-name``\n\nArgs:\n    agent_did: The agent's AgentMesh DID.\n    agent_name: Human-readable agent name (used in workload path).\n    trust_domain: SPIFFE trust domain.\n    organization: Optional organization segment for the workload path.\n\nReturns:\n    A new SPIFFEIdentity with no SVID issued yet.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "agent_did",
+        "agent_name",
+        "trust_domain",
+        "organization"
+      ],
+      "returns": null
+    },
+    {
+      "name": "issue_svid",
+      "line": 146,
+      "doc": "Issue a new SVID for this identity.\n\nIn production, this would request an SVID from the SPIRE server.\n\nArgs:\n    ttl_hours: Hours until the SVID expires (default 1).\n    svid_type: Type of SVID to issue (\"x509\" or \"jwt\").\n\nReturns:\n    The newly issued SVID, also stored as ``current_svid``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ttl_hours",
+        "svid_type"
+      ],
+      "returns": "SVID"
+    },
+    {
+      "name": "get_valid_svid",
+      "line": 176,
+      "doc": "Get current SVID if valid, None otherwise.\n\nReturns:\n    The current SVID if it has not expired, or None.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "needs_rotation",
+      "line": 186,
+      "doc": "Check if SVID needs rotation.\n\nArgs:\n    threshold_minutes: Minutes before expiry to trigger rotation.\n\nReturns:\n    True if no SVID exists or it expires within the threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold_minutes"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 211,
+      "doc": "Initialize the SPIFFE registry.\n\nArgs:\n    trust_domain: SPIFFE trust domain. Defaults to \"agentmesh.local\".",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trust_domain"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 220,
+      "doc": "Register an agent and create SPIFFE identity.\n\nReturns the existing identity if already registered.\n\nArgs:\n    agent_did: The agent's AgentMesh DID.\n    agent_name: Human-readable agent name.\n    organization: Optional organization for the workload path.\n\nReturns:\n    The new or existing SPIFFEIdentity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "agent_name",
+        "organization"
+      ],
+      "returns": "SPIFFEIdentity"
+    },
+    {
+      "name": "get",
+      "line": 251,
+      "doc": "Get SPIFFE identity for an agent.\n\nArgs:\n    agent_did: The agent's DID.\n\nReturns:\n    The SPIFFEIdentity, or None if not registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_by_spiffe_id",
+      "line": 262,
+      "doc": "Get identity by SPIFFE ID.\n\nArgs:\n    spiffe_id: The full SPIFFE ID string.\n\nReturns:\n    The matching SPIFFEIdentity, or None if not found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "spiffe_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "issue_svid",
+      "line": 276,
+      "doc": "Issue an SVID for an agent.\n\nArgs:\n    agent_did: The agent's DID.\n\nReturns:\n    The newly issued SVID, or None if the agent is not registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_svid",
+      "line": 290,
+      "doc": "Validate an SVID.\n\nChecks temporal validity, trust domain match, and agent registration.\nIn production, would verify against the SPIRE bundle.\n\nArgs:\n    svid: The SVID to validate.\n\nReturns:\n    True if the SVID passes all validation checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "svid"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SVID",
+      "line": 20,
+      "doc": "SPIFFE Verifiable Identity Document.\n\nAn SVID is the document that carries the SPIFFE ID and can be\nvalidated by a third party. AgentMesh uses X.509-SVID format.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SPIFFEIdentity",
+      "line": 88,
+      "doc": "SPIFFE Identity for an agent.\n\nMaps AgentMesh identity to SPIFFE workload identity,\nenabling mTLS with other SPIFFE-aware workloads.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SPIFFERegistry",
+      "line": 202,
+      "doc": "Registry mapping AgentMesh identities to SPIFFE identities.\n\nIn production, this would integrate with SPIRE.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

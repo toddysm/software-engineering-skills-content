@@ -1,0 +1,533 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/schema.py",
+  "extension": ".py",
+  "size_bytes": 15965,
+  "line_count": 480,
+  "documentation": {
+    "file_docstring": "Schema definitions for Agent Tool Registry.\n\nDefines the rigorous JSON/Pydantic schema for tool specifications,\nsimilar to OpenAI Function Calling spec.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "New fields for enhanced functionality",
+      "Basic semver pattern",
+      "Extract major.minor.patch",
+      "The actual callable - stored but never executed by the registry",
+      "Use PrivateAttr for internal state that shouldn't be validated",
+      "Enhanced execution configuration",
+      "Apply rate limiting",
+      "Inject dependencies if container available",
+      "Execute with retry policy if configured",
+      "Record metrics",
+      "Apply rate limiting",
+      "Inject dependencies if container available",
+      "Execute with retry policy if configured",
+      "Record metrics"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ParameterType: Supported parameter types for tool inputs/outputs.",
+      "ParameterSpec: Specification for a single parameter.",
+      "SideEffect: Types of side effects a tool may have.",
+      "CostLevel: Cost level for tool execution.",
+      "ToolMetadata: Metadata about a tool.",
+      "ToolSpec: Complete specification for a tool.\n\nThis is the core schema that defines what a ",
+      "ToolHandle: Handle for executing a registered tool with all policies applied.\n\nThis is the p",
+      "validate_default: Ensure default is only set for non-required parameters.",
+      "validate_version: Validate semantic version format.",
+      "version_tuple: Get version as a comparable tuple."
+    ]
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path"
+    ]
+  },
+  "exports": [
+    "to_anthropic_tool_schema",
+    "validate_version",
+    "ToolSpec",
+    "check_health",
+    "ParameterType",
+    "name",
+    "version_tuple",
+    "call",
+    "SideEffect",
+    "validate_default",
+    "CostLevel",
+    "ToolMetadata",
+    "spec",
+    "rate_limit_policy",
+    "is_async",
+    "ToolHandle",
+    "retry_policy",
+    "health_check",
+    "access_policy",
+    "version",
+    "to_openai_function_schema",
+    "ParameterSpec"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "time",
+      "enum",
+      "typing",
+      "pydantic",
+      "re",
+      "re",
+      "atr.policies",
+      "atr.injection",
+      "atr.policies",
+      "atr.policies",
+      "atr.injection",
+      "atr.policies"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "validate_default",
+      "line": 52,
+      "doc": "Ensure default is only set for non-required parameters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v",
+        "info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_version",
+      "line": 107,
+      "doc": "Validate semantic version format.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "version_tuple",
+      "line": 118,
+      "doc": "Get version as a comparable tuple.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "tuple"
+    },
+    {
+      "name": "name",
+      "line": 153,
+      "doc": "Convenience property for tool name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "version",
+      "line": 158,
+      "doc": "Convenience property for tool version.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "is_async",
+      "line": 163,
+      "doc": "Check if tool supports async execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "retry_policy",
+      "line": 168,
+      "doc": "Get the retry policy if set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "retry_policy",
+      "line": 173,
+      "doc": "Set the retry policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "retry_policy.setter"
+      ],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "rate_limit_policy",
+      "line": 178,
+      "doc": "Get the rate limit policy if set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "rate_limit_policy",
+      "line": 183,
+      "doc": "Set the rate limit policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "rate_limit_policy.setter"
+      ],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 188,
+      "doc": "Get the health check if set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 193,
+      "doc": "Set the health check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "health_check.setter"
+      ],
+      "args": [
+        "self",
+        "check"
+      ],
+      "returns": null
+    },
+    {
+      "name": "access_policy",
+      "line": 198,
+      "doc": "Get the access policy if set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "access_policy",
+      "line": 203,
+      "doc": "Set the access policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "access_policy.setter"
+      ],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_openai_function_schema",
+      "line": 207,
+      "doc": "Convert to OpenAI function calling format.\n\nReturns:\n    Dictionary in OpenAI function calling format",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_anthropic_tool_schema",
+      "line": 244,
+      "doc": "Convert to Anthropic tool use format.\n\nReturns:\n    Dictionary in Anthropic tool use format.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 282,
+      "doc": "Initialize tool handle.\n\nArgs:\n    spec: The tool specification.\n    container: Optional dependency container for injection.\n    metrics_collector: Optional metrics collector.\n    access_manager: Optional access control manager.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "spec",
+        "container",
+        "metrics_collector",
+        "access_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "spec",
+      "line": 303,
+      "doc": "Get the underlying tool specification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ToolSpec"
+    },
+    {
+      "name": "name",
+      "line": 308,
+      "doc": "Get tool name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "version",
+      "line": 313,
+      "doc": "Get tool version.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "is_async",
+      "line": 318,
+      "doc": "Check if tool supports async.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "call",
+      "line": 322,
+      "doc": "Execute the tool synchronously with all policies.\n\nArgs:\n    *args: Positional arguments.\n    **kwargs: Keyword arguments.\n\nReturns:\n    The tool's return value.\n\nRaises:\n    ValueError: If tool has no callable.\n    RateLimitExceeded: If rate limited.\n    RetryExhausted: If all retries fail.\n    AccessDeniedError: If access is denied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "call_async",
+      "line": 390,
+      "doc": "Execute the tool asynchronously with all policies.\n\nArgs:\n    *args: Positional arguments.\n    **kwargs: Keyword arguments.\n\nReturns:\n    The tool's return value.\n\nRaises:\n    ValueError: If tool has no callable.\n    RateLimitExceeded: If rate limited.\n    RetryExhausted: If all retries fail.\n    AccessDeniedError: If access is denied.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "check_health",
+      "line": 462,
+      "doc": "Run health check if configured.\n\nReturns:\n    HealthCheckResult or None if no health check configured.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_health_async",
+      "line": 472,
+      "doc": "Run health check asynchronously.\n\nReturns:\n    HealthCheckResult or None if no health check configured.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ParameterType",
+      "line": 23,
+      "doc": "Supported parameter types for tool inputs/outputs.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ParameterSpec",
+      "line": 34,
+      "doc": "Specification for a single parameter.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SideEffect",
+      "line": 59,
+      "doc": "Types of side effects a tool may have.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CostLevel",
+      "line": 70,
+      "doc": "Cost level for tool execution.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolMetadata",
+      "line": 79,
+      "doc": "Metadata about a tool.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolSpec",
+      "line": 129,
+      "doc": "Complete specification for a tool.\n\nThis is the core schema that defines what a tool looks like in the registry.\nIt does NOT execute the tool - it just describes it.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolHandle",
+      "line": 269,
+      "doc": "Handle for executing a registered tool with all policies applied.\n\nThis is the public interface for tool execution, applying rate limiting,\nretries, metrics collection, and access control automatically.\n\nExample:\n    >>> tool = atr.get_tool(\"pdf_parser\", version=\">=1.0.0\")\n    >>> result = await tool.call_async(file_path=\"doc.pdf\")\n    >>> # or synchronously\n    >>> result = tool.call(file_path=\"doc.pdf\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 73,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,949 @@
+{
+  "path": "agent-governance-rust/agentmesh/src/identity_support.rs",
+  "extension": ".rs",
+  "size_bytes": 44552,
+  "line_count": 1479,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "! Extended identity primitives for parity with the broader AgentMesh SDK surface."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "Credential",
+    "is_revoked",
+    "CredentialManager",
+    "parse_spiffe_id",
+    "issue_svid",
+    "PKCS11KeyStore",
+    "is_valid",
+    "ScopeChain",
+    "KeyRotationManager",
+    "label",
+    "get_high_risk_agents",
+    "create",
+    "has_permission",
+    "get_score",
+    "from_jwks",
+    "issue",
+    "add_signal",
+    "RiskSeverity",
+    "to_jwk",
+    "revoke",
+    "active_for_agent",
+    "RiskLevel",
+    "new",
+    "CredentialStatus",
+    "to_jwks",
+    "compute_hash",
+    "MTLSConfig",
+    "time_remaining",
+    "SvidType",
+    "update",
+    "RevocationEntry",
+    "as_str",
+    "get_valid_svid",
+    "SPIFFERegistry",
+    "AgentNamespace",
+    "history_for",
+    "from_jwk",
+    "HumanSponsor",
+    "needs_rotation",
+    "MTLSIdentityVerifier",
+    "verify_capability_narrowing",
+    "parse",
+    "register",
+    "SVID",
+    "bearer_token",
+    "verify_token",
+    "get_depth",
+    "SPIFFEIdentity",
+    "verify",
+    "can_access_resource",
+    "recalculate",
+    "validate",
+    "AgentDID",
+    "DelegationLink",
+    "add_link",
+    "add_rule",
+    "RiskScore",
+    "RiskSignal",
+    "RiskScorer",
+    "is_allowed",
+    "rotate",
+    "RotatedKeyRecord",
+    "NamespaceManager",
+    "UserContext",
+    "RevocationList",
+    "is_expiring_soon",
+    "has_capability",
+    "has_role",
+    "NamespaceRule",
+    "validate_svid",
+    "SoftwareKeyStore",
+    "agent_name",
+    "get_risk_level"
+  ],
+  "imports": {
+    "internal": [
+      "crate::identity::{AgentIdentity, IdentityError, PublicIdentity, MAX_DELEGATION_DEPTH}",
+      "super::*"
+    ],
+    "external": [
+      "base64::engine::general_purpose::URL_SAFE_NO_PAD",
+      "base64::Engine",
+      "ed25519_dalek::SigningKey",
+      "rand::rngs::OsRng",
+      "serde::{Deserialize, Serialize}",
+      "serde_json::{Map, Value}",
+      "sha2::{Digest, Sha256}"
+    ],
+    "standard": [
+      "std::collections::HashMap",
+      "std::fmt",
+      "std::sync::Mutex",
+      "std::time::{Duration, SystemTime, UNIX_EPOCH}"
+    ]
+  },
+  "functions": [
+    {
+      "name": "unix_secs_now",
+      "line": 19,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "hex_sha256",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "parse_agent_name_from_did",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "capabilities_contain",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "parse",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "as_str",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "agent_name",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "fmt",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "issue",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_valid",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_expiring_soon",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "verify_token",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "revoke",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "rotate",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "has_capability",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "can_access_resource",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "bearer_token",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "new",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "issue",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "validate",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "revoke",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "rotate",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "active_for_agent",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "default",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "create",
+      "line": 336,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_valid",
+      "line": 355,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "has_permission",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "has_role",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "new",
+      "line": 389,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "verify_capability_narrowing",
+      "line": 426,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "compute_hash",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_valid",
+      "line": 444,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "new",
+      "line": 469,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "get_depth",
+      "line": 495,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "add_link",
+      "line": 499,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "compute_hash",
+      "line": 535,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_valid",
+      "line": 548,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "weight",
+      "line": 574,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 621,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "get_risk_level",
+      "line": 638,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "update",
+      "line": 648,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "new",
+      "line": 679,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "get_score",
+      "line": 686,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "add_signal",
+      "line": 694,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "recalculate",
+      "line": 704,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "get_high_risk_agents",
+      "line": 747,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "default",
+      "line": 759,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "parse_spiffe_id",
+      "line": 785,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_valid",
+      "line": 805,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "time_remaining",
+      "line": 810,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "create",
+      "line": 827,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "issue_svid",
+      "line": 849,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "get_valid_svid",
+      "line": 866,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "needs_rotation",
+      "line": 870,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "new",
+      "line": 884,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "register",
+      "line": 891,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "validate_svid",
+      "line": 906,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "new",
+      "line": 935,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "add_rule",
+      "line": 941,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_allowed",
+      "line": 948,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "default",
+      "line": 958,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 975,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "revoke",
+      "line": 981,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "is_revoked",
+      "line": 995,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "default",
+      "line": 1004,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 1021,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "rotate",
+      "line": 1027,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "history_for",
+      "line": 1048,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "default",
+      "line": 1060,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "to_jwk",
+      "line": 1065,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "from_jwk",
+      "line": 1094,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "to_jwks",
+      "line": 1143,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "from_jwks",
+      "line": 1154,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "to_jwk",
+      "line": 1179,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "from_jwk",
+      "line": 1183,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "to_jwks",
+      "line": 1187,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "from_jwks",
+      "line": 1191,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "verify",
+      "line": 1207,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "store",
+      "line": 1230,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "get",
+      "line": 1231,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "remove",
+      "line": 1232,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "list",
+      "line": 1233,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 1242,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "store",
+      "line": 1248,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "get",
+      "line": 1263,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "remove",
+      "line": 1272,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "list",
+      "line": 1280,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 1297,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "label",
+      "line": 1304,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "store",
+      "line": 1310,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "get",
+      "line": 1314,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "remove",
+      "line": 1318,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "list",
+      "line": 1322,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "agent_did_roundtrip",
+      "line": 1332,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "credential_manager_issues_rotates_and_revokes",
+      "line": 1342,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "scope_chain_tracks_narrowing",
+      "line": 1361,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "risk_scorer_marks_agents_high_risk",
+      "line": 1383,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "spiffe_identity_issues_valid_svid",
+      "line": 1402,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "jwk_roundtrip_restores_identity",
+      "line": 1411,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "mtls_verifier_matches_spiffe_identity",
+      "line": 1422,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "software_keystore_roundtrip",
+      "line": 1439,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "key_rotation_preserves_did",
+      "line": 1449,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "namespace_manager_requires_capability",
+      "line": 1462,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "revocation_list_marks_subjects",
+      "line": 1474,
+      "doc": "No documentation",
+      "is_public": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentDID",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "HumanSponsor",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "CredentialStatus",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "Credential",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "CredentialManager",
+      "line": 227,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "UserContext",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "DelegationLink",
+      "line": 373,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "ScopeChain",
+      "line": 454,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RiskSeverity",
+      "line": 565,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RiskSignal",
+      "line": 586,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RiskLevel",
+      "line": 597,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RiskScore",
+      "line": 606,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RiskScorer",
+      "line": 673,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "SvidType",
+      "line": 766,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "SVID",
+      "line": 772,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "SPIFFEIdentity",
+      "line": 816,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "SPIFFERegistry",
+      "line": 878,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "NamespaceRule",
+      "line": 918,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "AgentNamespace",
+      "line": 924,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "NamespaceManager",
+      "line": 930,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RevocationEntry",
+      "line": 964,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RevocationList",
+      "line": 970,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RotatedKeyRecord",
+      "line": 1010,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "KeyRotationManager",
+      "line": 1016,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "MTLSConfig",
+      "line": 1197,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "MTLSIdentityVerifier",
+      "line": 1204,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "KeyStore",
+      "line": 1229,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "SoftwareKeyStore",
+      "line": 1237,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "PKCS11KeyStore",
+      "line": 1291,
+      "doc": "No documentation",
+      "is_public": true
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

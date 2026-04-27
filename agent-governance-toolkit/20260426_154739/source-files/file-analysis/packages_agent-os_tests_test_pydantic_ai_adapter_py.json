@@ -1,0 +1,637 @@
+{
+  "path": "packages/agent-os/tests/test_pydantic_ai_adapter.py",
+  "extension": ".py",
+  "size_bytes": 17157,
+  "line_count": 471,
+  "documentation": {
+    "file_docstring": "Tests for PydanticAI governance adapter.\n\nNo real pydantic-ai dependency required \u2014 uses mock Agent objects.\n\nRun with: python -m pytest tests/test_pydantic_ai_adapter.py -v --tb=short",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Helpers",
+      "=============================================================================",
+      "=============================================================================",
+      "1. Basic wrapping",
+      "=============================================================================",
+      "=============================================================================",
+      "2. Policy enforcement \u2014 allowed / denied tools",
+      "=============================================================================",
+      "=============================================================================",
+      "3. Tool call interception",
+      "=============================================================================",
+      "=============================================================================",
+      "4. Blocked pattern detection",
+      "=============================================================================",
+      "=============================================================================",
+      "5. Human approval flow",
+      "=============================================================================",
+      "=============================================================================",
+      "6. Call budget enforcement",
+      "=============================================================================",
+      "=============================================================================",
+      "7. Audit logging",
+      "=============================================================================",
+      "=============================================================================",
+      "8. Error handling",
+      "=============================================================================",
+      "=============================================================================",
+      "9. Multiple tools governance",
+      "============================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_tool: Create a mock PydanticAI tool entry.",
+      "_make_agent: Create a mock PydanticAI Agent.",
+      "test_wrap_returns_governed_agent: wrap() should return a governed wrapper, not the original.",
+      "test_unwrap_returns_original: unwrap() should return the original agent.",
+      "test_unwrap_passthrough: unwrap() on a non-wrapped object returns it unchanged.",
+      "test_getattr_delegates: Unknown attributes proxy to the original agent.",
+      "test_context_created: Wrapping creates an ExecutionContext.",
+      "test_convenience_wrap: Module-level wrap() helper works.",
+      "test_allowed_tool_passes: A tool on the allowlist should execute normally.",
+      "test_blocked_tool_raises: A tool NOT on the allowlist should be blocked."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_budget_shared_across_tools",
+    "test_run_sync_exception_recorded",
+    "test_approval_required_no_callback",
+    "TestBasicWrapping",
+    "test_health_check_healthy",
+    "TestHumanApproval",
+    "TestAuditLogging",
+    "test_wrap_returns_governed_agent",
+    "test_budget_not_exceeded",
+    "test_blocked_calls_logged",
+    "test_getattr_delegates",
+    "test_context_created",
+    "test_tool_calls_logged",
+    "TestToolCallInterception",
+    "test_run_sync_logged",
+    "TestCallBudget",
+    "test_health_check_degraded",
+    "test_mixed_allow_deny",
+    "test_no_match_passes",
+    "test_allowed_tool_passes",
+    "test_multiple_tools_wrapped",
+    "TestMultipleToolsGovernance",
+    "test_intercept_tool_call_allowed",
+    "test_intercept_tool_call_denied",
+    "test_log_all_calls_disabled",
+    "test_blocked_pattern_in_args",
+    "test_tool_original_fn_called",
+    "test_blocked_pattern_in_run_prompt",
+    "test_empty_allowlist_permits_all",
+    "test_budget_enforced",
+    "TestErrorHandling",
+    "test_tool_marked_governed",
+    "test_convenience_wrap",
+    "test_unwrap_passthrough",
+    "test_unwrap_returns_original",
+    "TestBlockedPatterns",
+    "test_blocked_tool_raises",
+    "test_approval_denied",
+    "TestPolicyEnforcement",
+    "test_approval_granted",
+    "test_stats_reflect_calls"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.pydantic_ai_adapter",
+      "agent_os.integrations.base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_tool",
+      "line": 32,
+      "doc": "Create a mock PydanticAI tool entry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "return_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_agent",
+      "line": 41,
+      "doc": "Create a mock PydanticAI Agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrap_returns_governed_agent",
+      "line": 57,
+      "doc": "wrap() should return a governed wrapper, not the original.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unwrap_returns_original",
+      "line": 65,
+      "doc": "unwrap() should return the original agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unwrap_passthrough",
+      "line": 72,
+      "doc": "unwrap() on a non-wrapped object returns it unchanged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_getattr_delegates",
+      "line": 78,
+      "doc": "Unknown attributes proxy to the original agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_created",
+      "line": 86,
+      "doc": "Wrapping creates an ExecutionContext.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_convenience_wrap",
+      "line": 94,
+      "doc": "Module-level wrap() helper works.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_tool_passes",
+      "line": 107,
+      "doc": "A tool on the allowlist should execute normally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_tool_raises",
+      "line": 117,
+      "doc": "A tool NOT on the allowlist should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_allowlist_permits_all",
+      "line": 128,
+      "doc": "An empty allowed_tools list permits any tool.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_marked_governed",
+      "line": 145,
+      "doc": "After wrapping, the tool entry should be marked _governed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_original_fn_called",
+      "line": 153,
+      "doc": "When allowed, the original function should still be invoked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_intercept_tool_call_allowed",
+      "line": 166,
+      "doc": "intercept_tool_call returns allowed=True for valid calls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_intercept_tool_call_denied",
+      "line": 174,
+      "doc": "intercept_tool_call returns allowed=False for disallowed tools.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern_in_args",
+      "line": 191,
+      "doc": "Tool args matching a blocked pattern should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_match_passes",
+      "line": 202,
+      "doc": "Arguments not matching blocked patterns should pass.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern_in_run_prompt",
+      "line": 212,
+      "doc": "Blocked patterns in the run prompt should block execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_required_no_callback",
+      "line": 229,
+      "doc": "When require_human_approval=True and no callback, tool is blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_granted",
+      "line": 240,
+      "doc": "When callback returns True, tool is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_denied",
+      "line": 252,
+      "doc": "When callback returns False, tool is blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_enforced",
+      "line": 271,
+      "doc": "After max_tool_calls, further calls should be blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_not_exceeded",
+      "line": 285,
+      "doc": "Calls within the budget should succeed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_calls_logged",
+      "line": 303,
+      "doc": "Each tool call should produce an audit entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_calls_logged",
+      "line": 317,
+      "doc": "Blocked tool calls should be logged with allowed=False.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_run_sync_logged",
+      "line": 332,
+      "doc": "run_sync should produce audit entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_all_calls_disabled",
+      "line": 344,
+      "doc": "When log_all_calls=False, audit log should stay empty.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_run_sync_exception_recorded",
+      "line": 362,
+      "doc": "Exceptions during run_sync should be re-raised and logged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_run_async_exception_recorded",
+      "line": 377,
+      "doc": "Exceptions during run() should be re-raised and logged.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_check_healthy",
+      "line": 390,
+      "doc": "Health check should report healthy when no errors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_health_check_degraded",
+      "line": 400,
+      "doc": "Health check should report degraded after an error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_tools_wrapped",
+      "line": 414,
+      "doc": "All tools on an agent should be wrapped.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mixed_allow_deny",
+      "line": 427,
+      "doc": "Allowlist should permit some tools and deny others.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats_reflect_calls",
+      "line": 441,
+      "doc": "get_stats should reflect actual tool call counts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_shared_across_tools",
+      "line": 457,
+      "doc": "Call budget is shared across all tools on the same agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestBasicWrapping",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyEnforcement",
+      "line": 106,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestToolCallInterception",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBlockedPatterns",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHumanApproval",
+      "line": 228,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCallBudget",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditLogging",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestErrorHandling",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMultipleToolsGovernance",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,386 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/supervisor_agents.py",
+  "extension": ".py",
+  "size_bytes": 17119,
+  "line_count": 430,
+  "documentation": {
+    "file_docstring": "Supervisor Agents - Recursive Governance\n\nEventually, the Control Plane itself will be too complex for humans to manage\nmanually. We need Supervisor Agents - specialized, highly constrained agents\nwhose only job is to watch the logs of worker agents and flag violations to\na human.\n\nAgents watching agents, bound by a constitution of code.\n\nResearch Foundations:\n    - Hierarchical control patterns from \"Multi-Agent Systems: A Survey\" \n      (arXiv:2308.05391, 2023) - supervision hierarchies, cascade failure prevention\n    - Anomaly detection patterns for monitoring agent behavior\n    - Recursive governance inspired by \"MAESTRO: A Threat Modeling Framework\" \n      (CSA, 2025) - multi-agent security monitoring\n    - Human-in-the-loop patterns for escalation and intervention\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Filter logs for watched agents",
+      "Apply detection rules",
+      "Store violations",
+      "Update counts",
+      "Check for escalation",
+      "Filter for watched agents",
+      "Look for denied requests",
+      "Group by agent",
+      "Calculate average risk",
+      "Flag if average risk is increasing",
+      "Create escalation violation",
+      "Reset count after escalation",
+      "Detection rule functions",
+      "This would need access to quota information",
+      "Simplified version here",
+      "Check recent activity",
+      "Skip logs with invalid timestamps",
+      "Look for unusual action patterns",
+      "If agent suddenly starts doing different types of actions",
+      "First level: Watch worker agents",
+      "Second level: Supervisors watching supervisors (if hierarchy exists)",
+      "Collect violations from child supervisors",
+      "Parent supervisor analyzes if children are working correctly",
+      "(Simplified - in reality would have sophisticated checks)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ViolationType: Types of violations a supervisor can detect",
+      "Violation: A violation detected by a supervisor",
+      "SupervisorConfig: Configuration for a supervisor agent",
+      "SupervisorAgent: A supervisor agent that watches worker agents and flags violations.\n\nSupervisors",
+      "detect_repeated_failures: Detect agents with repeated failures",
+      "detect_rate_limit_approaching: Detect agents approaching rate limits",
+      "detect_suspicious_patterns: Detect suspicious behavioral patterns",
+      "SupervisorNetwork: Network of supervisor agents with hierarchical oversight.\n\nEnables recursive gov",
+      "create_default_supervisor: Create a supervisor with default detection rules",
+      "watch_execution_logs: Watch execution logs and detect violations.\n\nReturns list of new violations dete"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "SupervisorConfig",
+    "detect_suspicious_patterns",
+    "SupervisorNetwork",
+    "watch_audit_logs",
+    "analyze_risk_patterns",
+    "watch_execution_logs",
+    "add_supervisor",
+    "detect_rate_limit_approaching",
+    "ViolationType",
+    "create_default_supervisor",
+    "get_violations",
+    "add_supervisor_hierarchy",
+    "run_supervision_cycle",
+    "get_network_summary",
+    "SupervisorAgent",
+    "Violation",
+    "detect_repeated_failures",
+    "get_summary"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "agent_kernel"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "detect_repeated_failures",
+      "line": 250,
+      "doc": "Detect agents with repeated failures",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "logs",
+        "supervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_rate_limit_approaching",
+      "line": 273,
+      "doc": "Detect agents approaching rate limits",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "logs",
+        "supervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_suspicious_patterns",
+      "line": 311,
+      "doc": "Detect suspicious behavioral patterns",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "logs",
+        "supervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_default_supervisor",
+      "line": 416,
+      "doc": "Create a supervisor with default detection rules",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_ids"
+      ],
+      "returns": "SupervisorAgent"
+    },
+    {
+      "name": "__init__",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "watch_execution_logs",
+      "line": 86,
+      "doc": "Watch execution logs and detect violations.\n\nReturns list of new violations detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "execution_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "watch_audit_logs",
+      "line": 120,
+      "doc": "Watch audit logs for policy violations and suspicious patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "analyze_risk_patterns",
+      "line": 149,
+      "doc": "Analyze execution patterns for risk trends.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "execution_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_escalation",
+      "line": 180,
+      "doc": "Check if any agent needs escalation to human",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_violations",
+      "line": 200,
+      "doc": "Get violations with optional filters",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "severity",
+        "requires_human"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_summary",
+      "line": 220,
+      "doc": "Get summary of supervisor activity",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_count_by_type",
+      "line": 232,
+      "doc": "Count violations by type",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_count_by_severity",
+      "line": 240,
+      "doc": "Count violations by severity",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 345,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_supervisor",
+      "line": 349,
+      "doc": "Add a supervisor to the network",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "supervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_supervisor_hierarchy",
+      "line": 353,
+      "doc": "Create hierarchical supervision (supervisors watching supervisors)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "parent_supervisor_id",
+        "child_supervisor_ids"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_supervision_cycle",
+      "line": 357,
+      "doc": "Run a complete supervision cycle across all supervisors.\n\nReturns violations by supervisor ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "execution_log",
+        "audit_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_network_summary",
+      "line": 404,
+      "doc": "Get summary of entire supervisor network",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ViolationType",
+      "line": 32,
+      "doc": "Types of violations a supervisor can detect",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Violation",
+      "line": 44,
+      "doc": "A violation detected by a supervisor",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SupervisorConfig",
+      "line": 58,
+      "doc": "Configuration for a supervisor agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SupervisorAgent",
+      "line": 69,
+      "doc": "A supervisor agent that watches worker agents and flags violations.\n\nSupervisors are highly constrained agents that:\n1. Only read logs and metrics\n2. Cannot execute actions\n3. Only flag violations to humans\n4. Optionally suggest remediations",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SupervisorNetwork",
+      "line": 338,
+      "doc": "Network of supervisor agents with hierarchical oversight.\n\nEnables recursive governance where supervisors can watch other supervisors.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 75,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,371 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/schema.py",
+  "extension": ".py",
+  "size_bytes": 9385,
+  "line_count": 294,
+  "documentation": {
+    "file_docstring": "Schema validation for AMB messages.\n\nThis module provides schema registry and validation capabilities\nto ensure message payloads conform to expected schemas.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check required fields",
+      "Check for extra fields if strict",
+      "Or with dict schema",
+      "Pydantic model",
+      "Dict specification",
+      "Custom Schema instance",
+      "Callable validator",
+      "Update error with correct topic"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SchemaValidationError: Raised when message schema validation fails.",
+      "Schema: Abstract base class for message schemas.",
+      "PydanticSchema: Schema backed by a Pydantic model.",
+      "DictSchema: Schema based on a dictionary specification with type checking.",
+      "CallableSchema: Schema using a custom validation function.",
+      "SchemaRegistry: Registry for message schemas.\n\nProvides centralized schema management for topic ",
+      "validate: Validate a payload against the schema.\n\nArgs:\n    payload: The payload to valida",
+      "__init__: Initialize with a Pydantic model.\n\nArgs:\n    model: Pydantic model class to use ",
+      "validate: Validate payload using Pydantic model.",
+      "__init__: Initialize with a dictionary specification.\n\nArgs:\n    spec: Dict mapping field "
+    ]
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path"
+    ]
+  },
+  "exports": [
+    "CallableSchema",
+    "has_schema",
+    "Schema",
+    "register",
+    "SchemaRegistry",
+    "PydanticSchema",
+    "DictSchema",
+    "unregister",
+    "SchemaValidationError",
+    "validate",
+    "get_schema",
+    "list_topics"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "pydantic",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 18,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "errors",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 29,
+      "doc": "Validate a payload against the schema.\n\nArgs:\n    payload: The payload to validate\n    \nReturns:\n    The validated payload (potentially coerced/normalized)\n    \nRaises:\n    SchemaValidationError: If validation fails",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 48,
+      "doc": "Initialize with a Pydantic model.\n\nArgs:\n    model: Pydantic model class to use for validation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "model"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 57,
+      "doc": "Validate payload using Pydantic model.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 73,
+      "doc": "Initialize with a dictionary specification.\n\nArgs:\n    spec: Dict mapping field names to expected types\n    strict: If True, reject payloads with extra fields\n    \nExample:\n    schema = DictSchema({\n        \"user_id\": str,\n        \"amount\": float,\n        \"timestamp\": str\n    })",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "spec",
+        "strict"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 91,
+      "doc": "Validate payload against dictionary specification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 133,
+      "doc": "Initialize with a validation function.\n\nArgs:\n    validator: Function that takes payload and returns validated payload,\n              or raises an exception on validation failure",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "validator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 143,
+      "doc": "Validate using custom function.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 180,
+      "doc": "Initialize the schema registry.\n\nArgs:\n    strict: If True, require schema for all topics when validating",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "strict"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 190,
+      "doc": "Register a schema for a topic.\n\nArgs:\n    topic: Topic pattern to register schema for\n    schema: Schema specification (Pydantic model, dict, Schema instance, or callable)\n    \nExample:\n    # Pydantic model\n    registry.register(\"fraud.alerts\", FraudAlertSchema)\n    \n    # Dict specification\n    registry.register(\"user.events\", {\"user_id\": str, \"event\": str})\n    \n    # Custom Schema instance\n    registry.register(\"custom.topic\", MyCustomSchema())\n    \n    # Callable validator\n    registry.register(\"validated.topic\", lambda p: p if p.get(\"valid\") else raise_error())",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "schema"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister",
+      "line": 229,
+      "doc": "Unregister a schema for a topic.\n\nArgs:\n    topic: Topic to unregister\n    \nReturns:\n    True if schema was removed, False if topic wasn't registered",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_schema",
+      "line": 244,
+      "doc": "Check if a topic has a registered schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_schema",
+      "line": 248,
+      "doc": "Get the schema for a topic.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 252,
+      "doc": "Validate a payload for a given topic.\n\nArgs:\n    topic: Topic the message is for\n    payload: Message payload to validate\n    \nReturns:\n    Validated payload (potentially normalized)\n    \nRaises:\n    SchemaValidationError: If validation fails\n    ValueError: If strict mode and no schema registered for topic",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_topics",
+      "line": 284,
+      "doc": "Get list of topics with registered schemas.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "__len__",
+      "line": 288,
+      "doc": "Get number of registered schemas.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__contains__",
+      "line": 292,
+      "doc": "Check if topic has a schema registered.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SchemaValidationError",
+      "line": 15,
+      "doc": "Raised when message schema validation fails.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Schema",
+      "line": 25,
+      "doc": "Abstract base class for message schemas.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PydanticSchema",
+      "line": 45,
+      "doc": "Schema backed by a Pydantic model.",
+      "is_public": true,
+      "bases": [
+        "Schema"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DictSchema",
+      "line": 70,
+      "doc": "Schema based on a dictionary specification with type checking.",
+      "is_public": true,
+      "bases": [
+        "Schema"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CallableSchema",
+      "line": 130,
+      "doc": "Schema using a custom validation function.",
+      "is_public": true,
+      "bases": [
+        "Schema"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SchemaRegistry",
+      "line": 155,
+      "doc": "Registry for message schemas.\n\nProvides centralized schema management for topic validation.\nSupports multiple schema types: Pydantic models, dict specs, and custom validators.\n\nExample:\n    from pydantic import BaseModel\n    \n    class FraudAlertPayload(BaseModel):\n        transaction_id: str\n        amount: float\n        risk_score: float\n    \n    registry = SchemaRegistry()\n    registry.register(\"fraud.alerts\", FraudAlertPayload)\n    \n    # Or with dict schema\n    registry.register(\"user.events\", {\n        \"user_id\": str,\n        \"event_type\": str\n    })",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

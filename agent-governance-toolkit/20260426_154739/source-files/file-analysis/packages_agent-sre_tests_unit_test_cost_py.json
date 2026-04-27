@@ -1,0 +1,502 @@
+{
+  "path": "packages/agent-sre/tests/unit/test_cost.py",
+  "extension": ".py",
+  "size_bytes": 14496,
+  "line_count": 348,
+  "documentation": {
+    "file_docstring": "Tests for cost guard \u2014 budget management and anomaly detection.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Spend 60% of budget",
+      "Build baseline",
+      "Spike",
+      "45 spent, trying to add 10 -> 55 > 50",
+      "Each agent within daily limit, but org total exceeds",
+      "55 total > 50 org budget; bot-4 should be blocked",
+      "Rule 11: Boundary Triple (limit-1, limit, limit+1)",
+      "NOTE: Implementation uses strict inequality (spent + estimated > budget),",
+      "so estimated==budget with spent==0 is allowed (equal is not exceeding).",
+      "The boundary that denies is any value strictly above the budget.",
+      "Rule 17: NaN/Inf bypass -- org_monthly_budget as bad value",
+      "Input validation now rejects NaN/Inf at __init__ time.",
+      "Rule 17: NaN/Inf bypass -- estimated_cost as bad value",
+      "Input validation now rejects NaN/Inf/negative at check_task time.",
+      "Rule 23: Zero-semantics (0 = unlimited, not zero budget)",
+      "Implementation: `if self.org_monthly_budget > 0` gates the org check.",
+      "org_monthly_budget=0.0 means the guard is disabled, not \"zero budget allowed\".",
+      "org_monthly_budget=0 means disabled (guard checks > 0), so org check is skipped",
+      "Rule 6: Compound state (per-agent killed + org budget exceeded simultaneously)",
+      "When agent is killed, the kill check fires first in check_task.",
+      "bot-1 denied for agent kill or org exhaustion",
+      "Rule 7: Side-effect verification",
+      "record_cost must update both org_spent_month and org_remaining_month.",
+      "Rule 14: Concurrent access",
+      "Multiple threads recording costs simultaneously must not corrupt state or crash.",
+      "10 threads x 100 records x $0.01 = $10.00 (allow 1.0 float drift from races)",
+      "Boundary: negative org budget",
+      "Input validation now rejects negative budgets at __init__ time.",
+      "Kill alert fires exactly once across threshold",
+      "Implementation uses: prev_org_util < threshold <= org_util",
+      "After first crossing, prev_org_util is already above threshold, so condition is False.",
+      "First call crosses threshold (0.0 -> 0.96, crosses 0.95)",
+      "Second call is already above threshold (0.96 -> 0.97, prev >= threshold -> no crossing)",
+      "WARN-2 fix: org kill must set budget.killed on all agents",
+      "Both registered agents should be killed",
+      "Killed agents are blocked via check_task (agent kill or org kill gate)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestCostGuardOrgBudgetAdversarial: Adversarial tests for org_monthly_budget enforcement."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_org_budget",
+    "spend",
+    "test_check_task_exceeds_per_task_limit",
+    "test_anomaly_detection",
+    "test_check_task_allowed",
+    "test_check_task_within_org_budget",
+    "test_record_cost_updates_org_spent",
+    "test_org_budget_boundary_triple",
+    "test_summary",
+    "test_per_task_alert",
+    "test_org_budget_kill_alert",
+    "test_defaults",
+    "test_nan_inf_estimated_cost_does_not_crash",
+    "test_kill_switch",
+    "test_spending",
+    "test_org_kill_alert_fires_once",
+    "test_check_task_exceeds_org_budget",
+    "test_concurrent_record_cost_no_crash",
+    "test_org_kill_sets_killed_on_all_agents",
+    "test_nan_inf_budget_does_not_crash",
+    "test_org_budget_multi_agent_aggregate",
+    "test_throttle",
+    "test_negative_org_budget_treated_as_disabled",
+    "test_record_cost",
+    "TestCostGuard",
+    "test_budget_threshold_alerts",
+    "test_to_dict",
+    "test_agent_killed_and_org_exceeded",
+    "test_zero_org_budget_means_no_limit",
+    "TestAgentBudget",
+    "test_reset_daily",
+    "TestCostGuardOrgBudgetAdversarial"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "agent_sre.cost.guard",
+      "pytest",
+      "pytest",
+      "threading",
+      "pytest"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_defaults",
+      "line": 13,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spending",
+      "line": 20,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_task_allowed",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_task_exceeds_per_task_limit",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_cost",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_per_task_alert",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_budget_threshold_alerts",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kill_switch",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_throttle",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_anomaly_detection",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_daily",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_budget",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_summary",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_task_exceeds_org_budget",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_task_within_org_budget",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_budget_kill_alert",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_budget_multi_agent_aggregate",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_budget_boundary_triple",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "estimated",
+        "expected"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nan_inf_budget_does_not_crash",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bad_budget"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nan_inf_estimated_cost_does_not_crash",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bad_cost"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_zero_org_budget_means_no_limit",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_killed_and_org_exceeded",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_cost_updates_org_spent",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_record_cost_no_crash",
+      "line": 275,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_negative_org_budget_treated_as_disabled",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_kill_alert_fires_once",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_kill_sets_killed_on_all_agents",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "spend",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestAgentBudget",
+      "line": 12,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCostGuard",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCostGuardOrgBudgetAdversarial",
+      "line": 183,
+      "doc": "Adversarial tests for org_monthly_budget enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

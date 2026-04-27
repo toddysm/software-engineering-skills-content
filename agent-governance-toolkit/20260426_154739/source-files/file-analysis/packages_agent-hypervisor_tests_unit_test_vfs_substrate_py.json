@@ -1,0 +1,936 @@
+{
+  "path": "packages/agent-hypervisor/tests/unit/test_vfs_substrate.py",
+  "extension": ".py",
+  "size_bytes": 18437,
+  "line_count": 454,
+  "documentation": {
+    "file_docstring": "Comprehensive tests for VFS state substrate per session (issue #234).\n\nAcceptance Criteria:\n- Each session gets an isolated VFS namespace\n- Writes by Agent A don't leak to Session B's VFS\n- Agent attribution is recorded for every write\n- Snapshots can be created and restored\n- Permission enforcement works correctly",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "SessionVFS \u2014 Core read/write operations",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SessionVFS \u2014 Namespace isolation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SessionVFS \u2014 Agent attribution",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SessionVFS \u2014 Snapshot / Restore (snapshot)",
+      "---------------------------------------------------------------------------",
+      "Clear permissions after the snapshot",
+      "Now anyone can read",
+      "Restore snapshot \u2014 permissions should be back",
+      "Lock the file",
+      "Restore \u2014 file should be open again",
+      "---------------------------------------------------------------------------",
+      "SessionVFS \u2014 Permission enforcement",
+      "---------------------------------------------------------------------------",
+      "Now anyone can write",
+      "---------------------------------------------------------------------------",
+      "SharedSessionObject \u2014 VFS integration",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestVFSReadWrite: Basic read/write/delete operations.",
+      "TestVFSNamespaceIsolation: Sessions get isolated VFS namespaces; writes don't leak.",
+      "TestVFSAttribution: Every VFS edit records which agent performed it.",
+      "TestVFSSnapshots: Snapshot create and restore with snapshot semantics.",
+      "TestVFSPermissions: Path-level permission enforcement.",
+      "TestSSOVFSIntegration: SharedSessionObject provides an integrated VFS per session.",
+      "test_list_files_only_returns_own_namespace: Even if multiple VFS instances existed, list_files only returns own.",
+      "test_snapshot_is_copy_on_write: Mutating files after snapshot does NOT affect the snapshot.",
+      "test_snapshot_includes_permissions: Restoring a snapshot also restores the permission state.",
+      "test_snapshot_permissions_isolation: Permissions added after snapshot are removed on restore."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "setup_method",
+    "test_two_sessions_have_isolated_vfs",
+    "test_namespace_prefix_applied",
+    "test_file_count",
+    "test_restore_records_in_edit_log",
+    "test_delete_nonexistent_snapshot_raises",
+    "TestSSOVFSIntegration",
+    "test_list_files_empty",
+    "test_delete_removes_file",
+    "TestVFSPermissions",
+    "test_delete_cleans_up_permissions",
+    "test_restore_vfs_snapshot_only_when_active",
+    "test_same_relative_path_different_sessions",
+    "test_update_records_different_agent",
+    "test_snapshot_permissions_isolation",
+    "test_vfs_namespace_matches_session",
+    "test_read_without_agent_skips_check",
+    "TestVFSAttribution",
+    "test_delete_snapshot",
+    "test_absolute_path_within_namespace",
+    "test_snapshot_includes_permissions",
+    "TestVFSSnapshots",
+    "test_set_permissions_restricts_write",
+    "test_snapshot_is_copy_on_write",
+    "test_named_snapshot",
+    "test_write_records_agent",
+    "test_read_returns_content",
+    "test_permission_enforced_on_read",
+    "test_get_permissions",
+    "test_create_vfs_snapshot_through_sso",
+    "test_edits_by_agent_filter",
+    "test_create_and_restore_snapshot",
+    "test_content_hash_differs_for_different_content",
+    "TestVFSNamespaceIsolation",
+    "test_list_snapshots",
+    "test_clear_permissions",
+    "test_restore_nonexistent_snapshot_raises",
+    "test_delete_records_agent",
+    "test_read_nonexistent_returns_none",
+    "test_snapshot_count",
+    "test_delete_nonexistent_raises",
+    "test_set_permissions_recorded_in_log",
+    "test_update_records_previous_hash",
+    "test_list_files",
+    "test_edits_by_agent_empty",
+    "test_edit_has_timestamp",
+    "test_vfs_write_through_sso",
+    "test_different_sessions_are_isolated",
+    "test_vfs_snapshot_captures_participant_metadata",
+    "test_write_creates_file",
+    "test_multiple_snapshots",
+    "TestVFSReadWrite",
+    "test_custom_namespace",
+    "test_snapshot_of_empty_vfs",
+    "test_edit_log_is_immutable_copy",
+    "test_list_files_only_returns_own_namespace",
+    "test_write_overwrites_content",
+    "test_edit_log_captures_all_operations",
+    "test_allowed_agent_can_write",
+    "test_create_vfs_snapshot_only_when_active",
+    "test_sso_has_vfs",
+    "test_permission_enforced_on_delete",
+    "test_unrestricted_by_default"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "hypervisor.models",
+      "hypervisor.session",
+      "hypervisor.session.sso"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "setup_method",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_write_creates_file",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_read_returns_content",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_read_nonexistent_returns_none",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_update_records_previous_hash",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_write_overwrites_content",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_removes_file",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_nonexistent_raises",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_files",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_files_empty",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_count",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_different_sessions_are_isolated",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_relative_path_different_sessions",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_namespace_prefix_applied",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_absolute_path_within_namespace",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_namespace",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_files_only_returns_own_namespace",
+      "line": 125,
+      "doc": "Even if multiple VFS instances existed, list_files only returns own.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_write_records_agent",
+      "line": 145,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_update_records_different_agent",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_records_agent",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_edit_log_captures_all_operations",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_edit_log_is_immutable_copy",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_edits_by_agent_filter",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_edits_by_agent_empty",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_edit_has_timestamp",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_content_hash_differs_for_different_content",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_and_restore_snapshot",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_snapshot_is_copy_on_write",
+      "line": 220,
+      "doc": "Mutating files after snapshot does NOT affect the snapshot.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_restore_nonexistent_snapshot_raises",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_snapshots",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_restore_records_in_edit_log",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_snapshots",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_snapshot",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_nonexistent_snapshot_raises",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_snapshot_count",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_named_snapshot",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_snapshot_of_empty_vfs",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_snapshot_includes_permissions",
+      "line": 291,
+      "doc": "Restoring a snapshot also restores the permission state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_snapshot_permissions_isolation",
+      "line": 308,
+      "doc": "Permissions added after snapshot are removed on restore.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 331,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unrestricted_by_default",
+      "line": 334,
+      "doc": "Any agent can write/read when no permissions are set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_permissions_restricts_write",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_agent_can_write",
+      "line": 345,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_permission_enforced_on_read",
+      "line": 351,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_read_without_agent_skips_check",
+      "line": 357,
+      "doc": "read() without agent_did bypasses permission (backward compat).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_permission_enforced_on_delete",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_permissions",
+      "line": 369,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_permissions",
+      "line": 377,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_cleans_up_permissions",
+      "line": 384,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_permissions_recorded_in_log",
+      "line": 390,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 406,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sso_has_vfs",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vfs_namespace_matches_session",
+      "line": 417,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vfs_write_through_sso",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_two_sessions_have_isolated_vfs",
+      "line": 424,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_vfs_snapshot_through_sso",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_vfs_snapshot_only_when_active",
+      "line": 439,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_restore_vfs_snapshot_only_when_active",
+      "line": 444,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_vfs_snapshot_captures_participant_metadata",
+      "line": 449,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestVFSReadWrite",
+      "line": 27,
+      "doc": "Basic read/write/delete operations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVFSNamespaceIsolation",
+      "line": 92,
+      "doc": "Sessions get isolated VFS namespaces; writes don't leak.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVFSAttribution",
+      "line": 139,
+      "doc": "Every VFS edit records which agent performed it.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVFSSnapshots",
+      "line": 206,
+      "doc": "Snapshot create and restore with snapshot semantics.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVFSPermissions",
+      "line": 328,
+      "doc": "Path-level permission enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSSOVFSIntegration",
+      "line": 403,
+      "doc": "SharedSessionObject provides an integrated VFS per session.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 8,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

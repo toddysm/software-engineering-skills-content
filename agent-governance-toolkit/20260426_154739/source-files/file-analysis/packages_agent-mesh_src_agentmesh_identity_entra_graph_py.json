@@ -1,0 +1,182 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/entra_graph.py",
+  "extension": ".py",
+  "size_bytes": 6841,
+  "line_count": 212,
+  "documentation": {
+    "file_docstring": "Microsoft Graph API client for Entra Agent ID integration.\n\nProvides group membership queries and capability scope synchronization\nusing only the Python standard library (urllib).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "-- public API ------------------------------------------------------------",
+      "-- internals -------------------------------------------------------------",
+      "Preserve manually assigned capabilities"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GraphAPIError: Raised when a Graph API call fails.",
+      "EntraGraphClient: Lightweight Microsoft Graph API client for agent identity operations.\n\nAccepts a",
+      "build_group_scope_map: Validate and normalize a group-to-capability mapping.\n\nKeys are Entra group **ob",
+      "sync_memberships_to_capabilities: Map Entra group memberships to AGT capabilities.\n\nOnly groups present in ``group",
+      "get_group_memberships: Fetch Entra group memberships for a service principal.\n\nCalls ``GET /servicePrin",
+      "get_app_role_assignments: Fetch app role assignments for a service principal.\n\nReturns a list of role assi",
+      "_get: Execute a GET request against Graph API."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "EntraGraphClient",
+    "GraphAPIError",
+    "sync_memberships_to_capabilities",
+    "build_group_scope_map",
+    "get_app_role_assignments",
+    "get_group_memberships"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "typing",
+      "urllib.error",
+      "urllib.request"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "build_group_scope_map",
+      "line": 141,
+      "doc": "Validate and normalize a group-to-capability mapping.\n\nKeys are Entra group **object IDs** (UUIDs). Values are lists of\nAGT capability strings to grant when the agent is a member.\n\nExample::\n\n    map = build_group_scope_map({\n        \"aaa-bbb-ccc\": [\"read:customer-data\", \"read:reports\"],\n        \"ddd-eee-fff\": [\"write:reports\"],\n    })",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "mappings"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sync_memberships_to_capabilities",
+      "line": 171,
+      "doc": "Map Entra group memberships to AGT capabilities.\n\nOnly groups present in ``group_scope_map`` contribute capabilities.\nUnknown groups are logged and skipped. Manually assigned capabilities\nin ``preserve_existing`` are preserved (union merge).\n\nReturns a deduplicated, sorted list of capabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "groups",
+        "group_scope_map"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "status_code"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "access_token"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_group_memberships",
+      "line": 55,
+      "doc": "Fetch Entra group memberships for a service principal.\n\nCalls ``GET /servicePrincipals/{id}/memberOf/microsoft.graph.group``\nand follows ``@odata.nextLink`` pagination automatically.\n\nReturns a list of group dicts with at least ``id`` and ``displayName``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "object_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_app_role_assignments",
+      "line": 86,
+      "doc": "Fetch app role assignments for a service principal.\n\nReturns a list of role assignment dicts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "object_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get",
+      "line": 115,
+      "doc": "Execute a GET request against Graph API.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "url"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GraphAPIError",
+      "line": 23,
+      "doc": "Raised when a Graph API call fails.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EntraGraphClient",
+      "line": 31,
+      "doc": "Lightweight Microsoft Graph API client for agent identity operations.\n\nAccepts an injected access token so callers can use any auth flow\n(managed identity, client credentials, workload identity federation).\n\nUsage::\n\n    token = entra_agent_id.get_agent_token(\n        scope=\"https://graph.microsoft.com/.default\"\n    )\n    client = EntraGraphClient(access_token=token)\n    groups = client.get_group_memberships(\"service-principal-object-id\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

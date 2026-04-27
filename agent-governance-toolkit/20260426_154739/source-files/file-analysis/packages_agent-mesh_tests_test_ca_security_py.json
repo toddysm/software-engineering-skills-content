@@ -1,0 +1,739 @@
+{
+  "path": "packages/agent-mesh/tests/test_ca_security.py",
+  "extension": ".py",
+  "size_bytes": 19819,
+  "line_count": 483,
+  "documentation": {
+    "file_docstring": "Security regression tests for Certificate Authority.\n\nValidates that:\n- Sponsor signatures are cryptographically verified (CRIT-1 fix)\n- Refresh tokens are validated against issued tokens (CRIT-2 fix)\n- SVID certificate issuance and properties\n- Full registration-to-rotation lifecycle",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SponsorRegistry tests",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "CRIT-1: Sponsor signature verification",
+      "---------------------------------------------------------------------------",
+      "Should not raise",
+      "Sign for [\"read:data\"] but request claims [\"read:data\", \"admin:all\"]",
+      "---------------------------------------------------------------------------",
+      "CRIT-2: Refresh token validation",
+      "---------------------------------------------------------------------------",
+      "Use the real refresh token from registration",
+      "First use succeeds",
+      "Second use fails (token consumed)",
+      "The new refresh token should also work",
+      "---------------------------------------------------------------------------",
+      "Registration lifecycle tests",
+      "---------------------------------------------------------------------------",
+      "DER bytes should parse as a valid X.509 certificate",
+      "Subject CN should be the agent DID",
+      "Should have SPIFFE SAN",
+      "Should parse as valid PEM",
+      "The CA public key should verify the SVID cert's signature",
+      "---------------------------------------------------------------------------",
+      "CA initialization tests",
+      "---------------------------------------------------------------------------",
+      "Self-signed: subject == issuer",
+      "---------------------------------------------------------------------------",
+      "Token expiration edge cases",
+      "---------------------------------------------------------------------------",
+      "Find the token hash and force-expire it",
+      "Rotate agent 1's creds",
+      "Agent 2's token should still work"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_sponsor_keypair: Generate a sponsor Ed25519 keypair.",
+      "_sign_registration: Create a valid sponsor signature for a registration request.",
+      "_make_agent_public_key: Generate a fresh Ed25519 agent public key.",
+      "_make_ca_with_sponsor: Create a CA with a registered sponsor.",
+      "TestSponsorRegistry: Tests for the SponsorRegistry.",
+      "TestSponsorSignatureVerification: CRIT-1: Validates that _validate_sponsor_signature actually verifies.",
+      "TestRefreshTokenValidation: CRIT-2: Validates that rotate_credentials checks issued tokens.",
+      "TestRegistrationLifecycle: End-to-end registration and credential properties.",
+      "TestCertificateAuthorityInit: Tests for CA construction and self-signed cert.",
+      "TestRefreshTokenExpiration: Edge cases for refresh token timing."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_register_and_lookup",
+    "test_response_contains_valid_svid_certificate",
+    "test_trust_dimensions_present",
+    "test_unregistered_sponsor_rejected",
+    "TestRefreshTokenValidation",
+    "TestRefreshTokenExpiration",
+    "test_expired_token_rejected",
+    "test_fabricated_token_rejected",
+    "test_each_registration_gets_unique_tokens",
+    "test_valid_refresh_token_accepted",
+    "test_each_registration_gets_unique_did",
+    "test_rotated_credentials_have_new_refresh_token",
+    "test_token_single_use",
+    "test_token_ttl_matches_config",
+    "test_registration_with_organization",
+    "TestSponsorRegistry",
+    "test_remove_sponsor",
+    "test_svid_certificate_signed_by_ca",
+    "test_ca_cert_is_ca",
+    "test_svid_certificate_not_ca",
+    "TestSponsorSignatureVerification",
+    "test_custom_ttl",
+    "test_wrong_key_signature_rejected",
+    "test_fabricated_signature_rejected",
+    "test_response_contains_ca_pem_certificate",
+    "test_unregistered_returns_none",
+    "test_issued_tokens_start_empty",
+    "test_valid_sponsor_signature_accepted",
+    "test_tampered_capabilities_rejected",
+    "test_missing_public_key_raises",
+    "test_auto_generates_keypair",
+    "test_tokens_have_correct_format",
+    "TestCertificateAuthorityInit",
+    "test_initial_trust_score_is_500",
+    "test_svid_expiry_in_future",
+    "test_custom_keypair_accepted",
+    "test_multiple_agents_independent_tokens",
+    "test_default_sponsor_registry_is_empty",
+    "TestRegistrationLifecycle",
+    "test_registration_with_capabilities",
+    "test_token_bound_to_did",
+    "test_auto_generates_self_signed_cert",
+    "test_empty_sponsor_registry_rejects_all"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "datetime",
+      "unittest.mock",
+      "cryptography.hazmat.primitives.asymmetric",
+      "cryptography.hazmat.primitives",
+      "cryptography",
+      "agentmesh.core.identity.ca",
+      "hashlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_sponsor_keypair",
+      "line": 32,
+      "doc": "Generate a sponsor Ed25519 keypair.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_sign_registration",
+      "line": 38,
+      "doc": "Create a valid sponsor signature for a registration request.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "private_key",
+        "agent_name",
+        "sponsor_email",
+        "capabilities"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_make_agent_public_key",
+      "line": 51,
+      "doc": "Generate a fresh Ed25519 agent public key.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "bytes"
+    },
+    {
+      "name": "_make_ca_with_sponsor",
+      "line": 59,
+      "doc": "Create a CA with a registered sponsor.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_and_lookup",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregistered_returns_none",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_remove_sponsor",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_sponsor_signature_accepted",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fabricated_signature_rejected",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregistered_sponsor_rejected",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrong_key_signature_rejected",
+      "line": 144,
+      "doc": "Signature from a different key than the registered sponsor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tampered_capabilities_rejected",
+      "line": 159,
+      "doc": "Signature valid for different capabilities than claimed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_sponsor_registry_rejects_all",
+      "line": 174,
+      "doc": "CA with no registered sponsors rejects everything.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_register_agent",
+      "line": 198,
+      "doc": "Register an agent and return the response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ca",
+        "sponsor_key",
+        "email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_refresh_token_accepted",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fabricated_token_rejected",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_token_bound_to_did",
+      "line": 227,
+      "doc": "Token from agent A cannot be used to rotate agent B's creds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_token_single_use",
+      "line": 235,
+      "doc": "Refresh token can only be used once.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rotated_credentials_have_new_refresh_token",
+      "line": 246,
+      "doc": "After rotation, a new valid refresh token is issued.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_public_key_raises",
+      "line": 259,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_register",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ca",
+        "sponsor_key",
+        "email",
+        "name",
+        "caps"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_response_contains_valid_svid_certificate",
+      "line": 285,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_response_contains_ca_pem_certificate",
+      "line": 298,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_svid_certificate_signed_by_ca",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_svid_certificate_not_ca",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initial_trust_score_is_500",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_dimensions_present",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tokens_have_correct_format",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_token_ttl_matches_config",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_ttl",
+      "line": 345,
+      "doc": "CA with custom TTL issues certs with matching duration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_each_registration_gets_unique_did",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_each_registration_gets_unique_tokens",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_svid_expiry_in_future",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registration_with_capabilities",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registration_with_organization",
+      "line": 377,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_auto_generates_keypair",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_auto_generates_self_signed_cert",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ca_cert_is_ca",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_keypair_accepted",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_sponsor_registry_is_empty",
+      "line": 425,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_issued_tokens_start_empty",
+      "line": 429,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_register_agent",
+      "line": 442,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ca",
+        "sponsor_key",
+        "email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_token_rejected",
+      "line": 452,
+      "doc": "Manually expire a token and verify it's rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_agents_independent_tokens",
+      "line": 470,
+      "doc": "Each agent's tokens are independent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestSponsorRegistry",
+      "line": 73,
+      "doc": "Tests for the SponsorRegistry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSponsorSignatureVerification",
+      "line": 101,
+      "doc": "CRIT-1: Validates that _validate_sponsor_signature actually verifies.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRefreshTokenValidation",
+      "line": 195,
+      "doc": "CRIT-2: Validates that rotate_credentials checks issued tokens.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRegistrationLifecycle",
+      "line": 271,
+      "doc": "End-to-end registration and credential properties.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCertificateAuthorityInit",
+      "line": 397,
+      "doc": "Tests for CA construction and self-signed cert.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRefreshTokenExpiration",
+      "line": 439,
+      "doc": "Edge cases for refresh token timing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

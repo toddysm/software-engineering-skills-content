@@ -1,0 +1,275 @@
+{
+  "path": "packages/agent-os/modules/nexus/arbiter.py",
+  "extension": ".py",
+  "size_bytes": 12495,
+  "line_count": 359,
+  "documentation": {
+    "file_docstring": "Arbiter - Dispute Resolution\n\nThe \"Reward Agent\" - a specialized, read-only agent that resolves disputes\nbetween agents by replaying flight recorder logs against the Control Plane.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Log content (encrypted)",
+      "Metadata (not encrypted)",
+      "Signature",
+      "Parties",
+      "Decision",
+      "Evidence analysis",
+      "Credit distribution",
+      "Reputation impact",
+      "Timestamps",
+      "Nexus attestation",
+      "Storage",
+      "Verify log integrity",
+      "Get escrow details (would fetch from EscrowManager)",
+      "For now, create a placeholder receipt",
+      "Verify log integrity",
+      "Add logs from other party",
+      "Verify we have evidence from both parties",
+      "Analyze the dispute",
+      "Mark dispute as resolved",
+      "Apply reputation changes",
+      "Store resolution",
+      "Placeholder analysis - in production would use Control Plane",
+      "Determine outcome based on evidence validity",
+      "Both valid - would need deeper analysis",
+      "For now, split decision",
+      "Neither valid",
+      "Calculate credit distribution",
+      "Would get actual credits from escrow",
+      "Would filter by agent_did if we had that in the receipt"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FlightRecorderLog: Flight recorder log from an agent's kernel.\n\nContains all operations, tool calls",
+      "DisputeResolution: Result of dispute resolution by the Arbiter.",
+      "Arbiter: The \"Reward Agent\" - resolves disputes between agents.\n\nA read-only agent hosted",
+      "verify_hash: Verify log integrity.",
+      "submit_dispute: Submit a new dispute for resolution.\n\nArgs:\n    escrow_id: ID of the disputed es",
+      "submit_counter_evidence: Submit counter-evidence from the other party.",
+      "resolve_dispute: Resolve a dispute by replaying logs against Control Plane.\n\nProcess:\n1. Parse bo",
+      "_analyze_dispute: Analyze dispute evidence and determine outcome.\n\nIn production, this would:\n1. D",
+      "get_dispute: Get a dispute by ID.",
+      "get_resolution: Get resolution for a dispute."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "Arbiter",
+    "DisputeResolution",
+    "verify_hash",
+    "list_disputes",
+    "get_resolution",
+    "FlightRecorderLog",
+    "get_dispute"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "dataclasses",
+      "hashlib",
+      "uuid",
+      "schemas.receipt",
+      "schemas.escrow",
+      "reputation",
+      "exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "verify_hash",
+      "line": 50,
+      "doc": "Verify log integrity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine",
+        "escrow_manager",
+        "control_plane"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit_dispute",
+      "line": 118,
+      "doc": "Submit a new dispute for resolution.\n\nArgs:\n    escrow_id: ID of the disputed escrow\n    disputing_party: Who is raising the dispute\n    dispute_reason: Explanation of why they're disputing\n    claimed_outcome: What the disputing party claims happened\n    flight_recorder_log: Evidence from the disputing party",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "disputing_party",
+        "dispute_reason",
+        "claimed_outcome",
+        "flight_recorder_log"
+      ],
+      "returns": "DisputeReceipt"
+    },
+    {
+      "name": "submit_counter_evidence",
+      "line": 162,
+      "doc": "Submit counter-evidence from the other party.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id",
+        "flight_recorder_log"
+      ],
+      "returns": "DisputeReceipt"
+    },
+    {
+      "name": "resolve_dispute",
+      "line": 188,
+      "doc": "Resolve a dispute by replaying logs against Control Plane.\n\nProcess:\n1. Parse both flight recorder logs\n2. Identify the disputed operation\n3. Replay operation against Control Plane\n4. Compare actual vs claimed outcomes\n5. Determine which agent's claim is accurate\n6. Apply reputation penalties to the lying agent",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id",
+        "requester_logs",
+        "provider_logs"
+      ],
+      "returns": "DisputeResolution"
+    },
+    {
+      "name": "_analyze_dispute",
+      "line": 243,
+      "doc": "Analyze dispute evidence and determine outcome.\n\nIn production, this would:\n1. Decrypt and parse logs\n2. Replay operations against Control Plane\n3. Use deterministic validation to find discrepancies",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute",
+        "requester_logs",
+        "provider_logs"
+      ],
+      "returns": "DisputeResolution"
+    },
+    {
+      "name": "get_dispute",
+      "line": 329,
+      "doc": "Get a dispute by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id"
+      ],
+      "returns": "DisputeReceipt"
+    },
+    {
+      "name": "get_resolution",
+      "line": 335,
+      "doc": "Get resolution for a dispute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id"
+      ],
+      "returns": "DisputeResolution"
+    },
+    {
+      "name": "list_disputes",
+      "line": 341,
+      "doc": "List disputes with optional filtering.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "resolved"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_sign_resolution",
+      "line": 356,
+      "doc": "Generate Arbiter signature for resolution.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id",
+        "outcome"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "FlightRecorderLog",
+      "line": 27,
+      "doc": "Flight recorder log from an agent's kernel.\n\nContains all operations, tool calls, and outputs during a task.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DisputeResolution",
+      "line": 57,
+      "doc": "Result of dispute resolution by the Arbiter.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Arbiter",
+      "line": 93,
+      "doc": "The \"Reward Agent\" - resolves disputes between agents.\n\nA read-only agent hosted on Nexus that:\n1. Receives flight recorder logs from both parties\n2. Replays operations against the Control Plane\n3. Determines which agent's claim is accurate\n4. Applies reputation penalties to the lying agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

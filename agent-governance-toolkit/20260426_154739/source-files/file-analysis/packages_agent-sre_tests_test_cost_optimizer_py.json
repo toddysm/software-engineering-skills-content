@@ -1,0 +1,446 @@
+{
+  "path": "packages/agent-sre/tests/test_cost_optimizer.py",
+  "extension": ".py",
+  "size_bytes": 9272,
+  "line_count": 271,
+  "documentation": {
+    "file_docstring": "Tests for multi-model cost optimizer.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Cost estimation",
+      "---------------------------------------------------------------------------",
+      "(2000/1000)*0.00015 + (500/1000)*0.0006 = 0.0003 + 0.0003 = 0.0006",
+      "(2000/1000)*0.015 + (500/1000)*0.075 = 0.03 + 0.0375 = 0.0675",
+      "---------------------------------------------------------------------------",
+      "Recommendations",
+      "---------------------------------------------------------------------------",
+      "min_quality=0.85 should exclude cheap model (0.7)",
+      "max_latency_ms=1000 should exclude claude-opus (1500ms)",
+      "Switching from opus to mini should save > 99%",
+      "---------------------------------------------------------------------------",
+      "Cost optimizer",
+      "---------------------------------------------------------------------------",
+      "Frontier should only contain non-dominated models",
+      "Cheapest model should be on the frontier",
+      "---------------------------------------------------------------------------",
+      "Simulation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Routing",
+      "---------------------------------------------------------------------------",
+      "Classification (low quality bar) should get cheapest model",
+      "Code gen (high quality + latency constraint) should get mid-tier",
+      "---------------------------------------------------------------------------",
+      "Edge cases",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestSimulation",
+    "test_cost_estimation_expensive_model",
+    "models",
+    "test_simulation_correct_totals",
+    "test_sorted_by_cost",
+    "TestRecommendation",
+    "TestCostEstimation",
+    "test_simulation_unknown_model",
+    "test_routing_empty_when_no_models_qualify",
+    "summarization_task",
+    "code_gen_task",
+    "classification_task",
+    "test_frontier_sorted_by_cost",
+    "test_assigns_cheap_model_to_easy_tasks",
+    "test_pareto_single_model",
+    "test_respects_latency_constraint",
+    "test_single_model",
+    "test_optimal_flag_on_cheapest",
+    "test_cost_estimation_accurate",
+    "optimizer",
+    "test_no_dominated_models",
+    "test_frontier_includes_extremes",
+    "test_no_model_meets_constraints",
+    "TestEdgeCases",
+    "test_respects_quality_constraint",
+    "TestParetoFrontier",
+    "TestRouting",
+    "test_savings_calculation"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "pytest",
+      "agent_sre.cost.optimizer"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "models",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "optimizer",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "models"
+      ],
+      "returns": "CostOptimizer"
+    },
+    {
+      "name": "summarization_task",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "TaskProfile"
+    },
+    {
+      "name": "code_gen_task",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "TaskProfile"
+    },
+    {
+      "name": "classification_task",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "TaskProfile"
+    },
+    {
+      "name": "test_cost_estimation_accurate",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cost_estimation_expensive_model",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_respects_quality_constraint",
+      "line": 118,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "code_gen_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_respects_latency_constraint",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "code_gen_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sorted_by_cost",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_optimal_flag_on_cheapest",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_savings_calculation",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_dominated_models",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_frontier_sorted_by_cost",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_frontier_includes_extremes",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_simulation_correct_totals",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_simulation_unknown_model",
+      "line": 204,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_assigns_cheap_model_to_easy_tasks",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "optimizer",
+        "classification_task",
+        "code_gen_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_model",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_model_meets_constraints",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pareto_single_model",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "summarization_task"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_routing_empty_when_no_models_qualify",
+      "line": 261,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCostEstimation",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRecommendation",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestParetoFrontier",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSimulation",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRouting",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 235,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

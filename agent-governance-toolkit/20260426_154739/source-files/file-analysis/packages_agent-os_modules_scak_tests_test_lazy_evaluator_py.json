@@ -1,0 +1,548 @@
+{
+  "path": "packages/agent-os/modules/scak/tests/test_lazy_evaluator.py",
+  "extension": ".py",
+  "size_bytes": 18351,
+  "line_count": 467,
+  "documentation": {
+    "file_docstring": "Unit tests for Lazy Evaluator (Deferred Computation).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Test with \"might\" keyword",
+      "Test with \"optional\" keyword",
+      "Defer a computation",
+      "Resolve it",
+      "Create tokens with different priorities",
+      "Should be sorted by priority (highest first)",
+      "Resolve one",
+      "Resolve one",
+      "Clear resolved",
+      "Create and resolve 2 tokens",
+      "Add one more (at capacity)",
+      "Add one more (exceeds capacity, should evict lowest priority resolved)",
+      "Should still be 3, with lowest priority resolved token evicted",
+      "Create some tokens",
+      "Resolve one",
+      "Should be same instance",
+      "Agent 1: defer 2 tasks, resolve 1",
+      "Agent 2: defer 1 task",
+      "Archive query should be deferred",
+      "Defer multiple low-priority tasks",
+      "All should be pending",
+      "Process them in batch",
+      "All should be resolved"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestTODOToken: Tests for TODOToken.",
+      "TestLazyEvaluationDecision: Tests for LazyEvaluationDecision.",
+      "TestLazyEvaluator: Tests for LazyEvaluator.",
+      "TestLazyEvaluatorRegistry: Tests for LazyEvaluatorRegistry.",
+      "TestLazyEvaluationScenarios: Real-world lazy evaluation scenarios.",
+      "test_token_creation: Test creating a TODO token.",
+      "test_token_id_uniqueness: Test that token IDs are unique.",
+      "test_decision_creation: Test creating a deferral decision.",
+      "setUp: Set up test fixtures.",
+      "test_initialization: Test lazy evaluator initialization."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_should_not_defer_immediate_archive_query",
+    "test_get_all_statistics",
+    "test_archive_query_deferral",
+    "test_initialization",
+    "test_clear_resolved",
+    "test_speculative_analysis_deferral",
+    "test_should_defer_expensive_operation",
+    "TestLazyEvaluationDecision",
+    "test_token_id_uniqueness",
+    "test_resolve_token",
+    "test_max_deferred_tasks_eviction",
+    "test_get_or_create_returns_existing",
+    "test_resolve_nonexistent_token",
+    "test_get_resolved_tokens",
+    "TestLazyEvaluatorRegistry",
+    "test_should_not_defer_normal_operation",
+    "test_should_defer_disabled",
+    "test_token_creation",
+    "test_get_global_statistics",
+    "test_get_pending_tokens",
+    "test_get_or_create_new_evaluator",
+    "test_should_defer_speculative_computation",
+    "test_decision_creation",
+    "test_should_defer_missing_context",
+    "setUp",
+    "TestLazyEvaluator",
+    "test_should_defer_low_priority",
+    "test_multiple_agents",
+    "test_immediate_query_not_deferred",
+    "TestTODOToken",
+    "TestLazyEvaluationScenarios",
+    "test_get_statistics",
+    "test_should_defer_archive_query",
+    "test_batch_processing_workflow",
+    "test_defer_creates_token"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "unittest",
+      "datetime",
+      "src.kernel.lazy_evaluator"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_token_creation",
+      "line": 22,
+      "doc": "Test creating a TODO token.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_token_id_uniqueness",
+      "line": 40,
+      "doc": "Test that token IDs are unique.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decision_creation",
+      "line": 51,
+      "doc": "Test creating a deferral decision.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 70,
+      "doc": "Set up test fixtures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initialization",
+      "line": 79,
+      "doc": "Test lazy evaluator initialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_defer_disabled",
+      "line": 87,
+      "doc": "Test that deferral is rejected when lazy eval is disabled.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_defer_expensive_operation",
+      "line": 103,
+      "doc": "Test deferral of expensive operations (>2 seconds).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_defer_speculative_computation",
+      "line": 116,
+      "doc": "Test deferral of speculative queries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_defer_missing_context",
+      "line": 136,
+      "doc": "Test deferral when context is missing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_defer_low_priority",
+      "line": 146,
+      "doc": "Test deferral of low priority tasks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_defer_archive_query",
+      "line": 156,
+      "doc": "Test deferral of archive/historical queries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_not_defer_immediate_archive_query",
+      "line": 166,
+      "doc": "Test that immediate flag overrides archive deferral.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_not_defer_normal_operation",
+      "line": 175,
+      "doc": "Test that normal operations are not deferred.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defer_creates_token",
+      "line": 185,
+      "doc": "Test that defer creates a TODO token.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_resolve_token",
+      "line": 202,
+      "doc": "Test resolving a TODO token.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_resolve_nonexistent_token",
+      "line": 223,
+      "doc": "Test resolving non-existent token returns False.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_pending_tokens",
+      "line": 229,
+      "doc": "Test getting pending tokens sorted by priority.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_resolved_tokens",
+      "line": 244,
+      "doc": "Test getting resolved tokens.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_resolved",
+      "line": 257,
+      "doc": "Test clearing resolved tokens.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_deferred_tasks_eviction",
+      "line": 274,
+      "doc": "Test that old tokens are evicted when reaching max capacity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_statistics",
+      "line": 300,
+      "doc": "Test getting lazy evaluation statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 325,
+      "doc": "Set up test fixtures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_or_create_new_evaluator",
+      "line": 332,
+      "doc": "Test creating new lazy evaluator for agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_or_create_returns_existing",
+      "line": 340,
+      "doc": "Test that get_or_create returns existing evaluator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_agents",
+      "line": 351,
+      "doc": "Test managing multiple agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_all_statistics",
+      "line": 360,
+      "doc": "Test getting statistics for all agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_global_statistics",
+      "line": 377,
+      "doc": "Test getting global statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_archive_query_deferral",
+      "line": 403,
+      "doc": "Test deferring expensive archive queries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_speculative_analysis_deferral",
+      "line": 420,
+      "doc": "Test deferring speculative analysis.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_immediate_query_not_deferred",
+      "line": 432,
+      "doc": "Test that immediate queries are not deferred.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_processing_workflow",
+      "line": 444,
+      "doc": "Test batch processing with lazy evaluation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestTODOToken",
+      "line": 19,
+      "doc": "Tests for TODOToken.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestLazyEvaluationDecision",
+      "line": 48,
+      "doc": "Tests for LazyEvaluationDecision.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestLazyEvaluator",
+      "line": 67,
+      "doc": "Tests for LazyEvaluator.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestLazyEvaluatorRegistry",
+      "line": 322,
+      "doc": "Tests for LazyEvaluatorRegistry.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestLazyEvaluationScenarios",
+      "line": 400,
+      "doc": "Real-world lazy evaluation scenarios.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 10,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

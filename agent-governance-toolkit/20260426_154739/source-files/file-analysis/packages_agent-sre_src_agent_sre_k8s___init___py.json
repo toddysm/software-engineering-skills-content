@@ -1,0 +1,436 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/k8s/__init__.py",
+  "extension": ".py",
+  "size_bytes": 21517,
+  "line_count": 628,
+  "documentation": {
+    "file_docstring": "Kubernetes Operator for Agent-SRE.\n\nProvides CRD definitions, a reconciliation loop, and status management\nfor deploying Agent-SRE rollouts on Kubernetes. The reconciler translates\n``AgentRollout`` CRD specs into in-memory ``CanaryRollout`` instances,\nmanages their lifecycle, and reports status back.\n\nThis module is a **library**, not a standalone operator binary. It can be\nembedded into a K8s controller built with ``kopf``, ``operator-sdk``,\nor any other controller framework.\n\nComponents:\n- CRDSchema: AgentRollout CRD YAML generator\n- Reconciler: Spec \u2192 CanaryRollout lifecycle management\n- ResourceStatus: K8s-style status sub-resource\n- ConditionType / Condition: K8s status conditions\n\nUsage:\n    reconciler = Reconciler()\n\n    # On CRD create/update\n    spec_dict = get_crd_spec()\n    result = reconciler.reconcile(\"my-rollout\", \"default\", spec_dict)\n\n    # Check status\n    status = reconciler.get_status(\"my-rollout\", \"default\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "On CRD create/update",
+      "Check status",
+      "---------------------------------------------------------------------------",
+      "CRD schema",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Status conditions (K8s-style)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Reconcile result",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Reconciler",
+      "---------------------------------------------------------------------------",
+      "-- Reconciliation --",
+      "Check if this is a new rollout or an update",
+      "Existing rollout \u2014 check if it needs advancing or rollback",
+      "Already complete or rolled back?",
+      "Default noop",
+      "-- Manual operations --",
+      "-- Queries --"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "generate_crd_manifest: Generate the AgentRollout CustomResourceDefinition manifest.\n\nReturns a dict sui",
+      "_openapi_schema: OpenAPI v3 schema for AgentRollout CRD.",
+      "ConditionType: Standard K8s-style condition types for AgentRollout.",
+      "Condition: A K8s-style status condition.",
+      "ResourceStatus: Status sub-resource for an AgentRollout.",
+      "ReconcileAction: What the reconciler decided to do.",
+      "ReconcileResult: Result of a reconciliation cycle.",
+      "_parse_spec: Parse a CRD spec dict into a RolloutSpec.",
+      "Reconciler: Reconciles AgentRollout CRD specs into CanaryRollout instances.\n\nTracks active r",
+      "set_condition: Set or update a condition, replacing any existing one of the same type."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "generate_crd_manifest",
+    "active_count",
+    "ReconcileAction",
+    "Condition",
+    "reconcile",
+    "ConditionType",
+    "ReconcileResult",
+    "Reconciler",
+    "to_dict",
+    "get_rollout",
+    "set_condition",
+    "get_condition",
+    "rollback",
+    "advance",
+    "ResourceStatus",
+    "list_rollouts",
+    "ConditionStatus",
+    "get_status"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "uuid",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_sre.delivery.gitops",
+      "agent_sre.delivery.rollout"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "generate_crd_manifest",
+      "line": 60,
+      "doc": "Generate the AgentRollout CustomResourceDefinition manifest.\n\nReturns a dict suitable for serialisation to YAML and ``kubectl apply``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_openapi_schema",
+      "line": 101,
+      "doc": "OpenAPI v3 schema for AgentRollout CRD.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_parse_spec",
+      "line": 316,
+      "doc": "Parse a CRD spec dict into a RolloutSpec.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "spec_dict"
+      ],
+      "returns": "RolloutSpec"
+    },
+    {
+      "name": "to_dict",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_condition",
+      "line": 246,
+      "doc": "Set or update a condition, replacing any existing one of the same type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctype",
+        "status",
+        "reason",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_condition",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctype"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 266,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 302,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 381,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_key",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "namespace"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "reconcile",
+      "line": 392,
+      "doc": "Reconcile a CRD spec \u2014 create, advance, or rollback as needed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "namespace",
+        "spec_dict",
+        "generation"
+      ],
+      "returns": "ReconcileResult"
+    },
+    {
+      "name": "_create_rollout",
+      "line": 425,
+      "doc": "Create a new rollout from spec.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "name",
+        "namespace",
+        "spec",
+        "generation"
+      ],
+      "returns": "ReconcileResult"
+    },
+    {
+      "name": "_sync_rollout",
+      "line": 468,
+      "doc": "Sync an existing rollout \u2014 check if advance or rollback needed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "name",
+        "namespace",
+        "rollout",
+        "spec"
+      ],
+      "returns": "ReconcileResult"
+    },
+    {
+      "name": "advance",
+      "line": 504,
+      "doc": "Advance a rollout to the next step.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "namespace"
+      ],
+      "returns": "ReconcileResult"
+    },
+    {
+      "name": "rollback",
+      "line": 565,
+      "doc": "Rollback a rollout.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "namespace",
+        "reason"
+      ],
+      "returns": "ReconcileResult"
+    },
+    {
+      "name": "get_status",
+      "line": 600,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "namespace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_rollout",
+      "line": 603,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "namespace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_rollouts",
+      "line": 606,
+      "doc": "List all managed rollouts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "namespace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "active_count",
+      "line": 622,
+      "doc": "Number of active (non-terminal) rollouts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConditionType",
+      "line": 200,
+      "doc": "Standard K8s-style condition types for AgentRollout.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ConditionStatus",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Condition",
+      "line": 216,
+      "doc": "A K8s-style status condition.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ResourceStatus",
+      "line": 236,
+      "doc": "Status sub-resource for an AgentRollout.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReconcileAction",
+      "line": 281,
+      "doc": "What the reconciler decided to do.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReconcileResult",
+      "line": 293,
+      "doc": "Result of a reconciliation cycle.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Reconciler",
+      "line": 373,
+      "doc": "Reconciles AgentRollout CRD specs into CanaryRollout instances.\n\nTracks active rollouts and their status. Each ``reconcile()`` call\nis idempotent \u2014 the reconciler decides the appropriate action based\non current state vs desired spec.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

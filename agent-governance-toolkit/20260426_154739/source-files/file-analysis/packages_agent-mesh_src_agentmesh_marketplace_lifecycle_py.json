@@ -1,0 +1,377 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/marketplace/lifecycle.py",
+  "extension": ".py",
+  "size_bytes": 11435,
+  "line_count": 338,
+  "documentation": {
+    "file_docstring": "Plugin Lifecycle Management\n===========================\n\nTracks plugin state through its lifecycle: published \u2192 active \u2192 deprecated\n\u2192 end-of-life (EOL) \u2192 archived. Handles deprecation notices, EOL\nenforcement, and certificate/signing key renewal.\n\nIntegrates with :class:`agentmesh.marketplace.registry.PluginRegistry`\nand :class:`agentmesh.marketplace.signing.PluginSigner`.\n\nUsage::\n\n    from agentmesh.marketplace.lifecycle import PluginLifecycleManager\n\n    manager = PluginLifecycleManager(registry)\n    manager.deprecate(\"old-plugin\", \"2.0.0\",\n        reason=\"Replaced by new-plugin\",\n        successor=\"new-plugin\",\n        eol_date=\"2026-09-01\",\n    )\n    status = manager.get_status(\"old-plugin\", \"2.0.0\")\n    assert status.phase == LifecyclePhase.DEPRECATED",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LifecyclePhase: Plugin lifecycle phases.",
+      "DeprecationNotice: Deprecation metadata for a plugin version.",
+      "CertRenewalRecord: Record of a signing certificate renewal.",
+      "PluginLifecycleStatus: Current lifecycle status of a plugin version.",
+      "PluginLifecycleManager: Manage plugin lifecycle transitions and enforcement.\n\nArgs:\n    store: Backing s",
+      "is_usable: Plugin can still be installed and used.",
+      "publish: Register a newly published plugin version.",
+      "activate: Mark a plugin version as actively maintained.",
+      "deprecate: Mark a plugin version as deprecated.\n\nArgs:\n    name: Plugin name.\n    version: ",
+      "end_of_life: Mark a plugin version as end-of-life (no longer installable)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "check_install_allowed",
+    "to_dict",
+    "end_of_life",
+    "publish",
+    "is_deprecated",
+    "LifecyclePhase",
+    "deprecate",
+    "archive",
+    "CertRenewalRecord",
+    "DeprecationNotice",
+    "activate",
+    "record_cert_renewal",
+    "get_status",
+    "list_eol",
+    "list_deprecated",
+    "enforce_eol_dates",
+    "PluginLifecycleManager",
+    "is_usable",
+    "is_eol",
+    "PluginLifecycleStatus"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "is_usable",
+      "line": 88,
+      "doc": "Plugin can still be installed and used.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_deprecated",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_eol",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_key",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "name",
+        "version"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "publish",
+      "line": 146,
+      "doc": "Register a newly published plugin version.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginLifecycleStatus"
+    },
+    {
+      "name": "activate",
+      "line": 161,
+      "doc": "Mark a plugin version as actively maintained.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginLifecycleStatus"
+    },
+    {
+      "name": "deprecate",
+      "line": 171,
+      "doc": "Mark a plugin version as deprecated.\n\nArgs:\n    name: Plugin name.\n    version: Plugin version.\n    reason: Human-readable deprecation reason.\n    successor: Name of the replacement plugin (if any).\n    successor_version: Recommended successor version.\n    eol_date: ISO-8601 date when the plugin reaches end-of-life.\n    migration_guide_url: URL to migration documentation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginLifecycleStatus"
+    },
+    {
+      "name": "end_of_life",
+      "line": 208,
+      "doc": "Mark a plugin version as end-of-life (no longer installable).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginLifecycleStatus"
+    },
+    {
+      "name": "archive",
+      "line": 218,
+      "doc": "Archive a plugin version (fully retired).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginLifecycleStatus"
+    },
+    {
+      "name": "record_cert_renewal",
+      "line": 228,
+      "doc": "Record a signing certificate/key renewal for a plugin.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "CertRenewalRecord"
+    },
+    {
+      "name": "get_status",
+      "line": 254,
+      "doc": "Get the lifecycle status of a plugin version.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_install_allowed",
+      "line": 258,
+      "doc": "Check if a plugin version is allowed to be installed.\n\nReturns:\n    Tuple of (allowed, reason). Deprecated plugins are allowed\n    but return a warning reason. EOL/archived plugins are blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "enforce_eol_dates",
+      "line": 285,
+      "doc": "Scan deprecated plugins and auto-transition those past EOL date.\n\nReturns:\n    List of plugins that were transitioned to EOL.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_deprecated",
+      "line": 313,
+      "doc": "List all deprecated plugin versions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_eol",
+      "line": 320,
+      "doc": "List all end-of-life plugin versions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_or_create",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginLifecycleStatus"
+    }
+  ],
+  "classes": [
+    {
+      "name": "LifecyclePhase",
+      "line": 40,
+      "doc": "Plugin lifecycle phases.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DeprecationNotice",
+      "line": 51,
+      "doc": "Deprecation metadata for a plugin version.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CertRenewalRecord",
+      "line": 65,
+      "doc": "Record of a signing certificate renewal.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PluginLifecycleStatus",
+      "line": 77,
+      "doc": "Current lifecycle status of a plugin version.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PluginLifecycleManager",
+      "line": 132,
+      "doc": "Manage plugin lifecycle transitions and enforcement.\n\nArgs:\n    store: Backing store for lifecycle state. Defaults to in-memory dict.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

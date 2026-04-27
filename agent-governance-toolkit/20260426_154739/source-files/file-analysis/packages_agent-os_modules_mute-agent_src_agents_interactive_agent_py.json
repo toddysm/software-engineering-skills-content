@@ -1,0 +1,105 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/src/agents/interactive_agent.py",
+  "extension": ".py",
+  "size_bytes": 4132,
+  "line_count": 115,
+  "documentation": {
+    "file_docstring": "InteractiveAgent - The \"Steel Man\" / SOTA Baseline\n\nThis represents the State-of-the-Art (SOTA) approach to building agents,\nbased on modern frameworks like LangGraph and AutoGen.\n\nKey Capabilities (The \"Steel Man\" Features):\n1. Reflection: If a tool fails, reads the error and retries (Max 3 attempts)\n2. Human-in-the-Loop: Can pause and ask user for clarification\n3. System State Access: Can query infrastructure state\n4. Context Reasoning: Uses available information to infer intent\n\nThis is implemented as an alias/wrapper for BaselineAgent to clearly\ndocument what we're comparing against in the benchmarks.\n\nWhy this matters:\nWe admit that this baseline CAN solve problems, but we argue it solves\nthem INEFFICIENTLY due to:\n- High token costs from reflection loops\n- Latency from clarification requests\n- User interruption from Human-in-the-Loop\n\nThe Mute Agent wins on EFFICIENCY, not just correctness.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import the BaselineAgent implementation",
+      "Inherit all functionality from BaselineAgent",
+      "This class exists primarily for documentation and clarity",
+      "Export the same result types for convenience"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "InteractiveAgent: InteractiveAgent - The \"Steel Man\" SOTA Baseline\n\nThis is essentially the Baseli",
+      "__init__: Initialize the Interactive Agent.\n\nArgs:\n    api: MockInfrastructureAPI for infr",
+      "execute_request: Execute a user request using reflection and interactive clarification.\n\nThis is "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "execute_request",
+    "InteractiveAgent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "sys",
+      "os",
+      "src.agents.baseline_agent",
+      "src.core.tools"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 73,
+      "doc": "Initialize the Interactive Agent.\n\nArgs:\n    api: MockInfrastructureAPI for infrastructure operations",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "api"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_request",
+      "line": 84,
+      "doc": "Execute a user request using reflection and interactive clarification.\n\nThis is the \"SOTA\" approach that:\n1. Attempts execution with available context\n2. Reflects on failures (up to 3 turns)\n3. May ask user for clarification (Human-in-the-Loop)\n\nThe cost of this approach:\n- Multiple LLM calls for reflection\n- Waiting for user response (latency)\n- High token usage from tool definitions\n\nArgs:\n    user_command: Natural language command from user\n    context: Session context with user info and history\n    allow_clarification: Whether to ask user for clarification (default: True)\n\nReturns:\n    BaselineAgentResult with execution details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_command",
+        "context",
+        "allow_clarification"
+      ],
+      "returns": "BaselineAgentResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "InteractiveAgent",
+      "line": 43,
+      "doc": "InteractiveAgent - The \"Steel Man\" SOTA Baseline\n\nThis is essentially the BaselineAgent with explicit documentation\nthat it represents the State-of-the-Art approach (LangGraph, AutoGen style).\n\nArchitecture:\n- Maintains context by querying system state\n- Uses reasoning to infer missing parameters\n- Reflects on failures and retries (up to 3 turns)\n- Can ask user for clarification (Human-in-the-Loop)\n\nThis is the \"fair fight\" baseline - not a strawman, but a competent agent\nthat represents current industry best practices.\n\nThe Thesis:\n\"Clarification is a bug, not a feature, in autonomous systems.\"\n\nIn high-throughput production systems:\n- Clarification kills latency (waiting for human response)\n- Reflection kills efficiency (multiple LLM calls)\n- State queries kill simplicity (complex context management)\n\nThe Mute Agent proves that graph constraints provide:\n- Zero clarification needed (deterministic from graph)\n- Zero reflection needed (fail fast on constraints)\n- Zero state queries needed (context encoded in graph)",
+      "is_public": true,
+      "bases": [
+        "BaselineAgent"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 12,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

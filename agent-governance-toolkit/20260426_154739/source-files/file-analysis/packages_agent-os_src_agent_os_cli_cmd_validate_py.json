@@ -1,0 +1,119 @@
+{
+  "path": "packages/agent-os/src/agent_os/cli/cmd_validate.py",
+  "extension": ".py",
+  "size_bytes": 10614,
+  "line_count": 258,
+  "documentation": {
+    "file_docstring": "``agentos validate`` command implementation.\n\nValidates policy YAML files against the bundled JSON Schema and performs\nstructural checks with human-readable error reporting.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "Schema & Structural Validation Helpers",
+      "============================================================================",
+      "\u2500\u2500 Pass 1: JSON Schema validation (best-effort) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Build a human-readable location string from the JSON path",
+      "Downgrade rule-level schema errors to warnings for legacy rules with 'type'",
+      "\u2500\u2500 Pass 2: Required field checks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Validate version format",
+      "\u2500\u2500 Pass 3: Rule structure checks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "action must be a valid value",
+      "legacy 'type' field warning",
+      "\u2500\u2500 Pass 4: Strict mode \u2014 unknown top-level fields \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "============================================================================",
+      "Command",
+      "============================================================================",
+      "\u2500\u2500 Discover files \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Support both direct file paths and glob-style patterns",
+      "Default: validate all YAML files in .agents/",
+      "\u2500\u2500 Step 1: Parse YAML (captures syntax errors with line numbers)",
+      "yaml.YAMLError includes line/column info in its string repr",
+      "\u2500\u2500 Step 2: Schema + structural validation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Summary output \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_load_json_schema: Load the bundled policy JSON schema, returning None if unavailable.",
+      "_validate_yaml_with_line_numbers: Validate a parsed YAML policy dict and return (errors, warnings).\n\nPerforms thre",
+      "cmd_validate: Validate policy YAML files against the policy schema.\n\nParses each file, runs JS"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "cmd_validate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "argparse",
+      "json",
+      "re",
+      "pathlib",
+      "output",
+      "yaml",
+      "jsonschema"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_load_json_schema",
+      "line": 24,
+      "doc": "Load the bundled policy JSON schema, returning None if unavailable.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_validate_yaml_with_line_numbers",
+      "line": 32,
+      "doc": "Validate a parsed YAML policy dict and return (errors, warnings).\n\nPerforms three validation passes in order:\n1. JSON Schema validation via ``jsonschema`` (best-effort, skipped if not installed).\n2. Required-field checks (``version``, ``name``).\n3. Rule structure checks and strict-mode unknown-field warnings.\n\nArgs:\n    filepath: Path to the source YAML file (used in error messages).\n    content: Parsed YAML content as a plain dict.\n    strict: When True, unknown top-level fields are reported as warnings.\n\nReturns:\n    A tuple of (errors, warnings) where each element is a list of\n    human-readable strings prefixed with the filepath and location.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "filepath",
+        "content",
+        "strict"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cmd_validate",
+      "line": 138,
+      "doc": "Validate policy YAML files against the policy schema.\n\nParses each file, runs JSON Schema and structural validation, and\nreports errors with field locations. Exits with a non-zero code when\nany file fails validation (CI-friendly).\n\nArgs:\n    args: Parsed CLI arguments. Expects ``args.files`` (list of paths)\n        and ``args.strict`` (bool).\n\nReturns:\n    0 if all files are valid, 1 if any errors were found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "args"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

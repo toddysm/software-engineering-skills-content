@@ -1,0 +1,200 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/nudge_mechanism.py",
+  "extension": ".py",
+  "size_bytes": 10215,
+  "line_count": 263,
+  "documentation": {
+    "file_docstring": "Nudge Mechanism - Automatic retry with targeted prompting.\n\nWhen an agent gives up (GIVE_UP outcome), this module automatically\ninjects a \"nudge\" prompt to encourage the agent to try harder.\n\nThis implements \"The Nudge\" pattern from industry best practices:\n- Automatic intervention without human involvement\n- Targeted prompting based on the give-up type\n- Tracking of nudge effectiveness",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Add context-specific enhancements",
+      "Tools were called",
+      "Telemetry exists but no tools were called",
+      "No telemetry at all",
+      "Add original prompt reminder",
+      "Check if outcome is a give-up",
+      "Check if we've already nudged this agent recently",
+      "Detect improvement",
+      "Length improvement",
+      "Refusal language reduction",
+      "Check for data/results mention"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "NudgeMechanism: Implements automatic nudging when agents give up.\n\nThe \"nudge\" is a system promp",
+      "__init__: Initialize the nudge mechanism.",
+      "_load_nudge_templates: Load nudge prompt templates for different give-up signals.",
+      "generate_nudge: Generate a nudge prompt for the given outcome.\n\nArgs:\n    outcome: The agent out",
+      "should_nudge: Determine if we should nudge for this outcome.\n\nArgs:\n    outcome: The agent out",
+      "record_nudge_result: Record the result of a nudge attempt.\n\nArgs:\n    outcome: Original outcome that ",
+      "_detect_improvement: Detect if retry response shows improvement over original.\n\nSimple heuristic: lon",
+      "get_nudge_stats: Get statistics about nudge effectiveness.",
+      "get_nudge_history: Get nudge history with optional filtering."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "generate_nudge",
+    "NudgeMechanism",
+    "record_nudge_result",
+    "get_nudge_stats",
+    "get_nudge_history",
+    "should_nudge"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "uuid",
+      "typing",
+      "datetime",
+      "models",
+      "models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 39,
+      "doc": "Initialize the nudge mechanism.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_nudge_templates",
+      "line": 44,
+      "doc": "Load nudge prompt templates for different give-up signals.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "generate_nudge",
+      "line": 91,
+      "doc": "Generate a nudge prompt for the given outcome.\n\nArgs:\n    outcome: The agent outcome that triggered the nudge\n    include_tool_reminder: Whether to include tool usage reminder\n    \nReturns:\n    Nudge prompt string",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome",
+        "include_tool_reminder"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "should_nudge",
+      "line": 129,
+      "doc": "Determine if we should nudge for this outcome.\n\nArgs:\n    outcome: The agent outcome\n    max_nudges: Maximum number of nudges per agent/task\n    \nReturns:\n    True if nudge should be applied",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome",
+        "max_nudges"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_nudge_result",
+      "line": 162,
+      "doc": "Record the result of a nudge attempt.\n\nArgs:\n    outcome: Original outcome that triggered nudge\n    nudge_prompt: The nudge prompt that was used\n    retry_response: Agent's response after nudge\n    retry_successful: Whether the retry was successful\n    \nReturns:\n    NudgeResult object",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome",
+        "nudge_prompt",
+        "retry_response",
+        "retry_successful"
+      ],
+      "returns": "NudgeResult"
+    },
+    {
+      "name": "_detect_improvement",
+      "line": 204,
+      "doc": "Detect if retry response shows improvement over original.\n\nSimple heuristic: longer response with less refusal language.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "original_response",
+        "retry_response"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_nudge_stats",
+      "line": 229,
+      "doc": "Get statistics about nudge effectiveness.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_nudge_history",
+      "line": 252,
+      "doc": "Get nudge history with optional filtering.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "limit"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "NudgeMechanism",
+      "line": 26,
+      "doc": "Implements automatic nudging when agents give up.\n\nThe \"nudge\" is a system prompt injection that asks the agent\nto confirm it executed the task correctly and encourages\na more thorough attempt.\n\nExample nudge:\n\"You claimed no data was found. Please confirm you executed the \nsearch tool with the correct parameters and checked all data sources.\"",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

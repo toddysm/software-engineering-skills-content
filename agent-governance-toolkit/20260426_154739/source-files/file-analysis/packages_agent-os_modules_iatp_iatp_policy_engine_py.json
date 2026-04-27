@@ -1,0 +1,270 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/policy_engine.py",
+  "extension": ".py",
+  "size_bytes": 11116,
+  "line_count": 337,
+  "documentation": {
+    "file_docstring": "IATP Policy Engine - Protocol Layer Policy Validation.\n\nThis module provides policy validation for IATP capability manifests\nusing a standalone, protocol-native implementation.\n\nDesign Note: IATP is Layer 2 (Infrastructure/Protocol). It defines the\nmessage format, handshake protocols, and trust scores. Higher layers\n(like agent-control-plane) USE this protocol; this protocol does NOT\ndepend on them.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Default IATP policy rules",
+      "These augment (not replace) the SecurityValidator checks",
+      "Insert at beginning so custom rules take precedence",
+      "Convert manifest to policy context",
+      "Evaluate against policy rules",
+      "Generate appropriate response",
+      "Default to allow if no rules match",
+      "Always validate against base policies first",
+      "Check specific capability requirements",
+      "Check RBAC scope requirements"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PolicyEvaluator: Protocol class for policy evaluation.\n\nThis allows duck typing for any policy ev",
+      "PolicyRule: A single policy rule for manifest validation.\n\nRules are evaluated in order and ",
+      "IATPPolicyEngine: IATP Policy Engine for capability manifest validation.\n\nThis is a protocol-nativ",
+      "evaluate: Evaluate context and return action: 'allow', 'warn', or 'deny'.",
+      "__init__: Initialize a policy rule.\n\nArgs:\n    name: Rule identifier\n    action: Action to",
+      "matches: Check if this rule matches the given context.\n\nArgs:\n    context: Policy evaluat",
+      "__init__: Initialize the IATP Policy Engine.",
+      "_setup_default_policies: Setup default security policies for IATP.",
+      "add_custom_rule: Add a custom policy rule.\n\nArgs:\n    rule: Dictionary defining the policy rule w",
+      "validate_manifest: Validate a capability manifest against policies.\n\nThis is the main integration p"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "PolicyEvaluator",
+    "validate_handshake",
+    "matches",
+    "PolicyRule",
+    "validate_manifest",
+    "IATPPolicyEngine",
+    "add_custom_rule",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "iatp.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "evaluate",
+      "line": 28,
+      "doc": "Evaluate context and return action: 'allow', 'warn', or 'deny'.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 41,
+      "doc": "Initialize a policy rule.\n\nArgs:\n    name: Rule identifier\n    action: Action to take ('allow', 'warn', 'deny')\n    conditions: Dictionary mapping field names to allowed values\n    description: Human-readable description",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "action",
+        "conditions",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "matches",
+      "line": 62,
+      "doc": "Check if this rule matches the given context.\n\nArgs:\n    context: Policy evaluation context\n\nReturns:\n    True if any condition matches",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 92,
+      "doc": "Initialize the IATP Policy Engine.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_setup_default_policies",
+      "line": 97,
+      "doc": "Setup default security policies for IATP.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_custom_rule",
+      "line": 122,
+      "doc": "Add a custom policy rule.\n\nArgs:\n    rule: Dictionary defining the policy rule with keys:\n        - name: Rule name\n        - description: Rule description (optional)\n        - action: \"allow\", \"warn\", or \"deny\"\n        - conditions: Dictionary of conditions to match",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_manifest",
+      "line": 142,
+      "doc": "Validate a capability manifest against policies.\n\nThis is the main integration point that validates incoming\nagent manifests against the configured policy rules.\n\nArgs:\n    manifest: The capability manifest to validate\n\nReturns:\n    Tuple of (is_allowed, error_message, warning_message)\n    - is_allowed: True if request should proceed\n    - error_message: Blocking error if is_allowed is False\n    - warning_message: Warning for user if there are concerns",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_rules",
+      "line": 175,
+      "doc": "Evaluate policy rules against context.\n\nArgs:\n    context: Policy evaluation context\n\nReturns:\n    Action string: \"allow\", \"warn\", or \"deny\"",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_manifest_to_context",
+      "line": 192,
+      "doc": "Convert a capability manifest to a policy evaluation context.\n\nArgs:\n    manifest: The capability manifest\n\nReturns:\n    Dictionary context for policy evaluation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_deny_message",
+      "line": 214,
+      "doc": "Generate a denial message for blocked requests.\n\nArgs:\n    manifest: The capability manifest\n    context: Policy context\n\nReturns:\n    User-friendly error message",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_generate_warn_message",
+      "line": 247,
+      "doc": "Generate a warning message for risky requests.\n\nArgs:\n    manifest: The capability manifest\n    context: Policy context\n\nReturns:\n    User-friendly warning message",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_handshake",
+      "line": 284,
+      "doc": "Validate handshake compatibility between agents.\n\nThis checks if the remote agent's capabilities meet the\nlocal agent's requirements.\n\nArgs:\n    manifest: Remote agent's capability manifest\n    required_capabilities: List of required capability keys\n    required_scopes: List of required RBAC scopes (e.g., ['repo:write'])\n\nReturns:\n    Tuple of (is_compatible, error_message)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "required_capabilities",
+        "required_scopes"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyEvaluator",
+      "line": 20,
+      "doc": "Protocol class for policy evaluation.\n\nThis allows duck typing for any policy evaluator implementation\nwithout requiring a specific import.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "PolicyRule",
+      "line": 33,
+      "doc": "A single policy rule for manifest validation.\n\nRules are evaluated in order and the first matching rule determines\nthe action. Actions can be 'allow', 'warn', or 'deny'.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IATPPolicyEngine",
+      "line": 78,
+      "doc": "IATP Policy Engine for capability manifest validation.\n\nThis is a protocol-native policy engine that validates incoming\nagent manifests against configurable policy rules. It uses the\nIATP trust scoring algorithm and provides warn/block decisions.\n\nThe engine is designed to be:\n- Self-contained (no external dependencies beyond IATP models)\n- Extensible (custom rules can be added)\n- Protocol-compliant (follows IATP trust semantics)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 44,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

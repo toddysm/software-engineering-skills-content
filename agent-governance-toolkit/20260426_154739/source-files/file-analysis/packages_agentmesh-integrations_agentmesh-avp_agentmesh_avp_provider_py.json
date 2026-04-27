@@ -1,0 +1,196 @@
+{
+  "path": "packages/agentmesh-integrations/agentmesh-avp/agentmesh_avp/provider.py",
+  "extension": ".py",
+  "size_bytes": 6430,
+  "line_count": 185,
+  "documentation": {
+    "file_docstring": "Agent Veil Protocol provider for AgentMesh trust engine.\n\nImplements the TrustProvider interface using AVP's EigenTrust\nreputation API for trust scoring and DID-based identity verification.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "DID format: did:key:z6Mk followed by 43+ base58btc characters"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_is_valid_did: Validate that a string matches the expected did:key format.",
+      "AVPProvider: Trust provider backed by Agent Veil Protocol.\n\nQueries the AVP reputation API to",
+      "_resolve_did: Resolve agent_id to a validated AVP DID string.",
+      "_resolve_name: Resolve agent_id to a sanitized AVP agent name.\n\nOutput is URL-encoded to preven",
+      "_extract_score: Extract and validate score from API response.\n\nReturns None if the response is n",
+      "get_trust_score: Return a normalised trust score (0.0-1.0) from AVP EigenTrust.\n\nCalls GET /v1/re",
+      "get_reputation: Return the full AVP reputation profile for an agent.\n\nIncludes score, confidence",
+      "verify_identity: Verify agent identity via AVP verification endpoint.\n\nCalls GET /v1/agents/verif",
+      "close: Close the underlying HTTP client."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AVPProvider"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "re",
+      "typing",
+      "urllib.parse",
+      "httpx"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_is_valid_did",
+      "line": 25,
+      "doc": "Validate that a string matches the expected did:key format.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "base_url",
+        "did_resolver",
+        "name_resolver",
+        "timeout",
+        "min_score_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_did",
+      "line": 60,
+      "doc": "Resolve agent_id to a validated AVP DID string.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_name",
+      "line": 71,
+      "doc": "Resolve agent_id to a sanitized AVP agent name.\n\nOutput is URL-encoded to prevent path injection when\ninterpolated into API URLs.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_score",
+      "line": 83,
+      "doc": "Extract and validate score from API response.\n\nReturns None if the response is not a dict or score is\nnot a valid number.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_score",
+      "line": 99,
+      "doc": "Return a normalised trust score (0.0-1.0) from AVP EigenTrust.\n\nCalls GET /v1/reputation/{did} and returns the ``score`` field.\nReturns 0.0 if the DID is unknown or the API is unreachable.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_reputation",
+      "line": 124,
+      "doc": "Return the full AVP reputation profile for an agent.\n\nIncludes score, confidence, tier, risk factors, attestation\ncount, and EigenTrust algorithm metadata.\nReturns an empty dict if the agent is unknown or the API fails.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_identity",
+      "line": 149,
+      "doc": "Verify agent identity via AVP verification endpoint.\n\nCalls GET /v1/agents/verify/{name} and checks the ``verified``\nfield. Falls back to score-based verification if the name\nendpoint is unavailable.\n\nThe ``credentials`` argument is accepted for interface\ncompatibility but not inspected or logged.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "credentials"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "close",
+      "line": 183,
+      "doc": "Close the underlying HTTP client.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AVPProvider",
+      "line": 30,
+      "doc": "Trust provider backed by Agent Veil Protocol.\n\nQueries the AVP reputation API to retrieve EigenTrust scores\nand verify agent identity via DID (did:key).\n\nArgs:\n    base_url: AVP server URL.\n    did_resolver: Optional callable that maps agent_id -> AVP DID.\n        If not provided, agent_id is assumed to be a DID string.\n    name_resolver: Optional callable that maps agent_id -> AVP agent name.\n        Used by verify_identity when agent_id is not a registered name.\n    timeout: HTTP request timeout in seconds.\n    min_score_threshold: Minimum score to consider an agent verified.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

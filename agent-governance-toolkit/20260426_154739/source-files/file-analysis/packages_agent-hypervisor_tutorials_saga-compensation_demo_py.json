@@ -1,0 +1,242 @@
+{
+  "path": "packages/agent-hypervisor/tutorials/saga-compensation/demo.py",
+  "extension": ".py",
+  "size_bytes": 8312,
+  "line_count": 251,
+  "documentation": {
+    "file_docstring": "Saga Compensation Demo \u2014 Travel Booking\n\nDemonstrates the agent-hypervisor saga engine executing a 5-step travel\nbooking saga, simulating a payment failure at step 4, and automatically\ncompensating (rolling back) steps 3, 2, 1 in reverse order.\n\nRun:\n    python demo.py",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Allow running from the tutorials/saga-compensation directory without",
+      "installing the package by adding the repo src/ to sys.path.",
+      "\u2500\u2500 Mock operations \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Each \"execute\" function simulates a service call. The payment step is",
+      "configured to always fail so we can observe compensation.",
+      "\u2500\u2500 Step definitions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Compensator dispatch \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "The orchestrator's compensate() method expects a single async callable that",
+      "receives a SagaStep.  We build a lookup so each step calls its own undo fn.",
+      "\u2500\u2500 Display helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Main demo \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "1. Create orchestrator and saga",
+      "2. Register all steps",
+      "3. Execute steps sequentially; stop on first failure",
+      "4. If a step failed, compensate committed steps in reverse",
+      "Report per-step compensation results (reverse order matches execution)",
+      "All steps succeeded \u2014 mark saga complete",
+      "5. Print the timeline"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "charge_payment: Always fails to demonstrate compensation.",
+      "_build_compensator_dispatch: Build action_id \u2192 compensator mapping from STEPS.",
+      "dispatch_compensator: Route compensation to the correct undo function by action_id.",
+      "print_timeline: Print the final saga timeline showing each step's state."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "main",
+    "print_header",
+    "print_timeline"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "sys",
+      "pathlib",
+      "hypervisor.saga.orchestrator",
+      "hypervisor.saga.state_machine"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "book_flight",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "cancel_flight",
+      "line": 41,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "reserve_hotel",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "cancel_hotel",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "rent_car",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "cancel_car",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "charge_payment",
+      "line": 66,
+      "doc": "Always fails to demonstrate compensation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "refund_payment",
+      "line": 72,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "send_confirmation",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "_build_compensator_dispatch",
+      "line": 134,
+      "doc": "Build action_id \u2192 compensator mapping from STEPS.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "dispatch_compensator",
+      "line": 141,
+      "doc": "Route compensation to the correct undo function by action_id.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "step"
+      ],
+      "returns": null
+    },
+    {
+      "name": "print_header",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "print_timeline",
+      "line": 160,
+      "doc": "Print the final saga timeline showing each step's state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "saga"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_demo",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/langsmith/exporter.py",
+  "extension": ".py",
+  "size_bytes": 10795,
+  "line_count": 360,
+  "documentation": {
+    "file_docstring": "LangSmith exporter \u2014 run-based tracing and evaluation feedback.\n\nExports Agent-SRE data as LangSmith runs with parent-child relationships\nand evaluation feedback.\n\nOperates in two modes:\n- **Live mode**: Sends data to LangSmith API (when api_key is provided)\n- **Offline mode**: Stores records in memory (when api_key is empty)\n\nNo LangSmith dependency required \u2014 uses duck-typed client protocol.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RunRecord: A LangSmith run record.",
+      "FeedbackRecord: A LangSmith feedback record.",
+      "LangSmithExporter: Export Agent SRE data to LangSmith.\n\nProvides run-based tracing and evaluation f",
+      "is_offline: True if operating in offline/test mode.",
+      "runs: Get recorded runs.",
+      "feedbacks: Get recorded feedbacks.",
+      "create_run: Start a new run.\n\nArgs:\n    name: Run name\n    run_type: Run type (chain, llm, t",
+      "end_run: End a run.\n\nArgs:\n    run_id: Run ID to end\n    outputs: Optional output data\n  ",
+      "add_feedback: Add evaluation feedback to a run.\n\nArgs:\n    run_id: Run ID to attach feedback t",
+      "export_slo: Export SLO evaluation as feedback on a run.\n\nCreates feedback records for:\n- slo"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "is_offline",
+    "feedbacks",
+    "LangSmithExporter",
+    "clear",
+    "RunRecord",
+    "end_run",
+    "create_run",
+    "add_feedback",
+    "export_slo",
+    "FeedbackRecord",
+    "runs",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "uuid",
+      "dataclasses",
+      "typing",
+      "agent_sre.integrations.otel.conventions",
+      "json",
+      "urllib.request",
+      "json",
+      "urllib.request",
+      "json",
+      "urllib.request"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "api_key",
+        "project_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_offline",
+      "line": 86,
+      "doc": "True if operating in offline/test mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "runs",
+      "line": 91,
+      "doc": "Get recorded runs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "feedbacks",
+      "line": 96,
+      "doc": "Get recorded feedbacks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_run",
+      "line": 100,
+      "doc": "Start a new run.\n\nArgs:\n    name: Run name\n    run_type: Run type (chain, llm, tool, retriever)\n    inputs: Optional input data\n    parent_run_id: Optional parent run ID for nesting\n    tags: Optional list of tags\n\nReturns:\n    The created RunRecord",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "run_type",
+        "inputs",
+        "parent_run_id",
+        "tags"
+      ],
+      "returns": "RunRecord"
+    },
+    {
+      "name": "end_run",
+      "line": 135,
+      "doc": "End a run.\n\nArgs:\n    run_id: Run ID to end\n    outputs: Optional output data\n    error: Optional error message\n\nReturns:\n    The updated RunRecord, or None if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "run_id",
+        "outputs",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_feedback",
+      "line": 163,
+      "doc": "Add evaluation feedback to a run.\n\nArgs:\n    run_id: Run ID to attach feedback to\n    key: Feedback key (e.g. \"correctness\", \"helpfulness\")\n    score: Score value (typically 0.0-1.0)\n    comment: Optional comment\n\nReturns:\n    The created FeedbackRecord",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "run_id",
+        "key",
+        "score",
+        "comment"
+      ],
+      "returns": "FeedbackRecord"
+    },
+    {
+      "name": "export_slo",
+      "line": 194,
+      "doc": "Export SLO evaluation as feedback on a run.\n\nCreates feedback records for:\n- slo.status, slo.budget_remaining, slo.burn_rate\n- Per-SLI current values\n\nArgs:\n    slo: An agent_sre.slo.objectives.SLO instance\n    run_id: Run ID to attach feedback to. If None, creates a new run.\n\nReturns:\n    List of FeedbackRecord objects created",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo",
+        "run_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_send_run_create",
+      "line": 257,
+      "doc": "Send run creation to LangSmith API via urllib.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "run"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_send_run_update",
+      "line": 291,
+      "doc": "Send run update to LangSmith API via urllib.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "run"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_send_feedback",
+      "line": 320,
+      "doc": "Send feedback to LangSmith API via urllib.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "feedback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear",
+      "line": 347,
+      "doc": "Clear all offline storage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 352,
+      "doc": "Get statistics about recorded data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RunRecord",
+      "line": 27,
+      "doc": "A LangSmith run record.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FeedbackRecord",
+      "line": 43,
+      "doc": "A LangSmith feedback record.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "LangSmithExporter",
+      "line": 53,
+      "doc": "Export Agent SRE data to LangSmith.\n\nProvides run-based tracing and evaluation feedback:\n1. **Runs**: Create and end runs with inputs/outputs\n2. **Feedback**: Add evaluation scores to runs\n3. **SLO export**: Map SLO evaluations to run feedback\n\nArgs:\n    api_key: LangSmith API key. Empty string for offline mode.\n    project_name: LangSmith project name.\n\nExample:\n    from agent_sre.integrations.langsmith import LangSmithExporter\n\n    exporter = LangSmithExporter()\n    run = exporter.create_run(\"my-task\", inputs={\"query\": \"hello\"})\n    exporter.end_run(run.run_id, outputs={\"response\": \"hi\"})",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 24,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

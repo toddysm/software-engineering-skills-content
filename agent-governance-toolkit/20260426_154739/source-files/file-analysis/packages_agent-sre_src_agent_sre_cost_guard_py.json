@@ -1,0 +1,375 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/cost/guard.py",
+  "extension": ".py",
+  "size_bytes": 14465,
+  "line_count": 386,
+  "documentation": {
+    "file_docstring": "Cost guard \u2014 budget management and simple threshold alerting for agents.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Validate numeric inputs before any assignment to prevent",
+      "partially-initialized objects with corrupt state (NaN/Inf/negative).",
+      "Update budget",
+      "Per-task limit check",
+      "Daily budget threshold alerts",
+      "Auto-throttle",
+      "Org budget kill alert",
+      "Anomaly detection"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "BudgetAction: Action to take when budget threshold is hit.",
+      "CostAlertSeverity: Severity of a cost alert.",
+      "CostRecord: A single cost event.",
+      "CostAlert: A cost alert.",
+      "AgentBudget: Budget configuration for a single agent.",
+      "CostGuard: Cost tracking, budgeting, and anomaly detection.\n\nTracks per-task and per-agent ",
+      "get_budget: Get or create budget for an agent.",
+      "check_task: Check if a task should be allowed to proceed.\n\nReturns (allowed, reason).",
+      "record_cost: Record a task cost and check budgets.\n\nReturns any alerts triggered.",
+      "_check_anomaly: Check if a cost is anomalous using Z-score."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "org_remaining_month",
+    "CostGuard",
+    "CostRecord",
+    "summary",
+    "alerts",
+    "get_budget",
+    "record_cost",
+    "AgentBudget",
+    "avg_cost_per_task",
+    "to_dict",
+    "utilization_percent",
+    "CostAlert",
+    "org_spent_month",
+    "BudgetAction",
+    "reset_daily",
+    "check_task",
+    "CostAlertSeverity",
+    "remaining_today_usd"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "math",
+      "threading",
+      "time",
+      "collections",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remaining_today_usd",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "utilization_percent",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "avg_cost_per_task",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "to_dict",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "per_task_limit",
+        "per_agent_daily_limit",
+        "org_monthly_budget",
+        "anomaly_detection",
+        "auto_throttle",
+        "kill_switch_threshold",
+        "alert_thresholds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_budget",
+      "line": 172,
+      "doc": "Get or create budget for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "AgentBudget"
+    },
+    {
+      "name": "check_task",
+      "line": 182,
+      "doc": "Check if a task should be allowed to proceed.\n\nReturns (allowed, reason).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "estimated_cost"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_cost",
+      "line": 220,
+      "doc": "Record a task cost and check budgets.\n\nReturns any alerts triggered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "task_id",
+        "cost_usd",
+        "breakdown"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_anomaly",
+      "line": 330,
+      "doc": "Check if a cost is anomalous using Z-score.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_daily",
+      "line": 354,
+      "doc": "Reset daily budgets (call at start of each day).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "org_spent_month",
+      "line": 366,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "org_remaining_month",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "alerts",
+      "line": 374,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "summary",
+      "line": 377,
+      "doc": "Get cost summary across all agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "BudgetAction",
+      "line": 17,
+      "doc": "Action to take when budget threshold is hit.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CostAlertSeverity",
+      "line": 25,
+      "doc": "Severity of a cost alert.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CostRecord",
+      "line": 34,
+      "doc": "A single cost event.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CostAlert",
+      "line": 55,
+      "doc": "A cost alert.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentBudget",
+      "line": 78,
+      "doc": "Budget configuration for a single agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CostGuard",
+      "line": 120,
+      "doc": "Cost tracking, budgeting, and anomaly detection.\n\nTracks per-task and per-agent costs, enforces budgets,\ndetects anomalies, and can auto-throttle or kill agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 58,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

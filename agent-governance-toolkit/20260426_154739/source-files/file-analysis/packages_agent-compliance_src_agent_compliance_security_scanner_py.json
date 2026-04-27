@@ -1,0 +1,498 @@
+{
+  "path": "packages/agent-compliance/src/agent_compliance/security/scanner.py",
+  "extension": ".py",
+  "size_bytes": 33559,
+  "line_count": 913,
+  "documentation": {
+    "file_docstring": "Security Scanner for Plugin Marketplace\n\nPerforms security validation on plugin directories:\n- Secret detection (detect-secrets)\n- Dependency CVE scanning (pip-audit, npm audit)\n- Dangerous code patterns (bandit, semgrep)\n- File permission and path traversal checks\n\nIntegrates with sync-marketplace.py validation flow.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Severity levels and blocking behavior",
+      "Files/patterns to exclude from scanning",
+      "Test credential patterns to allow",
+      "Truncate long code snippets",
+      "Remove last \u251c\u2500 and replace with \u2514\u2500",
+      "Pre-compiled regex patterns for performance",
+      "Validate structure",
+      "Validate and filter each exemption",
+      "Validate required fields",
+      "Validate category enum",
+      "Validate justification length",
+      "Validate types",
+      "Check expiration if present",
+      "Match by category, file, and line",
+      "Match by category and file pattern",
+      "Match by CVE",
+      "Parse output for secret locations",
+      "detect-secrets outputs to stderr for found secrets",
+      "Simple pattern matching for file:line",
+      "Skip if in exclusion list",
+      "Check against allowed test patterns",
+      "Read the specific line",
+      "Check against allowed patterns",
+      "Determine severity from CVSS score if available",
+      "pip-audit doesn't always include CVSS, default to high",
+      "Need to run in plugin directory",
+      "Map npm severity to our levels",
+      "Find Python files",
+      "Map bandit severity to our levels",
+      "Skip low confidence findings",
+      "Make filename relative to plugin dir",
+      "Scan skills and agents (primary content)",
+      "Extract code blocks",
+      "Check for dangerous patterns in code blocks",
+      "Run all scanners",
+      "Filter exempted findings",
+      "Check for blocking issues",
+      "Group by severity",
+      "Critical issues",
+      "High severity",
+      "Medium severity",
+      "Low severity",
+      "Summary",
+      "Non-blocking warnings"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "SecurityFinding: Represents a single security finding.",
+      "SecurityScanner: Security scanner for plugin directories.",
+      "format_security_report: Format security findings for CLI output.",
+      "scan_plugin_security: Scan a plugin directory for security issues.\n\nArgs:\n    plugin_dir: Path to plug",
+      "__init__: Create a security finding.\n\nArgs:\n    severity: One of \"critical\", \"high\", \"medi",
+      "is_blocking: Check if this finding blocks PR merge.",
+      "to_dict: Convert to dictionary for JSON output.",
+      "format_cli: Format finding for CLI output.",
+      "__init__: Initialize security scanner.\n\nArgs:\n    plugin_dir: Path to the plugin directory",
+      "_load_exemptions: Load security exemptions from plugin config.\n\nValidates the exemptions file agai"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "format_cli",
+    "format_security_report",
+    "scan_secrets",
+    "scan_code_patterns",
+    "is_blocking",
+    "scan_plugin_security",
+    "scan_node_dependencies",
+    "to_dict",
+    "run_all_scans",
+    "SecurityScanner",
+    "scan_python_dependencies",
+    "scan_markdown_code_blocks",
+    "SecurityFinding"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "re",
+      "subprocess",
+      "sys",
+      "datetime",
+      "pathlib",
+      "argparse"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "format_security_report",
+      "line": 783,
+      "doc": "Format security findings for CLI output.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "plugin_name",
+        "findings"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "scan_plugin_security",
+      "line": 862,
+      "doc": "Scan a plugin directory for security issues.\n\nArgs:\n    plugin_dir: Path to plugin directory\n    plugin_name: Plugin name for error messages\n    verbose: Print detailed progress\n\nReturns:\n    (exit_code, error_message) where:\n    - exit_code: 0 if passed, 1 if blocking issues found\n    - error_message: Formatted error message (empty if passed)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "plugin_dir",
+        "plugin_name",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 81,
+      "doc": "Create a security finding.\n\nArgs:\n    severity: One of \"critical\", \"high\", \"medium\", \"low\".\n    category: Finding category (e.g. \"secrets\", \"cve\", \"code-pattern\").\n    title: Short summary of the finding.\n    file: File path where the issue was found.\n    line: Line number in the file, if applicable.\n    code: Code snippet that triggered the finding.\n    description: Detailed description of the issue.\n    recommendation: Suggested fix for the issue.\n    cwe: Common Weakness Enumeration ID (e.g. \"CWE-798\").\n    cve: Common Vulnerabilities and Exposures ID.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "severity",
+        "category",
+        "title",
+        "file",
+        "line",
+        "code",
+        "description",
+        "recommendation",
+        "cwe",
+        "cve"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_blocking",
+      "line": 119,
+      "doc": "Check if this finding blocks PR merge.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 123,
+      "doc": "Convert to dictionary for JSON output.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "format_cli",
+      "line": 138,
+      "doc": "Format finding for CLI output.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 218,
+      "doc": "Initialize security scanner.\n\nArgs:\n    plugin_dir: Path to the plugin directory to scan.\n    plugin_name: Human-readable plugin name for reports.\n    verbose: If True, print detailed progress to stdout.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_dir",
+        "plugin_name",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_exemptions",
+      "line": 232,
+      "doc": "Load security exemptions from plugin config.\n\nValidates the exemptions file against a strict schema to prevent\nmalicious or malformed exemptions from bypassing security checks.\n\nRequired fields per exemption:\n- category: One of \"secrets\", \"cve\", \"code-pattern\"\n- file: File path (string)\n- justification: Reason for exemption (min 10 chars)\n- approved_by: Person/role who approved (string)\n\nOptional fields:\n- line: Line number (integer or null)\n- cve: CVE identifier (string or null)\n- expires: ISO 8601 datetime (string or null)\n\nReturns:\n    Dict with \"exemptions\" key containing valid, non-expired exemptions.\n    Returns empty list if file doesn't exist or validation fails.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_is_exempted",
+      "line": 306,
+      "doc": "Check if a finding is exempted.\n\nMatches exemptions against findings using three strategies (in order):\n1. Exact match on category + file + line number\n2. Match on category + file (any line in that file)\n3. Match on CVE identifier",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "finding"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_should_scan_file",
+      "line": 332,
+      "doc": "Check if file should be scanned based on exclusion patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "scan_secrets",
+      "line": 340,
+      "doc": "Scan for hardcoded secrets using detect-secrets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_is_test_credential",
+      "line": 397,
+      "doc": "Check if a potential secret matches allowed test patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path",
+        "line_num"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "scan_python_dependencies",
+      "line": 420,
+      "doc": "Scan Python dependencies for CVEs using pip-audit.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_parse_pip_audit_json",
+      "line": 456,
+      "doc": "Parse pip-audit JSON output and create findings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_node_dependencies",
+      "line": 491,
+      "doc": "Scan Node.js dependencies for vulnerabilities using npm audit.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_parse_npm_audit_json",
+      "line": 518,
+      "doc": "Parse npm audit JSON output and create findings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan_code_patterns",
+      "line": 551,
+      "doc": "Scan for dangerous code patterns using bandit (Python).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_parse_bandit_json",
+      "line": 577,
+      "doc": "Parse bandit JSON output and create findings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_bandit_recommendation",
+      "line": 620,
+      "doc": "Get recommendation for common bandit findings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "test_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "scan_markdown_code_blocks",
+      "line": 646,
+      "doc": "Extract and scan code blocks from markdown files.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_scan_markdown_file",
+      "line": 660,
+      "doc": "Scan code blocks within a markdown file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "md_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_python_code_block",
+      "line": 681,
+      "doc": "Check Python code block for dangerous patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path",
+        "code",
+        "block_index"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_js_code_block",
+      "line": 699,
+      "doc": "Check JavaScript code block for dangerous patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path",
+        "code",
+        "block_index"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_shell_code_block",
+      "line": 717,
+      "doc": "Check shell code block for dangerous patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path",
+        "code",
+        "block_index"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_tool_available",
+      "line": 735,
+      "doc": "Check if a security tool is available.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "run_all_scans",
+      "line": 747,
+      "doc": "Run all security scans.\n\nReturns:\n    (passed, findings) where passed=False if blocking issues found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SecurityFinding",
+      "line": 78,
+      "doc": "Represents a single security finding.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SecurityScanner",
+      "line": 164,
+      "doc": "Security scanner for plugin directories.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 157,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

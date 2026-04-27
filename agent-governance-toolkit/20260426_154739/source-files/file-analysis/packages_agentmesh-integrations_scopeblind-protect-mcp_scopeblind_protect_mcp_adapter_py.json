@@ -1,0 +1,404 @@
+{
+  "path": "packages/agentmesh-integrations/scopeblind-protect-mcp/scopeblind_protect_mcp/adapter.py",
+  "extension": ".py",
+  "size_bytes": 22794,
+  "line_count": 622,
+  "documentation": {
+    "file_docstring": "ScopeBlind protect-mcp adapter for AgentMesh.\n\nprotect-mcp operates at the MCP transport layer \u2014 it intercepts tool calls,\nevaluates Cedar policies via WASM, and signs verifiable decision receipts\n(Ed25519 + JCS canonicalization). This adapter bridges those runtime artifacts\ninto AGT's PolicyEngine interface.\n\nArchitecture:\n  protect-mcp governs the **tool call boundary** (Cedar policy evaluation).\n  AGT governs the **agent lifecycle** (trust scores, SLOs, circuit breakers).\n  This adapter maps between the two so they compose rather than compete.\n\nKey difference from mcp-trust-proxy:\n  mcp-trust-proxy gates on trust scores (soft signals).\n  protect-mcp gates on Cedar policies (formal, auditable, deterministic).\n  Decision receipts provide cryptographic proof of what was decided and why.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Cedar decision representation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Cedar \u2192 AGT policy bridge",
+      "---------------------------------------------------------------------------",
+      "Receipt required but not provided",
+      "Cedar deny is authoritative \u2014 not overridable by trust score",
+      "Cedar allow \u2014 layer AGT trust check",
+      "---------------------------------------------------------------------------",
+      "Receipt verification",
+      "---------------------------------------------------------------------------",
+      "Ed25519 public key: 64 hex chars (32 bytes)",
+      "Also accept base64url-encoded keys (43-44 chars)",
+      "Replay protection: bounded ordered set of seen receipt hashes",
+      "Check required fields",
+      "Empty signature/publicKey should not pass as valid",
+      "Validate Ed25519 public key format (32 bytes = 64 hex chars, or base64url)",
+      "Replay protection: reject previously seen receipts",
+      "Evict oldest entries when the window is full",
+      "Spending authority specific fields",
+      "---------------------------------------------------------------------------",
+      "Spending authority gate",
+      "---------------------------------------------------------------------------",
+      "1. Amount limit",
+      "2. Category check",
+      "3. Utilization + trust",
+      "4. Receipt check for high-value transactions",
+      "---------------------------------------------------------------------------",
+      "AGT context builder",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CedarDecision: A Cedar policy evaluation result from protect-mcp.\n\nCedar evaluates to allow or ",
+      "CedarPolicyBridge: Maps Cedar policy decisions into AGT's PolicyEngine evaluate() interface.\n\nCedar",
+      "ReceiptVerifier: Validates protect-mcp decision receipts.\n\nReceipts are Ed25519-signed JSON envel",
+      "SpendingGate: Enforces spending authority for agent financial operations.\n\nprotect-mcp's spend",
+      "scopeblind_context: Build an AGT-compatible context dict from protect-mcp artifacts.\n\nThis context c",
+      "from_receipt: Parse a CedarDecision from a protect-mcp receipt payload.",
+      "evaluate: Evaluate an MCP tool call through both Cedar and AGT lenses.\n\nReturns an AGT-com",
+      "_record: Append to history with bounded size to prevent memory leaks.",
+      "validate_structure_only: Validate receipt structure only \u2014 no cryptographic verification.\n\nCryptographic ",
+      "to_agt_context: Convert a validated receipt to AGT-compatible context."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ReceiptVerifier",
+    "to_agt_context",
+    "validate_structure_only",
+    "CedarDecision",
+    "evaluate_spend",
+    "to_dict",
+    "evaluate",
+    "get_history",
+    "scopeblind_context",
+    "get_verification_log",
+    "allowed",
+    "get_decisions",
+    "SpendingGate",
+    "CedarPolicyBridge",
+    "from_receipt",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "re",
+      "threading",
+      "time",
+      "collections",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "scopeblind_context",
+      "line": 568,
+      "doc": "Build an AGT-compatible context dict from protect-mcp artifacts.\n\nThis context can be passed to AGT's PolicyEngine.evaluate() to\nincorporate protect-mcp signals into governance decisions.\n\nExample:\n    ctx = scopeblind_context(\n        cedar_decision=decision,\n        receipt=receipt,\n        spend_amount=99.50,\n    )\n    agt_result = policy_engine.evaluate(action=\"purchase\", context=ctx)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "cedar_decision",
+        "receipt",
+        "spend_amount",
+        "spend_category",
+        "utilization_band"
+      ],
+      "returns": null
+    },
+    {
+      "name": "allowed",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_receipt",
+      "line": 69,
+      "doc": "Parse a CedarDecision from a protect-mcp receipt payload.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "receipt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trust_floor",
+        "trust_bonus_per_allow",
+        "deny_penalty",
+        "require_receipt",
+        "max_history"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 121,
+      "doc": "Evaluate an MCP tool call through both Cedar and AGT lenses.\n\nReturns an AGT-compatible evaluation result with:\n- allowed: final decision (Cedar deny is always final)\n- cedar_effect: the Cedar decision\n- adjusted_trust: trust score after Cedar signal\n- reason: human-readable explanation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cedar_decision",
+        "agent_trust_score",
+        "agent_did",
+        "receipt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record",
+      "line": 188,
+      "doc": "Append to history with bounded size to prevent memory leaks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_history",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 257,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "strict",
+        "max_log",
+        "replay_protection",
+        "max_seen_receipts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_structure_only",
+      "line": 274,
+      "doc": "Validate receipt structure only \u2014 no cryptographic verification.\n\nCryptographic signature verification (Ed25519) is delegated to\n@veritasacta/verify or the protect-mcp runtime. This method only\nchecks that required fields are present and the receipt type is\nrecognized.\n\nReturns a result dict with:\n- valid: bool\n- receipt_type: str\n- tool: str (extracted from payload)\n- decision: str (allow/deny)\n- reason: str (if invalid)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "receipt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_agt_context",
+      "line": 376,
+      "doc": "Convert a validated receipt to AGT-compatible context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "receipt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_verification_log",
+      "line": 396,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_single_amount",
+        "high_util_trust_floor",
+        "blocked_categories",
+        "max_log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_spend",
+      "line": 444,
+      "doc": "Evaluate a spending request through both spending authority and AGT trust.\n\nChecks (in order):\n1. Amount within single-transaction limit\n2. Category not blocked\n3. Utilization band + trust score check\n4. Receipt present (if high-value)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "amount",
+        "currency",
+        "category",
+        "utilization_band",
+        "agent_trust_score",
+        "agent_did",
+        "receipt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record",
+      "line": 538,
+      "doc": "Append to decisions with bounded size to prevent memory leaks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_decisions",
+      "line": 545,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 549,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CedarDecision",
+      "line": 40,
+      "doc": "A Cedar policy evaluation result from protect-mcp.\n\nCedar evaluates to allow or deny with an optional list of policy IDs\nthat contributed to the decision. This is deterministic \u2014 the same\npolicy set and context always produces the same decision.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CedarPolicyBridge",
+      "line": 86,
+      "doc": "Maps Cedar policy decisions into AGT's PolicyEngine evaluate() interface.\n\nCedar is a formal policy language (open-sourced by AWS) that evaluates\nallow/deny decisions based on principal, action, resource, and context.\nprotect-mcp uses Cedar WASM for sub-millisecond evaluation at the MCP\ntransport layer.\n\nThis bridge lets AGT consume Cedar decisions as hard constraints:\n- Cedar deny \u2192 AGT deny (non-negotiable)\n- Cedar allow \u2192 check AGT trust score (soft signal)\n\nThis preserves Cedar's formal guarantees while layering AGT's\nbehavioral trust on top.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ReceiptVerifier",
+      "line": 220,
+      "doc": "Validates protect-mcp decision receipts.\n\nReceipts are Ed25519-signed JSON envelopes following the Veritas Acta\nartifact format (JCS canonicalization). Each receipt proves:\n- What tool call was evaluated\n- What Cedar policies applied\n- What the decision was (allow/deny)\n- When it happened\n- Who signed it (tenant public key)\n\nCrucially, receipts are **issuer-blind** \u2014 the verifier can confirm\nvalidity without learning which organization issued the receipt.\nThis prevents supply-chain surveillance.\n\nThis class validates receipt structure and extracts AGT-compatible\nmetadata. Cryptographic verification (Ed25519 signature check)\nis delegated to @veritasacta/verify or the protect-mcp runtime.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SpendingGate",
+      "line": 406,
+      "doc": "Enforces spending authority for agent financial operations.\n\nprotect-mcp's spending authority system uses VOPRF (RFC 9497) to\nproduce issuer-blind spending receipts. The receipt proves:\n- The spend is within authorized limits\n- The category is permitted\n- The utilization band (low/medium/high \u2014 not exact budget)\n\nWhat it does NOT reveal (by design):\n- Organization name or identity\n- Total budget ceiling\n- Exact remaining budget\n- Agent identity or delegation chain\n\nThis gate integrates with AGT to add trust-score gating on top of\nthe cryptographic spending proof.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

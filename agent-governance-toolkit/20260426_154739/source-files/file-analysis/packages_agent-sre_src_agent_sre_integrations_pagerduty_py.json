@@ -1,0 +1,163 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/pagerduty.py",
+  "extension": ".py",
+  "size_bytes": 6397,
+  "line_count": 183,
+  "documentation": {
+    "file_docstring": "PagerDuty integration for SLO breach alerting.\n\nProvides ``PagerDutyAlertConfig`` \u2014 a helper that registers a PagerDuty\nchannel with the ``AlertManager`` and watches SLOs for status transitions.\nOn breach (CRITICAL / EXHAUSTED) it fires PagerDuty alerts; on recovery\n(HEALTHY) it sends resolve events.\n\nNo external dependencies \u2014 uses the existing ``AlertManager`` http-based\ndelivery (stdlib ``urllib``).\n\nUsage::\n\n    from agent_sre.integrations.pagerduty import PagerDutyAlertConfig\n    from agent_sre.alerts import AlertManager\n    from agent_sre.slo.objectives import SLO\n\n    manager = AlertManager()\n    pd = PagerDutyAlertConfig(\n        alert_manager=manager,\n        routing_key=\"R0XXXXXXXXXXXXXXXXXXXXXXXXX\",\n    )\n\n    slo = SLO(name=\"latency-p99\", indicators=[...], agent_id=\"agent-1\")\n    pd.watch_slo(slo)  # fires if SLO is breached, resolves on recovery",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "PagerDuty Events API v2 endpoint",
+      "Default severity mapping",
+      "Statuses that trigger an alert",
+      "Register PagerDuty channel with the AlertManager",
+      "Breach \u2014 fire alert",
+      "Recovery \u2014 send resolve"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PagerDutyAlertConfig: Connects SLO evaluations to PagerDuty incident management.\n\nRegisters a PagerDut",
+      "last_statuses: Last-known SLO statuses (read-only copy).",
+      "watch_slo: Evaluate an SLO and fire/resolve PagerDuty alerts as needed.\n\nCall this periodic",
+      "remove: Unregister the PagerDuty channel from the AlertManager.",
+      "_make_dedup_key: Generate a stable dedup key for PagerDuty."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "watch_slo",
+    "remove",
+    "PagerDutyAlertConfig",
+    "channel_name",
+    "last_statuses"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "agent_sre.alerts",
+      "agent_sre.slo.objectives"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "alert_manager",
+        "routing_key",
+        "channel_name",
+        "severity_map",
+        "url"
+      ],
+      "returns": null
+    },
+    {
+      "name": "channel_name",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "last_statuses",
+      "line": 105,
+      "doc": "Last-known SLO statuses (read-only copy).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "watch_slo",
+      "line": 109,
+      "doc": "Evaluate an SLO and fire/resolve PagerDuty alerts as needed.\n\nCall this periodically (e.g. after each ``slo.record_event()``)\nor on a schedule.\n\nArgs:\n    slo: The SLO to evaluate.\n    agent_id: Agent identifier for dedup and alert context.\n\nReturns:\n    The current SLO status after evaluation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo",
+        "agent_id"
+      ],
+      "returns": "SLOStatus"
+    },
+    {
+      "name": "remove",
+      "line": 176,
+      "doc": "Unregister the PagerDuty channel from the AlertManager.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_dedup_key",
+      "line": 181,
+      "doc": "Generate a stable dedup key for PagerDuty.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "slo_name",
+        "agent_id"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PagerDutyAlertConfig",
+      "line": 55,
+      "doc": "Connects SLO evaluations to PagerDuty incident management.\n\nRegisters a PagerDuty channel with the ``AlertManager`` and provides\n``watch_slo()`` to evaluate an SLO and fire/resolve PagerDuty alerts\nbased on status transitions.\n\nFeatures:\n- Automatic dedup via ``{slo.name}:{agent_id}`` keys\n- Resolve events on recovery to HEALTHY\n- Configurable severity mapping\n- Tracks last-known status per SLO to avoid redundant alerts\n\nAttributes:\n    _alert_manager: The AlertManager to send alerts through.\n    _routing_key: PagerDuty integration/routing key.\n    _channel_name: Name of the registered PagerDuty channel.\n    _severity_map: Maps SLOStatus to AlertSeverity.\n    _last_statuses: Tracks last-known status per SLO name.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,478 @@
+{
+  "path": "packages/agent-os/modules/scak/tests/test_memory_controller.py",
+  "extension": ".py",
+  "size_bytes": 19336,
+  "line_count": 530,
+  "documentation": {
+    "file_docstring": "Unit tests for the Adaptive Memory Hierarchy (MemoryController).\n\nTests the three-tier deterministic routing system that replaces\nprobabilistic RAG-based memory with systematic tiering.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Verify it's in the cache",
+      "Verify it's in the vector store",
+      "Should be empty or minimal since no tools and simple task",
+      "Add a kernel rule",
+      "Add SQL lesson",
+      "Request context WITH SQL tool",
+      "Request context WITHOUT SQL tool",
+      "Add archived lesson",
+      "Complex task that should trigger search",
+      "Should include relevant lessons from Tier 3",
+      "Track multiple retrievals",
+      "Check counter",
+      "Add a rule that's old and never triggered",
+      "Add a fresh rule",
+      "Run demotion",
+      "Old rule should be demoted, fresh rule stays",
+      "Search for programming",
+      "Both Python and Java docs should be returned",
+      "Should return no results since no matching words",
+      "Set up realistic scenario with many rules",
+      "Add 50 SQL rules",
+      "Add 20 Python rules",
+      "Add 30 security rules to Tier 1",
+      "Should include 30 security rules (Tier 1)",
+      "Should NOT include SQL or Python rules",
+      "Count actual rules in context",
+      "Should include security and SQL rules",
+      "Should NOT include Python rules",
+      "Count rules"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestMemoryController: Tests for MemoryController routing and tiering logic.",
+      "TestMockRedisCache: Tests for MockRedisCache.",
+      "TestMockVectorStore: Tests for MockVectorStore.",
+      "TestContextBloatScenario: The \"Context Bloat Test\" from the problem statement.\n\nProves that tiering saves ",
+      "setUp: Set up test fixtures.",
+      "test_route_security_lesson_to_tier1: Security lessons should always go to Tier 1 (Kernel).",
+      "test_route_critical_failure_to_tier1: Critical failures should go to Tier 1 regardless of lesson type.",
+      "test_route_tool_specific_lesson_to_tier2: Tool-specific lessons should go to Tier 2 (Skill Cache).",
+      "test_route_business_logic_to_tier3: Business logic and edge cases should go to Tier 3 (Archive).",
+      "test_commit_lesson_to_tier1: Test committing a lesson to Tier 1."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_commit_lesson_to_tier3",
+    "TestContextBloatScenario",
+    "test_commit_lesson_to_tier1",
+    "test_tool_name_extraction",
+    "test_route_tool_specific_lesson_to_tier2",
+    "test_route_critical_failure_to_tier1",
+    "test_scenario1_simple_greeting_minimal_context",
+    "test_rpush_and_lrange",
+    "TestMemoryController",
+    "test_retrieve_context_injects_tier2_for_active_tools",
+    "test_similarity_search_with_no_matches",
+    "test_demote_cold_kernel_rules",
+    "test_get",
+    "test_scenario2_sql_query_injects_only_sql_rules",
+    "test_retrieve_context_includes_tier1",
+    "test_commit_lesson_to_tier2",
+    "test_incr",
+    "test_delete",
+    "test_route_security_lesson_to_tier1",
+    "setUp",
+    "test_add_and_search",
+    "TestMockVectorStore",
+    "test_retrieve_context_searches_tier3_for_complex_task",
+    "test_route_business_logic_to_tier3",
+    "TestMockRedisCache",
+    "test_track_retrieval_increments_counter",
+    "test_retrieve_context_minimal_for_simple_task"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "unittest",
+      "datetime",
+      "src.kernel.memory",
+      "src.kernel.schemas"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "setUp",
+      "line": 20,
+      "doc": "Set up test fixtures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_route_security_lesson_to_tier1",
+      "line": 24,
+      "doc": "Security lessons should always go to Tier 1 (Kernel).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_route_critical_failure_to_tier1",
+      "line": 43,
+      "doc": "Critical failures should go to Tier 1 regardless of lesson type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_route_tool_specific_lesson_to_tier2",
+      "line": 62,
+      "doc": "Tool-specific lessons should go to Tier 2 (Skill Cache).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_route_business_logic_to_tier3",
+      "line": 81,
+      "doc": "Business logic and edge cases should go to Tier 3 (Archive).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_commit_lesson_to_tier1",
+      "line": 100,
+      "doc": "Test committing a lesson to Tier 1.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_commit_lesson_to_tier2",
+      "line": 122,
+      "doc": "Test committing a lesson to Tier 2.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_commit_lesson_to_tier3",
+      "line": 148,
+      "doc": "Test committing a lesson to Tier 3.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_retrieve_context_minimal_for_simple_task",
+      "line": 172,
+      "doc": "Simple tasks should get minimal context (no Tier 3 retrieval).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_retrieve_context_includes_tier1",
+      "line": 183,
+      "doc": "Context should always include Tier 1 (Kernel) rules.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_retrieve_context_injects_tier2_for_active_tools",
+      "line": 202,
+      "doc": "Context should inject Tier 2 rules only for active tools.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_retrieve_context_searches_tier3_for_complex_task",
+      "line": 237,
+      "doc": "Complex tasks should trigger Tier 3 semantic search.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_name_extraction",
+      "line": 264,
+      "doc": "Test extraction of tool names from trigger patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_track_retrieval_increments_counter",
+      "line": 278,
+      "doc": "Test that retrieval tracking increments the counter.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_demote_cold_kernel_rules",
+      "line": 291,
+      "doc": "Test demotion of cold Tier 1 rules that haven't been used.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rpush_and_lrange",
+      "line": 328,
+      "doc": "Test basic list operations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_incr",
+      "line": 338,
+      "doc": "Test counter increment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get",
+      "line": 348,
+      "doc": "Test get operation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete",
+      "line": 354,
+      "doc": "Test delete operation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 365,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_and_search",
+      "line": 368,
+      "doc": "Test adding documents and searching.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_similarity_search_with_no_matches",
+      "line": 395,
+      "doc": "Test search with no matching documents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setUp",
+      "line": 416,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scenario1_simple_greeting_minimal_context",
+      "line": 468,
+      "doc": "Scenario 1: Simple greeting should load minimal context.\n\nStandard Agent: Loads 50 SQL + 20 Python + 30 Security = 100 rules\nOur Kernel: Loads only 30 Security rules (Tier 1)\n\nResult: 70% context reduction!",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scenario2_sql_query_injects_only_sql_rules",
+      "line": 495,
+      "doc": "Scenario 2: SQL query should inject only SQL rules, not Python.\n\nStandard Agent: Still loads all 100 rules\nOur Kernel: Loads 30 Security + 50 SQL = 80 rules (no Python)\n\nResult: 20% context reduction!",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestMemoryController",
+      "line": 17,
+      "doc": "Tests for MemoryController routing and tiering logic.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestMockRedisCache",
+      "line": 322,
+      "doc": "Tests for MockRedisCache.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestMockVectorStore",
+      "line": 362,
+      "doc": "Tests for MockVectorStore.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestContextBloatScenario",
+      "line": 409,
+      "doc": "The \"Context Bloat Test\" from the problem statement.\n\nProves that tiering saves tokens and latency compared to flat lists.",
+      "is_public": true,
+      "bases": [
+        "unittest.TestCase"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

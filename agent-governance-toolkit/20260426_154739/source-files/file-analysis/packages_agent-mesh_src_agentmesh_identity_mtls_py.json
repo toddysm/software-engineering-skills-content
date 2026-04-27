@@ -1,0 +1,156 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/mtls.py",
+  "extension": ".py",
+  "size_bytes": 8902,
+  "line_count": 251,
+  "documentation": {
+    "file_docstring": "Mutual TLS Identity Verification\n\nProvides mTLS support for agent-to-agent communication with X.509\ncertificates derived from Ed25519 agent identities. Agent DIDs are\nembedded in certificate SANs for cryptographic identity binding.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Generate and load ephemeral self-signed cert",
+      "Check SAN URIs first",
+      "Fallback: subject SERIAL_NUMBER"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MTLSConfig: Configuration for mutual TLS identity verification.\n\nAttributes:\n    cert_path: ",
+      "MTLSIdentityVerifier: Mutual TLS identity verifier using X.509 certificates.\n\nCreates self-signed cert",
+      "create_self_signed_cert: Generate a self-signed X.509 certificate from the agent identity.\n\nUses an ECDSA",
+      "create_ssl_context: Create a configured SSL context for mTLS.\n\nArgs:\n    server_side: If True, creat",
+      "verify_peer_certificate: Extract and verify peer identity from a PEM-encoded certificate.\n\nArgs:\n    cert",
+      "extract_did_from_cert: Extract agent DID from certificate subject or SAN.\n\nLooks for a URI SAN matching"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MTLSIdentityVerifier",
+    "create_ssl_context",
+    "MTLSConfig",
+    "create_self_signed_cert",
+    "verify_peer_certificate",
+    "extract_did_from_cert"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "ssl",
+      "tempfile",
+      "os",
+      "datetime",
+      "typing",
+      "cryptography",
+      "cryptography.hazmat.primitives",
+      "cryptography.hazmat.primitives.asymmetric",
+      "cryptography.x509.oid",
+      "pydantic",
+      "agentmesh.identity.agent_id"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_self_signed_cert",
+      "line": 62,
+      "doc": "Generate a self-signed X.509 certificate from the agent identity.\n\nUses an ECDSA P-256 signing key (X.509 requires a signing algorithm;\nthe Ed25519 identity is bound via the certificate subject and SAN).\n\nReturns:\n    Tuple of (cert_pem, key_pem) as bytes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_ssl_context",
+      "line": 111,
+      "doc": "Create a configured SSL context for mTLS.\n\nArgs:\n    server_side: If True, create a server-side context that requests\n        client certificates. If False, create a client-side context.\n\nReturns:\n    A configured ssl.SSLContext.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_side"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_peer_certificate",
+      "line": 168,
+      "doc": "Extract and verify peer identity from a PEM-encoded certificate.\n\nArgs:\n    cert_pem: PEM-encoded X.509 certificate bytes.\n\nReturns:\n    Dict with keys: did, public_key, valid, subject.\n\nRaises:\n    ValueError: If cert_pem cannot be parsed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cert_pem"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "extract_did_from_cert",
+      "line": 214,
+      "doc": "Extract agent DID from certificate subject or SAN.\n\nLooks for a URI SAN matching ``did:mesh:*``, then falls back to\nthe subject SERIAL_NUMBER attribute.\n\nArgs:\n    cert_pem: PEM-encoded X.509 certificate bytes.\n\nReturns:\n    The DID string, or None if not found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cert_pem"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MTLSConfig",
+      "line": 26,
+      "doc": "Configuration for mutual TLS identity verification.\n\nAttributes:\n    cert_path: Path to certificate PEM file, or None for ephemeral certs.\n    key_path: Path to private key PEM file, or None for ephemeral keys.\n    ca_cert_path: Path to CA certificate PEM file for peer verification.\n    verify_peer: Whether to verify peer certificates.\n    require_client_cert: Whether to require client certificates (server-side).",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MTLSIdentityVerifier",
+      "line": 46,
+      "doc": "Mutual TLS identity verifier using X.509 certificates.\n\nCreates self-signed certificates from Ed25519 agent identities and\nconfigures SSL contexts for mTLS communication. Agent DIDs are embedded\nin certificate Subject Alternative Names (SANs) as URI:did:mesh:xxx.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 35,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

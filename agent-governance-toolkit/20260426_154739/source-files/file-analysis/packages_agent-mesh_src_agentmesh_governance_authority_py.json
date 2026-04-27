@@ -1,0 +1,172 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/authority.py",
+  "extension": ".py",
+  "size_bytes": 6146,
+  "line_count": 184,
+  "documentation": {
+    "file_docstring": "AuthorityResolver protocol for reputation-gated authority.\n\nDefines the extension interface for composing trust scoring with\ndelegation chains. External implementations (e.g., agentmesh-reputation-gate)\nimplement this protocol; the governance pipeline calls it at the\nenforcement boundary.\n\nDesign reference: docs/proposals/REPUTATION-GATED-AUTHORITY.md\nIssue: #275\n\nUsage:\n    from agentmesh.governance.authority import AuthorityResolver, AuthorityDecision\n\n    class MyResolver:\n        def resolve(self, request: AuthorityRequest) -> AuthorityDecision:\n            # Your authority composition logic\n            ...\n\n    # Register with PolicyEngine\n    engine = PolicyEngine()\n    engine.set_authority_resolver(MyResolver())",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Your authority composition logic",
+      "Register with PolicyEngine",
+      "\u2500\u2500 Data types \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Protocol \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Default (passthrough) resolver \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DelegationInfo: Delegation chain context for authority resolution.\n\nMaps to AgentMesh's ``ScopeC",
+      "TrustInfo: Trust score context for authority resolution.\n\nMaps to AgentMesh's ``RiskScore``",
+      "ActionRequest: The action being requested, for authority evaluation.\n\nMaps to the ``context`` d",
+      "AuthorityDecision: Result of authority resolution.\n\nFour decision states (per the ADR):\n- ``allow``",
+      "AuthorityRequest: Complete context for an authority resolution request.\n\nBundles identity, delegat",
+      "AuthorityResolver: Interface for authority resolution backends.\n\nImplementations compose trust scor",
+      "DefaultAuthorityResolver: No-op resolver that allows everything.\n\nUsed when no external authority resolver",
+      "resolve: Resolve effective authority for an agent action.\n\nArgs:\n    request: Complete co"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "resolve",
+    "AuthorityRequest",
+    "DelegationInfo",
+    "AuthorityDecision",
+    "AuthorityResolver",
+    "TrustInfo",
+    "DefaultAuthorityResolver",
+    "ActionRequest"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "resolve",
+      "line": 153,
+      "doc": "Resolve effective authority for an agent action.\n\nArgs:\n    request: Complete context including delegation chain,\n        trust score, and the requested action.\n\nReturns:\n    An ``AuthorityDecision`` with the verdict and any\n    scope narrowing applied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "AuthorityDecision"
+    },
+    {
+      "name": "resolve",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "AuthorityDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "DelegationInfo",
+      "line": 38,
+      "doc": "Delegation chain context for authority resolution.\n\nMaps to AgentMesh's ``ScopeChain`` / ``DelegationLink`` data.\nImplementations can populate this from the existing identity layer.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustInfo",
+      "line": 54,
+      "doc": "Trust score context for authority resolution.\n\nMaps to AgentMesh's ``RiskScore`` and handshake ``trust_score``.\nThe 0\u20131000 scale matches AgentMesh defaults (500 = default new agent).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ActionRequest",
+      "line": 70,
+      "doc": "The action being requested, for authority evaluation.\n\nMaps to the ``context`` dict passed through the governance pipeline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuthorityDecision",
+      "line": 84,
+      "doc": "Result of authority resolution.\n\nFour decision states (per the ADR):\n- ``allow``: Action permitted with original scope\n- ``allow_narrowed``: Action permitted with reduced scope/limits\n- ``deny``: Action blocked\n- ``audit``: Action logged but not enforced (shadow mode)\n\nAttributes:\n    decision: The authority verdict.\n    effective_scope: Capabilities the agent may use for this action\n        (may be narrower than delegated capabilities).\n    effective_spend_limit: Maximum spend for this action (may be\n        lower than the agent's delegation limit).\n    narrowing_reason: Human-readable explanation when decision is\n        ``allow_narrowed`` or ``deny``.\n    trust_tier: The trust tier that was applied\n        (e.g., ``\"privileged\"``, ``\"trusted\"``, ``\"standard\"``,\n        ``\"restricted\"``, ``\"untrusted\"``).\n    matched_invariants: Which of the 6 formal invariants were\n        evaluated (for audit/debugging).\n    timestamp: When the decision was made.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuthorityRequest",
+      "line": 121,
+      "doc": "Complete context for an authority resolution request.\n\nBundles identity, delegation, trust, and action into a single\nobject so the resolver has everything it needs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuthorityResolver",
+      "line": 138,
+      "doc": "Interface for authority resolution backends.\n\nImplementations compose trust scoring with delegation chains to\nproduce an ``AuthorityDecision``. The governance pipeline calls\n``resolve()`` between delegation verification and capability\nenforcement.\n\nThe protocol is deliberately minimal \u2014 implementations own the\ncomposition logic (tier mapping, capability matching, cache\nstrategy). The toolkit owns the enforcement boundary.\n\nReference implementation: https://github.com/aeoess/agentmesh-reputation-gate",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "DefaultAuthorityResolver",
+      "line": 170,
+      "doc": "No-op resolver that allows everything.\n\nUsed when no external authority resolver is registered.\nPreserves pre-resolver behavior: delegation scope is the\neffective scope, no trust-based narrowing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

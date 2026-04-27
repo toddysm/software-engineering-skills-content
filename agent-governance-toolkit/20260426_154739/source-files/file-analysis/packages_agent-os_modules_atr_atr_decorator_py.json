@@ -1,0 +1,184 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/decorator.py",
+  "extension": ".py",
+  "size_bytes": 11610,
+  "line_count": 357,
+  "documentation": {
+    "file_docstring": "Decorator for registering tools in the Agent Tool Registry.\n\nProvides @atr.register() decorator to turn Python functions into discoverable tools.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Handle None type",
+      "Get the origin to check for generic types",
+      "Only unwrap Optional/Union types - don't unwrap List, Dict, etc.",
+      "Check if it's a Union (which includes Optional)",
+      "For Optional[X] or Union[X, None], get X",
+      "Use the first non-None type and recurse",
+      "Now check the origin for generic types like List[str], Dict[str, int]",
+      "Map basic Python types to ParameterType",
+      "Default to string for unknown types",
+      "Skip self/cls parameters",
+      "Require type hints - no magic arguments!",
+      "Determine if required (has no default value)",
+      "Extract description from docstring if available",
+      "Simple extraction - look for \"param_name: description\" pattern",
+      "Implementation here",
+      "New parameters for enhanced features",
+      "Get or import global registry",
+      "Extract metadata",
+      "Auto-detect async",
+      "Parse cost level",
+      "Parse side effects",
+      "Create metadata",
+      "Extract parameters from function signature",
+      "Extract return specification",
+      "Create tool spec",
+      "Apply policies",
+      "Create access policy from permissions list",
+      "Register the tool (store the callable but don't execute it)",
+      "Return the original function unchanged - we don't wrap it",
+      "The registry stores it, but execution happens elsewhere"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_python_type_to_parameter_type: Convert Python type annotation to ParameterType.\n\nArgs:\n    python_type: Python ",
+      "_extract_parameters_from_function: Extract parameter specifications from function signature.\n\nArgs:\n    func: The f",
+      "_extract_return_spec_from_function: Extract return value specification from function.\n\nArgs:\n    func: The function ",
+      "register: Decorator to register a function as a tool in the ATR.\n\nUsage:\n    @atr.register",
+      "__init__: Initialize the register decorator.\n\nArgs:\n    name: Tool name (defaults to funct",
+      "__call__: Register the function and return it unchanged.\n\nArgs:\n    func: The function to "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "register"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "inspect",
+      "typing",
+      "registry",
+      "schema",
+      "policies",
+      "access"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_python_type_to_parameter_type",
+      "line": 39,
+      "doc": "Convert Python type annotation to ParameterType.\n\nArgs:\n    python_type: Python type annotation\n\nReturns:\n    Corresponding ParameterType",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "python_type"
+      ],
+      "returns": "ParameterType"
+    },
+    {
+      "name": "_extract_parameters_from_function",
+      "line": 90,
+      "doc": "Extract parameter specifications from function signature.\n\nArgs:\n    func: The function to analyze\n\nReturns:\n    List of ParameterSpec objects\n\nRaises:\n    ValueError: If function has parameters without type hints",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_return_spec_from_function",
+      "line": 149,
+      "doc": "Extract return value specification from function.\n\nArgs:\n    func: The function to analyze\n\nReturns:\n    ParameterSpec for return value, or None if no return type",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 210,
+      "doc": "Initialize the register decorator.\n\nArgs:\n    name: Tool name (defaults to function name)\n    description: Tool description (defaults to function docstring)\n    version: Semantic version string (e.g., \"1.0.0\")\n    author: Tool author\n    cost: Cost level (free, low, medium, high)\n    side_effects: List of side effects\n    tags: Searchable tags\n    registry: Registry instance (uses global if not provided)\n    async_: Whether tool is async (auto-detected if None)\n    permissions: List of roles/agents allowed to access this tool\n    rate_limit: Rate limit string (e.g., \"10/minute\", \"100/hour\")\n    retry_policy: RetryPolicy instance for automatic retries\n    health_check: HealthCheck instance for verifying tool availability\n    access_policy: AccessPolicy instance for fine-grained access control\n    deprecated: Whether this version is deprecated\n    deprecated_message: Migration guide for deprecated tools",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description",
+        "version",
+        "author",
+        "cost",
+        "side_effects",
+        "tags",
+        "registry",
+        "async_",
+        "permissions",
+        "rate_limit",
+        "retry_policy",
+        "health_check",
+        "access_policy",
+        "deprecated",
+        "deprecated_message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 267,
+      "doc": "Register the function and return it unchanged.\n\nArgs:\n    func: The function to register\n\nReturns:\n    The original function (not wrapped)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "Callable"
+    }
+  ],
+  "classes": [
+    {
+      "name": "register",
+      "line": 174,
+      "doc": "Decorator to register a function as a tool in the ATR.\n\nUsage:\n    @atr.register(name=\"scraper\", cost=\"low\", tags=[\"web\", \"scraping\"])\n    def scrape_website(url: str, timeout: int = 30) -> str:\n        '''Scrape content from a website.\n\n        Args:\n            url: The URL to scrape\n            timeout: Timeout in seconds\n        '''\n        # Implementation here\n        pass\n\nAdvanced usage with all features:\n    @atr.register(\n        name=\"pdf_parser\",\n        version=\"1.0.0\",\n        async_=True,\n        rate_limit=\"10/minute\",\n        permissions=[\"claims-agent\"],\n        retry_policy=RetryPolicy(max_attempts=3, backoff=\"exponential\"),\n        tags=[\"document\", \"parsing\"]\n    )\n    async def pdf_parser(file_path: str, config: Config = inject()) -> dict:\n        '''Parse a PDF document.'''\n        ...\n\nThis decorator:\n1. Extracts function signature and converts to ToolSpec\n2. Validates all parameters have type hints (no magic arguments!)\n3. Registers the tool in the global registry\n4. Returns the original function unchanged (doesn't wrap it)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 64,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

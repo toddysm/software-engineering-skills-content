@@ -1,0 +1,221 @@
+{
+  "path": "packages/agent-os/modules/mcp-kernel-server/src/mcp_kernel_server/resources.py",
+  "extension": ".py",
+  "size_bytes": 7040,
+  "line_count": 217,
+  "documentation": {
+    "file_docstring": "MCP Resources for Agent OS VFS.\n\nExposes the Agent Virtual File System as MCP resources,\nallowing agents to read/write structured memory.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Backend storage (in production: Redis, S3, DynamoDB)",
+      "Initialize agent storage if needed",
+      "Navigate to path",
+      "Check write permissions",
+      "Initialize agent storage if needed",
+      "Write to path",
+      "Handle vfs://agent_id/path format"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ResourceContent: Content returned from VFS resource.",
+      "VFSResource: Agent Virtual File System as MCP Resource.\n\nProvides structured memory access th",
+      "VFSResourceTemplate: MCP Resource Template for dynamic VFS paths.\n\nAllows clients to discover availab",
+      "list_resources: List available resources for an agent.",
+      "read: Read from VFS path.",
+      "write: Write to VFS path (if allowed).",
+      "_parse_uri: Parse VFS URI into agent_id and path.",
+      "_init_agent_storage: Initialize storage structure for an agent.",
+      "_get_path: Navigate storage to get value at path.",
+      "_set_path: Navigate storage to set value at path."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ResourceContent",
+    "get_templates",
+    "list_resources",
+    "VFSResource",
+    "VFSResourceTemplate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "dataclasses",
+      "typing",
+      "datetime",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_resources",
+      "line": 49,
+      "doc": "List available resources for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "read",
+      "line": 72,
+      "doc": "Read from VFS path.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri"
+      ],
+      "returns": "ResourceContent"
+    },
+    {
+      "name": "write",
+      "line": 94,
+      "doc": "Write to VFS path (if allowed).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri",
+        "content"
+      ],
+      "returns": "ResourceContent"
+    },
+    {
+      "name": "_parse_uri",
+      "line": 120,
+      "doc": "Parse VFS URI into agent_id and path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "uri"
+      ],
+      "returns": "tuple"
+    },
+    {
+      "name": "_init_agent_storage",
+      "line": 132,
+      "doc": "Initialize storage structure for an agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_get_path",
+      "line": 155,
+      "doc": "Navigate storage to get value at path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "storage",
+        "path"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_set_path",
+      "line": 170,
+      "doc": "Navigate storage to set value at path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "storage",
+        "path",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_templates",
+      "line": 196,
+      "doc": "Return MCP resource templates.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "list"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ResourceContent",
+      "line": 17,
+      "doc": "Content returned from VFS resource.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VFSResource",
+      "line": 25,
+      "doc": "Agent Virtual File System as MCP Resource.\n\nProvides structured memory access through standard paths:\n- /vfs/{agent_id}/mem/working/* - Ephemeral working memory\n- /vfs/{agent_id}/mem/episodic/* - Experience logs\n- /vfs/{agent_id}/policy/* - Read-only policies\n\nStateless Design:\n- All state stored in external backend (memory/redis/s3)\n- No session state maintained in server\n- Horizontally scalable",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "VFSResourceTemplate",
+      "line": 184,
+      "doc": "MCP Resource Template for dynamic VFS paths.\n\nAllows clients to discover available resources dynamically.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 24,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

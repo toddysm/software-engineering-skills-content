@@ -1,0 +1,497 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/marketplace/_marketplace_impl.py",
+  "extension": ".py",
+  "size_bytes": 11780,
+  "line_count": 328,
+  "documentation": {
+    "file_docstring": "Standalone plugin marketplace implementation.\n\nThis module provides a self-contained implementation that only requires\n``pydantic``, ``pyyaml``, and ``cryptography`` \u2014 all of which are already\ncore dependencies of ``agentmesh``.  It is used as a fallback by\n``agentmesh.marketplace`` when ``agent_marketplace`` is not installed.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Signature verification \u2014 only when keys are configured and signature exists"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MarketplaceError: Errors related to the plugin marketplace.",
+      "PluginType: Supported plugin types.",
+      "PluginManifest: Schema for an AgentMesh plugin manifest.",
+      "PluginSigner: Sign and verify plugin manifests using Ed25519 keys.",
+      "PluginRegistry: Registry for plugin manifests.",
+      "PluginInstaller: Install, uninstall, and manage AgentMesh plugins."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "load_manifest",
+    "validate_version",
+    "validate_author",
+    "search",
+    "list_plugins",
+    "public_key",
+    "install",
+    "PluginSigner",
+    "MarketplaceError",
+    "verify_signature",
+    "sign",
+    "check_sandbox",
+    "PluginRegistry",
+    "PluginManifest",
+    "PluginType",
+    "register",
+    "save_manifest",
+    "signable_bytes",
+    "uninstall",
+    "get_plugin",
+    "PluginInstaller",
+    "validate_name",
+    "list_installed",
+    "unregister"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "enum",
+      "json",
+      "logging",
+      "shutil",
+      "pathlib",
+      "typing",
+      "yaml",
+      "cryptography.hazmat.primitives.asymmetric",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_manifest",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "save_manifest",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "manifest",
+        "path"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "verify_signature",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "manifest",
+        "public_key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_semver_tuple",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_parse_dependency",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dep_spec"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_name",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_version",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_author",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "signable_bytes",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "__init__",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "private_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "public_key",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sign",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "__init__",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "storage_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_plugin",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "search",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_plugins",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "type_filter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_persist",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_from_file",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugins_dir",
+        "registry",
+        "trusted_keys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "install",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "uninstall",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_installed",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_dependencies",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_sandbox",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "module_name"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "MarketplaceError",
+      "line": 30,
+      "doc": "Errors related to the plugin marketplace.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginType",
+      "line": 34,
+      "doc": "Supported plugin types.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "enum.Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginManifest",
+      "line": 43,
+      "doc": "Schema for an AgentMesh plugin manifest.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginSigner",
+      "line": 113,
+      "doc": "Sign and verify plugin manifests using Ed25519 keys.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PluginRegistry",
+      "line": 148,
+      "doc": "Registry for plugin manifests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PluginInstaller",
+      "line": 231,
+      "doc": "Install, uninstall, and manage AgentMesh plugins.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

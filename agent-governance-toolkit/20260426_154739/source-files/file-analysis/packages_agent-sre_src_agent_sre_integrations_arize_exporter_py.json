@@ -1,0 +1,234 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/arize/exporter.py",
+  "extension": ".py",
+  "size_bytes": 6488,
+  "line_count": 206,
+  "documentation": {
+    "file_docstring": "Phoenix Exporter \u2014 export Agent-SRE data as Phoenix-compatible spans.\n\nPhoenix (by Arize AI) uses OTEL-compatible spans with specific attributes\nfor LLM observability. This exporter maps Agent-SRE data to Phoenix's format.\n\nNo Phoenix/Arize dependency \u2014 produces dicts that can be sent to Phoenix\nvia its REST API or OTEL collector.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PhoenixSpan: A Phoenix-compatible span representation.",
+      "PhoenixExporter: Export Agent-SRE SLO, cost, and trace data as Phoenix-compatible spans.\n\nWorks i",
+      "__init__: Args:\n    on_span: Callback function(PhoenixSpan) for live mode.\n             If",
+      "export_slo_evaluation: Export an SLO evaluation as a Phoenix EVALUATOR span.",
+      "export_cost_record: Export a cost record as a Phoenix span with cost attributes.",
+      "export_incident: Export an incident as a Phoenix span."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "PhoenixExporter",
+    "is_offline",
+    "export_incident",
+    "PhoenixSpan",
+    "spans",
+    "clear",
+    "export_slo_evaluation",
+    "to_dict",
+    "export_cost_record",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "uuid",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 73,
+      "doc": "Args:\n    on_span: Callback function(PhoenixSpan) for live mode.\n             If None, operates in offline/memory mode.\n    project_name: Phoenix project name for span metadata.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "on_span",
+        "project_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_offline",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_emit",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "span"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_slo_evaluation",
+      "line": 100,
+      "doc": "Export an SLO evaluation as a Phoenix EVALUATOR span.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo_name",
+        "status",
+        "budget_remaining",
+        "burn_rate",
+        "indicators",
+        "trace_id"
+      ],
+      "returns": "PhoenixSpan"
+    },
+    {
+      "name": "export_cost_record",
+      "line": 133,
+      "doc": "Export a cost record as a Phoenix span with cost attributes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "task_id",
+        "cost_usd",
+        "breakdown",
+        "trace_id"
+      ],
+      "returns": "PhoenixSpan"
+    },
+    {
+      "name": "export_incident",
+      "line": 163,
+      "doc": "Export an incident as a Phoenix span.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "incident_id",
+        "severity",
+        "description",
+        "agent_id",
+        "trace_id"
+      ],
+      "returns": "PhoenixSpan"
+    },
+    {
+      "name": "spans",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PhoenixSpan",
+      "line": 25,
+      "doc": "A Phoenix-compatible span representation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PhoenixExporter",
+      "line": 59,
+      "doc": "Export Agent-SRE SLO, cost, and trace data as Phoenix-compatible spans.\n\nWorks in two modes:\n- Offline: stores spans in memory for testing/batch export\n- Live: sends spans to a callback function (e.g. Phoenix REST API)\n\nPhoenix attributes follow their conventions:\n- ``openinference.span.kind``: LLM, CHAIN, TOOL, AGENT, etc.\n- ``llm.token_count.prompt``, ``llm.token_count.completion``\n- ``output.value``, ``input.value``",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

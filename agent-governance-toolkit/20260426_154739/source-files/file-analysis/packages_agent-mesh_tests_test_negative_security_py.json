@@ -1,0 +1,1228 @@
+{
+  "path": "packages/agent-mesh/tests/test_negative_security.py",
+  "extension": ".py",
+  "size_bytes": 36386,
+  "line_count": 930,
+  "documentation": {
+    "file_docstring": "Negative security tests \u2014 adversarial scenarios.\n\nThese tests verify that the system correctly REJECTS malicious inputs,\nprevents escalation attacks, and handles edge cases defensively.\nEach test targets a specific vulnerability pattern identified during\nthe post-MSRC security audit.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "===========================================================================",
+      "V01: Delegation depth \u2014 no max enforcement",
+      "===========================================================================",
+      "Create chain up to the max (10)",
+      "The next delegation should be rejected",
+      "One more should still work (depth == MAX-1 \u2192 child depth == MAX)",
+      "===========================================================================",
+      "V02: Wildcard capability delegation bypass",
+      "===========================================================================",
+      "V04: ':*' is now rejected (len(\":*\") == 2, not > 2)",
+      "===========================================================================",
+      "V03: Plugin path traversal",
+      "===========================================================================",
+      "URL-encoded traversal \u2014 rejected because of '.' and '%' chars",
+      "If it gets here, the name validation is too permissive",
+      "===========================================================================",
+      "V04: Capability matching edge cases",
+      "===========================================================================",
+      "Only ':*' at the end is treated as wildcard",
+      "'**' != '*', shouldn't match everything",
+      "===========================================================================",
+      "V05: Signature verification robustness",
+      "===========================================================================",
+      "===========================================================================",
+      "V06: Handshake trust score self-reporting",
+      "===========================================================================",
+      "Initiate handshake \u2014 default threshold is TIER_TRUSTED_THRESHOLD (700)",
+      "The result should use TRUST_SCORE_DEFAULT (500), not a",
+      "self-reported inflated score",
+      "Rejection can be \"revoked\" or \"No response from peer\" \u2014",
+      "either way, the peer is correctly rejected",
+      "===========================================================================",
+      "V07: Identity lifecycle attacks",
+      "===========================================================================",
+      "sign() still works \u2014 this is a design concern",
+      "This should ideally fail, but currently doesn't",
+      "===========================================================================",
+      "V08: Plugin signature bypass",
+      "===========================================================================",
+      "No trusted_keys!",
+      "This succeeds even with verify=True because there's no signature",
+      "AND no trusted key for the author",
+      "===========================================================================",
+      "V10: Handshake challenge DoS",
+      "===========================================================================",
+      "Build a fake response that references the challenge",
+      "(can't use respond() because it checks expiry too)",
+      "Now expire the challenge",
+      "Verify with expired challenge should fail",
+      "===========================================================================",
+      "DID format injection tests",
+      "===========================================================================",
+      "===========================================================================",
+      "IdentityRegistry adversarial tests",
+      "===========================================================================",
+      "Force same DID",
+      "===========================================================================",
+      "TrustBridge adversarial tests",
+      "===========================================================================",
+      "Self-verification should work (agent is registered)",
+      "Whether this should succeed is a design decision;",
+      "just verify it doesn't crash",
+      "===========================================================================",
+      "P06: Peer record integrity (HMAC tamper detection)",
+      "===========================================================================",
+      "Tamper with the peer's trust score",
+      "is_peer_trusted should now reject the tampered record",
+      "Peer should be removed from peers dict",
+      "Tamper with capabilities",
+      "Delete the stored signature",
+      "===========================================================================",
+      "P07: Agent behavior monitor (rogue agent detection)",
+      "===========================================================================",
+      "One more failure shouldn't trigger quarantine",
+      "Duration is 0, should auto-expire immediately",
+      "Oldest agent should be evicted",
+      "===========================================================================",
+      "P10: Circuit breaker in MCP",
+      "===========================================================================",
+      "Fail 3 times to open the circuit",
+      "4th call should be blocked by circuit breaker",
+      "2 failures",
+      "1 success should reset the counter",
+      "===========================================================================",
+      "P11: PII sanitization in error logs",
+      "===========================================================================",
+      "Error message should be truncated to 200 chars + type prefix",
+      "Should include the error type"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_setup_handshake: Create two registered agents and a handshake instance.",
+      "TestDelegationDepthAbuse: Verify delegation depth limits are respected.",
+      "TestWildcardCapabilityBypass: Test that wildcard capabilities don't create unintended escalation.",
+      "TestPluginPathTraversal: Verify plugin names can't escape the plugins directory.",
+      "TestCapabilityMatchingEdgeCases: Adversarial capability strings.",
+      "TestSignatureVerificationRobustness: Adversarial inputs to signature verification.",
+      "TestHandshakeTrustScoreManipulation: Verify handshake can't be gamed by self-reporting high trust scores.",
+      "TestIdentityLifecycleAttacks: Test identity state transitions for security.",
+      "TestPluginSignatureBypass: Test that unsigned or wrongly-signed plugins are handled correctly.",
+      "TestHandshakeChallengeDoS: Test that challenge accumulation is bounded."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestDIDFormatInjection",
+    "test_prefix_wildcard_with_empty_prefix",
+    "test_wildcard_delegation_blocked",
+    "TestHandshakeChallengeDoS",
+    "TestPluginSignatureBypass",
+    "test_signed_plugin_with_wrong_key_rejected",
+    "test_max_tracked_agents_eviction",
+    "test_glob_star_not_wildcard",
+    "TestDelegationDepthAbuse",
+    "test_delegate_from_revoked_parent",
+    "test_consecutive_failures_trigger_quarantine",
+    "test_empty_string_capability",
+    "test_unsigned_plugin_accepted_when_no_trusted_keys",
+    "test_burst_detection_triggers_quarantine",
+    "test_revoked_identity_not_active",
+    "test_did_from_empty_unique_id",
+    "test_very_long_capability_string",
+    "test_wildcard_in_middle_not_matched",
+    "TestHandshakeTrustScoreManipulation",
+    "test_revoked_identity_cannot_sign",
+    "test_all_zeros_signature",
+    "TestTrustBridgeAdversarial",
+    "test_get_nonexistent_returns_none",
+    "test_very_long_did",
+    "test_capability_denial_triggers_quarantine",
+    "test_truncated_signature",
+    "test_get_quarantined_agents",
+    "test_did_from_invalid_string",
+    "test_dotdot_raw_in_plugin_name_rejected",
+    "test_cannot_reactivate_revoked",
+    "test_star_capability_matches_everything",
+    "TestPIISanitizationInErrors",
+    "test_auto_expire_quarantine",
+    "test_many_challenges_dont_crash",
+    "test_colon_only_capability",
+    "test_delegation_at_max_depth_still_works",
+    "TestCapabilityMatchingEdgeCases",
+    "test_did_with_special_characters",
+    "test_signature_from_different_key",
+    "test_dotdot_in_plugin_name_rejected",
+    "test_suspended_then_reactivated",
+    "test_did_from_wrong_method",
+    "TestIdentityRegistryAdversarial",
+    "TestAgentBehaviorMonitor",
+    "test_wildcard_parent_cannot_delegate_arbitrary_capabilities",
+    "test_absolute_path_plugin_name",
+    "test_empty_signature",
+    "test_success_resets_consecutive_failures",
+    "TestWildcardCapabilityBypass",
+    "TestIdentityLifecycleAttacks",
+    "TestSignatureVerificationRobustness",
+    "test_register_revoked_agent",
+    "test_register_duplicate_did_rejected",
+    "test_release_quarantine",
+    "test_deep_delegation_chain_blocked",
+    "TestPluginPathTraversal",
+    "test_signature_reuse_different_payload",
+    "test_non_base64_signature",
+    "test_expired_identity_not_active",
+    "TestPeerRecordIntegrity",
+    "test_normal_agent_not_quarantined",
+    "TestMCPCircuitBreaker",
+    "test_tampered_data"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "datetime",
+      "pathlib",
+      "unittest.mock",
+      "pytest",
+      "cryptography.hazmat.primitives.asymmetric",
+      "agentmesh.identity",
+      "agentmesh.identity.agent_id",
+      "agentmesh.trust.handshake",
+      "agentmesh.trust.bridge",
+      "agentmesh.marketplace",
+      "agentmesh.marketplace",
+      "agentmesh.marketplace",
+      "base64",
+      "base64",
+      "agentmesh.marketplace",
+      "agentmesh.marketplace",
+      "agentmesh.trust.handshake",
+      "secrets",
+      "base64",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.services.behavior_monitor",
+      "agentmesh.integrations.mcp",
+      "agentmesh.integrations.mcp",
+      "agentmesh.integrations.mcp"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_create_agent",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "caps",
+        "sponsor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_setup_handshake",
+      "line": 44,
+      "doc": "Create two registered agents and a handshake instance.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_deep_delegation_chain_blocked",
+      "line": 67,
+      "doc": "Delegation beyond MAX_DELEGATION_DEPTH is rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_at_max_depth_still_works",
+      "line": 82,
+      "doc": "Delegation at depth MAX-1 succeeds (boundary check).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_parent_cannot_delegate_arbitrary_capabilities",
+      "line": 101,
+      "doc": "A parent with '*' CANNOT delegate capabilities not literally\nin its list \u2014 the subset check uses literal matching, not\nhas_capability() wildcard matching. This is secure.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_delegation_blocked",
+      "line": 113,
+      "doc": "V02: Parent with '*' CANNOT delegate '*' itself \u2014\nwildcard propagation is explicitly blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_star_capability_matches_everything",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prefix_wildcard_with_empty_prefix",
+      "line": 127,
+      "doc": "':*' (empty prefix) should NOT match arbitrary capabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dotdot_in_plugin_name_rejected",
+      "line": 143,
+      "doc": "Plugin name with path traversal chars is rejected by validator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dotdot_raw_in_plugin_name_rejected",
+      "line": 159,
+      "doc": "Plugin name with raw '../' is rejected by validator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_absolute_path_plugin_name",
+      "line": 174,
+      "doc": "Plugin name that looks like an absolute path.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_string_capability",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_colon_only_capability",
+      "line": 204,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_in_middle_not_matched",
+      "line": 208,
+      "doc": "'read:*:secret' should NOT wildcard-match.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_glob_star_not_wildcard",
+      "line": 214,
+      "doc": "'**' is not a valid wildcard pattern.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_long_capability_string",
+      "line": 220,
+      "doc": "Extremely long capability strings shouldn't crash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_signature",
+      "line": 235,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_base64_signature",
+      "line": 239,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_truncated_signature",
+      "line": 243,
+      "doc": "Ed25519 signatures are 64 bytes; truncated ones must fail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_zeros_signature",
+      "line": 250,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signature_from_different_key",
+      "line": 256,
+      "doc": "Signature from agent B should not verify against agent A.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tampered_data",
+      "line": 264,
+      "doc": "Valid signature on original data fails on tampered data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signature_reuse_different_payload",
+      "line": 272,
+      "doc": "A valid signature on one payload doesn't work for another.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_self_reported_trust_score_not_trusted",
+      "line": 288,
+      "doc": "Peer's self-reported trust_score should not be the final score.\nThe verifier should use registry/default values, not what the\npeer claims in the response.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handshake_with_revoked_peer_fails",
+      "line": 301,
+      "doc": "Revoked peer should be rejected during handshake.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handshake_with_suspended_peer_fails",
+      "line": 312,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handshake_with_nonexistent_did_fails",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handshake_without_registry_fails",
+      "line": 325,
+      "doc": "No registry = all handshakes fail (secure default).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_identity_not_active",
+      "line": 341,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cannot_reactivate_revoked",
+      "line": 347,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_suspended_then_reactivated",
+      "line": 353,
+      "doc": "Suspended identity can be reactivated (design choice).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_identity_not_active",
+      "line": 361,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_identity_cannot_sign",
+      "line": 366,
+      "doc": "Revoked identity's private key is still available \u2014\nbut consumers should check is_active() before trusting.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegate_from_revoked_parent",
+      "line": 375,
+      "doc": "A revoked parent can still delegate \u2014 no status check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unsigned_plugin_accepted_when_no_trusted_keys",
+      "line": 392,
+      "doc": "If no trusted_keys are configured, ALL plugins are accepted\nregardless of verify=True. This is a configuration weakness.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signed_plugin_with_wrong_key_rejected",
+      "line": 419,
+      "doc": "Plugin signed by an unknown key should be rejected if author\nhas a different trusted key registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_many_challenges_dont_crash",
+      "line": 459,
+      "doc": "Creating many challenges shouldn't cause memory issues.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_challenge_rejected_in_verify",
+      "line": 468,
+      "doc": "Expired challenges must be rejected during verification.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_from_invalid_string",
+      "line": 505,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_from_wrong_method",
+      "line": 509,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_from_empty_unique_id",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_with_special_characters",
+      "line": 517,
+      "doc": "DID with special chars in unique_id should be parsed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_long_did",
+      "line": 522,
+      "doc": "Extremely long DIDs shouldn't crash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_duplicate_did_rejected",
+      "line": 537,
+      "doc": "Registry correctly rejects duplicate DID registration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_nonexistent_returns_none",
+      "line": 548,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_revoked_agent",
+      "line": 552,
+      "doc": "Can a revoked agent be registered? It shouldn't be useful.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_empty_did",
+      "line": 572,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_self",
+      "line": 585,
+      "doc": "Agent trying to verify itself.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_with_none_registry",
+      "line": 602,
+      "doc": "Bridge without registry rejects all peers.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tampered_trust_score_rejected",
+      "line": 619,
+      "doc": "Directly modifying a peer's trust_score should be detected.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tampered_capabilities_rejected",
+      "line": 646,
+      "doc": "Modifying capabilities should fail integrity check.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_untampered_record_passes",
+      "line": 669,
+      "doc": "Unmodified peer record should pass integrity check.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_signature_rejected",
+      "line": 689,
+      "doc": "Peer with no stored signature should fail integrity check.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_normal_agent_not_quarantined",
+      "line": 719,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_consecutive_failures_trigger_quarantine",
+      "line": 727,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_success_resets_consecutive_failures",
+      "line": 735,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_burst_detection_triggers_quarantine",
+      "line": 746,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_denial_triggers_quarantine",
+      "line": 757,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_quarantine",
+      "line": 765,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_auto_expire_quarantine",
+      "line": 775,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_tracked_agents_eviction",
+      "line": 787,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_quarantined_agents",
+      "line": 796,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_opens_after_threshold_failures",
+      "line": 819,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_resets_on_success",
+      "line": 854,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_long_exception_truncated_in_call_error",
+      "line": 904,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "failing_handler",
+      "line": 825,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "flaky_handler",
+      "line": 862,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "pii_handler",
+      "line": 912,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestDelegationDepthAbuse",
+      "line": 64,
+      "doc": "Verify delegation depth limits are respected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestWildcardCapabilityBypass",
+      "line": 98,
+      "doc": "Test that wildcard capabilities don't create unintended escalation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginPathTraversal",
+      "line": 140,
+      "doc": "Verify plugin names can't escape the plugins directory.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCapabilityMatchingEdgeCases",
+      "line": 197,
+      "doc": "Adversarial capability strings.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSignatureVerificationRobustness",
+      "line": 232,
+      "doc": "Adversarial inputs to signature verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHandshakeTrustScoreManipulation",
+      "line": 284,
+      "doc": "Verify handshake can't be gamed by self-reporting high trust scores.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIdentityLifecycleAttacks",
+      "line": 338,
+      "doc": "Test identity state transitions for security.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginSignatureBypass",
+      "line": 389,
+      "doc": "Test that unsigned or wrongly-signed plugins are handled correctly.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHandshakeChallengeDoS",
+      "line": 456,
+      "doc": "Test that challenge accumulation is bounded.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDIDFormatInjection",
+      "line": 502,
+      "doc": "Test that DID parsing handles adversarial inputs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIdentityRegistryAdversarial",
+      "line": 534,
+      "doc": "Test registry with adversarial usage patterns.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustBridgeAdversarial",
+      "line": 568,
+      "doc": "Test TrustBridge with adversarial inputs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPeerRecordIntegrity",
+      "line": 615,
+      "doc": "P06: Verify HMAC guards detect tampered peer records.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentBehaviorMonitor",
+      "line": 716,
+      "doc": "P07: Rogue agent detection and quarantine.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPCircuitBreaker",
+      "line": 815,
+      "doc": "P10: Circuit breaker stops tool calls after consecutive failures.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPIISanitizationInErrors",
+      "line": 900,
+      "doc": "P11: Exception messages should be truncated, not expose PII.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

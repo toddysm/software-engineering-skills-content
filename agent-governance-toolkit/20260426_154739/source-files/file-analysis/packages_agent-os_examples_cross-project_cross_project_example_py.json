@@ -1,0 +1,266 @@
+{
+  "path": "packages/agent-os/examples/cross-project/cross_project_example.py",
+  "extension": ".py",
+  "size_bytes": 11893,
+  "line_count": 294,
+  "documentation": {
+    "file_docstring": "Cross-Project Example: Agent-OS + Agent-Mesh Working Together\n=============================================================\n\nThis example demonstrates how Agent-OS and Agent-Mesh complement each other:\n\n  - **Agent-OS** \u2192 Governs LOCAL agent behavior (policies, tool limits, content filtering)\n  - **Agent-Mesh** \u2192 Governs INTER-AGENT communication (trust scoring, identity, audit)\n\nTogether they provide full-stack governance for multi-agent systems.\n\nArchitecture:\n    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n    \u2502                   Agent-Mesh Layer                   \u2502\n    \u2502  (Trust scoring, DID identity, hash-chained audit)  \u2502\n    \u2502                                                     \u2502\n    \u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510          \u2502\n    \u2502  \u2502  Agent A      \u2502 \u25c4\u2500\u2500\u2500\u2500\u2500\u25ba \u2502  Agent B      \u2502         \u2502\n    \u2502  \u2502  (Researcher) \u2502  IATP   \u2502  (Writer)     \u2502         \u2502\n    \u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 handshake\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2502\n    \u2502         \u2502                         \u2502                  \u2502\n    \u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510          \u2502\n    \u2502  \u2502  Agent-OS     \u2502         \u2502  Agent-OS     \u2502         \u2502\n    \u2502  \u2502  Kernel       \u2502         \u2502  Kernel       \u2502         \u2502\n    \u2502  \u2502  (Policies)   \u2502         \u2502  (Policies)   \u2502         \u2502\n    \u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518          \u2502\n    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\nUsage:\n    python cross_project_example.py\n\nRequirements:\n    pip install agent-os-kernel\n    # Agent-Mesh is used via its Python SDK",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Agent-Mesh is used via its Python SDK",
+      "\u2500\u2500 Agent-OS: Local Governance \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Inline minimal Agent-OS kernel (normally: from agent_os import KernelSpace)",
+      "\u2500\u2500 Agent-Mesh: Inter-Agent Trust \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Inline minimal Agent-Mesh trust layer (normally: from agentmesh import TrustRegistry)",
+      "\u2500\u2500 Combined Example: Multi-Agent Research System \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Step 1: Set up Agent-Mesh trust registry",
+      "\u2500\u2500 Step 2: Set up Agent-OS local policies",
+      "\u2500\u2500 Step 3: Researcher gathers data (Agent-OS governed)",
+      "Simulated tool calls",
+      "Try a blocked action",
+      "\u2500\u2500 Step 4: Agent-Mesh trust handshake before delegation",
+      "\u2500\u2500 Step 5: Writer produces report (Agent-OS governed)",
+      "\u2500\u2500 Step 6: Update trust scores based on outcome",
+      "\u2500\u2500 Step 7: Combined audit report"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Policy: Agent-OS policy for local agent governance.",
+      "KernelGate: Agent-OS kernel gate \u2014 enforces policies on every action.",
+      "AgentIdentity: Agent-Mesh DID-based identity.",
+      "TrustRegistry: Agent-Mesh trust registry \u2014 manages inter-agent trust.",
+      "run_example: Scenario: A Researcher agent finds data, a Writer agent produces a report.\n- Age",
+      "check: Pre-execution policy check.",
+      "verify_peer: Verify a peer before inter-agent communication.",
+      "update_trust: Update trust score based on behavior."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "run_example",
+    "check",
+    "register",
+    "TrustRegistry",
+    "update_trust",
+    "Policy",
+    "AgentIdentity",
+    "verify_peer",
+    "KernelGate",
+    "create"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "hashlib",
+      "json",
+      "time",
+      "dataclasses",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "run_example",
+      "line": 173,
+      "doc": "Scenario: A Researcher agent finds data, a Writer agent produces a report.\n- Agent-OS enforces local policies on each agent\n- Agent-Mesh manages trust between them",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 68,
+      "doc": "Pre-execution policy check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "outcome",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "name",
+        "capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_trust_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_peer",
+      "line": 127,
+      "doc": "Verify a peer before inter-agent communication.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "requester_did",
+        "peer_did",
+        "required_capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_trust",
+      "line": 148,
+      "doc": "Update trust score based on behavior.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did",
+        "delta",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_append_audit",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "data"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "Policy",
+      "line": 52,
+      "doc": "Agent-OS policy for local agent governance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KernelGate",
+      "line": 60,
+      "doc": "Agent-OS kernel gate \u2014 enforces policies on every action.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentIdentity",
+      "line": 101,
+      "doc": "Agent-Mesh DID-based identity.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustRegistry",
+      "line": 114,
+      "doc": "Agent-Mesh trust registry \u2014 manages inter-agent trust.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

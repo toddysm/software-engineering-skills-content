@@ -1,0 +1,95 @@
+{
+  "path": "packages/agentmesh-integrations/copilot-governance/src/policy-validator.ts",
+  "extension": ".ts",
+  "size_bytes": 11585,
+  "line_count": 345,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Validator for agent governance policy YAML files. Validates that a parsed policy object has the required structure and sane values. Does NOT depend on a YAML parser \u2014 callers parse YAML themselves and pass the resulting plain object. Supported policy schemas \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 The validator understands the canonical AgentMesh policy shape: ```yaml policy: name: my-agent-policy version: \"1.0\" rules: rate_limit_per_minute: 60 max_input_length: 10000 pii_fields: [ssn, email] blocked_patterns: - \"(?i)ignore previous\" allowed_tools: [web-search, read-file] blocked_tools: [shell-exec] audit: enabled: true capture_data: false ```",
+      "---------------------------------------------------------------------------",
+      "Internal helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Public API",
+      "---------------------------------------------------------------------------",
+      "Validate a parsed governance policy object. @param rawPolicy - The plain JS object produced by parsing a YAML file. @returns A PolicyValidationResult with findings and a summary. @example ```ts import { validatePolicy } from '@agentmesh/copilot-governance'; import { parse } from 'yaml'; // any YAML parser const result = validatePolicy(parse(yamlText)); if (!result.valid) { console.log(result.summary); } ```",
+      "\u2500\u2500 Top-level `policy` key \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Required metadata \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Rules section \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "rate_limit_per_minute",
+      "max_input_length",
+      "pii_fields",
+      "blocked_patterns",
+      "Validate that the regex compiles",
+      "allowed_tools / blocked_tools",
+      "Warn if no enforcement rules are set",
+      "\u2500\u2500 Audit section \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Summary \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Format a PolicyValidationResult as a Markdown string suitable for a Copilot reply."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "validatePolicy",
+    "formatPolicyValidation"
+  ],
+  "imports": {
+    "internal": [
+      "./types"
+    ],
+    "external": [
+      "@agentmesh/copilot-governance",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "addFinding",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false
+    },
+    {
+      "name": "validatePolicy",
+      "line": 68,
+      "doc": "Validate a parsed governance policy object.      rawPolicy - The plain JS object produced by parsing a YAML file.    A P",
+      "is_public": true,
+      "is_async": false
+    },
+    {
+      "name": "formatPolicyValidation",
+      "line": 320,
+      "doc": "Format a PolicyValidationResult as a Markdown string suitable for a Copilot reply.",
+      "is_public": true,
+      "is_async": false
+    }
+  ],
+  "classes": [],
+  "complexity_score": 44,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

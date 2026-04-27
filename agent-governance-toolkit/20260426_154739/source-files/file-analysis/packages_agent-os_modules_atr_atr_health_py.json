@@ -1,0 +1,494 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/health.py",
+  "extension": ".py",
+  "size_bytes": 18009,
+  "line_count": 557,
+  "documentation": {
+    "file_docstring": "Health check functionality for ATR tools.\n\nProvides mechanisms to verify external tools and APIs are available\nbefore execution.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Assume it's a URL for HTTP check",
+      "Check cache",
+      "Perform check",
+      "Update cache",
+      "Check cache",
+      "Update cache",
+      "Global health check registry"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HealthStatus: Health check status values.",
+      "HealthCheckResult: Result of a health check.\n\nAttributes:\n    status: Overall health status.\n    me",
+      "HealthCheck: Abstract base class for health checks.\n\nSubclass this to create custom health ch",
+      "HttpHealthCheck: Health check that verifies an HTTP endpoint is responding.\n\nExample:\n    >>> che",
+      "TcpHealthCheck: Health check that verifies a TCP port is accepting connections.\n\nExample:\n    >>",
+      "CallableHealthCheck: Health check using a custom callable.\n\nExample:\n    >>> def check_database():\n  ",
+      "CachedHealthResult: Cached health check result with TTL.",
+      "HealthCheckRegistry: Registry for managing tool health checks.\n\nProvides caching, background checking",
+      "get_health_registry: Get the global health check registry.\n\nReturns:\n    The global HealthCheckRegist",
+      "set_health_registry: Set the global health check registry.\n\nArgs:\n    registry: The registry to use g"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TcpHealthCheck",
+    "HealthCheckRegistry",
+    "to_dict",
+    "stop_background_checks",
+    "HttpHealthCheck",
+    "start_background_checks",
+    "set_health_registry",
+    "check",
+    "is_healthy",
+    "HealthStatus",
+    "HealthCheckResult",
+    "clear_cache",
+    "check_loop",
+    "check_all",
+    "register",
+    "get_overall_status",
+    "HealthCheck",
+    "CachedHealthResult",
+    "get_health_registry",
+    "unregister",
+    "CallableHealthCheck"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "threading",
+      "time",
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "urllib.error",
+      "urllib.request",
+      "socket",
+      "contextlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_health_registry",
+      "line": 541,
+      "doc": "Get the global health check registry.\n\nReturns:\n    The global HealthCheckRegistry instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "HealthCheckRegistry"
+    },
+    {
+      "name": "set_health_registry",
+      "line": 550,
+      "doc": "Set the global health check registry.\n\nArgs:\n    registry: The registry to use globally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "registry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_healthy",
+      "line": 50,
+      "doc": "Check if status indicates tool is usable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 54,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 72,
+      "doc": "Perform the health check synchronously.\n\nReturns:\n    HealthCheckResult with status and details.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "check_async",
+      "line": 80,
+      "doc": "Perform the health check asynchronously.\n\nDefault implementation runs sync check in executor.\nOverride for true async checks.\n\nReturns:\n    HealthCheckResult with status and details.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "__init__",
+      "line": 106,
+      "doc": "Initialize HTTP health check.\n\nArgs:\n    url: The URL to check.\n    timeout: Request timeout in seconds.\n    expected_status: Expected HTTP status code.\n    method: HTTP method to use.\n    headers: Optional headers to include.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "url",
+        "timeout",
+        "expected_status",
+        "method",
+        "headers"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 129,
+      "doc": "Perform HTTP health check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "__init__",
+      "line": 184,
+      "doc": "Initialize TCP health check.\n\nArgs:\n    host: The host to connect to.\n    port: The port to check.\n    timeout: Connection timeout in seconds.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "host",
+        "port",
+        "timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 196,
+      "doc": "Perform TCP health check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "__init__",
+      "line": 254,
+      "doc": "Initialize callable health check.\n\nArgs:\n    func: Callable that returns bool or (bool, message) tuple.\n    name: Name for this check.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 264,
+      "doc": "Perform the custom health check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "__init__",
+      "line": 322,
+      "doc": "Initialize health check registry.\n\nArgs:\n    cache_ttl: How long to cache health check results.\n    check_timeout: Default timeout for health checks.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cache_ttl",
+        "check_timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 337,
+      "doc": "Register a health check for a tool.\n\nArgs:\n    tool_name: Name of the tool.\n    check: HealthCheck instance, callable, or URL string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "check"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister",
+      "line": 353,
+      "doc": "Unregister a health check.\n\nArgs:\n    tool_name: Name of the tool.\n\nReturns:\n    True if was registered, False otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check",
+      "line": 369,
+      "doc": "Check health of a specific tool.\n\nArgs:\n    tool_name: Name of the tool.\n    use_cache: Whether to use cached result if available.\n\nReturns:\n    HealthCheckResult.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "use_cache"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "check_async",
+      "line": 405,
+      "doc": "Check health of a specific tool asynchronously.\n\nArgs:\n    tool_name: Name of the tool.\n    use_cache: Whether to use cached result if available.\n\nReturns:\n    HealthCheckResult.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "use_cache"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "check_all",
+      "line": 440,
+      "doc": "Check health of all registered tools.\n\nArgs:\n    use_cache: Whether to use cached results.\n\nReturns:\n    Dictionary mapping tool names to results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "use_cache"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_all_async",
+      "line": 454,
+      "doc": "Check health of all registered tools asynchronously.\n\nArgs:\n    use_cache: Whether to use cached results.\n\nReturns:\n    Dictionary mapping tool names to results.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "use_cache"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_overall_status",
+      "line": 480,
+      "doc": "Get overall health status across all tools.\n\nReturns:\n    HEALTHY if all healthy, DEGRADED if any degraded, UNHEALTHY if any unhealthy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HealthStatus"
+    },
+    {
+      "name": "start_background_checks",
+      "line": 502,
+      "doc": "Start background health checks.\n\nArgs:\n    interval: How often to run checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "interval"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop_background_checks",
+      "line": 524,
+      "doc": "Stop background health checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_cache",
+      "line": 531,
+      "doc": "Clear the health check cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_loop",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "HealthStatus",
+      "line": 22,
+      "doc": "Health check status values.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HealthCheckResult",
+      "line": 32,
+      "doc": "Result of a health check.\n\nAttributes:\n    status: Overall health status.\n    message: Human-readable status message.\n    latency_ms: Check latency in milliseconds.\n    timestamp: When the check was performed.\n    details: Additional details about the check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HealthCheck",
+      "line": 65,
+      "doc": "Abstract base class for health checks.\n\nSubclass this to create custom health checks for your tools.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HttpHealthCheck",
+      "line": 93,
+      "doc": "Health check that verifies an HTTP endpoint is responding.\n\nExample:\n    >>> check = HttpHealthCheck(\n    ...     url=\"https://api.example.com/health\",\n    ...     timeout=5.0,\n    ...     expected_status=200\n    ... )\n    >>> result = check.check()\n    >>> print(result.status)",
+      "is_public": true,
+      "bases": [
+        "HealthCheck"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TcpHealthCheck",
+      "line": 176,
+      "doc": "Health check that verifies a TCP port is accepting connections.\n\nExample:\n    >>> check = TcpHealthCheck(host=\"localhost\", port=5432)\n    >>> result = check.check()",
+      "is_public": true,
+      "bases": [
+        "HealthCheck"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CallableHealthCheck",
+      "line": 243,
+      "doc": "Health check using a custom callable.\n\nExample:\n    >>> def check_database():\n    ...     # Custom check logic\n    ...     return True, \"Database OK\"\n    >>>\n    >>> check = CallableHealthCheck(check_database)",
+      "is_public": true,
+      "bases": [
+        "HealthCheck"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CachedHealthResult",
+      "line": 300,
+      "doc": "Cached health check result with TTL.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HealthCheckRegistry",
+      "line": 307,
+      "doc": "Registry for managing tool health checks.\n\nProvides caching, background checking, and aggregated health status.\n\nExample:\n    >>> registry = HealthCheckRegistry()\n    >>> registry.register(\"api_tool\", HttpHealthCheck(\"https://api.example.com/health\"))\n    >>>\n    >>> # Check all tools\n    >>> status = registry.check_all()\n    >>> for name, result in status.items():\n    ...     print(f\"{name}: {result.status}\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 64,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

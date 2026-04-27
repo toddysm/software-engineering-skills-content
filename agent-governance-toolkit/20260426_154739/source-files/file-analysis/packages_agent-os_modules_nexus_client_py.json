@@ -1,0 +1,381 @@
+{
+  "path": "packages/agent-os/modules/nexus/client.py",
+  "extension": ".py",
+  "size_bytes": 16535,
+  "line_count": 466,
+  "documentation": {
+    "file_docstring": "Nexus Client\n\nClient for Agent OS agents to interact with Nexus.\nHandles registration, peer verification, and reputation sync.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Default API endpoints",
+      "For local/testing - use in-memory components",
+      "Local cache of peer reputations",
+      "For local mode testing",
+      "==================== Registration ====================",
+      "==================== Peer Verification ====================",
+      "Check local cache first",
+      "Verify with Nexus API",
+      "Update cache",
+      "==================== Reputation Sync ====================",
+      "Rate limit syncs (every 5 minutes unless forced)",
+      "==================== Escrow / Proof of Outcome ====================",
+      "==================== DMZ Protocol ====================",
+      "Would implement API call for remote mode",
+      "==================== Discovery ====================",
+      "==================== Credits ====================",
+      "==================== Internal Helpers ====================",
+      "==================== Context Manager ====================",
+      "Don't deregister on exit - agent should persist"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "NexusClient: Client for Agent OS agents to interact with Nexus.\n\nInstalled in: agent_os.kerne",
+      "agent_did: Get this agent's DID.",
+      "register: Register this agent on Nexus.\n\nReturns:\n    RegistrationResult with status and i",
+      "update_manifest: Update this agent's manifest.",
+      "deregister: Remove this agent from Nexus.",
+      "verify_peer: Verify a peer agent before IATP handshake.\n\nThis is the core viral mechanism - u",
+      "quick_verify: Quick check if peer meets trust threshold.\n\nUses local cache when possible for s",
+      "sync_reputation: Sync local known_peers cache with global reputation.\n\nCalled periodically by the",
+      "report_outcome: Report task outcome to update reputation.",
+      "create_escrow: Create an escrow for a task.\n\nArgs:\n    provider_did: DID of the agent providing"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "NexusClient",
+    "agent_did"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "asyncio",
+      "aiohttp",
+      "schemas.manifest",
+      "registry",
+      "reputation",
+      "escrow",
+      "arbiter",
+      "dmz",
+      "exceptions",
+      "hashlib",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_manifest",
+        "api_key",
+        "api_url",
+        "trust_threshold",
+        "local_mode"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agent_did",
+      "line": 73,
+      "doc": "Get this agent's DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "register",
+      "line": 79,
+      "doc": "Register this agent on Nexus.\n\nReturns:\n    RegistrationResult with status and initial trust score",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "RegistrationResult"
+    },
+    {
+      "name": "update_manifest",
+      "line": 99,
+      "doc": "Update this agent's manifest.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": "RegistrationResult"
+    },
+    {
+      "name": "deregister",
+      "line": 116,
+      "doc": "Remove this agent from Nexus.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "verify_peer",
+      "line": 131,
+      "doc": "Verify a peer agent before IATP handshake.\n\nThis is the core viral mechanism - unverified peers get\ndirected to register on Nexus.\n\nArgs:\n    peer_did: DID of the peer to verify\n    min_score: Minimum required trust score (default: trust_threshold)\n    required_capabilities: Capabilities the peer must have\n    \nReturns:\n    PeerVerification result\n    \nRaises:\n    IATPUnverifiedPeerException: If peer is not registered\n    IATPInsufficientTrustException: If peer's score is below threshold",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "min_score",
+        "required_capabilities"
+      ],
+      "returns": "PeerVerification"
+    },
+    {
+      "name": "quick_verify",
+      "line": 197,
+      "doc": "Quick check if peer meets trust threshold.\n\nUses local cache when possible for speed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "sync_reputation",
+      "line": 211,
+      "doc": "Sync local known_peers cache with global reputation.\n\nCalled periodically by the kernel to keep cache fresh.\n\nArgs:\n    force: Force sync even if recently synced\n    \nReturns:\n    Updated mapping of DID -> Trust Score",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "force"
+      ],
+      "returns": null
+    },
+    {
+      "name": "report_outcome",
+      "line": 246,
+      "doc": "Report task outcome to update reputation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "task_id",
+        "peer_did",
+        "outcome"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_escrow",
+      "line": 270,
+      "doc": "Create an escrow for a task.\n\nArgs:\n    provider_did: DID of the agent providing the service\n    task_hash: SHA-256 hash of the task specification\n    credits: Number of credits to escrow\n    timeout_seconds: Timeout for task completion",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "provider_did",
+        "task_hash",
+        "credits",
+        "timeout_seconds"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "release_escrow",
+      "line": 311,
+      "doc": "Release an escrow based on outcome.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "escrow_id",
+        "outcome",
+        "output_hash"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "initiate_dmz_transfer",
+      "line": 345,
+      "doc": "Initiate a secure DMZ transfer.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "receiver_did",
+        "data",
+        "classification",
+        "policy"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "sign_dmz_policy",
+      "line": 366,
+      "doc": "Sign a DMZ data handling policy to receive access.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_dmz_key",
+      "line": 383,
+      "doc": "Get decryption key for a DMZ transfer.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "transfer_id"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "discover_agents",
+      "line": 392,
+      "doc": "Discover agents matching criteria.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "capabilities",
+        "min_score",
+        "privacy_policy",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_credits",
+      "line": 426,
+      "doc": "Get credit balance.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_headers",
+      "line": 441,
+      "doc": "Get API request headers.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_generate_signature",
+      "line": 449,
+      "doc": "Generate signature for data (placeholder).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__aenter__",
+      "line": 458,
+      "doc": "Async context manager entry.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__aexit__",
+      "line": 463,
+      "doc": "Async context manager exit.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "NexusClient",
+      "line": 27,
+      "doc": "Client for Agent OS agents to interact with Nexus.\n\nInstalled in: agent_os.kernel.network\n\nProvides:\n- Agent registration and updates\n- Peer verification before IATP handshake\n- Reputation sync for local cache\n- Escrow/reward management\n- DMZ data transfer",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 40,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,2814 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/lifecycle.py",
+  "extension": ".py",
+  "size_bytes": 114442,
+  "line_count": 3113,
+  "documentation": {
+    "file_docstring": "Agent Lifecycle Management - v0.2.0\n\nThis module provides comprehensive lifecycle management for autonomous AI agents,\nincluding health monitoring, auto-recovery, circuit breakers, scaling, distributed\ncoordination, dependency management, graceful shutdown, resource quotas, observability,\nand hot reload capabilities.\n\nFeatures:\n    - ACP-001: Agent Health Checks (liveness/readiness probes)\n    - ACP-002: Agent Auto-Recovery (automatic restart of crashed agents)\n    - ACP-003: Circuit Breaker (prevent cascading failures)\n    - ACP-004: Agent Scaling (horizontal scaling for high-throughput)\n    - ACP-005: Distributed Coordination (leader election, consensus)\n    - ACP-006: Agent Dependency Graph (enforced start order)\n    - ACP-007: Graceful Shutdown (preserve in-flight verifications)\n    - ACP-008: Resource Quotas (memory/CPU limits per agent)\n    - ACP-009: Agent Observability (metrics/logging integration)\n    - ACP-010: Hot Reload (code changes without full restart)\n\nResearch Foundations:\n    - Circuit Breaker pattern (Michael Nygard, \"Release It!\")\n    - Kubernetes probe patterns (liveness, readiness, startup)\n    - Raft consensus algorithm (Ongaro & Ousterhout, 2014)\n    - Actor model supervision (Erlang/OTP, Akka)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Configure module logger",
+      "============================================================================",
+      "Enums and Constants",
+      "============================================================================",
+      "============================================================================",
+      "ACP-001: Agent Health Checks",
+      "============================================================================",
+      "Liveness probe settings",
+      "Readiness probe settings",
+      "Startup probe settings (for slow-starting agents)",
+      "Custom health check function",
+      "Register an agent",
+      "Start monitoring",
+      "Check status",
+      "Try custom liveness check first",
+      "Try protocol method",
+      "Fallback: check if agent has is_alive method",
+      "Default: assume healthy if agent exists",
+      "============================================================================",
+      "ACP-002: Agent Auto-Recovery",
+      "============================================================================",
+      "When agent fails",
+      "Check if we should reset restart count",
+      "Check if max restarts reached",
+      "\"continue\" falls through to attempt restart anyway",
+      "Calculate delay with exponential backoff",
+      "Log failure event",
+      "Attempt restart",
+      "Start the agent if it has a start method",
+      "Increase delay for next potential failure (exponential backoff)",
+      "============================================================================",
+      "ACP-003: Circuit Breaker",
+      "============================================================================",
+      "Use as decorator",
+      "Or use context manager",
+      "Allow direct parameter override for convenience API",
+      "Check if recovery timeout has elapsed",
+      "Any failure in half-open state opens the circuit",
+      "Trigger callbacks asynchronously",
+      "Check exclude list",
+      "Check include list if specified",
+      "============================================================================",
+      "ACP-004: Agent Scaling",
+      "============================================================================",
+      "Register agent type with factory",
+      "Get available replica",
+      "Manual scaling",
+      "Initialize replicas for all registered types",
+      "Start autoscaling loop",
+      "Stop all replicas",
+      "Scale up",
+      "Scale down",
+      "Start the agent if it has a start method",
+      "Stop the agent if it has a stop method",
+      "Round-robin selection",
+      "Calculate average utilization",
+      "Check scale up",
+      "Check scale down",
+      "============================================================================",
+      "ACP-005: Distributed Coordination",
+      "============================================================================",
+      "Start coordination",
+      "Check if leader",
+      "Perform leader-only operations",
+      "Acquire distributed lock",
+      "Critical section",
+      "If no peers, become leader immediately",
+      "Send heartbeats as leader",
+      "Check for election timeout",
+      "In a real implementation, request votes from peers",
+      "For single-node or simple cases, just become leader",
+      "Simplified: if we're a candidate and no peers respond, become leader",
+      "In real implementation: send RequestVote RPCs to peers",
+      "For now, simulate winning the election",
+      "In real implementation: send AppendEntries RPCs to peers",
+      "============================================================================",
+      "ACP-006: Agent Dependency Graph",
+      "============================================================================",
+      "Get startup order",
+      "Returns: [\"database\", \"cache\", \"api-server\"]",
+      "Update graphs",
+      "Remove from graphs",
+      "Kahn's algorithm for topological sort",
+      "Start with agents that have no dependencies",
+      "Find agents whose dependencies are all started",
+      "Check for circular dependencies",
+      "Check for missing dependencies",
+      "============================================================================",
+      "ACP-007: Graceful Shutdown",
+      "============================================================================",
+      "Register in-flight operation",
+      "Complete operation",
+      "Initiate graceful shutdown",
+      "Check if all operations complete during draining",
+      "Phase 1: Draining",
+      "Checkpoint remaining operations",
+      "Phase 2: Stopping",
+      "Phase 3: Terminated",
+      "============================================================================",
+      "ACP-008: Resource Quotas",
+      "============================================================================",
+      "Check before operation",
+      "Execute operation",
+      "Check concurrent operations",
+      "Check rate limit",
+      "Check memory",
+      "Check CPU",
+      "============================================================================",
+      "ACP-009: Agent Observability",
+      "============================================================================",
+      "Record metric",
+      "Log with context",
+      "Export metrics",
+      "Update aggregates",
+      "Also log to Python logger",
+      "Export counters",
+      "Export gauges",
+      "Export histogram summaries",
+      "Calculate percentiles",
+      "============================================================================",
+      "ACP-010: Hot Reload",
+      "============================================================================",
+      "Register agent",
+      "Trigger reload",
+      "Check if reload needed",
+      "Extract state from current instance",
+      "Stop old instance",
+      "Store for potential rollback",
+      "Reload the module",
+      "Create new instance",
+      "Inject preserved state",
+      "Start new instance",
+      "Update registry",
+      "Stop current instance",
+      "Restore previous instance",
+      "============================================================================",
+      "Main Agent Registration",
+      "============================================================================",
+      "============================================================================",
+      "Enhanced Agent Control Plane",
+      "============================================================================",
+      "Configure health monitoring",
+      "Configure auto-recovery",
+      "Configure circuit breakers",
+      "Configure scaling",
+      "Configure distributed coordination",
+      "Configure dependency graph",
+      "Configure graceful shutdown",
+      "Configure resource quotas",
+      "Configure observability",
+      "Configure hot reload",
+      "Agent registrations",
+      "Wire up callbacks",
+      "Health -> Recovery: trigger recovery on health failure",
+      "Recovery -> Health: register recovered agents",
+      "Register with dependency graph",
+      "Register with scaler",
+      "Set resource quota if provided",
+      "Register circuit breaker",
+      "Validate dependency graph",
+      "Get startup order",
+      "Start coordinator",
+      "Start health monitor",
+      "Start agents in dependency order",
+      "Start agents in this group in parallel",
+      "Start scaler",
+      "Check resource quota",
+      "Create factory for recovery manager",
+      "Register with recovery manager",
+      "Create replicas",
+      "Start instance if it has start method",
+      "Register with health monitor",
+      "Initiate graceful shutdown",
+      "Stop components in reverse order",
+      "Stop agents in reverse dependency order",
+      "Check circuit breaker",
+      "Check resource quota",
+      "Get replica from scaler",
+      "Convenience factory function",
+      "Backwards compatibility alias"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HealthStatus: Health status of an agent",
+      "AgentState: State of an agent in the lifecycle",
+      "CircuitState: State of a circuit breaker",
+      "CoordinationRole: Role in distributed coordination",
+      "ShutdownPhase: Phases of graceful shutdown",
+      "HealthCheckResult: Result of a health check probe",
+      "HealthCheckConfig: Configuration for health check probes",
+      "HealthCheckable: Protocol for agents that support health checks",
+      "HealthMonitor: Monitors agent health via liveness and readiness probes.\n\nImplements Kubernetes-",
+      "RecoveryConfig: Configuration for auto-recovery behavior"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_health_history",
+    "AgentDependency",
+    "get_parallel_startup_groups",
+    "get_logs",
+    "get_replica_count",
+    "record_operation_end",
+    "HotReloadConfig",
+    "get_or_create",
+    "is_leader",
+    "EnhancedAgentControlPlane",
+    "check_quota_violations",
+    "AgentObservabilityProvider",
+    "get_metrics",
+    "get_recovery_history",
+    "is_open",
+    "HealthCheckable",
+    "register_operation",
+    "AgentRegistration",
+    "on_state_change",
+    "update_resource_usage",
+    "get_agent_summary",
+    "CircuitBreakerConfig",
+    "phase",
+    "AgentScaler",
+    "GracefulShutdownManager",
+    "LeaderElectionConfig",
+    "get_leader_info",
+    "DependencyGraph",
+    "ResourceUsage",
+    "DistributedCoordinator",
+    "get_in_flight_operations",
+    "reset",
+    "complete_operation",
+    "AgentMetric",
+    "can_execute",
+    "role",
+    "set_quota",
+    "add_shutdown_hook",
+    "ScalingConfig",
+    "get_status",
+    "AgentReplica",
+    "AutoRecoveryManager",
+    "log",
+    "get_all_health_status",
+    "get_agent_version",
+    "get_usage",
+    "register",
+    "dfs",
+    "register_agent_type",
+    "add_agent",
+    "record_metric",
+    "receive_heartbeat",
+    "register_agent",
+    "export_prometheus",
+    "ReloadEvent",
+    "reset_restart_count",
+    "InFlightOperation",
+    "get",
+    "get_dependents",
+    "CircuitBreakerOpenError",
+    "CoordinationRole",
+    "get_dependencies",
+    "create_agent",
+    "on_event",
+    "has_circular_dependency",
+    "get_agent_instance",
+    "LeaderInfo",
+    "HealthCheckResult",
+    "HealthStatus",
+    "AgentResourceQuota",
+    "get_agent_health",
+    "get_health_status",
+    "increment_counter",
+    "lock",
+    "get_reload_history",
+    "is_closed",
+    "get_in_flight_count",
+    "HealthMonitor",
+    "HealthCheckConfig",
+    "CircuitBreakerRegistry",
+    "update_replica_metrics",
+    "get_shutdown_order",
+    "unregister_agent",
+    "CircuitState",
+    "get_restart_count",
+    "leader_id",
+    "get_all_metrics",
+    "CircuitBreakerMetrics",
+    "observe_histogram",
+    "is_shutting_down",
+    "get_checkpoint_data",
+    "AgentLogEntry",
+    "ShutdownPhase",
+    "remove_agent",
+    "record_operation_start",
+    "AgentState",
+    "HotReloadManager",
+    "state",
+    "CircuitBreaker",
+    "get_all_usage",
+    "get_all_replicas",
+    "get_startup_order",
+    "get_circuit_breaker",
+    "ResourceQuotaManager",
+    "validate",
+    "get_agent",
+    "create_control_plane",
+    "DistributedLockContext",
+    "set_gauge",
+    "RecoveryEvent",
+    "get_quota",
+    "RecoveryConfig",
+    "ShutdownConfig",
+    "release_lock"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "collections",
+      "abc",
+      "asyncio",
+      "time",
+      "uuid",
+      "logging",
+      "threading",
+      "weakref",
+      "traceback",
+      "hashlib",
+      "importlib",
+      "sys",
+      "random"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_control_plane",
+      "line": 3084,
+      "doc": "Create an enhanced agent control plane.\n\nThis is the recommended way to create a control plane instance.\n\nArgs:\n    health_check_interval: Interval between health checks\n    auto_recovery: Enable automatic recovery\n    circuit_breaker: Default circuit breaker\n    **kwargs: Additional configuration\n    \nReturns:\n    Configured EnhancedAgentControlPlane instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "health_check_interval",
+        "auto_recovery",
+        "circuit_breaker"
+      ],
+      "returns": "EnhancedAgentControlPlane"
+    },
+    {
+      "name": "liveness_check",
+      "line": 146,
+      "doc": "Check if the agent is alive (not deadlocked/crashed)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "readiness_check",
+      "line": 150,
+      "doc": "Check if the agent is ready to accept requests",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 190,
+      "doc": "Register an agent for health monitoring",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "agent",
+        "custom_liveness",
+        "custom_readiness"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_agent",
+      "line": 207,
+      "doc": "Unregister an agent from health monitoring",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 216,
+      "doc": "Start the health monitoring loop",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 226,
+      "doc": "Stop the health monitoring loop",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_liveness_loop",
+      "line": 238,
+      "doc": "Main loop for liveness checks",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_readiness_loop",
+      "line": 263,
+      "doc": "Main loop for readiness checks",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_liveness",
+      "line": 288,
+      "doc": "Perform liveness check for an agent",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "_check_readiness",
+      "line": 353,
+      "doc": "Perform readiness check for an agent",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "HealthCheckResult"
+    },
+    {
+      "name": "on_event",
+      "line": 413,
+      "doc": "Register a callback for health events",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_trigger_callbacks",
+      "line": 417,
+      "doc": "Trigger all callbacks for an event",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_health",
+      "line": 425,
+      "doc": "Get the current health status of an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "HealthStatus"
+    },
+    {
+      "name": "get_all_health_status",
+      "line": 429,
+      "doc": "Get health status for all agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_health_history",
+      "line": 433,
+      "doc": "Get health check history for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 497,
+      "doc": "Register an agent with its factory function for recovery",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "factory",
+        "initial_instance"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_agent",
+      "line": 511,
+      "doc": "Unregister an agent from auto-recovery",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_failure",
+      "line": 519,
+      "doc": "Handle an agent failure and attempt recovery.\n\nReturns the new agent instance if recovery succeeds, None otherwise.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_event",
+      "line": 620,
+      "doc": "Register a callback for recovery events",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_trigger_callbacks",
+      "line": 628,
+      "doc": "Trigger all callbacks for an event",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "agent_id",
+        "recovery_event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent",
+      "line": 641,
+      "doc": "Get the current agent instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_restart_count",
+      "line": 645,
+      "doc": "Get the restart count for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_recovery_history",
+      "line": 649,
+      "doc": "Get recovery history, optionally filtered by agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_restart_count",
+      "line": 658,
+      "doc": "Manually reset the restart count for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 729,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "config",
+        "failure_threshold",
+        "recovery_timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "state",
+      "line": 759,
+      "doc": "Get the current circuit state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CircuitState"
+    },
+    {
+      "name": "is_closed",
+      "line": 764,
+      "doc": "Check if circuit is closed (normal operation)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_open",
+      "line": 769,
+      "doc": "Check if circuit is open (rejecting requests)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__aenter__",
+      "line": 773,
+      "doc": "Async context manager entry",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__aexit__",
+      "line": 778,
+      "doc": "Async context manager exit",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 787,
+      "doc": "Decorator for wrapping functions with circuit breaker",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "_before_call",
+      "line": 804,
+      "doc": "Check circuit state before a call",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_on_success",
+      "line": 831,
+      "doc": "Handle a successful call",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_on_failure",
+      "line": 844,
+      "doc": "Handle a failed call",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_transition_to",
+      "line": 858,
+      "doc": "Transition to a new circuit state",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_trigger_state_change",
+      "line": 876,
+      "doc": "Trigger callbacks for state change",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "old_state",
+        "new_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_should_count_exception",
+      "line": 888,
+      "doc": "Determine if an exception should be counted as a failure",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "on_state_change",
+      "line": 904,
+      "doc": "Register a callback for state changes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 911,
+      "doc": "Get current circuit breaker metrics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "CircuitBreakerMetrics"
+    },
+    {
+      "name": "reset",
+      "line": 925,
+      "doc": "Manually reset the circuit breaker to closed state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 943,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_or_create",
+      "line": 946,
+      "doc": "Get or create a circuit breaker by name",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "config"
+      ],
+      "returns": "CircuitBreaker"
+    },
+    {
+      "name": "get",
+      "line": 956,
+      "doc": "Get a circuit breaker by name",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_all_metrics",
+      "line": 960,
+      "doc": "Get metrics for all circuit breakers",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1025,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent_type",
+      "line": 1035,
+      "doc": "Register an agent type for scaling",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "factory",
+        "config",
+        "replicas"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 1051,
+      "doc": "Start the scaling manager",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 1066,
+      "doc": "Stop the scaling manager",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scale_to",
+      "line": 1082,
+      "doc": "Scale an agent type to a specific number of replicas",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "replicas"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scale_up",
+      "line": 1107,
+      "doc": "Scale up an agent type by adding replicas",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "count"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scale_down",
+      "line": 1112,
+      "doc": "Scale down an agent type by removing replicas",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "count"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_replica",
+      "line": 1117,
+      "doc": "Create a new replica for an agent type",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type"
+      ],
+      "returns": "AgentReplica"
+    },
+    {
+      "name": "_remove_replica",
+      "line": 1144,
+      "doc": "Remove a replica",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "replica_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_replica",
+      "line": 1156,
+      "doc": "Get an available replica using round-robin load balancing",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_autoscaling_loop",
+      "line": 1174,
+      "doc": "Background loop for automatic scaling",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_replica_metrics",
+      "line": 1212,
+      "doc": "Update metrics for a replica",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "replica_id",
+        "metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_replica_count",
+      "line": 1222,
+      "doc": "Get the current replica count for an agent type",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_all_replicas",
+      "line": 1226,
+      "doc": "Get all replicas for an agent type",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1283,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node_id",
+        "config",
+        "peers"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_random_election_timeout",
+      "line": 1310,
+      "doc": "Generate a random election timeout",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "is_leader",
+      "line": 1319,
+      "doc": "Check if this node is the leader",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "role",
+      "line": 1324,
+      "doc": "Get current role",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "CoordinationRole"
+    },
+    {
+      "name": "leader_id",
+      "line": 1329,
+      "doc": "Get the current leader ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 1333,
+      "doc": "Start the coordinator",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 1347,
+      "doc": "Stop the coordinator",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_election_loop",
+      "line": 1359,
+      "doc": "Main election and heartbeat loop",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_start_election",
+      "line": 1378,
+      "doc": "Start a leader election",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_become_leader",
+      "line": 1402,
+      "doc": "Transition to leader role",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_send_heartbeats",
+      "line": 1413,
+      "doc": "Send heartbeats to followers",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "receive_heartbeat",
+      "line": 1420,
+      "doc": "Receive a heartbeat from the leader",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "leader_id",
+        "term"
+      ],
+      "returns": null
+    },
+    {
+      "name": "acquire_lock",
+      "line": 1429,
+      "doc": "Acquire a distributed lock",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "resource_id",
+        "timeout"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "release_lock",
+      "line": 1446,
+      "doc": "Release a distributed lock",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "resource_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "lock",
+      "line": 1453,
+      "doc": "Context manager for distributed lock",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "resource_id",
+        "timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_event",
+      "line": 1457,
+      "doc": "Register a callback for coordination events",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_trigger_callbacks",
+      "line": 1465,
+      "doc": "Trigger callbacks for an event",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_leader_info",
+      "line": 1473,
+      "doc": "Get information about the current leader",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1488,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "coordinator",
+        "resource_id",
+        "timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__aenter__",
+      "line": 1498,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__aexit__",
+      "line": 1504,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1547,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_agent",
+      "line": 1552,
+      "doc": "Add an agent with its dependencies",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "depends_on",
+        "optional_depends_on",
+        "startup_timeout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_agent",
+      "line": 1577,
+      "doc": "Remove an agent from the dependency graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_dependencies",
+      "line": 1586,
+      "doc": "Get all dependencies for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_dependents",
+      "line": 1593,
+      "doc": "Get all agents that depend on this agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has_circular_dependency",
+      "line": 1597,
+      "doc": "Check if there are any circular dependencies",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_startup_order",
+      "line": 1623,
+      "doc": "Get the startup order using topological sort.\n\nReturns agents in order such that dependencies are started first.\nRaises ValueError if there are circular dependencies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_parallel_startup_groups",
+      "line": 1656,
+      "doc": "Get groups of agents that can be started in parallel.\n\nReturns a list of groups, where agents within a group can start\nsimultaneously, but groups must be started in order.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_shutdown_order",
+      "line": 1688,
+      "doc": "Get the shutdown order (reverse of startup order)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 1692,
+      "doc": "Validate the dependency graph.\n\nReturns a list of validation errors, or empty list if valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1765,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "phase",
+      "line": 1775,
+      "doc": "Get the current shutdown phase",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ShutdownPhase"
+    },
+    {
+      "name": "is_shutting_down",
+      "line": 1780,
+      "doc": "Check if shutdown is in progress",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "register_operation",
+      "line": 1784,
+      "doc": "Register an in-flight operation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "operation_type",
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "complete_operation",
+      "line": 1804,
+      "doc": "Mark an operation as complete",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "operation_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_in_flight_count",
+      "line": 1812,
+      "doc": "Get the number of in-flight operations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_in_flight_operations",
+      "line": 1816,
+      "doc": "Get all in-flight operations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_shutdown_hook",
+      "line": 1820,
+      "doc": "Add a shutdown hook to be called during shutdown",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hook"
+      ],
+      "returns": null
+    },
+    {
+      "name": "shutdown",
+      "line": 1827,
+      "doc": "Initiate graceful shutdown.\n\nReturns a summary of the shutdown process.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_checkpoint_data",
+      "line": 1895,
+      "doc": "Get checkpointed data from shutdown",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "restore_from_checkpoint",
+      "line": 1899,
+      "doc": "Restore operations from checkpoint data",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "checkpoint_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1971,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_quota",
+      "line": 1977,
+      "doc": "Set the resource quota for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "quota"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_quota",
+      "line": 1984,
+      "doc": "Get the quota for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "can_execute",
+      "line": 1988,
+      "doc": "Check if an agent can execute a new operation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_operation_start",
+      "line": 2021,
+      "doc": "Record the start of an operation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_operation_end",
+      "line": 2029,
+      "doc": "Record the end of an operation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "update_resource_usage",
+      "line": 2036,
+      "doc": "Update the resource usage for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "memory_mb",
+        "cpu_percent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_count_recent_operations",
+      "line": 2053,
+      "doc": "Count operations in the last N seconds",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "seconds"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_usage",
+      "line": 2062,
+      "doc": "Get current usage for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_all_usage",
+      "line": 2066,
+      "doc": "Get usage for all agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_quota_violations",
+      "line": 2070,
+      "doc": "Check for quota violations across all agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 2159,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_log_entries",
+        "max_metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_metric",
+      "line": 2168,
+      "doc": "Record a metric for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "name",
+        "value",
+        "labels",
+        "metric_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "increment_counter",
+      "line": 2198,
+      "doc": "Increment a counter metric",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "name",
+        "value",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_gauge",
+      "line": 2208,
+      "doc": "Set a gauge metric",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "name",
+        "value",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "observe_histogram",
+      "line": 2218,
+      "doc": "Observe a value for a histogram metric",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "name",
+        "value",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 2228,
+      "doc": "Log a message with structured context",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "level",
+        "message",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 2248,
+      "doc": "Get recorded metrics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_logs",
+      "line": 2266,
+      "doc": "Get log entries",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "level",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_prometheus",
+      "line": 2282,
+      "doc": "Export metrics in Prometheus text format",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_make_label_key",
+      "line": 2313,
+      "doc": "Create a unique key from labels",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "labels"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_agent_summary",
+      "line": 2317,
+      "doc": "Get an observability summary for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_count_log_levels",
+      "line": 2331,
+      "doc": "Count logs by level",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "logs"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 2393,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 2402,
+      "doc": "Register an agent for hot reload",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "module_name",
+        "class_name",
+        "factory",
+        "instance",
+        "state_extractor",
+        "state_injector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_compute_version",
+      "line": 2424,
+      "doc": "Compute a version hash for a module",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "module_name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "check_for_changes",
+      "line": 2436,
+      "doc": "Check if an agent's code has changed",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "reload_agent",
+      "line": 2447,
+      "doc": "Reload an agent with optional state preservation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "force"
+      ],
+      "returns": "ReloadEvent"
+    },
+    {
+      "name": "rollback_agent",
+      "line": 2562,
+      "doc": "Rollback an agent to the previous version",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_agent_version",
+      "line": 2599,
+      "doc": "Get the current version of an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_instance",
+      "line": 2603,
+      "doc": "Get the current instance of an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_reload_history",
+      "line": 2609,
+      "doc": "Get reload history",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_event",
+      "line": 2619,
+      "doc": "Register a callback for reload events",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_trigger_callbacks",
+      "line": 2627,
+      "doc": "Trigger callbacks for an event",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "agent_id",
+        "reload_event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 2695,
+      "doc": "Initialize the Enhanced Agent Control Plane.\n\nArgs:\n    health_check_interval: Interval between health checks (seconds)\n    auto_recovery: Enable automatic recovery of failed agents\n    circuit_breaker: Default circuit breaker configuration\n    node_id: Node ID for distributed coordination\n    health_config: Health check configuration\n    recovery_config: Auto-recovery configuration\n    scaling_config: Agent scaling configuration\n    shutdown_config: Graceful shutdown configuration\n    hot_reload_config: Hot reload configuration",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "health_check_interval",
+        "auto_recovery",
+        "circuit_breaker",
+        "node_id",
+        "health_config",
+        "recovery_config",
+        "scaling_config",
+        "shutdown_config",
+        "hot_reload_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_setup_callbacks",
+      "line": 2771,
+      "doc": "Set up internal callbacks between components",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 2791,
+      "doc": "Register an agent type with the control plane.\n\nArgs:\n    agent_type: The agent class to register\n    agent_id: Optional agent ID (defaults to class name)\n    replicas: Number of replicas to create\n    dependencies: List of agent IDs this agent depends on\n    resources: Resource quota for this agent\n    health_config: Health check configuration\n    recovery_config: Auto-recovery configuration\n    circuit_breaker: Circuit breaker for this agent\n    **metadata: Additional metadata\n    \nReturns:\n    The agent ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_type",
+        "agent_id",
+        "replicas",
+        "dependencies",
+        "resources",
+        "health_config",
+        "recovery_config",
+        "circuit_breaker"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "start_all",
+      "line": 2863,
+      "doc": "Start all registered agents in dependency order.\n\nReturns:\n    Summary of startup results",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_start_agent",
+      "line": 2927,
+      "doc": "Start a single agent",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop_all",
+      "line": 2986,
+      "doc": "Stop all agents gracefully.\n\nReturns:\n    Summary of shutdown results",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent",
+      "line": 3027,
+      "doc": "Get an agent instance by ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "replica_index"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_available_agent",
+      "line": 3034,
+      "doc": "Get an available agent instance (load balanced)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_health_status",
+      "line": 3048,
+      "doc": "Get the health status of an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "HealthStatus"
+    },
+    {
+      "name": "get_all_health_status",
+      "line": 3052,
+      "doc": "Get health status for all agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_circuit_breaker",
+      "line": 3056,
+      "doc": "Get the circuit breaker for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 3060,
+      "doc": "Get Prometheus-formatted metrics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_status",
+      "line": 3064,
+      "doc": "Get comprehensive status of the control plane",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrapper",
+      "line": 789,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "dfs",
+      "line": 1602,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "node"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "on_liveness_failed",
+      "line": 2774,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_recovery_success",
+      "line": 2782,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_id",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_agent",
+      "line": 2944,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "HealthStatus",
+      "line": 59,
+      "doc": "Health status of an agent",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentState",
+      "line": 71,
+      "doc": "State of an agent in the lifecycle",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitState",
+      "line": 83,
+      "doc": "State of a circuit breaker",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CoordinationRole",
+      "line": 90,
+      "doc": "Role in distributed coordination",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ShutdownPhase",
+      "line": 97,
+      "doc": "Phases of graceful shutdown",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HealthCheckResult",
+      "line": 110,
+      "doc": "Result of a health check probe",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HealthCheckConfig",
+      "line": 121,
+      "doc": "Configuration for health check probes",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HealthCheckable",
+      "line": 143,
+      "doc": "Protocol for agents that support health checks",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "HealthMonitor",
+      "line": 155,
+      "doc": "Monitors agent health via liveness and readiness probes.\n\nImplements Kubernetes-style health checking patterns:\n- Liveness: Is the agent alive? If not, restart it.\n- Readiness: Is the agent ready to accept requests?\n- Startup: Has the agent finished starting up?\n\nUsage:\n    monitor = HealthMonitor(config=HealthCheckConfig())\n    \n    # Register an agent\n    monitor.register_agent(agent_id, agent_instance)\n    \n    # Start monitoring\n    await monitor.start()\n    \n    # Check status\n    status = monitor.get_agent_health(agent_id)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RecoveryConfig",
+      "line": 443,
+      "doc": "Configuration for auto-recovery behavior",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RecoveryEvent",
+      "line": 455,
+      "doc": "Record of a recovery event",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AutoRecoveryManager",
+      "line": 465,
+      "doc": "Manages automatic recovery of failed agents.\n\nImplements exponential backoff for restart attempts and tracks\nrecovery history for analysis.\n\nFeatures:\n- Automatic restart with exponential backoff\n- Maximum restart limit with configurable behavior\n- Recovery event logging\n- Callbacks for recovery events\n\nUsage:\n    recovery = AutoRecoveryManager(config=RecoveryConfig())\n    recovery.register_agent(agent_id, agent_factory)\n    \n    # When agent fails\n    await recovery.handle_failure(agent_id, error)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerConfig",
+      "line": 669,
+      "doc": "Configuration for circuit breaker behavior",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CircuitBreakerMetrics",
+      "line": 680,
+      "doc": "Metrics for a circuit breaker",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CircuitBreaker",
+      "line": 693,
+      "doc": "Circuit breaker for preventing cascading failures.\n\nImplements the circuit breaker pattern to protect against cascading\nfailures when an agent or service becomes unavailable.\n\nStates:\n- CLOSED: Normal operation, requests pass through\n- OPEN: Failing, requests are rejected immediately\n- HALF_OPEN: Testing recovery, limited requests allowed\n\nFeatures:\n- Configurable failure/success thresholds\n- Automatic recovery timeout\n- Exception filtering\n- Metrics collection\n\nUsage:\n    breaker = CircuitBreaker(\n        config=CircuitBreakerConfig(\n            failure_threshold=5,\n            recovery_timeout=60\n        )\n    )\n    \n    # Use as decorator\n    @breaker\n    async def call_agent():\n        ...\n    \n    # Or use context manager\n    async with breaker:\n        await call_agent()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerOpenError",
+      "line": 935,
+      "doc": "Raised when a circuit breaker is open",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerRegistry",
+      "line": 940,
+      "doc": "Registry for managing multiple circuit breakers",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ScalingConfig",
+      "line": 970,
+      "doc": "Configuration for agent scaling",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentReplica",
+      "line": 985,
+      "doc": "Represents a replica of an agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentScaler",
+      "line": 995,
+      "doc": "Horizontal scaling manager for agents.\n\nProvides automatic scaling based on load metrics, supporting both\nscale-up and scale-down with configurable thresholds and cooldowns.\n\nFeatures:\n- Automatic scale-up/scale-down based on utilization\n- Configurable min/max replicas\n- Load balancing across replicas\n- Cooldown periods to prevent thrashing\n\nUsage:\n    scaler = AgentScaler()\n    \n    # Register agent type with factory\n    scaler.register_agent_type(\n        agent_type=\"claims_agent\",\n        factory=create_claims_agent,\n        config=ScalingConfig(min_replicas=2, max_replicas=10)\n    )\n    \n    # Get available replica\n    agent = await scaler.get_replica(\"claims_agent\")\n    \n    # Manual scaling\n    await scaler.scale_to(\"claims_agent\", replicas=5)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LeaderElectionConfig",
+      "line": 1236,
+      "doc": "Configuration for leader election",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "LeaderInfo",
+      "line": 1245,
+      "doc": "Information about the current leader",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DistributedCoordinator",
+      "line": 1253,
+      "doc": "Distributed coordination for stateful operations.\n\nImplements leader election and basic consensus for coordinating\nmultiple agent instances.\n\nFeatures:\n- Leader election using Raft-like protocol\n- Distributed locks\n- Heartbeat-based failure detection\n- Automatic leader failover\n\nUsage:\n    coordinator = DistributedCoordinator(node_id=\"node-1\")\n    \n    # Start coordination\n    await coordinator.start()\n    \n    # Check if leader\n    if coordinator.is_leader:\n        # Perform leader-only operations\n        ...\n    \n    # Acquire distributed lock\n    async with coordinator.lock(\"resource-1\"):\n        # Critical section\n        ...",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DistributedLockContext",
+      "line": 1485,
+      "doc": "Context manager for distributed locks",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentDependency",
+      "line": 1514,
+      "doc": "Represents a dependency between agents",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DependencyGraph",
+      "line": 1522,
+      "doc": "Manages agent startup order based on dependencies.\n\nEnsures agents start in the correct order, respecting dependencies\nand detecting circular dependencies.\n\nFeatures:\n- Topological sorting for startup order\n- Circular dependency detection\n- Optional vs required dependencies\n- Parallel startup where possible\n\nUsage:\n    graph = DependencyGraph()\n    \n    graph.add_agent(\"api-server\", depends_on=[\"database\", \"cache\"])\n    graph.add_agent(\"database\", depends_on=[])\n    graph.add_agent(\"cache\", depends_on=[])\n    \n    # Get startup order\n    order = graph.get_startup_order()\n    # Returns: [\"database\", \"cache\", \"api-server\"]",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ShutdownConfig",
+      "line": 1718,
+      "doc": "Configuration for graceful shutdown",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "InFlightOperation",
+      "line": 1727,
+      "doc": "Represents an in-flight operation during shutdown",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GracefulShutdownManager",
+      "line": 1736,
+      "doc": "Manages graceful shutdown to preserve in-flight verifications.\n\nFeatures:\n- Drain period for completing in-flight operations\n- Operation checkpointing\n- Configurable force timeout\n- Shutdown hooks\n\nUsage:\n    shutdown_manager = GracefulShutdownManager(\n        config=ShutdownConfig(drain_timeout_seconds=30)\n    )\n    \n    # Register in-flight operation\n    op_id = shutdown_manager.register_operation(\n        agent_id=\"claims-agent\",\n        operation_type=\"verification\",\n        data={\"claim_id\": \"123\"}\n    )\n    \n    # Complete operation\n    shutdown_manager.complete_operation(op_id)\n    \n    # Initiate graceful shutdown\n    await shutdown_manager.shutdown()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentResourceQuota",
+      "line": 1925,
+      "doc": "Resource quota limits for an agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ResourceUsage",
+      "line": 1936,
+      "doc": "Current resource usage for an agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ResourceQuotaManager",
+      "line": 1946,
+      "doc": "Manages resource quotas and limits per agent.\n\nFeatures:\n- Memory and CPU limits\n- Concurrent operation limits\n- Rate limiting (operations per minute)\n- Usage tracking and reporting\n\nUsage:\n    quota_manager = ResourceQuotaManager()\n    \n    quota_manager.set_quota(\"claims-agent\", AgentResourceQuota(\n        memory_mb=512,\n        cpu_percent=25,\n        max_concurrent_operations=10\n    ))\n    \n    # Check before operation\n    if quota_manager.can_execute(\"claims-agent\"):\n        quota_manager.record_operation(\"claims-agent\")\n        # Execute operation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentMetric",
+      "line": 2107,
+      "doc": "A metric measurement for an agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentLogEntry",
+      "line": 2117,
+      "doc": "A log entry from an agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentObservabilityProvider",
+      "line": 2126,
+      "doc": "Built-in observability for agents (metrics, logging, tracing).\n\nFeatures:\n- Structured logging with context\n- Metrics collection (counters, gauges, histograms)\n- Distributed tracing support\n- Prometheus-compatible export\n\nUsage:\n    observability = AgentObservabilityProvider()\n    \n    # Record metric\n    observability.record_metric(\n        agent_id=\"claims-agent\",\n        name=\"verification_latency_ms\",\n        value=150.5,\n        labels={\"claim_type\": \"auto\"}\n    )\n    \n    # Log with context\n    observability.log(\n        agent_id=\"claims-agent\",\n        level=\"info\",\n        message=\"Verification completed\",\n        context={\"claim_id\": \"123\", \"result\": \"approved\"}\n    )\n    \n    # Export metrics\n    metrics = observability.export_prometheus()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "HotReloadConfig",
+      "line": 2344,
+      "doc": "Configuration for hot reload",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReloadEvent",
+      "line": 2353,
+      "doc": "Record of a hot reload event",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HotReloadManager",
+      "line": 2364,
+      "doc": "Manages hot reload of agent code without full restart.\n\nFeatures:\n- Code change detection\n- Graceful reload with state preservation\n- Version tracking\n- Rollback support\n\nUsage:\n    hot_reload = HotReloadManager(\n        config=HotReloadConfig(\n            watch_paths=[\"./agents\"],\n            preserve_state=True\n        )\n    )\n    \n    # Register agent\n    hot_reload.register_agent(\n        agent_id=\"claims-agent\",\n        module_name=\"agents.claims\",\n        class_name=\"ClaimsAgent\"\n    )\n    \n    # Trigger reload\n    await hot_reload.reload_agent(\"claims-agent\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentRegistration",
+      "line": 2646,
+      "doc": "Registration details for an agent in the control plane",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EnhancedAgentControlPlane",
+      "line": 2662,
+      "doc": "Enhanced Agent Control Plane with full lifecycle management.\n\nThis is the main interface for managing autonomous AI agents with\ncomprehensive lifecycle features including health monitoring,\nauto-recovery, circuit breakers, scaling, distributed coordination,\ndependency management, graceful shutdown, resource quotas,\nobservability, and hot reload.\n\nUsage:\n    control_plane = EnhancedAgentControlPlane(\n        health_check_interval=30,\n        auto_recovery=True,\n        circuit_breaker=CircuitBreaker(\n            failure_threshold=5,\n            recovery_timeout=60\n        )\n    )\n    \n    control_plane.register(\n        ClaimsAgent,\n        replicas=3,\n        dependencies=[\"message-bus\"],\n        resources=AgentResourceQuota(\n            memory_mb=512,\n            cpu_percent=25\n        )\n    )\n    \n    await control_plane.start_all()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 465,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

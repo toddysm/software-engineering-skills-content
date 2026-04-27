@@ -1,0 +1,346 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/mute_agent/listener/state_observer.py",
+  "extension": ".py",
+  "size_bytes": 15328,
+  "line_count": 436,
+  "documentation": {
+    "file_docstring": "State Observer for Listener Agent\n\nProvides passive observation capabilities for monitoring graph states\nwithout interfering with normal operations.\n\nThis observer is designed to:\n1. Collect metrics from the knowledge graph\n2. Track state changes over time\n3. Calculate derived metrics for threshold evaluation",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Graph metrics",
+      "Session metrics",
+      "Performance metrics",
+      "Derived metrics",
+      "Maximum samples to retain in memory per metric",
+      "Sample storage - bounded deques for memory safety",
+      "Observation history",
+      "Custom metric collectors",
+      "Baseline metrics for anomaly detection",
+      "Collect graph metrics",
+      "Collect session metrics",
+      "Collect performance metrics",
+      "Store samples",
+      "Calculate derived metrics",
+      "Detect anomalies",
+      "Create observation result",
+      "Store observation",
+      "Count dimensions",
+      "Count total nodes and edges across all subgraphs",
+      "Get routing statistics",
+      "Use routing history for latency estimation",
+      "In production, this would integrate with actual timing measurements",
+      "Action space size from last routing",
+      "Rejection rate",
+      "Conflict ratio",
+      "Session success rate",
+      "Constraint violation count (from recent history)",
+      "Placeholder for context-aware metrics",
+      "These would integrate with caas (context-as-a-service) in production",
+      "Count rejected sessions in window",
+      "Simple anomaly detection: >2x deviation from baseline"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MetricType: Types of metrics the observer can collect.",
+      "MetricSample: A single metric sample with timestamp.",
+      "ObservationResult: Result of a state observation cycle.",
+      "StateObserver: Passive state observer for the Listener Agent.\n\nCollects metrics from the knowle",
+      "to_threshold_metrics: Convert observation result to threshold-compatible metrics.\n\nMaps MetricType to ",
+      "__init__: Initialize the state observer.\n\nArgs:\n    knowledge_graph: The graph to observe\n",
+      "observe: Perform a single observation cycle.\n\nCollects all metrics from the observed comp",
+      "_collect_graph_metrics: Collect metrics from the knowledge graph.",
+      "_collect_session_metrics: Collect metrics from the handshake protocol.",
+      "_collect_performance_metrics: Collect performance-related metrics."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MetricSample",
+    "StateObserver",
+    "observe",
+    "get_observation_history",
+    "MetricType",
+    "set_baseline",
+    "to_threshold_metrics",
+    "calibrate_baselines",
+    "ObservationResult",
+    "get_metric_history",
+    "register_custom_collector"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "collections",
+      "enum",
+      "knowledge_graph.multidimensional_graph",
+      "knowledge_graph.graph_elements",
+      "core.handshake_protocol",
+      "super_system.router",
+      "threshold_config"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_threshold_metrics",
+      "line": 73,
+      "doc": "Convert observation result to threshold-compatible metrics.\n\nMaps MetricType to ThresholdType for threshold evaluation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "__init__",
+      "line": 112,
+      "doc": "Initialize the state observer.\n\nArgs:\n    knowledge_graph: The graph to observe\n    protocol: The handshake protocol to observe\n    router: The super system router to observe\n    sample_window_seconds: Window for calculating rolling metrics",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "knowledge_graph",
+        "protocol",
+        "router",
+        "sample_window_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "observe",
+      "line": 148,
+      "doc": "Perform a single observation cycle.\n\nCollects all metrics from the observed components and calculates\nderived metrics for threshold evaluation.\n\nArgs:\n    context: Optional context to include in observation\n    \nReturns:\n    ObservationResult with all collected metrics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "ObservationResult"
+    },
+    {
+      "name": "_collect_graph_metrics",
+      "line": 199,
+      "doc": "Collect metrics from the knowledge graph.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_collect_session_metrics",
+      "line": 225,
+      "doc": "Collect metrics from the handshake protocol.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_collect_performance_metrics",
+      "line": 257,
+      "doc": "Collect performance-related metrics.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_derived_metrics",
+      "line": 280,
+      "doc": "Calculate derived metrics from raw metrics.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_count_recent_violations",
+      "line": 329,
+      "doc": "Count constraint violations in the recent observation window.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_detect_anomalies",
+      "line": 342,
+      "doc": "Detect anomalies based on baseline comparison.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_graph_snapshot",
+      "line": 358,
+      "doc": "Create a lightweight snapshot of graph state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_baseline",
+      "line": 374,
+      "doc": "Set a baseline value for anomaly detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_type",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calibrate_baselines",
+      "line": 378,
+      "doc": "Calibrate baselines by averaging recent samples.\n\nCall this during a known-good operational period to establish\nbaseline metrics for anomaly detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "num_samples"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_custom_collector",
+      "line": 391,
+      "doc": "Register a custom metric collector.\n\nArgs:\n    name: Unique name for the custom metric\n    collector: Function that returns the metric value",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "collector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metric_history",
+      "line": 405,
+      "doc": "Get historical samples for a metric.\n\nArgs:\n    metric_type: The metric to retrieve\n    window_seconds: Optional time window (None = all samples)\n    \nReturns:\n    List of metric samples",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metric_type",
+        "window_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_observation_history",
+      "line": 428,
+      "doc": "Get recent observation results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "count"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MetricType",
+      "line": 27,
+      "doc": "Types of metrics the observer can collect.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MetricSample",
+      "line": 54,
+      "doc": "A single metric sample with timestamp.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ObservationResult",
+      "line": 64,
+      "doc": "Result of a state observation cycle.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "StateObserver",
+      "line": 98,
+      "doc": "Passive state observer for the Listener Agent.\n\nCollects metrics from the knowledge graph, handshake protocol,\nand router without interfering with their operation.\n\nThis class implements the Observer pattern - it watches but does not act.\nThe Listener Agent is responsible for deciding when to intervene.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, api, business_logic"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic"
+    ]
+  }
+}

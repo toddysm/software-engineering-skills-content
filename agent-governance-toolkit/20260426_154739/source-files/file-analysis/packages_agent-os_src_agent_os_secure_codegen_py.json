@@ -1,0 +1,351 @@
+{
+  "path": "packages/agent-os/src/agent_os/secure_codegen.py",
+  "extension": ".py",
+  "size_bytes": 18631,
+  "line_count": 525,
+  "documentation": {
+    "file_docstring": "Secure code generation templates and post-LLM code validation.\n\nProvides AST-based analysis of LLM-generated code to detect security issues\nsuch as dangerous imports, unsafe function calls, shell injection, SQL injection,\npath traversal, and hardcoded secrets. Also supplies secure code templates that\nenforce safe patterns for common tasks.\n\nArchitecture\n------------\n- ``CodeSecurityValidator`` \u2013 walks the AST of generated code, collecting\n  ``SecurityIssue`` records for every violation found.\n- ``SecureCodeTemplate`` \u2013 returns pre-vetted code snippets that follow secure\n  defaults (timeouts, parameterised queries, shell=False, etc.).\n- ``ValidationResult`` \u2013 lightweight result container returned by validation.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Result / finding types",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Code security validator",
+      "---------------------------------------------------------------------------",
+      "Patterns for hardcoded secrets",
+      "Path-traversal indicators",
+      "SQL injection \u2013 string formatting in SQL-like statements",
+      "------------------------------------------------------------------ #",
+      "--- AST-based checks ----------------------------------------- #",
+      "--- Regex-based checks on raw source ------------------------- #",
+      "------------------------------------------------------------------ #",
+      "Private AST checks",
+      "------------------------------------------------------------------ #",
+      "Match subprocess.run / subprocess.Popen / subprocess.call etc.",
+      "------------------------------------------------------------------ #",
+      "Private regex checks",
+      "------------------------------------------------------------------ #",
+      "------------------------------------------------------------------ #",
+      "Helpers",
+      "------------------------------------------------------------------ #",
+      "---------------------------------------------------------------------------",
+      "Secure code templates",
+      "---------------------------------------------------------------------------",
+      "Defaults used when the caller omits keyword arguments",
+      "--- sandboxed execution begin ---",
+      "--- sandboxed execution end ---"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Severity: Severity level for a security issue.",
+      "SecurityIssue: A single security issue detected during code validation.",
+      "ValidationResult: Outcome of validating a code snippet.",
+      "CodeSecurityValidator: Validates LLM-generated code for security issues using AST analysis.\n\nChecks cov",
+      "SecureCodeTemplate: Templates that enforce secure patterns in generated code.\n\nEach template encodes",
+      "validate: Parse and validate code for security issues.\n\nArgs:\n    code: Source code to val",
+      "validate_python: AST-based Python code validation.\n\nUses ``ast.parse`` to walk the tree and appli",
+      "_check_imports: Flag imports from the dangerous-imports set.",
+      "_check_calls: Flag calls to dangerous builtins / functions.",
+      "_check_shell_injection: Detect ``subprocess`` calls with ``shell=True``."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "validate_python",
+    "ValidationResult",
+    "SecureCodeTemplate",
+    "validate",
+    "Severity",
+    "critical_issues",
+    "wrap_with_sandbox",
+    "get_template",
+    "CodeSecurityValidator",
+    "high_issues",
+    "SecurityIssue"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "ast",
+      "re",
+      "textwrap",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "critical_issues",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "high_issues",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 179,
+      "doc": "Parse and validate code for security issues.\n\nArgs:\n    code: Source code to validate.\n    language: Programming language (currently only ``\"python\"``).\n\nReturns:\n    A ``ValidationResult`` with any issues found.\n\nRaises:\n    ValueError: If *language* is not supported.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code",
+        "language"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_python",
+      "line": 196,
+      "doc": "AST-based Python code validation.\n\nUses ``ast.parse`` to walk the tree and applies heuristic\nregex checks on the raw source for patterns that cannot be\ncaught structurally (secrets, SQL injection, path traversal).\n\nArgs:\n    code: Python source code to analyse.\n\nReturns:\n    A ``ValidationResult`` describing all detected issues.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "_check_imports",
+      "line": 243,
+      "doc": "Flag imports from the dangerous-imports set.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node",
+        "issues"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_calls",
+      "line": 272,
+      "doc": "Flag calls to dangerous builtins / functions.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node",
+        "issues"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_shell_injection",
+      "line": 289,
+      "doc": "Detect ``subprocess`` calls with ``shell=True``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node",
+        "issues"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_sql_injection",
+      "line": 316,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code",
+        "issues"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_path_traversal",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code",
+        "issues"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_hardcoded_secrets",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code",
+        "issues"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_call_name",
+      "line": 367,
+      "doc": "Return the dotted name of a call, e.g. ``os.system``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "node"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_sanitize",
+      "line": 384,
+      "doc": "Return a copy of *code* with dangerous lines commented out.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "code",
+        "issues"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_template",
+      "line": 488,
+      "doc": "Return a secure code template with placeholders filled in.\n\nArgs:\n    name: Template name (one of ``TEMPLATES`` keys).\n    **kwargs: Values to substitute into the template.\n\nReturns:\n    The rendered template source.\n\nRaises:\n    KeyError: If *name* is not a known template.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "wrap_with_sandbox",
+      "line": 510,
+      "doc": "Wrap arbitrary code in a restricted-execution sandbox.\n\nThe wrapper catches exceptions, prevents globals leakage,\nand records the execution result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "code"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "Severity",
+      "line": 35,
+      "doc": "Severity level for a security issue.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SecurityIssue",
+      "line": 46,
+      "doc": "A single security issue detected during code validation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ValidationResult",
+      "line": 56,
+      "doc": "Outcome of validating a code snippet.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CodeSecurityValidator",
+      "line": 77,
+      "doc": "Validates LLM-generated code for security issues using AST analysis.\n\nChecks cover dangerous imports, unsafe calls, shell injection,\nSQL injection patterns, path traversal, and hardcoded secrets.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SecureCodeTemplate",
+      "line": 401,
+      "doc": "Templates that enforce secure patterns in generated code.\n\nEach template encodes best-practice defaults (timeouts, parameterised\nqueries, ``shell=False``, env-var configuration, path validation, etc.)\nand can be retrieved with ``get_template(name, **kwargs)``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 56,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

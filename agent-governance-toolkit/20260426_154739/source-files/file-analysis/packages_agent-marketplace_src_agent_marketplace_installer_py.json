@@ -1,0 +1,188 @@
+{
+  "path": "packages/agent-marketplace/src/agent_marketplace/installer.py",
+  "extension": ".py",
+  "size_bytes": 7394,
+  "line_count": 226,
+  "documentation": {
+    "file_docstring": "Plugin Installer\n\nDownload, verify, install, and uninstall AgentMesh plugins with dependency\nresolution and basic plugin sandboxing (restricted imports).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Modules that plugins are NOT allowed to import",
+      "------------------------------------------------------------------",
+      "Install / Uninstall",
+      "------------------------------------------------------------------",
+      "Signature verification \u2014 fail closed when verify=True",
+      "Dependency resolution",
+      "Install to plugins directory",
+      "------------------------------------------------------------------",
+      "Dependency resolution",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Sandboxing",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PluginInstaller: Install, uninstall, and manage AgentMesh plugins.\n\nArgs:\n    plugins_dir: Direct",
+      "_parse_dependency: Parse a dependency specifier like ``plugin-name>=1.0.0``.\n\nReturns:\n    Tuple of",
+      "install: Install a plugin from the registry.\n\nSteps:\n    1. Resolve manifest from registr",
+      "uninstall: Remove an installed plugin.\n\nArgs:\n    name: Plugin name.\n\nRaises:\n    Marketpla",
+      "list_installed: Return manifests for all installed plugins.\n\nReturns:\n    List of installed plug",
+      "_resolve_dependencies: Recursively resolve and install plugin dependencies.\n\nArgs:\n    manifest: The ma",
+      "check_sandbox: Check whether a module import is allowed under sandboxing rules.\n\nArgs:\n    modu"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "check_sandbox",
+    "PluginInstaller",
+    "list_installed",
+    "uninstall",
+    "install"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "shutil",
+      "pathlib",
+      "typing",
+      "agent_marketplace.manifest",
+      "agent_marketplace.registry",
+      "agent_marketplace.signing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_parse_dependency",
+      "line": 215,
+      "doc": "Parse a dependency specifier like ``plugin-name>=1.0.0``.\n\nReturns:\n    Tuple of (name, version_or_none).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dep_spec"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugins_dir",
+        "registry",
+        "trusted_keys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "install",
+      "line": 69,
+      "doc": "Install a plugin from the registry.\n\nSteps:\n    1. Resolve manifest from registry.\n    2. Verify Ed25519 signature (if a trusted key is available).\n    3. Resolve and install dependencies (recursively).\n    4. Create plugin directory with manifest copy.\n\nArgs:\n    name: Plugin name.\n    version: Desired version (``None`` for latest).\n    verify: Whether to verify the signature.\n\nReturns:\n    Path to the installed plugin directory.\n\nRaises:\n    MarketplaceError: On resolution, verification, or dependency errors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "uninstall",
+      "line": 132,
+      "doc": "Remove an installed plugin.\n\nArgs:\n    name: Plugin name.\n\nRaises:\n    MarketplaceError: If the plugin is not installed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_installed",
+      "line": 147,
+      "doc": "Return manifests for all installed plugins.\n\nReturns:\n    List of installed plugin manifests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_dependencies",
+      "line": 169,
+      "doc": "Recursively resolve and install plugin dependencies.\n\nArgs:\n    manifest: The manifest whose dependencies should be resolved.\n    verify: Whether to verify signatures on dependencies.\n    _seen: Set of already-visited plugin names (cycle detection).\n\nRaises:\n    MarketplaceError: On circular dependencies or missing plugins.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_sandbox",
+      "line": 202,
+      "doc": "Check whether a module import is allowed under sandboxing rules.\n\nArgs:\n    module_name: Fully-qualified module name.\n\nReturns:\n    ``True`` if the import is allowed, ``False`` otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "module_name"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PluginInstaller",
+      "line": 40,
+      "doc": "Install, uninstall, and manage AgentMesh plugins.\n\nArgs:\n    plugins_dir: Directory where plugins are installed.\n    registry: Plugin registry to resolve names/versions.\n    trusted_keys: Optional mapping of author \u2192 Ed25519 public key for\n        signature verification.\n\nExample:\n    >>> installer = PluginInstaller(Path(\"./plugins\"), registry)\n    >>> installer.install(\"my-plugin\", \"1.0.0\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: ui, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/mute_agent.py",
+  "extension": ".py",
+  "size_bytes": 15707,
+  "line_count": 422,
+  "documentation": {
+    "file_docstring": "The Mute Agent - Scale by Subtraction\n\nThe Mute Agent represents the philosophy of \"Scale by Subtraction\" - removing\ncreativity and ensuring agents fail fast with NULL responses when requests\nare out of scope, rather than hallucinating or being conversational.\n\nThis module provides capabilities for agents to strictly operate within\ntheir defined constraints and return NULL/silence for out-of-scope requests.\n\nResearch Foundations:\n    - Capability-based security model (principle of least privilege)\n    - \"If a system can't do something, it can't be tricked into doing it\"\n    - Fail-safe defaults from secure system design\n    - Inspired by NULL semantics in type systems and databases\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.\n\nDEPRECATION NOTICE:\n    This module is being refactored to use the plugin interface pattern.\n    New code should use CapabilityValidatorInterface from \n    agent_control_plane.interfaces instead of directly importing this module.\n    \n    The MuteAgentValidator class now implements CapabilityValidatorInterface\n    and can be registered with the PluginRegistry for dependency injection.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Support both ExecutionRequest and dict-based requests",
+      "Check if action type is within any capability",
+      "Validate parameters against capability schema",
+      "Legacy method for backward compatibility",
+      "Check if action type is within any capability",
+      "Note: Cannot validate with validator since it expects ExecutionRequest",
+      "This is a tradeoff for performance - full validation requires ExecutionRequest",
+      "=========================================================================",
+      "CapabilityValidatorInterface implementation",
+      "=========================================================================",
+      "Convert string action types to ActionType enums",
+      "Skip unknown action types",
+      "Also add to config if this is for the configured agent",
+      "=========================================================================",
+      "Internal methods",
+      "=========================================================================",
+      "Only SELECT queries allowed",
+      "No destructive operations (use word boundaries to avoid false matches)",
+      "Use word boundary matching to avoid matching \"CREATED_AT\" with \"CREATE\""
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentCapability: Defines a specific capability an agent has",
+      "MuteAgentConfig: Configuration for a Mute Agent",
+      "MuteAgentValidator: Validates requests against agent capabilities.\n\nThe Mute Agent knows when to shu",
+      "create_sql_agent_capabilities: Example: Create capabilities for a SQL-generating agent\n\nThis agent can only que",
+      "create_data_analyst_capabilities: Example: Create capabilities for a data analyst agent\n\nThis agent can read files",
+      "create_mute_sql_agent: Create a Mute SQL Agent configuration\n\nThis agent:\n- Only executes SELECT querie",
+      "create_mute_data_analyst: Create a Mute Data Analyst configuration\n\nThis agent:\n- Can read data files from",
+      "metadata: Return metadata about this validator plugin",
+      "validate_request: Validate if request maps to a defined capability.\n\nImplements CapabilityValidato",
+      "validate_request_legacy: Legacy validation method for backward compatibility.\n\nDEPRECATED: Use validate_r"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "validate_action",
+    "create_sql_agent_capabilities",
+    "validate_request",
+    "validate_safe_file_path",
+    "AgentCapability",
+    "get_agent_capabilities",
+    "create_mute_data_analyst",
+    "metadata",
+    "get_rejection_log",
+    "create_mute_sql_agent",
+    "create_data_analyst_capabilities",
+    "validate_request_legacy",
+    "define_capability",
+    "get_null_response",
+    "MuteAgentConfig",
+    "MuteAgentValidator",
+    "validate_sql_query"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "warnings",
+      "typing",
+      "dataclasses",
+      "datetime",
+      "agent_kernel",
+      "interfaces.plugin_interface",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_sql_agent_capabilities",
+      "line": 306,
+      "doc": "Example: Create capabilities for a SQL-generating agent\n\nThis agent can only query databases, not modify them.\nIf asked to \"build a rocket ship\", it returns NULL instead of hallucinating.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "create_data_analyst_capabilities",
+      "line": 347,
+      "doc": "Example: Create capabilities for a data analyst agent\n\nThis agent can read files and query databases, but cannot modify anything.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "create_mute_sql_agent",
+      "line": 389,
+      "doc": "Create a Mute SQL Agent configuration\n\nThis agent:\n- Only executes SELECT queries\n- Returns NULL for anything outside this capability\n- Does not try to be conversational or creative",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": "MuteAgentConfig"
+    },
+    {
+      "name": "create_mute_data_analyst",
+      "line": 407,
+      "doc": "Create a Mute Data Analyst configuration\n\nThis agent:\n- Can read data files from /data directory\n- Can execute analytics queries\n- Returns NULL for out-of-scope requests",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id",
+        "enable_explanation"
+      ],
+      "returns": "MuteAgentConfig"
+    },
+    {
+      "name": "__init__",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "metadata",
+      "line": 96,
+      "doc": "Return metadata about this validator plugin",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PluginMetadata"
+    },
+    {
+      "name": "validate_request",
+      "line": 110,
+      "doc": "Validate if request maps to a defined capability.\n\nImplements CapabilityValidatorInterface.validate_request()\n\nArgs:\n    request: ExecutionRequest to validate\n    context: Optional additional context\n    \nReturns:\n    ValidationResult with approval/denial and details",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "context"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_request_legacy",
+      "line": 173,
+      "doc": "Legacy validation method for backward compatibility.\n\nDEPRECATED: Use validate_request() instead which returns ValidationResult.\n\nReturns:\n    (is_valid, reason_if_invalid)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_action",
+      "line": 190,
+      "doc": "Lightweight validation without creating an ExecutionRequest.\n\nReturns:\n    (is_valid, reason_if_invalid)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type",
+        "parameters"
+      ],
+      "returns": null
+    },
+    {
+      "name": "define_capability",
+      "line": 222,
+      "doc": "Define a capability for an agent.\n\nImplements CapabilityValidatorInterface.define_capability()",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "capability_name",
+        "allowed_actions",
+        "parameter_schema",
+        "validator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_capabilities",
+      "line": 260,
+      "doc": "Get all capabilities defined for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_null_response",
+      "line": 274,
+      "doc": "Get the NULL response message for out-of-scope requests",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_rejection_log",
+      "line": 278,
+      "doc": "Get log of rejected (out-of-scope) requests",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_format_rejection_reason",
+      "line": 288,
+      "doc": "Format rejection reason based on agent configuration",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type",
+        "reason"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_log_rejection",
+      "line": 295,
+      "doc": "Log rejected requests for analysis",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "action_type",
+        "reason",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_sql_query",
+      "line": 314,
+      "doc": "Validate that SQL query is read-only",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "validate_safe_file_path",
+      "line": 354,
+      "doc": "Only allow access to /data directory",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentCapability",
+      "line": 45,
+      "doc": "Defines a specific capability an agent has",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MuteAgentConfig",
+      "line": 55,
+      "doc": "Configuration for a Mute Agent",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MuteAgentValidator",
+      "line": 64,
+      "doc": "Validates requests against agent capabilities.\n\nThe Mute Agent knows when to shut up. If a request doesn't map to a\ndefined capability, it returns NULL instead of hallucinating or trying\nto be helpful in creative ways.\n\nThis class implements CapabilityValidatorInterface for use with the\nPluginRegistry and dependency injection pattern.\n\nDEPRECATION NOTICE:\n    Direct instantiation of MuteAgentValidator is deprecated.\n    Instead, use the PluginRegistry to register validators:\n    \n    ```python\n    from agent_control_plane import PluginRegistry\n    \n    registry = PluginRegistry()\n    validator = MuteAgentValidator(config)\n    registry.register_validator(validator)\n    ```",
+      "is_public": true,
+      "bases": [
+        "CapabilityValidatorInterface"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 59,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,391 @@
+{
+  "path": "packages/agent-os/examples/ecommerce-support/main.py",
+  "extension": ".py",
+  "size_bytes": 15446,
+  "line_count": 447,
+  "documentation": {
+    "file_docstring": "E-commerce Support Agent with Agent OS Governance\n\nDemonstrates:\n- PCI-DSS compliant payment data handling\n- Fraud detection and prevention\n- Consistent refund policy enforcement\n- Identity verification for sensitive actions",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Agent OS imports",
+      "Payment methods (masked)",
+      "Risk signals",
+      "Payment info (PCI-DSS: only store masked data)",
+      "Pattern for potential card numbers (13-19 digits)",
+      "Reset counters if more than 24h since last refund",
+      "Check count limit",
+      "Check amount limit",
+      "Quick refund after purchase",
+      "High velocity",
+      "Refund policy limits",
+      "Initialize governance",
+      "In production: verify code sent to email/phone",
+      "For demo: accept any 6-digit code",
+      "Always mask - never expose full card numbers",
+      "CVV is NEVER stored or returned",
+      "Use order amount if not specified",
+      "Check 1: Identity verification required for refunds > $50",
+      "Check 2: Valid refund reason",
+      "Check 3: Fraud detection",
+      "Check 4: Amount limits",
+      "Process refund",
+      "Update customer refund tracking",
+      "Update order status",
+      "Initialize agent",
+      "Add customer",
+      "Add orders",
+      "Test 1: View payment info (PCI-DSS masked)",
+      "Test 2: Small refund (auto-approved)",
+      "Test 3: Large refund without identity verification",
+      "Verify identity",
+      "Test 4: Large refund after verification",
+      "Test 5: Fraud detection (velocity limit)",
+      "Try multiple refunds",
+      "Show audit trail"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Customer: Customer profile.",
+      "Order: Order information.",
+      "PCIDSSCompliance: PCI-DSS compliant data handling.",
+      "FraudDetector: Detect suspicious activity patterns.",
+      "SupportAuditLog: Audit logging for support actions.",
+      "EcommerceSupportAgent: AI agent for e-commerce customer support with governance.",
+      "demo: Demonstrate the e-commerce support agent.",
+      "mask_card: Mask card number, showing only last 4 digits.",
+      "mask_cvv: CVV must NEVER be stored or displayed.",
+      "validate_no_full_card: Check that text doesn't contain full card numbers."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "test class/function patterns",
+      "special file: main.py"
+    ]
+  },
+  "exports": [
+    "PCIDSSCompliance",
+    "EcommerceSupportAgent",
+    "log",
+    "add_customer",
+    "mask_card",
+    "mask_cvv",
+    "add_order",
+    "Order",
+    "validate_no_full_card",
+    "SupportAuditLog",
+    "FraudDetector",
+    "get_payment_info",
+    "RefundStatus",
+    "Customer",
+    "check_patterns",
+    "check_refund_velocity"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "hashlib",
+      "re",
+      "datetime",
+      "typing",
+      "dataclasses",
+      "enum",
+      "agent_os",
+      "agent_os.policies"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "demo",
+      "line": 345,
+      "doc": "Demonstrate the e-commerce support agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "mask_card",
+      "line": 75,
+      "doc": "Mask card number, showing only last 4 digits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "card_number"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "mask_cvv",
+      "line": 83,
+      "doc": "CVV must NEVER be stored or displayed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "cvv"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_no_full_card",
+      "line": 88,
+      "doc": "Check that text doesn't contain full card numbers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "text"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_refund_velocity",
+      "line": 104,
+      "doc": "Check if refund request exceeds velocity limits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "customer",
+        "amount"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_patterns",
+      "line": 123,
+      "doc": "Check for suspicious patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "customer",
+        "order"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 146,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "customer_id",
+        "order_id",
+        "amount",
+        "status",
+        "reason",
+        "flags"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_customer",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "customer"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_order",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "order"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_identity",
+      "line": 213,
+      "doc": "Verify customer identity before sensitive actions.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "customer_id",
+        "verification_code"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_payment_info",
+      "line": 228,
+      "doc": "Get payment methods with PCI-DSS compliant masking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "customer_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process_refund",
+      "line": 248,
+      "doc": "Process a refund request with governance checks.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "order_id",
+        "reason",
+        "amount"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RefundStatus",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Customer",
+      "line": 39,
+      "doc": "Customer profile.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Order",
+      "line": 57,
+      "doc": "Order information.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PCIDSSCompliance",
+      "line": 71,
+      "doc": "PCI-DSS compliant data handling.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FraudDetector",
+      "line": 96,
+      "doc": "Detect suspicious activity patterns.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SupportAuditLog",
+      "line": 140,
+      "doc": "Audit logging for support actions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "EcommerceSupportAgent",
+      "line": 166,
+      "doc": "AI agent for e-commerce customer support with governance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 36,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

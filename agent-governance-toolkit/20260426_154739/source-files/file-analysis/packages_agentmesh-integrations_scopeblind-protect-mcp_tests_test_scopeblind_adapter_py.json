@@ -1,0 +1,1036 @@
+{
+  "path": "packages/agentmesh-integrations/scopeblind-protect-mcp/tests/test_scopeblind_adapter.py",
+  "extension": ".py",
+  "size_bytes": 24858,
+  "line_count": 638,
+  "documentation": {
+    "file_docstring": "Tests for ScopeBlind protect-mcp AgentMesh adapter.\n\nCovers:\n- Cedar decision parsing and representation\n- CedarPolicyBridge: Cedar deny is authoritative, trust layering, receipt requirements\n- ReceiptVerifier: structure validation, type checking, AGT context conversion\n- SpendingGate: amount limits, category blocks, utilization bands, trust floors\n- scopeblind_context: AGT-compatible context shape",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---- Fixtures ----",
+      "---- CedarDecision ----",
+      "---- CedarPolicyBridge ----",
+      "---- ReceiptVerifier ----",
+      "---- SpendingGate ----",
+      "---- scopeblind_context ----",
+      "---- Edge case tests ----",
+      "-- Receipts with missing or invalid fields --",
+      "-- Trust scores at boundaries --",
+      "-- Concurrent evaluations (thread safety) --",
+      "Each thread gets its own unique receipts",
+      "-- Malformed receipt payloads --",
+      "-- Ed25519 public key format validation --",
+      "-- Replay protection --",
+      "First receipt should have been evicted from the window"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "make_receipt: Build a minimal valid receipt for testing. Each call produces a unique receipt.",
+      "make_spending_receipt: Build a spending authority receipt.",
+      "TestEdgeCases: Edge cases covering missing/invalid fields, boundary trust scores,\nconcurrent ac",
+      "test_cedar_deny_is_authoritative: Cedar deny must not be overridable by high trust score.",
+      "test_cedar_allow_with_trust_floor: Cedar allow but trust too low should deny.",
+      "test_full_context_shape: Full context should be a flat dict compatible with AGT evaluate().",
+      "test_receipt_empty_signature_rejected: Empty signature string should be rejected as invalid.",
+      "test_trust_score_at_floor_boundary: Trust score exactly at floor should pass.",
+      "test_trust_score_one_below_floor: Trust score one below floor should deny.",
+      "test_concurrent_bridge_evaluations: Multiple threads appending to bridge history should not lose entries."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_unknown_type_strict",
+    "test_invalid_public_key_too_short",
+    "test_receipt_provided_when_required",
+    "test_with_cedar_decision",
+    "test_basic_spend_allowed",
+    "test_replay_protection_disabled",
+    "test_valid_public_key_base64url",
+    "test_full_context_shape",
+    "test_receipt_empty_signature_rejected",
+    "test_deny_decision",
+    "test_receipt_payload_not_dict",
+    "test_cedar_decision_from_receipt_empty",
+    "test_invalid_receipt_agt_context",
+    "test_replay_detected",
+    "make_spending_receipt",
+    "test_spending_authority_receipt",
+    "test_to_agt_context",
+    "test_valid_receipt",
+    "test_cedar_deny_is_authoritative",
+    "test_high_utilization_with_sufficient_trust",
+    "test_concurrent_receipt_verification",
+    "test_concurrent_bridge_evaluations",
+    "test_trust_bonus_applied",
+    "test_spending_gate_zero_amount",
+    "test_receipt_missing_signature",
+    "test_high_value_requires_receipt",
+    "test_exceeded_utilization_band",
+    "test_receipt_missing_public_key",
+    "test_trust_score_zero",
+    "test_trust_score_1000",
+    "test_trust_score_one_below_floor",
+    "test_cedar_decision_from_receipt_missing_payload",
+    "test_invalid_public_key_non_hex",
+    "test_to_dict_shape",
+    "test_receipt_payload_is_list",
+    "test_deny_penalty_applied",
+    "test_with_spending",
+    "test_allow_decision",
+    "test_minimal_context",
+    "test_with_receipt",
+    "test_receipt_empty_dict",
+    "test_different_receipts_not_replay",
+    "TestSpendingGate",
+    "test_to_agt_context_malformed_receipt",
+    "worker",
+    "make_receipt",
+    "test_trust_score_at_floor_boundary",
+    "test_cedar_allow_with_trust_floor",
+    "test_concurrent_spending_decisions",
+    "test_trust_capped_at_1000",
+    "test_high_utilization_needs_trust",
+    "test_from_receipt",
+    "test_cedar_allow_passes",
+    "test_valid_public_key_hex",
+    "test_replay_window_bounded",
+    "test_stats_tracking",
+    "test_receipt_required_but_missing",
+    "TestEdgeCases",
+    "test_missing_fields",
+    "test_spending_gate_invalid_utilization_band",
+    "TestScopeblindContext",
+    "TestCedarDecision",
+    "test_negative_amount_rejected",
+    "test_high_value_with_receipt",
+    "TestCedarPolicyBridge",
+    "test_exceeds_single_limit",
+    "test_stats",
+    "test_unknown_type_lenient",
+    "test_trust_score_zero_with_deny",
+    "test_blocked_category",
+    "test_from_receipt_with_policy_ids",
+    "test_receipt_ref_is_full_sha256",
+    "TestReceiptVerifier"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "time",
+      "pytest",
+      "scopeblind_protect_mcp",
+      "threading",
+      "threading",
+      "threading"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "make_receipt",
+      "line": 32,
+      "doc": "Build a minimal valid receipt for testing. Each call produces a unique receipt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "effect",
+        "tool",
+        "receipt_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "make_spending_receipt",
+      "line": 51,
+      "doc": "Build a spending authority receipt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "amount",
+        "category",
+        "band"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allow_decision",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_decision",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_shape",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_receipt",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_receipt_with_policy_ids",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cedar_deny_is_authoritative",
+      "line": 100,
+      "doc": "Cedar deny must not be overridable by high trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cedar_allow_passes",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cedar_allow_with_trust_floor",
+      "line": 114,
+      "doc": "Cedar allow but trust too low should deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_bonus_applied",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_penalty_applied",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_required_but_missing",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_provided_when_required",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats_tracking",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_capped_at_1000",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_receipt",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_fields",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_type_strict",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_type_lenient",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spending_authority_receipt",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_agt_context",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_receipt_agt_context",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic_spend_allowed",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exceeds_single_limit",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_negative_amount_rejected",
+      "line": 237,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_category",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exceeded_utilization_band",
+      "line": 248,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_high_utilization_needs_trust",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_high_utilization_with_sufficient_trust",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_high_value_requires_receipt",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_high_value_with_receipt",
+      "line": 275,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_minimal_context",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_with_cedar_decision",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_with_receipt",
+      "line": 307,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_with_spending",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_context_shape",
+      "line": 320,
+      "doc": "Full context should be a flat dict compatible with AGT evaluate().",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_empty_dict",
+      "line": 347,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_missing_signature",
+      "line": 353,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_missing_public_key",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_payload_not_dict",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_payload_is_list",
+      "line": 379,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_empty_signature_rejected",
+      "line": 390,
+      "doc": "Empty signature string should be rejected as invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_agt_context_malformed_receipt",
+      "line": 403,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_zero",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_1000",
+      "line": 417,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_zero_with_deny",
+      "line": 423,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_at_floor_boundary",
+      "line": 429,
+      "doc": "Trust score exactly at floor should pass.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_score_one_below_floor",
+      "line": 437,
+      "doc": "Trust score one below floor should deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_bridge_evaluations",
+      "line": 447,
+      "doc": "Multiple threads appending to bridge history should not lose entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_receipt_verification",
+      "line": 470,
+      "doc": "Multiple threads validating unique receipts should not lose entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_concurrent_spending_decisions",
+      "line": 494,
+      "doc": "Multiple threads evaluating spends should not lose entries.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cedar_decision_from_receipt_missing_payload",
+      "line": 518,
+      "doc": "from_receipt with no payload key should use top-level dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cedar_decision_from_receipt_empty",
+      "line": 524,
+      "doc": "from_receipt with empty dict should default to deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spending_gate_zero_amount",
+      "line": 530,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spending_gate_invalid_utilization_band",
+      "line": 536,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_receipt_ref_is_full_sha256",
+      "line": 544,
+      "doc": "receipt_ref should be a full 64-char hex SHA-256, not truncated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_public_key_too_short",
+      "line": 555,
+      "doc": "Public key with wrong length should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_public_key_non_hex",
+      "line": 568,
+      "doc": "Public key with non-hex characters should be rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_public_key_hex",
+      "line": 581,
+      "doc": "Valid 64-char hex public key should pass.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_public_key_base64url",
+      "line": 588,
+      "doc": "Valid base64url-encoded public key should pass.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_detected",
+      "line": 602,
+      "doc": "Same receipt submitted twice should be rejected the second time.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_protection_disabled",
+      "line": 613,
+      "doc": "With replay_protection=False, same receipt should pass twice.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_window_bounded",
+      "line": 622,
+      "doc": "Replay window should evict old entries when full.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_different_receipts_not_replay",
+      "line": 632,
+      "doc": "Two different receipts should both pass.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "worker",
+      "line": 457,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "worker",
+      "line": 481,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "thread_receipts"
+      ],
+      "returns": null
+    },
+    {
+      "name": "worker",
+      "line": 503,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCedarDecision",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCedarPolicyBridge",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestReceiptVerifier",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSpendingGate",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScopeblindContext",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 341,
+      "doc": "Edge cases covering missing/invalid fields, boundary trust scores,\nconcurrent access, and malformed payloads.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 17,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

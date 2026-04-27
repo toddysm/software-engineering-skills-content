@@ -1,0 +1,638 @@
+{
+  "path": "packages/agent-os/modules/control-plane/tests/test_process_isolation.py",
+  "extension": ".py",
+  "size_bytes": 14544,
+  "line_count": 441,
+  "documentation": {
+    "file_docstring": "Tests for process-level agent isolation.\n\nVerifies that agents run in separate OS processes and can be\nforcefully terminated using real OS signals (SIGKILL).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "========== Target functions (module-level for pickling) ==========",
+      "========== Enum Tests ==========",
+      "========== Result Tests ==========",
+      "========== ProcessIsolationManager Tests ==========",
+      "Give the OS time to deliver the signal.",
+      "========== IsolatedSignalDispatcher Tests ==========",
+      "signal() returns False because the handler raises (caught by _deliver)",
+      "But state WAS updated before the raise",
+      "Should NOT raise -- real kill instead of exception.",
+      "========== Factory Tests =========="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "simple_agent: Agent that returns a value immediately.",
+      "slow_agent: Agent that takes a while to complete.",
+      "crashing_agent: Agent that raises an exception.",
+      "infinite_agent: Agent that never returns (for kill testing).",
+      "catching_agent: Adversarial agent that catches BaseException.\nIn-process: this catches AgentKern",
+      "heartbeat_agent: Agent that does work in small steps.",
+      "exit_agent: Agent that calls sys.exit.",
+      "returning_agent: Agent that returns a numeric value.",
+      "TestIsolationLevel: Verify IsolationLevel enum values.",
+      "TestAgentProcessState: Verify AgentProcessState enum values."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_manager_kill_by_id",
+    "simple_agent",
+    "TestCreateIsolatedSignalDispatcher",
+    "returning_agent",
+    "test_default_fields",
+    "test_sigkill_with_process_kills",
+    "test_signal_history_recorded",
+    "test_cooperative_isolation_raises",
+    "test_terminated_result",
+    "exit_agent",
+    "test_str_comparison",
+    "test_numeric_return_value",
+    "TestIsolationLevel",
+    "TestAgentProcessState",
+    "test_sigterm_remains_cooperative",
+    "test_kill_uncatchable_unix",
+    "test_timeout_kills_agent",
+    "test_terminate_graceful",
+    "test_sys_exit_captured",
+    "catching_agent",
+    "test_kill_uncatchable_windows",
+    "test_kill_returns_false_for_dead_process",
+    "test_auto_agent_id",
+    "test_process_runs_in_different_pid",
+    "TestIsolatedSignalDispatcher",
+    "heartbeat_agent",
+    "test_kill_all",
+    "test_get_handle",
+    "test_sigkill_with_no_process_cooperative_fallback",
+    "test_factory_with_custom_manager",
+    "TestProcessIsolationManager",
+    "test_cooperative_fallback_non_sigkill",
+    "test_agent_crash_captured",
+    "test_spawn_and_get_result",
+    "test_multiple_agents_concurrent",
+    "test_factory_returns_dispatcher",
+    "test_kill_with_sigkill",
+    "TestAgentProcessResult",
+    "crashing_agent",
+    "test_list_agents",
+    "test_enum_values",
+    "test_cleanup_completed",
+    "infinite_agent",
+    "slow_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "multiprocessing",
+      "os",
+      "platform",
+      "sys",
+      "time",
+      "pytest",
+      "agent_control_plane.process_isolation",
+      "agent_control_plane.signals"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "simple_agent",
+      "line": 38,
+      "doc": "Agent that returns a value immediately.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "slow_agent",
+      "line": 43,
+      "doc": "Agent that takes a while to complete.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "duration"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "crashing_agent",
+      "line": 49,
+      "doc": "Agent that raises an exception.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "infinite_agent",
+      "line": 54,
+      "doc": "Agent that never returns (for kill testing).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "catching_agent",
+      "line": 60,
+      "doc": "Adversarial agent that catches BaseException.\nIn-process: this catches AgentKernelPanic.\nProcess-level SIGKILL: this CANNOT catch os.kill(SIGKILL).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "heartbeat_agent",
+      "line": 73,
+      "doc": "Agent that does work in small steps.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "count"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "exit_agent",
+      "line": 80,
+      "doc": "Agent that calls sys.exit.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "code"
+      ],
+      "returns": null
+    },
+    {
+      "name": "returning_agent",
+      "line": 85,
+      "doc": "Agent that returns a numeric value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "val"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "test_enum_values",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_str_comparison",
+      "line": 101,
+      "doc": "str(Enum) mixin allows string equality.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_enum_values",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_fields",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminated_result",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spawn_and_get_result",
+      "line": 152,
+      "doc": "Agent runs in a separate process and returns a result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_process_runs_in_different_pid",
+      "line": 164,
+      "doc": "Verify agent runs in a truly separate OS process.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_crash_captured",
+      "line": 172,
+      "doc": "Agent exception is captured without crashing supervisor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kill_with_sigkill",
+      "line": 180,
+      "doc": "Agent can be forcefully killed by supervisor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kill_uncatchable_unix",
+      "line": 196,
+      "doc": "On Unix, even an agent catching BaseException cannot\nsurvive a real SIGKILL from os.kill().",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kill_uncatchable_windows",
+      "line": 211,
+      "doc": "process.kill() (TerminateProcess) also cannot be caught.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_timeout_kills_agent",
+      "line": 222,
+      "doc": "Agent that exceeds spawn timeout is killed automatically.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kill_all",
+      "line": 232,
+      "doc": "Manager can kill all agents at once.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_terminate_graceful",
+      "line": 244,
+      "doc": "Graceful termination sends SIGTERM.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_handle",
+      "line": 257,
+      "doc": "Retrieve agent handle by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_agents",
+      "line": 265,
+      "doc": "list_agents returns all tracked handles.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_auto_agent_id",
+      "line": 277,
+      "doc": "Agent ID is auto-generated when not provided.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sys_exit_captured",
+      "line": 285,
+      "doc": "sys.exit() in agent is captured as failure.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cleanup_completed",
+      "line": 293,
+      "doc": "cleanup() removes completed agents from tracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_agents_concurrent",
+      "line": 303,
+      "doc": "Multiple agents run concurrently in separate processes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cooperative_isolation_raises",
+      "line": 322,
+      "doc": "Attempting cooperative isolation raises ValueError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_manager_kill_by_id",
+      "line": 328,
+      "doc": "Manager can kill a specific agent by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_numeric_return_value",
+      "line": 341,
+      "doc": "Agent returning a numeric value is captured correctly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kill_returns_false_for_dead_process",
+      "line": 349,
+      "doc": "kill() returns False when process is already dead.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cooperative_fallback_non_sigkill",
+      "line": 366,
+      "doc": "Non-SIGKILL signals use the cooperative path.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sigterm_remains_cooperative",
+      "line": 375,
+      "doc": "SIGTERM still goes through the cooperative handler.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sigkill_with_no_process_cooperative_fallback",
+      "line": 381,
+      "doc": "SIGKILL with no isolated process falls back to cooperative mode.\n\nThe cooperative ``_handle_kill`` sets terminated/stopped state and\nraises ``AgentKernelPanic``, which is caught by ``_deliver()``.\nWe verify the state transition occurred correctly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sigkill_with_process_kills",
+      "line": 396,
+      "doc": "SIGKILL routes to real process kill when process exists.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signal_history_recorded",
+      "line": 412,
+      "doc": "Signals are still recorded in history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_factory_returns_dispatcher",
+      "line": 427,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_factory_with_custom_manager",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestIsolationLevel",
+      "line": 93,
+      "doc": "Verify IsolationLevel enum values.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentProcessState",
+      "line": 107,
+      "doc": "Verify AgentProcessState enum values.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentProcessResult",
+      "line": 121,
+      "doc": "Verify AgentProcessResult dataclass defaults and fields.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestProcessIsolationManager",
+      "line": 149,
+      "doc": "Test the main ProcessIsolationManager.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIsolatedSignalDispatcher",
+      "line": 363,
+      "doc": "Test IsolatedSignalDispatcher cooperative/process routing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCreateIsolatedSignalDispatcher",
+      "line": 424,
+      "doc": "Test the factory function.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

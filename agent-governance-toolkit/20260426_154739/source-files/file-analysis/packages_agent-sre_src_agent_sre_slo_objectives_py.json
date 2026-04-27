@@ -1,0 +1,383 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/slo/objectives.py",
+  "extension": ".py",
+  "size_bytes": 10687,
+  "line_count": 298,
+  "documentation": {
+    "file_docstring": "SLO definitions and Error Budget engine.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Calculate total error budget from strictest indicator",
+      "Worsened",
+      "Recovered"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "ExhaustionAction: What to do when error budget is exhausted.",
+      "BurnRateAlert: A burn rate alert threshold.",
+      "ErrorBudget: Tracks error budget consumption for an SLO.\n\nError Budget = 1 - SLO target\nBurn ",
+      "SLOStatus: Current SLO health status.",
+      "SLO: Service Level Objective for an AI agent.\n\nCombines multiple SLIs with targets an",
+      "is_firing: Check if this alert should fire.",
+      "__post_init__: Ensure _events is a bounded deque with the correct maxlen.",
+      "remaining: Remaining error budget as a fraction (0.0 to 1.0).",
+      "remaining_percent: Remaining error budget as percentage.",
+      "is_exhausted: True if error budget is fully consumed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "BurnRateAlert",
+    "remaining",
+    "ExhaustionAction",
+    "alerts",
+    "indicator_summary",
+    "burn_rate",
+    "SLOStatus",
+    "firing_alerts",
+    "to_dict",
+    "is_exhausted",
+    "SLO",
+    "is_firing",
+    "remaining_percent",
+    "event_count",
+    "record_event",
+    "evaluate",
+    "ErrorBudget",
+    "clear_events"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "collections",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_sre.alerts",
+      "agent_sre.slo.indicators"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "is_firing",
+      "line": 38,
+      "doc": "Check if this alert should fire.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "current_burn_rate"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__post_init__",
+      "line": 65,
+      "doc": "Ensure _events is a bounded deque with the correct maxlen.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remaining",
+      "line": 71,
+      "doc": "Remaining error budget as a fraction (0.0 to 1.0).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "remaining_percent",
+      "line": 78,
+      "doc": "Remaining error budget as percentage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "is_exhausted",
+      "line": 83,
+      "doc": "True if error budget is fully consumed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_event",
+      "line": 87,
+      "doc": "Record a good or bad event against the budget.\n\nEvents are stored in a bounded deque.  When ``max_events`` is\nreached, the oldest event is silently evicted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "good"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_events",
+      "line": 97,
+      "doc": "Clear all recorded events (does **not** reset ``consumed``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "event_count",
+      "line": 102,
+      "doc": "Number of events currently in the buffer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "burn_rate",
+      "line": 106,
+      "doc": "Calculate current burn rate within a time window.\n\nBurn rate = (actual errors in window / window size) / (budget / total window)\nA burn rate of 1.0 means consuming budget at exactly the expected rate.\n>1.0 means faster than expected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "window_seconds"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "alerts",
+      "line": 132,
+      "doc": "Get burn rate alerts (single 24h window).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "firing_alerts",
+      "line": 139,
+      "doc": "Get alerts that are currently firing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 144,
+      "doc": "Serialize to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "indicators",
+        "error_budget",
+        "description",
+        "labels",
+        "alert_manager",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 212,
+      "doc": "Evaluate current SLO status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLOStatus"
+    },
+    {
+      "name": "_maybe_fire_alert",
+      "line": 231,
+      "doc": "Send alert if status changed meaningfully.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "status"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_event",
+      "line": 275,
+      "doc": "Record a good or bad event against the SLO.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "good"
+      ],
+      "returns": null
+    },
+    {
+      "name": "indicator_summary",
+      "line": 280,
+      "doc": "Get summary of all indicators.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 284,
+      "doc": "Serialize to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__repr__",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ExhaustionAction",
+      "line": 20,
+      "doc": "What to do when error budget is exhausted.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BurnRateAlert",
+      "line": 30,
+      "doc": "A burn rate alert threshold.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ErrorBudget",
+      "line": 44,
+      "doc": "Tracks error budget consumption for an SLO.\n\nError Budget = 1 - SLO target\nBurn Rate = actual error rate / allowed error rate\n\nEvents are stored in a bounded ``deque(maxlen=max_events)`` to\nprevent unbounded memory growth in long-running SLOs.  When the\nbuffer is full, the oldest events are silently evicted on append.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SLOStatus",
+      "line": 157,
+      "doc": "Current SLO health status.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SLO",
+      "line": 167,
+      "doc": "Service Level Objective for an AI agent.\n\nCombines multiple SLIs with targets and an error budget to define\nwhat \"reliable\" means for this agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 43,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

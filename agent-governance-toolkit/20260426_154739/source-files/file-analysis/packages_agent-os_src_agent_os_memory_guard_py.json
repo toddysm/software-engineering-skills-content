@@ -1,0 +1,323 @@
+{
+  "path": "packages/agent-os/src/agent_os/memory_guard.py",
+  "extension": ".py",
+  "size_bytes": 14467,
+  "line_count": 409,
+  "documentation": {
+    "file_docstring": "Memory & Context Poisoning Detection \u2014 OWASP ASI06.\n\nGuards agent memory stores (RAG, episodic, working memory) against\npoisoning attacks where adversaries inject malicious data to manipulate\nagent behaviour.\n\nPublic Preview protections:\n    - **Hash integrity**: SHA-256 hash per memory entry; detects tampering.\n    - **Injection pattern detection**: Blocks prompt-injection payloads\n      written into memory.\n    - **Content validation**: Rejects entries with dangerous code or\n      excessive special-character manipulation.\n    - **Write audit trail**: Logs every memory write with timestamp and\n      source for forensic review.\n\nArchitecture:\n    MemoryGuard\n        \u251c\u2500 validate_write()   \u2014 pre-write content screening\n        \u251c\u2500 verify_integrity() \u2014 post-read hash verification\n        \u2514\u2500 scan_memory()      \u2014 batch scan for poisoning indicators",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Data models",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Injection patterns (CE basics)",
+      "---------------------------------------------------------------------------",
+      "Fraction of characters that are \"special\" before we flag the entry",
+      "---------------------------------------------------------------------------",
+      "MemoryGuard",
+      "---------------------------------------------------------------------------",
+      "-- public API ---------------------------------------------------------",
+      "Fail closed: block the write if validation itself errors",
+      "Audit trail",
+      "Integrity check",
+      "Content checks (reuse validate_write logic)",
+      "-- internal checks ----------------------------------------------------",
+      "Detect right-to-left override and other bidi control characters",
+      "Detect homoglyph-heavy content (characters from mixed scripts)",
+      "Use unicodedata to get script-like categorisation"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AlertSeverity: Severity level for memory poisoning alerts.",
+      "AlertType: Classification of a memory poisoning alert.",
+      "MemoryEntry: A single entry in agent memory with integrity metadata.\n\nAttributes:\n    content",
+      "Alert: A poisoning indicator found during memory scanning.\n\nAttributes:\n    alert_type:",
+      "ValidationResult: Outcome of a memory write validation.\n\nAttributes:\n    allowed: Whether the writ",
+      "AuditRecord: Immutable record of a memory write attempt.\n\nAttributes:\n    timestamp: When the",
+      "MemoryGuard: Guards agent memory against poisoning attacks (OWASP ASI06).\n\nUsage::\n\n    guard",
+      "compute_hash: Compute SHA-256 hash of content.",
+      "create: Factory that auto-generates timestamp and hash.",
+      "validate_write: Check content for injection patterns before writing to memory.\n\nReturns a ``Vali"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "Alert",
+    "AlertType",
+    "ValidationResult",
+    "AlertSeverity",
+    "MemoryGuard",
+    "compute_hash",
+    "verify_integrity",
+    "scan_memory",
+    "audit_log",
+    "AuditRecord",
+    "validate_write",
+    "create",
+    "MemoryEntry"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "logging",
+      "re",
+      "unicodedata",
+      "collections.abc",
+      "dataclasses",
+      "datetime",
+      "enum"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "compute_hash",
+      "line": 76,
+      "doc": "Compute SHA-256 hash of content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "content"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "create",
+      "line": 81,
+      "doc": "Factory that auto-generates timestamp and hash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "content",
+        "source"
+      ],
+      "returns": "MemoryEntry"
+    },
+    {
+      "name": "__init__",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_write",
+      "line": 186,
+      "doc": "Check content for injection patterns before writing to memory.\n\nReturns a ``ValidationResult`` indicating whether the write should\nproceed and any alerts raised.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "source"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "verify_integrity",
+      "line": 244,
+      "doc": "Verify hash integrity of a memory entry.\n\nReturns ``True`` if the stored hash matches a fresh computation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "scan_memory",
+      "line": 261,
+      "doc": "Scan existing memory entries for poisoning indicators.\n\nChecks both content patterns and hash integrity for every entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entries"
+      ],
+      "returns": null
+    },
+    {
+      "name": "audit_log",
+      "line": 298,
+      "doc": "Return a copy of the audit trail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_injection_patterns",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "source"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_code_injection",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "source"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_special_characters",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "source"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_unicode_manipulation",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "source"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AlertSeverity",
+      "line": 43,
+      "doc": "Severity level for memory poisoning alerts.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AlertType",
+      "line": 51,
+      "doc": "Classification of a memory poisoning alert.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MemoryEntry",
+      "line": 61,
+      "doc": "A single entry in agent memory with integrity metadata.\n\nAttributes:\n    content: The text content stored in memory.\n    source: Identifier of the component that wrote this entry.\n    timestamp: UTC timestamp of when the entry was created.\n    content_hash: SHA-256 hex digest of ``content``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Alert",
+      "line": 92,
+      "doc": "A poisoning indicator found during memory scanning.\n\nAttributes:\n    alert_type: Classification of the alert.\n    severity: How critical the finding is.\n    message: Human-readable description.\n    entry_source: Source field of the offending entry (if available).\n    matched_pattern: The pattern that triggered this alert.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ValidationResult",
+      "line": 110,
+      "doc": "Outcome of a memory write validation.\n\nAttributes:\n    allowed: Whether the write should be permitted.\n    alerts: Any alerts raised during validation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuditRecord",
+      "line": 122,
+      "doc": "Immutable record of a memory write attempt.\n\nAttributes:\n    timestamp: When the write was attempted.\n    source: Component that requested the write.\n    content_hash: SHA-256 of the content.\n    allowed: Whether the write was permitted.\n    alerts: Alerts raised (may be empty).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MemoryGuard",
+      "line": 170,
+      "doc": "Guards agent memory against poisoning attacks (OWASP ASI06).\n\nUsage::\n\n    guard = MemoryGuard()\n    result = guard.validate_write(\"some content\", source=\"rag-loader\")\n    if result.allowed:\n        store.save(MemoryEntry.create(\"some content\", \"rag-loader\"))",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 44,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

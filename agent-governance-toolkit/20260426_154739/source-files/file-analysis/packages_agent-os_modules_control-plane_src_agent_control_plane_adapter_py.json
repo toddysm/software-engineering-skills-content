@@ -1,0 +1,262 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/adapter.py",
+  "extension": ".py",
+  "size_bytes": 15365,
+  "line_count": 417,
+  "documentation": {
+    "file_docstring": "OpenAI Client Adapter - Drop-In Middleware for Agent Control Plane\n\nThis adapter wraps the OpenAI client to automatically intercept and govern\ntool calls made by LLMs. It provides \"zero-friction\" integration - developers\ncan continue using the standard OpenAI SDK while benefiting from the control\nplane's governance and safety features.\n\nUsage:\n    from openai import OpenAI\n    from agent_control_plane import AgentControlPlane\n    from agent_control_plane.adapter import ControlPlaneAdapter\n    \n    # Standard setup\n    client = OpenAI(api_key=\"your-key\")\n    control_plane = AgentControlPlane()\n    agent_context = control_plane.create_agent(\"my-agent\", permissions)\n    \n    # Wrap with adapter\n    governed_client = ControlPlaneAdapter(\n        control_plane=control_plane,\n        agent_context=agent_context,\n        original_client=client\n    )\n    \n    # Use exactly as you would use OpenAI client\n    response = governed_client.chat.completions.create(\n        model=\"gpt-4\",\n        messages=[...],\n        tools=[...]\n    )\n    # Tool calls are automatically governed by the control plane!",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Standard setup",
+      "Wrap with adapter",
+      "Use exactly as you would use OpenAI client",
+      "Tool calls are automatically governed by the control plane!",
+      "Mapping from common OpenAI tool names to ActionType",
+      "File operations",
+      "Code execution",
+      "Database operations",
+      "API calls",
+      "Workflow operations",
+      "1. Let the LLM think - call the original OpenAI API",
+      "2. Check if there are tool calls to intercept",
+      "3. Intercept and govern each tool call",
+      "Parse arguments (they come as JSON string from OpenAI)",
+      "Map tool name to ActionType",
+      "THE KERNEL CHECK - This is where governance happens",
+      "Check permission through control plane",
+      "Action is BLOCKED by the control plane",
+      "Overwrite the tool call with a \"blocked\" indicator",
+      "The Mute Agent pattern: return NULL/minimal response",
+      "Call the optional callback",
+      "Check exact match first",
+      "Pattern matching for common variations",
+      "Before (ungovened):",
+      "After (governed):",
+      "Same API, but now with governance!",
+      "Merge default mapping with custom mapping",
+      "Use like normal OpenAI client"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ChatCompletionsWrapper: Wrapper for chat.completions that intercepts tool calls.\n\nThis class mimics the ",
+      "ChatWrapper: Wrapper for chat namespace",
+      "ControlPlaneAdapter: OpenAI Client Adapter with Agent Control Plane Governance.\n\nThis class wraps an ",
+      "create_governed_client: Convenience function to create a governed OpenAI client.\n\nThis creates both the ",
+      "create: Create a chat completion with automatic tool call governance.\n\nThis method:\n1. C",
+      "_map_tool_to_action: Map an OpenAI tool name to an ActionType.\n\nThis uses both the provided mapping a",
+      "__init__: Initialize the adapter.\n\nArgs:\n    control_plane: The AgentControlPlane instance",
+      "chat: Access the wrapped chat API",
+      "add_tool_mapping: Add a custom tool name to ActionType mapping.\n\nArgs:\n    tool_name: The name of ",
+      "get_statistics: Get statistics about the adapter's activity.\n\nReturns:\n    Dictionary with stati"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_statistics",
+    "chat",
+    "add_tool_mapping",
+    "ControlPlaneAdapter",
+    "ChatCompletionsWrapper",
+    "ChatWrapper",
+    "create_governed_client",
+    "create"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "json",
+      "logging",
+      "datetime",
+      "agent_kernel",
+      "control_plane"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_governed_client",
+      "line": 370,
+      "doc": "Convenience function to create a governed OpenAI client.\n\nThis creates both the agent in the control plane and the adapter,\nproviding a one-line setup for governed LLM interactions.\n\nArgs:\n    control_plane: The AgentControlPlane instance\n    agent_id: ID for the agent\n    openai_client: The OpenAI client to wrap\n    permissions: Optional permissions for the agent\n    tool_mapping: Optional custom tool name mappings\n    \nReturns:\n    A ControlPlaneAdapter ready to use\n    \nExample:\n    control_plane = AgentControlPlane()\n    openai_client = OpenAI(api_key=\"...\")\n    \n    governed = create_governed_client(\n        control_plane,\n        \"my-agent\",\n        openai_client,\n        permissions={\n            ActionType.FILE_READ: PermissionLevel.READ_ONLY,\n            ActionType.DATABASE_QUERY: PermissionLevel.READ_ONLY\n        }\n    )\n    \n    # Use like normal OpenAI client\n    response = governed.chat.completions.create(...)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id",
+        "openai_client",
+        "permissions",
+        "tool_mapping"
+      ],
+      "returns": "ControlPlaneAdapter"
+    },
+    {
+      "name": "__init__",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "original_completions",
+        "control_plane",
+        "agent_context",
+        "tool_mapping",
+        "logger",
+        "on_block"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create",
+      "line": 104,
+      "doc": "Create a chat completion with automatic tool call governance.\n\nThis method:\n1. Calls the OpenAI API to get the LLM's response\n2. Intercepts any tool_calls in the response\n3. Checks each tool call against the control plane\n4. Blocks or modifies tool calls that violate policies\n5. Returns the (possibly modified) response\n\nArgs:\n    **kwargs: All standard OpenAI chat.completions.create parameters\n    \nReturns:\n    The OpenAI ChatCompletion response, with tool calls governed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_map_tool_to_action",
+      "line": 198,
+      "doc": "Map an OpenAI tool name to an ActionType.\n\nThis uses both the provided mapping and pattern matching\nto handle various naming conventions.\n\nArgs:\n    tool_name: The name of the tool from OpenAI\n    \nReturns:\n    ActionType if mapped, None if unknown",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "original_chat",
+        "control_plane",
+        "agent_context",
+        "tool_mapping",
+        "logger",
+        "on_block"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 293,
+      "doc": "Initialize the adapter.\n\nArgs:\n    control_plane: The AgentControlPlane instance for governance\n    agent_context: The AgentContext for the agent using this client\n    original_client: The original OpenAI client instance\n    tool_mapping: Optional custom mapping from tool names to ActionTypes\n    on_block: Optional callback called when an action is blocked\n              Signature: on_block(tool_name: str, tool_args: dict, result: dict)\n    logger: Optional logger instance",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "control_plane",
+        "agent_context",
+        "original_client",
+        "tool_mapping",
+        "on_block",
+        "logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "chat",
+      "line": 330,
+      "doc": "Access the wrapped chat API",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ChatWrapper"
+    },
+    {
+      "name": "add_tool_mapping",
+      "line": 341,
+      "doc": "Add a custom tool name to ActionType mapping.\n\nArgs:\n    tool_name: The name of the tool as used in OpenAI\n    action_type: The ActionType it should map to",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 352,
+      "doc": "Get statistics about the adapter's activity.\n\nReturns:\n    Dictionary with statistics from the control plane",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ChatCompletionsWrapper",
+      "line": 80,
+      "doc": "Wrapper for chat.completions that intercepts tool calls.\n\nThis class mimics the OpenAI client's chat.completions interface\nwhile adding governance checks for tool calls.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ChatWrapper",
+      "line": 246,
+      "doc": "Wrapper for chat namespace",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ControlPlaneAdapter",
+      "line": 269,
+      "doc": "OpenAI Client Adapter with Agent Control Plane Governance.\n\nThis class wraps an OpenAI client to provide automatic governance\nof tool calls. It's designed as a drop-in replacement that requires\nminimal code changes.\n\nThe adapter intercepts tool_calls in LLM responses and checks them\nagainst the control plane's policies before allowing execution.\nBlocked actions are replaced with error indicators following the\n\"Mute Agent\" pattern.\n\nExample:\n    # Before (ungovened):\n    client = OpenAI()\n    response = client.chat.completions.create(...)\n    \n    # After (governed):\n    governed_client = ControlPlaneAdapter(control_plane, agent_context, client)\n    response = governed_client.chat.completions.create(...)\n    # Same API, but now with governance!",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 51,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

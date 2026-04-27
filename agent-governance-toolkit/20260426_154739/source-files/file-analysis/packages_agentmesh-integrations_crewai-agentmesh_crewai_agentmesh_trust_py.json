@@ -1,0 +1,464 @@
+{
+  "path": "packages/agentmesh-integrations/crewai-agentmesh/crewai_agentmesh/trust.py",
+  "extension": ".py",
+  "size_bytes": 10561,
+  "line_count": 318,
+  "documentation": {
+    "file_docstring": "Trust layer for CrewAI \u2014 trust-verified crew selection and task assignment.\n\nProvides:\n- AgentProfile: Agent identity with DID, capabilities, and trust score\n- TrustedCrew: Select crew members by trust score and capability match\n- CapabilityGate: Validate agent-to-task capability requirements\n- TrustTracker: Track and update trust scores across crew runs",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Sort by trust score (highest first)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentProfile: Agent identity within a CrewAI crew (AgentMesh-aware).",
+      "TaskAssignment: Result of assigning an agent to a task.",
+      "CapabilityGate: Validates that agents have the required capabilities for task assignment.\n\nIn Cr",
+      "TrustTracker: Tracks and updates agent trust scores across crew runs.\n\nSupports:\n- Recording t",
+      "TrustedCrew: Trust-verified crew for CrewAI workflows.\n\nWraps a set of AgentProfiles and prov",
+      "check: Check if agent has required capabilities.",
+      "record_success: Record a successful task completion. Returns new trust score.",
+      "record_failure: Record a task failure. Returns new trust score.",
+      "select_for_task: Select agents capable and trusted enough for a task.\n\nReturns agents sorted by t",
+      "assign_task: Attempt to assign a task to a specific agent.\n\nValidates trust score and capabil"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "has_any_capability",
+    "get_assignments",
+    "assign_task",
+    "record_success",
+    "to_dict",
+    "has_all_capabilities",
+    "TaskAssignment",
+    "check",
+    "is_active",
+    "remove_agent",
+    "TrustTracker",
+    "get_stats",
+    "trusted_agents",
+    "select_for_task",
+    "record_task_result",
+    "agents",
+    "add_agent",
+    "get_history",
+    "get_agent",
+    "AgentProfile",
+    "TrustedCrew",
+    "has_capability",
+    "active_agents",
+    "record_failure",
+    "allowed",
+    "CapabilityGate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "has_capability",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_all_capabilities",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_any_capability",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_active",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "allowed",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "require_all"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 84,
+      "doc": "Check if agent has required capabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "required_capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 118,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success_reward",
+        "failure_penalty",
+        "min_score",
+        "max_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_success",
+      "line": 131,
+      "doc": "Record a successful task completion. Returns new trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "task_description"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "record_failure",
+      "line": 145,
+      "doc": "Record a task failure. Returns new trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "task_description",
+        "reason"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_history",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agents",
+        "min_trust_score",
+        "capability_gate",
+        "trust_tracker"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_agent",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_agent",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_agent",
+      "line": 198,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agents",
+      "line": 205,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "active_agents",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trusted_agents",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "select_for_task",
+      "line": 219,
+      "doc": "Select agents capable and trusted enough for a task.\n\nReturns agents sorted by trust score (highest first).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required_capabilities",
+        "min_trust"
+      ],
+      "returns": null
+    },
+    {
+      "name": "assign_task",
+      "line": 247,
+      "doc": "Attempt to assign a task to a specific agent.\n\nValidates trust score and capability match.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "task_description",
+        "required_capabilities"
+      ],
+      "returns": "TaskAssignment"
+    },
+    {
+      "name": "record_task_result",
+      "line": 292,
+      "doc": "Record task success/failure and update trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "success",
+        "task_description",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_assignments",
+      "line": 307,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentProfile",
+      "line": 21,
+      "doc": "Agent identity within a CrewAI crew (AgentMesh-aware).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TaskAssignment",
+      "line": 58,
+      "doc": "Result of assigning an agent to a task.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CapabilityGate",
+      "line": 73,
+      "doc": "Validates that agents have the required capabilities for task assignment.\n\nIn CrewAI, agents are assigned to tasks. CapabilityGate ensures the\nagent's verified capabilities match what the task requires.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrustTracker",
+      "line": 107,
+      "doc": "Tracks and updates agent trust scores across crew runs.\n\nSupports:\n- Recording task success/failure\n- Trust decay over time\n- Trust rewards for successful completion\n- Minimum trust threshold enforcement",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrustedCrew",
+      "line": 166,
+      "doc": "Trust-verified crew for CrewAI workflows.\n\nWraps a set of AgentProfiles and provides trust-gated selection:\n- Select agents by required capabilities\n- Filter by minimum trust score\n- Sort by trust score (highest first)\n- Track trust across crew runs",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 45,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic"
+    ]
+  }
+}

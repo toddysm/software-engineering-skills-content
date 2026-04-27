@@ -1,0 +1,155 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/replay/golden_manager.py",
+  "extension": ".py",
+  "size_bytes": 6370,
+  "line_count": 201,
+  "documentation": {
+    "file_docstring": "Manager for running golden-trace regression suites.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Exact match failed \u2014 build diff descriptions",
+      "Group by unique label sets",
+      "Fill remaining slots with traces not yet selected"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "GoldenTraceManager: Create, curate, and execute golden-trace regression suites.",
+      "mark_golden: Promote a successful trace to a golden reference.\n\nArgs:\n    trace: The captured",
+      "compare_output: Compare expected vs actual output with optional fuzzy tolerance.\n\nArgs:\n    expe",
+      "run_single: Execute one golden trace against *agent_fn* and compare output.\n\nArgs:\n    golde",
+      "run_suite: Run every golden trace in *suite* and aggregate results.\n\nArgs:\n    suite: The g",
+      "curate: Auto-select a diverse, representative subset of golden traces.\n\nStrategy ``\"dive"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "run_single",
+    "run_suite",
+    "GoldenTraceManager",
+    "compare_output",
+    "curate",
+    "mark_golden"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "difflib",
+      "typing",
+      "agent_sre.replay.golden",
+      "collections.abc",
+      "agent_sre.replay.capture"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "mark_golden",
+      "line": 29,
+      "doc": "Promote a successful trace to a golden reference.\n\nArgs:\n    trace: The captured Trace to use as golden reference.\n    name: Human-readable name for this golden trace.\n    expected_output: The expected output string.\n    tolerance: Float 0-1 for fuzzy matching (0 = exact).\n    labels: Optional classification labels.\n    source: Whether the trace is from production or synthetic.\n\nReturns:\n    A new GoldenTrace instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace",
+        "name",
+        "expected_output",
+        "tolerance",
+        "labels",
+        "source"
+      ],
+      "returns": "GoldenTrace"
+    },
+    {
+      "name": "compare_output",
+      "line": 60,
+      "doc": "Compare expected vs actual output with optional fuzzy tolerance.\n\nArgs:\n    expected: The golden expected output.\n    actual: The actual output from the agent function.\n    tolerance: 0.0 = exact match required, 1.0 = always pass.\n\nReturns:\n    Tuple of (passed, list_of_diff_descriptions).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "expected",
+        "actual",
+        "tolerance"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_single",
+      "line": 94,
+      "doc": "Execute one golden trace against *agent_fn* and compare output.\n\nArgs:\n    golden_trace: The golden reference trace.\n    agent_fn: Callable that accepts the trace dict and returns an output string.\n\nReturns:\n    GoldenTraceResult with pass/fail and diffs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "golden_trace",
+        "agent_fn"
+      ],
+      "returns": "GoldenTraceResult"
+    },
+    {
+      "name": "run_suite",
+      "line": 123,
+      "doc": "Run every golden trace in *suite* and aggregate results.\n\nArgs:\n    suite: The golden-trace suite to execute.\n    agent_fn: Callable that accepts the trace dict and returns an output string.\n\nReturns:\n    GoldenSuiteResult with per-trace results and CI pass/fail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "suite",
+        "agent_fn"
+      ],
+      "returns": "GoldenSuiteResult"
+    },
+    {
+      "name": "curate",
+      "line": 156,
+      "doc": "Auto-select a diverse, representative subset of golden traces.\n\nStrategy ``\"diverse\"`` picks traces with different label combinations\nbefore filling remaining slots with the earliest-created traces.\n\nArgs:\n    traces: Pool of candidate golden traces.\n    max_count: Maximum number of traces to return.\n    strategy: Selection strategy (currently only ``\"diverse\"``).\n\nReturns:\n    A list of at most *max_count* golden traces.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "traces",
+        "max_count",
+        "strategy"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GoldenTraceManager",
+      "line": 26,
+      "doc": "Create, curate, and execute golden-trace regression suites.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "database"
+    ]
+  }
+}

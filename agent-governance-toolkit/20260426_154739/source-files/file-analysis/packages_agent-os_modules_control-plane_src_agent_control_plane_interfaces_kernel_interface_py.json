@@ -1,0 +1,423 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/interfaces/kernel_interface.py",
+  "extension": ".py",
+  "size_bytes": 10257,
+  "line_count": 361,
+  "documentation": {
+    "file_docstring": "Kernel Interface - Abstract Base for Agent Kernels\n\nThis interface defines the contract that any kernel implementation must follow.\nExternal kernels like SCAK (Self-Correcting Agent Kernel) should inherit from\nthis interface rather than being hard-imported.\n\nPattern: Instead of `import scak`, define KernelInterface here.\nSCAK and other kernels will later inherit from this interface.\n\nLayer 3: The Framework\n- This is the governance layer that defines Agent, Supervisor, Tool, and Policy\n- Kernels are injected at runtime via config or dependency injection",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Core capabilities",
+      "Advanced capabilities",
+      "Runtime features",
+      "Runtime info",
+      "Configuration schema (JSON Schema format)",
+      "In your kernel implementation (e.g., scak package)",
+      "SCAK-specific implementation",
+      "In the control plane",
+      "Optional methods with default implementations"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "KernelCapability: Capabilities that a kernel implementation may support",
+      "KernelMetadata: Metadata about a kernel implementation",
+      "KernelInterface: Abstract interface for Agent Kernels.\n\nThe Agent Kernel is the central component",
+      "SelfCorrectingKernelInterface: Extended interface for self-correcting kernels (like SCAK).\n\nThis interface adds",
+      "CapabilityRestrictedKernelInterface: Extended interface for capability-restricted kernels (Mute Agent pattern).\n\nThis",
+      "metadata: Return metadata about this kernel implementation",
+      "create_session: Create a new agent session with specified permissions.\n\nArgs:\n    agent_id: Uniq",
+      "terminate_session: Terminate an agent session.\n\nArgs:\n    session_id: ID of the session to terminat",
+      "check_permission: Check if an action is permitted for the given session.\n\nArgs:\n    session_id: ID",
+      "submit_request: Submit an execution request for processing.\n\nArgs:\n    session_id: ID of the age"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_correction_suggestions",
+    "SelfCorrectingKernelInterface",
+    "define_capability",
+    "apply_learned_policy",
+    "KernelCapability",
+    "terminate_session",
+    "validate_against_capabilities",
+    "get_rejection_log",
+    "supports_capability",
+    "KernelInterface",
+    "check_permission",
+    "execute",
+    "submit_request",
+    "metadata",
+    "KernelMetadata",
+    "get_audit_log",
+    "add_policy_rule",
+    "health_check",
+    "create_session",
+    "get_active_sessions",
+    "record_outcome",
+    "configure",
+    "CapabilityRestrictedKernelInterface"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "metadata",
+      "line": 94,
+      "doc": "Return metadata about this kernel implementation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "KernelMetadata"
+    },
+    {
+      "name": "create_session",
+      "line": 99,
+      "doc": "Create a new agent session with specified permissions.\n\nArgs:\n    agent_id: Unique identifier for the agent\n    permissions: Dictionary mapping action types to permission levels\n    \nReturns:\n    Session context object (implementation-specific)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id",
+        "permissions"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "terminate_session",
+      "line": 117,
+      "doc": "Terminate an agent session.\n\nArgs:\n    session_id: ID of the session to terminate\n    \nReturns:\n    True if session was terminated, False if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_permission",
+      "line": 130,
+      "doc": "Check if an action is permitted for the given session.\n\nArgs:\n    session_id: ID of the agent session\n    action_type: Type of action being requested\n    parameters: Parameters for the action\n    \nReturns:\n    Tuple of (is_permitted, reason_if_denied)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "session_id",
+        "action_type",
+        "parameters"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit_request",
+      "line": 150,
+      "doc": "Submit an execution request for processing.\n\nArgs:\n    session_id: ID of the agent session\n    action_type: Type of action to execute\n    parameters: Parameters for the action\n    \nReturns:\n    Execution request object (implementation-specific)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "session_id",
+        "action_type",
+        "parameters"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "execute",
+      "line": 170,
+      "doc": "Execute an approved request.\n\nArgs:\n    request: The execution request to process\n    \nReturns:\n    Execution result (implementation-specific)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "add_policy_rule",
+      "line": 183,
+      "doc": "Add a policy rule to the kernel.\n\nArgs:\n    rule: Policy rule to add (implementation-specific)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 193,
+      "doc": "Get audit log entries.\n\nArgs:\n    limit: Maximum number of entries to return\n    \nReturns:\n    List of audit log entries",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "supports_capability",
+      "line": 207,
+      "doc": "Check if this kernel supports a specific capability",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_active_sessions",
+      "line": 211,
+      "doc": "Get all active sessions (optional)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "configure",
+      "line": 215,
+      "doc": "Configure the kernel with runtime settings.\n\nArgs:\n    config: Configuration dictionary",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 224,
+      "doc": "Perform a health check on the kernel.\n\nReturns:\n    Health status dictionary",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_outcome",
+      "line": 250,
+      "doc": "Record the outcome of an execution for learning.\n\nArgs:\n    request_id: ID of the execution request\n    outcome: Outcome status (success, failure, partial, etc.)\n    feedback: Optional feedback for learning",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request_id",
+        "outcome",
+        "feedback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_correction_suggestions",
+      "line": 267,
+      "doc": "Get suggestions for correcting a request.\n\nArgs:\n    request: The request to analyze\n    \nReturns:\n    List of correction suggestions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "apply_learned_policy",
+      "line": 283,
+      "doc": "Apply a learned policy if confidence exceeds threshold.\n\nArgs:\n    policy_id: ID of the learned policy\n    confidence_threshold: Minimum confidence required\n    \nReturns:\n    True if policy was applied",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "policy_id",
+        "confidence_threshold"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "define_capability",
+      "line": 312,
+      "doc": "Define a capability for an agent.\n\nArgs:\n    agent_id: ID of the agent\n    capability_name: Name of the capability\n    allowed_actions: List of allowed action types\n    parameter_schema: JSON schema for valid parameters",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id",
+        "capability_name",
+        "allowed_actions",
+        "parameter_schema"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_against_capabilities",
+      "line": 331,
+      "doc": "Validate a request against agent capabilities.\n\nArgs:\n    agent_id: ID of the agent\n    action_type: Type of action requested\n    parameters: Action parameters\n    \nReturns:\n    Tuple of (is_valid, null_response_if_invalid)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id",
+        "action_type",
+        "parameters"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_rejection_log",
+      "line": 351,
+      "doc": "Get log of rejected (out-of-scope) requests.\n\nArgs:\n    agent_id: Optional filter by agent ID\n    \nReturns:\n    List of rejection log entries",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "KernelCapability",
+      "line": 25,
+      "doc": "Capabilities that a kernel implementation may support",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "KernelMetadata",
+      "line": 47,
+      "doc": "Metadata about a kernel implementation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KernelInterface",
+      "line": 65,
+      "doc": "Abstract interface for Agent Kernels.\n\nThe Agent Kernel is the central component that mediates all interactions\nbetween LLMs (raw compute) and the execution environment. It provides\ngovernance, safety, and observability for autonomous agents.\n\nAny kernel implementation (including SCAK) should inherit from this interface.\nThis allows the control plane to work with any kernel without hard dependencies.\n\nExample Usage:\n    ```python\n    # In your kernel implementation (e.g., scak package)\n    from agent_control_plane.interfaces import KernelInterface\n    \n    class SCAKKernel(KernelInterface):\n        def create_session(self, agent_id, permissions=None):\n            # SCAK-specific implementation\n            ...\n    \n    # In the control plane\n    control_plane = AgentControlPlane()\n    control_plane.register_kernel(SCAKKernel())\n    ```",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SelfCorrectingKernelInterface",
+      "line": 239,
+      "doc": "Extended interface for self-correcting kernels (like SCAK).\n\nThis interface adds methods for kernels that can:\n- Learn from execution failures\n- Adapt policies based on observed behavior\n- Self-correct reasoning chains",
+      "is_public": true,
+      "bases": [
+        "KernelInterface"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityRestrictedKernelInterface",
+      "line": 301,
+      "doc": "Extended interface for capability-restricted kernels (Mute Agent pattern).\n\nThis interface adds methods for kernels that:\n- Restrict agents to specific capabilities\n- Return NULL/silence for out-of-scope requests\n- Implement \"Scale by Subtraction\" philosophy",
+      "is_public": true,
+      "bases": [
+        "KernelInterface"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 24,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

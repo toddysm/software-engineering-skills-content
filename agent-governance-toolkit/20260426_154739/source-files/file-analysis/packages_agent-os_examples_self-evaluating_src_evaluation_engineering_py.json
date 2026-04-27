@@ -1,0 +1,518 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/evaluation_engineering.py",
+  "extension": ".py",
+  "size_bytes": 16324,
+  "line_count": 462,
+  "documentation": {
+    "file_docstring": "Evaluation Engineering Framework\n\nThis module implements the \"New TDD\" - Evaluation-Driven Development.\nInstead of writing implementation code, engineers write:\n1. Golden Datasets: Test cases with expected outputs\n2. Scoring Rubrics: Multi-dimensional evaluation criteria\n3. Evaluation Suites: Automated testing against the dataset\n\nThe key insight: In a probabilistic AI world, the \"Source Code\" is the \nEvaluation Suite that constrains the AI's behavior.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Execute AI function",
+      "Score the output",
+      "Record result",
+      "Compute aggregate metrics",
+      "Common evaluator functions that can be reused across rubrics"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ScoreType: Types of scoring dimensions.",
+      "EvaluationCase: A single test case in the golden dataset.\n\nThis is what replaces traditional \"un",
+      "ScoringCriteria: A single dimension of evaluation with weights and thresholds.\n\nExample: \"If the ",
+      "ScoringRubric: The Scoring Rubric - The most valuable code a Senior Engineer writes.\n\nThis defi",
+      "EvaluationDataset: The Golden Dataset - The \"Source Code\" of the AI system.\n\nThis is what engineers",
+      "EvaluationResult: Result of running a single evaluation case.",
+      "EvaluationRunner: The Evaluation Runner - Executes the golden dataset against the AI.\n\nThis replac",
+      "exact_match_evaluator: Simple exact match evaluator.",
+      "contains_keywords_evaluator: Create an evaluator that checks if output contains required keywords.",
+      "length_check_evaluator: Create an evaluator that checks if output length is within range."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "exact_match_evaluator",
+    "validate_weights",
+    "ScoringRubric",
+    "to_dict",
+    "get_failed_cases",
+    "ScoreType",
+    "get_cases_by_tag",
+    "EvaluationRunner",
+    "get_cases_by_difficulty",
+    "set_pass_threshold",
+    "run",
+    "get_detailed_report",
+    "add_criteria",
+    "EvaluationResult",
+    "contains_keywords_evaluator",
+    "add_case",
+    "save",
+    "save_results",
+    "EvaluationCase",
+    "evaluate",
+    "ScoringCriteria",
+    "load",
+    "EvaluationDataset",
+    "evaluator",
+    "length_check_evaluator",
+    "no_harmful_content_evaluator"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "exact_match_evaluator",
+      "line": 425,
+      "doc": "Simple exact match evaluator.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "input_text",
+        "output_text",
+        "context"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "contains_keywords_evaluator",
+      "line": 433,
+      "doc": "Create an evaluator that checks if output contains required keywords.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "keywords"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "length_check_evaluator",
+      "line": 442,
+      "doc": "Create an evaluator that checks if output length is within range.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "min_length",
+        "max_length"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "no_harmful_content_evaluator",
+      "line": 454,
+      "doc": "Create an evaluator that penalizes harmful content.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "harmful_keywords"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "to_dict",
+      "line": 51,
+      "doc": "Convert to dictionary for JSON serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 68,
+      "doc": "Evaluate this dimension.\n\nArgs:\n    input_text: The input given to the AI\n    output_text: The AI's response\n    context: Optional context (e.g., expected output)\n    \nReturns:\n    Score from 0.0 to 1.0 for this dimension",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_text",
+        "output_text",
+        "context"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_criteria",
+      "line": 99,
+      "doc": "Add a scoring dimension to the rubric.\n\nArgs:\n    dimension: Name of the dimension (e.g., \"correctness\", \"tone\")\n    weight: Weight of this dimension (0-1), all weights should sum to 1\n    description: Human-readable description of what this dimension measures\n    evaluator: Optional custom function to evaluate this dimension\n    \nReturns:\n    self for method chaining",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dimension",
+        "weight",
+        "description",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_pass_threshold",
+      "line": 125,
+      "doc": "Set the minimum score to pass (0-1).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 130,
+      "doc": "Evaluate a response against all criteria.\n\nReturns:\n    Dictionary with overall score, dimension scores, and pass/fail status",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_text",
+        "output_text",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_weights",
+      "line": 160,
+      "doc": "Validate that weights sum to approximately 1.0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_case",
+      "line": 184,
+      "doc": "Add a test case to the golden dataset.\n\nThis is the primary way engineers \"write code\" in Eval-DD.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "id",
+        "input",
+        "expected_output",
+        "expected_behavior",
+        "context",
+        "tags",
+        "difficulty"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_cases_by_tag",
+      "line": 209,
+      "doc": "Filter cases by tag.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tag"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_cases_by_difficulty",
+      "line": 213,
+      "doc": "Filter cases by difficulty level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "difficulty"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save",
+      "line": 217,
+      "doc": "Save the dataset to a JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load",
+      "line": 229,
+      "doc": "Load a dataset from a JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__len__",
+      "line": 242,
+      "doc": "Return number of cases in the dataset.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 268,
+      "doc": "Initialize the evaluation runner.\n\nArgs:\n    dataset: The golden dataset to evaluate against\n    rubric: The scoring rubric to use\n    ai_function: The AI function to test (takes input string, returns output string)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dataset",
+        "rubric",
+        "ai_function"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 285,
+      "doc": "Run the evaluation suite.\n\nThis is like running \"pytest\" but for AI systems.\nReturns aggregate metrics and pass/fail status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_failed_cases",
+      "line": 391,
+      "doc": "Get all failed test cases for debugging.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_detailed_report",
+      "line": 395,
+      "doc": "Generate a detailed report of all results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "save_results",
+      "line": 416,
+      "doc": "Save evaluation results to a JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluator",
+      "line": 435,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "input_text",
+        "output_text",
+        "context"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "evaluator",
+      "line": 444,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "input_text",
+        "output_text",
+        "context"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "evaluator",
+      "line": 456,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "input_text",
+        "output_text",
+        "context"
+      ],
+      "returns": "float"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ScoreType",
+      "line": 24,
+      "doc": "Types of scoring dimensions.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EvaluationCase",
+      "line": 36,
+      "doc": "A single test case in the golden dataset.\n\nThis is what replaces traditional \"unit tests\" in Eval-DD.\nEngineers write these instead of writing the implementation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ScoringCriteria",
+      "line": 57,
+      "doc": "A single dimension of evaluation with weights and thresholds.\n\nExample: \"If the answer is correct but rude, score 5/10\"",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ScoringRubric",
+      "line": 85,
+      "doc": "The Scoring Rubric - The most valuable code a Senior Engineer writes.\n\nThis defines HOW to evaluate AI responses across multiple dimensions.\nExample: Correctness=40%, Tone=30%, Completeness=20%, Safety=10%",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "EvaluationDataset",
+      "line": 166,
+      "doc": "The Golden Dataset - The \"Source Code\" of the AI system.\n\nThis is what engineers write instead of implementation code.\nThe dataset defines what \"good\" looks like through examples.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "EvaluationResult",
+      "line": 248,
+      "doc": "Result of running a single evaluation case.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EvaluationRunner",
+      "line": 260,
+      "doc": "The Evaluation Runner - Executes the golden dataset against the AI.\n\nThis replaces traditional \"test runners\" but for probabilistic systems.\nIt runs the AI against the golden dataset and scores using the rubric.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

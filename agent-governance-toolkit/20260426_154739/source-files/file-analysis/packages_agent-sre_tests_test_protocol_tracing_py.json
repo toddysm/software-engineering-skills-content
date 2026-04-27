@@ -1,0 +1,882 @@
+{
+  "path": "packages/agent-sre/tests/test_protocol_tracing.py",
+  "extension": ".py",
+  "size_bytes": 22702,
+  "line_count": 571,
+  "documentation": {
+    "file_docstring": "Tests for A2A/MCP protocol-aware distributed tracing.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "TraceContext",
+      "---------------------------------------------------------------------------",
+      "Mutating child baggage doesn't affect parent",
+      "Use IDs without hyphens (W3C traceparent uses '-' as delimiter)",
+      "---------------------------------------------------------------------------",
+      "SpanLink",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ProtocolSpan",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ProtocolTracer \u2014 A2A calls",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ProtocolTracer \u2014 MCP calls",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ProtocolTracer \u2014 HTTP calls",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ProtocolTracer \u2014 context propagation",
+      "---------------------------------------------------------------------------",
+      "Orchestrator side",
+      "Worker side",
+      "Verify trace correlation",
+      "MCP server side",
+      "---------------------------------------------------------------------------",
+      "ProtocolTracer \u2014 report & timeline",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Multi-agent scenario",
+      "---------------------------------------------------------------------------",
+      "Call worker-1",
+      "Worker-1 receives and calls MCP",
+      "Call worker-2",
+      "Verify orchestrator report",
+      "Verify worker-1 report",
+      "All three share the same trace ID",
+      "---------------------------------------------------------------------------",
+      "Tracer properties",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestTraceContext: W3C trace context propagation.",
+      "test_end_to_end_propagation: Simulate orchestrator \u2192 worker context flow.",
+      "test_mcp_server_side_receive: Simulate agent \u2192 MCP server context flow.",
+      "test_parent_context_inherited: Tracer with parent context propagates parent trace ID.",
+      "test_orchestrator_two_workers: Orchestrator calls two workers via A2A, each calls MCP tools.",
+      "test_chain_delegation: A \u2192 B \u2192 C scope chain with context propagation.",
+      "test_mixed_protocol_scenario: Agent uses A2A, MCP, and HTTP in one trace."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestMultiAgentScenario",
+    "test_a2a_call_error_propagates",
+    "test_context",
+    "test_a2a_call_creates_span",
+    "test_empty_report",
+    "test_add_link",
+    "test_mixed_protocol_scenario",
+    "test_mcp_call_creates_span",
+    "test_trace_id",
+    "test_to_dict_mcp",
+    "TestSpanLink",
+    "test_default_context_has_ids",
+    "test_mcp_server_side_receive",
+    "TestProtocolTracerA2A",
+    "test_report_counts",
+    "test_set_response_dict",
+    "test_a2a_span_has_delegation_kind",
+    "test_orchestrator_two_workers",
+    "TestProtocolTracerMCP",
+    "test_a2a_context_propagation",
+    "test_http_call_creates_span",
+    "test_from_traceparent",
+    "test_extract_parses_headers",
+    "TestProtocolTracerHTTP",
+    "test_mcp_call_with_params",
+    "test_from_traceparent_invalid",
+    "test_agent_id",
+    "TestProtocolSpan",
+    "test_child_preserves_trace_id",
+    "TestTracingReport",
+    "test_mcp_call_error",
+    "test_report_protocol_breakdown",
+    "test_timeline_entry_to_dict",
+    "test_mcp_span_has_tool_call_kind",
+    "test_trace_has_spans",
+    "test_span_id_property",
+    "TestTraceContext",
+    "test_end_to_end_propagation",
+    "test_report_error_count",
+    "test_report_duration",
+    "test_inject_creates_headers",
+    "test_to_headers_no_baggage",
+    "test_from_headers_roundtrip",
+    "test_report_timeline_ordered",
+    "TestTracerProperties",
+    "test_from_traceparent_not_sampled",
+    "test_set_response_string",
+    "test_child_inherits_baggage",
+    "test_a2a_call_with_response",
+    "TestContextPropagation",
+    "test_to_traceparent_sampled",
+    "test_to_dict",
+    "test_report_cost_aggregation",
+    "test_report_to_dict",
+    "test_to_traceparent_not_sampled",
+    "test_chain_delegation",
+    "test_parent_context_inherited",
+    "test_protocol_spans_returns_copy",
+    "test_set_error",
+    "test_protocol_spans_empty",
+    "test_to_headers",
+    "test_to_dict_a2a"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "pytest",
+      "agent_sre.replay.capture",
+      "agent_sre.tracing",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_to_traceparent_sampled",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_traceparent_not_sampled",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_traceparent",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_traceparent_not_sampled",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_traceparent_invalid",
+      "line": 47,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_child_preserves_trace_id",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_child_inherits_baggage",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_headers",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_headers_no_baggage",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_headers_roundtrip",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_context_has_ids",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 106,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_response_dict",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_response_string",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_error",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_link",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_a2a",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_mcp",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_span_id_property",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_a2a_call_creates_span",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_a2a_call_with_response",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_a2a_call_error_propagates",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_a2a_span_has_delegation_kind",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_a2a_context_propagation",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mcp_call_creates_span",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mcp_call_with_params",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mcp_call_error",
+      "line": 261,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mcp_span_has_tool_call_kind",
+      "line": 267,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_http_call_creates_span",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_inject_creates_headers",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_extract_parses_headers",
+      "line": 298,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_end_to_end_propagation",
+      "line": 306,
+      "doc": "Simulate orchestrator \u2192 worker context flow.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mcp_server_side_receive",
+      "line": 324,
+      "doc": "Simulate agent \u2192 MCP server context flow.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parent_context_inherited",
+      "line": 338,
+      "doc": "Tracer with parent context propagates parent trace ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_counts",
+      "line": 350,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_cost_aggregation",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_timeline_ordered",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_protocol_breakdown",
+      "line": 385,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_to_dict",
+      "line": 399,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_error_count",
+      "line": 410,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_report_duration",
+      "line": 422,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_report",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_timeline_entry_to_dict",
+      "line": 437,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_orchestrator_two_workers",
+      "line": 459,
+      "doc": "Orchestrator calls two workers via A2A, each calls MCP tools.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_delegation",
+      "line": 494,
+      "doc": "A \u2192 B \u2192 C scope chain with context propagation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mixed_protocol_scenario",
+      "line": 518,
+      "doc": "Agent uses A2A, MCP, and HTTP in one trace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_id",
+      "line": 542,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_id",
+      "line": 546,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context",
+      "line": 550,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_protocol_spans_empty",
+      "line": 554,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_protocol_spans_returns_copy",
+      "line": 558,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_has_spans",
+      "line": 567,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestTraceContext",
+      "line": 26,
+      "doc": "W3C trace context propagation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSpanLink",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestProtocolSpan",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestProtocolTracerA2A",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestProtocolTracerMCP",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestProtocolTracerHTTP",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestContextPropagation",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTracingReport",
+      "line": 349,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMultiAgentScenario",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTracerProperties",
+      "line": 541,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 2,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

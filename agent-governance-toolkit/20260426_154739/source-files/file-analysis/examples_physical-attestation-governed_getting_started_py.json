@@ -1,0 +1,422 @@
+{
+  "path": "examples/physical-attestation-governed/getting_started.py",
+  "extension": ".py",
+  "size_bytes": 25264,
+  "line_count": 576,
+  "documentation": {
+    "file_docstring": "Physical Attestation Governed Example \u2014 Cold Chain Sensor Receipts\n\nDemonstrates Ed25519-signed receipts for physical-world events: temperature,\nshock, GPS, and ambient light readings from a cold chain attestation sensor.\nEvery reading is policy-evaluated and signed, producing the same receipt format\nused by software agent tool calls (protect-mcp, AGT integration).\n\nThis example simulates a wine shipment sensor journey from Barossa Valley to\nTokyo, based on hardware specs from the ScopeBlind ETCF device (SHT40 temp,\nLIS2DH12 accelerometer, L76K GPS, VEML7700 lux, ATECC608B secure element).\n\nThe receipts verify with the same offline CLI:\n    npx @veritasacta/verify receipts.jsonl --key <public-key-hex>\n\nRuns standalone with zero dependencies beyond Python 3.10+.\n\nIMPORTANT: This uses SHA-256 HMAC for demonstration only. Production devices\nuse Ed25519 from an ATECC608B secure element \u2014 the receipt envelope format\nis identical, only the signature algorithm differs.\n\nRelated:\n    - AGT #787: Physical AI agents OWASP coverage gap\n    - AGT #667: ScopeBlind protect-mcp integration (Cedar + receipts)\n    - AGT #1159: protect-mcp governed example (software tool calls)\n    - IETF draft-farley-acta-signed-receipts\n    - SINT Protocol physical constraint enforcement (DynamicEnvelopePlugin)",
+    "header_comments": [
+      "!/usr/bin/env python3"
+    ],
+    "inline_comments": [
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Signing primitives (inline fallback \u2014 same as protect-mcp-governed)",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Sensor simulator \u2014 matches ETCF device spec (SHT40, LIS2DH12, L76K, VEML7700)",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Barossa Valley winery \u2014 cool storage",
+      "Loading onto truck \u2014 minor shock",
+      "Truck to Adelaide \u2014 highway, warm",
+      "Adelaide cold storage \u2014 back in range",
+      "*** EXCURSION: forklift leaves pallet in sun ***",
+      "Back into cold storage \u2014 damage may be done",
+      "Air freight \u2014 pressurized hold",
+      "Singapore \u2014 transit hub",
+      "*** SHOCK EVENT: rough handling at Singapore ***",
+      "Air freight \u2014 Singapore to Tokyo",
+      "Tokyo \u2014 destination cold storage",
+      "Final reading \u2014 ready for delivery",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Policy engine \u2014 Cedar-style context evaluation",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Cold chain policy: wine must stay 10-18\u00b0C, shock < 5g, lux < 1000 (no sun)",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Receipt chain builder",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Scenarios",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Tamper: attacker changes temperature to hide excursion",
+      "Verify chain links",
+      "Scenario: pallet left in sun (high temp + high lux) + rough handling (shock)",
+      "Temperature check fires first (deny)",
+      "But all readings are in the same receipt",
+      "The receipt payload carries ALL sensor values, not just the triggering one",
+      "Verify every receipt independently",
+      "Device boot attestation \u2014 first receipt in any session",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Main",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Export the full journey chain"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_jcs_canonicalize: RFC 8785 JCS canonicalization.",
+      "SensorReceipt: A signed receipt for a physical sensor reading.",
+      "SensorReading: A reading from a cold chain attestation sensor.",
+      "simulate_journey: Simulate a wine shipment: Barossa Valley \u2192 Adelaide \u2192 Singapore \u2192 Tokyo.\n\nBased ",
+      "evaluate_policy: Evaluate a sensor reading against the cold chain policy.\n\nIn production, this ru",
+      "SensorReceiptChain: Append-only chain of sensor receipts with hash linking.",
+      "scenario_1_cold_chain_journey: Simulate complete journey with policy evaluation at every reading.",
+      "scenario_2_temperature_excursion_blocks_release: A temperature excursion should deny a 'release shipment' action.",
+      "scenario_3_shock_event_creates_alert: A shock exceeding 5g should produce an alert receipt.",
+      "scenario_4_receipt_tamper_detection: Modifying any field in a signed receipt should break verification."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "scenario_2_temperature_excursion_blocks_release",
+    "scenario_6_multi_sensor_correlation",
+    "to_dict",
+    "header",
+    "to_json",
+    "SensorReading",
+    "to_jsonl",
+    "scenario_5_chain_integrity",
+    "scenario_4_receipt_tamper_detection",
+    "sign",
+    "scenario_1_cold_chain_journey",
+    "sign_reading",
+    "to_context",
+    "main",
+    "verify",
+    "evaluate_policy",
+    "PolicyResult",
+    "scenario_7_offline_verification",
+    "scenario_8_device_attestation_receipt",
+    "simulate_journey",
+    "scenario_3_shock_event_creates_alert",
+    "SensorReceiptChain",
+    "SensorReceipt"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "hmac",
+      "json",
+      "sys",
+      "dataclasses",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_jcs_canonicalize",
+      "line": 48,
+      "doc": "RFC 8785 JCS canonicalization.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "obj"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_sha256_hex",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "simulate_journey",
+      "line": 113,
+      "doc": "Simulate a wine shipment: Barossa Valley \u2192 Adelaide \u2192 Singapore \u2192 Tokyo.\n\nBased on the ETCF device spec: 724 readings over 5 days.\nWe simulate 12 representative readings that cover the key scenarios.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "evaluate_policy",
+      "line": 232,
+      "doc": "Evaluate a sensor reading against the cold chain policy.\n\nIn production, this runs as Cedar policy on the device:\n    forbid(principal, action == Action::\"release_shipment\", resource)\n    when { context.temperature_c > 18.0 };\n\nHere we simulate the same evaluation logic inline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "reading"
+      ],
+      "returns": "PolicyResult"
+    },
+    {
+      "name": "header",
+      "line": 320,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "title"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scenario_1_cold_chain_journey",
+      "line": 326,
+      "doc": "Simulate complete journey with policy evaluation at every reading.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_2_temperature_excursion_blocks_release",
+      "line": 355,
+      "doc": "A temperature excursion should deny a 'release shipment' action.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_3_shock_event_creates_alert",
+      "line": 377,
+      "doc": "A shock exceeding 5g should produce an alert receipt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_4_receipt_tamper_detection",
+      "line": 398,
+      "doc": "Modifying any field in a signed receipt should break verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_5_chain_integrity",
+      "line": 420,
+      "doc": "Hash-linked chain detects insertions and deletions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_6_multi_sensor_correlation",
+      "line": 444,
+      "doc": "Multiple sensors triggering simultaneously produces compound evidence.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_7_offline_verification",
+      "line": 473,
+      "doc": "Receipts verify without any network call.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "scenario_8_device_attestation_receipt",
+      "line": 496,
+      "doc": "Device identity receipt \u2014 proves which hardware produced the readings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 535,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "sign",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_json",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_context",
+      "line": 99,
+      "doc": "Convert to Cedar-style context attributes for policy evaluation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "device_id",
+        "key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sign_reading",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reading",
+        "policy_result"
+      ],
+      "returns": "SensorReceipt"
+    },
+    {
+      "name": "to_jsonl",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SensorReceipt",
+      "line": 58,
+      "doc": "A signed receipt for a physical sensor reading.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SensorReading",
+      "line": 87,
+      "doc": "A reading from a cold chain attestation sensor.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyResult",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SensorReceiptChain",
+      "line": 267,
+      "doc": "Append-only chain of sensor receipts with hash linking.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 23,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: ui, api, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,858 @@
+{
+  "path": "packages/agent-os/modules/nexus/tests/test_reputation.py",
+  "extension": ".py",
+  "size_bytes": 13039,
+  "line_count": 328,
+  "documentation": {
+    "file_docstring": "Tests for the Reputation Engine.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Very bad history",
+      "Populate cache via check_trust_threshold"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestTrustTier: Tests for TrustScore.get_tier() classmethod.",
+      "TestTrustScoreMeetsThreshold: Tests for TrustScore.meets_threshold().",
+      "TestReputationHistory: Tests for ReputationHistory properties.",
+      "TestCalculateTrustScore: Tests for ReputationEngine.calculate_trust_score().",
+      "TestRecordTaskOutcome: Tests for ReputationEngine.record_task_outcome().",
+      "TestRecordDisputeOutcome: Tests for ReputationEngine.record_dispute_outcome().",
+      "TestSlashReputation: Tests for ReputationEngine.slash_reputation().",
+      "TestCheckTrustThreshold: Tests for ReputationEngine.check_trust_threshold().",
+      "TestLeaderboard: Tests for ReputationEngine.get_leaderboard().",
+      "TestSlashHistory: Tests for ReputationEngine.get_slash_history()."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestRecordDisputeOutcome",
+    "test_success_rate_no_tasks",
+    "test_disputes_lost_reduce_score",
+    "test_verified_partner_at_1000",
+    "test_trusted_at_700",
+    "test_probationary_at_300",
+    "test_low_slash_penalty",
+    "test_empty_history",
+    "test_filter_by_agent",
+    "test_unknown_verification_gives_low_base",
+    "test_failure_increments",
+    "test_standard_at_699",
+    "test_untrusted_at_zero",
+    "test_successful_tasks_increase_score",
+    "test_untrusted_at_299",
+    "test_success_rate_with_tasks",
+    "test_failed_tasks_decrease_score",
+    "test_multiple_outcomes_accumulate",
+    "test_verified_verification",
+    "TestSlashHistory",
+    "TestTrustTier",
+    "TestSlashReputation",
+    "test_capability_modifier_idempotency",
+    "test_won_increments",
+    "test_lost_increments",
+    "test_filter_by_since",
+    "test_standard_at_500",
+    "test_score_clamped_to_0_1000",
+    "test_critical_slash_penalty",
+    "test_score_has_correct_tier",
+    "TestCalculateTrustScore",
+    "test_meets_when_above",
+    "test_leaderboard_sorted_descending",
+    "TestReputationHistory",
+    "test_empty_leaderboard",
+    "TestRecordTaskOutcome",
+    "test_dispute_win_rate_with_disputes",
+    "test_medium_slash_penalty",
+    "test_meets_when_equal",
+    "test_slash_broadcast_flag",
+    "test_high_slash_penalty",
+    "TestTrustScoreMeetsThreshold",
+    "test_probationary_at_499",
+    "test_privacy_ephemeral_boost",
+    "test_dispute_win_rate_no_disputes",
+    "TestLeaderboard",
+    "test_registered_verification",
+    "test_slash_with_evidence",
+    "test_fails_when_below",
+    "test_verified_partner_at_900",
+    "test_partial_increments_both",
+    "test_trusted_at_899",
+    "test_verified_partner_verification",
+    "test_slash_updates_history",
+    "TestCheckTrustThreshold",
+    "test_success_increments",
+    "test_leaderboard_limit",
+    "test_slash_score_after_not_negative",
+    "test_new_agent_below_default_threshold",
+    "test_custom_threshold",
+    "test_capability_modifier_reversibility_full"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "os",
+      "sys",
+      "datetime",
+      "pytest",
+      "nexus.reputation"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_verified_partner_at_900",
+      "line": 21,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_partner_at_1000",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trusted_at_700",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trusted_at_899",
+      "line": 30,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_standard_at_500",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_standard_at_699",
+      "line": 36,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_probationary_at_300",
+      "line": 39,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_probationary_at_499",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_untrusted_at_299",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_untrusted_at_zero",
+      "line": 48,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_meets_when_equal",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_meets_when_above",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fails_when_below",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_success_rate_with_tasks",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_success_rate_no_tasks",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dispute_win_rate_with_disputes",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dispute_win_rate_no_disputes",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_verification_gives_low_base",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registered_verification",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_verification",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_partner_verification",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_successful_tasks_increase_score",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_failed_tasks_decrease_score",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_disputes_lost_reduce_score",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_modifier_idempotency",
+      "line": 145,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_modifier_reversibility_full",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_privacy_ephemeral_boost",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_clamped_to_0_1000",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_has_correct_tier",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_success_increments",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_failure_increments",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_partial_increments_both",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_outcomes_accumulate",
+      "line": 200,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_won_increments",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_lost_increments",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_critical_slash_penalty",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_high_slash_penalty",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_medium_slash_penalty",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_low_slash_penalty",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slash_updates_history",
+      "line": 248,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slash_with_evidence",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slash_broadcast_flag",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slash_score_after_not_negative",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_new_agent_below_default_threshold",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_threshold",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_leaderboard",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_leaderboard_sorted_descending",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_leaderboard_limit",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_history",
+      "line": 314,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_filter_by_agent",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_filter_by_since",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestTrustTier",
+      "line": 18,
+      "doc": "Tests for TrustScore.get_tier() classmethod.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustScoreMeetsThreshold",
+      "line": 52,
+      "doc": "Tests for TrustScore.meets_threshold().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestReputationHistory",
+      "line": 77,
+      "doc": "Tests for ReputationHistory properties.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCalculateTrustScore",
+      "line": 101,
+      "doc": "Tests for ReputationEngine.calculate_trust_score().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRecordTaskOutcome",
+      "line": 181,
+      "doc": "Tests for ReputationEngine.record_task_outcome().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRecordDisputeOutcome",
+      "line": 209,
+      "doc": "Tests for ReputationEngine.record_dispute_outcome().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSlashReputation",
+      "line": 221,
+      "doc": "Tests for ReputationEngine.slash_reputation().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCheckTrustThreshold",
+      "line": 276,
+      "doc": "Tests for ReputationEngine.check_trust_threshold().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLeaderboard",
+      "line": 289,
+      "doc": "Tests for ReputationEngine.get_leaderboard().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSlashHistory",
+      "line": 311,
+      "doc": "Tests for ReputationEngine.get_slash_history().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 14,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "business_logic"
+    ]
+  }
+}

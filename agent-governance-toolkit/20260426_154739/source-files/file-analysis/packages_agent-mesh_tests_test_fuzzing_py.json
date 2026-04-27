@@ -1,0 +1,606 @@
+{
+  "path": "packages/agent-mesh/tests/test_fuzzing.py",
+  "extension": ".py",
+  "size_bytes": 16195,
+  "line_count": 465,
+  "documentation": {
+    "file_docstring": "Fuzz tests for identity and delegation parsers.\n\nExercises AgentIdentity, AgentDID, ScopeChain, DelegationLink,\nand JWK import with malformed inputs to ensure clean error handling.\nNo crashes, unhandled exceptions, or hangs.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Acceptable exception types \u2014 parsers must raise one of these or succeed",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Malformed scalar inputs",
+      "---------------------------------------------------------------------------",
+      "Kept separate to avoid Windows env-var length limits in pytest IDs",
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "===========================================================================",
+      "AgentDID fuzzing",
+      "===========================================================================",
+      "===========================================================================",
+      "AgentIdentity constructor fuzzing",
+      "===========================================================================",
+      "Also test sponsor_email with @ and long string",
+      "===========================================================================",
+      "JWK import fuzzing",
+      "===========================================================================",
+      "===========================================================================",
+      "ScopeChain fuzzing",
+      "===========================================================================",
+      "===========================================================================",
+      "DelegationLink fuzzing",
+      "===========================================================================",
+      "===========================================================================",
+      "UserContext fuzzing",
+      "===========================================================================",
+      "===========================================================================",
+      "Programmatic fuzz: bulk random-ish inputs",
+      "==========================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_valid_identity_dict: Return a minimal valid AgentIdentity dict for mutation testing.",
+      "assert_clean: Assert callable either succeeds or raises an acceptable exception.",
+      "TestBulkFuzzing: Generate many malformed inputs programmatically.",
+      "test_from_string_long_inputs: Test from_string with 100KB+ strings without bloating test IDs.",
+      "test_mutated_valid_dict: Take a valid dict, mutate one field, and verify clean handling.",
+      "test_missing_required_fields: Remove each required field from a valid dict.",
+      "test_long_string_fields: Test 100KB+ strings in various fields without bloating test IDs.",
+      "test_create_factory_long_strings: Test create() with 100KB+ strings without bloating test IDs.",
+      "test_mutated_valid_chain: Create a valid chain dict, mutate one field, verify clean handling."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_generate_malformed_name",
+    "test_from_jwk_bulk",
+    "test_delegation_link_bulk",
+    "test_model_validate_malformed",
+    "test_long_string_fields",
+    "test_missing_required_fields",
+    "test_from_jwk_edge_cases",
+    "test_extra_unexpected_fields",
+    "TestUserContextFuzzing",
+    "test_mutated_valid_chain",
+    "TestAgentIdentityFuzzing",
+    "test_mutated_valid_context",
+    "test_from_string_long_inputs",
+    "assert_clean",
+    "test_from_jwk_malformed",
+    "test_from_string_malformed",
+    "test_mutated_valid_link",
+    "test_agent_did_bulk",
+    "test_create_factory_long_strings",
+    "test_mutated_valid_dict",
+    "test_create_factory_malformed",
+    "TestJWKFuzzing",
+    "TestDelegationLinkFuzzing",
+    "test_from_jwks_malformed",
+    "test_from_jwks_with_bad_kid",
+    "TestBulkFuzzing",
+    "TestScopeChainFuzzing",
+    "test_agent_identity_bulk",
+    "TestAgentDIDFuzzing",
+    "test_scope_chain_bulk"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "pydantic",
+      "agentmesh.exceptions",
+      "agentmesh.identity.agent_id",
+      "agentmesh.identity.delegation"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_valid_identity_dict",
+      "line": 83,
+      "doc": "Return a minimal valid AgentIdentity dict for mutation testing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "assert_clean",
+      "line": 89,
+      "doc": "Assert callable either succeeds or raises an acceptable exception.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "callable_fn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_string_malformed",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_generate_malformed_name",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_string_long_inputs",
+      "line": 114,
+      "doc": "Test from_string with 100KB+ strings without bloating test IDs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_model_validate_malformed",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutated_valid_dict",
+      "line": 159,
+      "doc": "Take a valid dict, mutate one field, and verify clean handling.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "field",
+        "bad_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_required_fields",
+      "line": 166,
+      "doc": "Remove each required field from a valid dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_extra_unexpected_fields",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_long_string_fields",
+      "line": 183,
+      "doc": "Test 100KB+ strings in various fields without bloating test IDs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_factory_malformed",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "name",
+        "sponsor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_factory_long_strings",
+      "line": 212,
+      "doc": "Test create() with 100KB+ strings without bloating test IDs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_jwk_malformed",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_jwk_edge_cases",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "jwk"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_jwks_malformed",
+      "line": 266,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "jwks"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_jwks_with_bad_kid",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_model_validate_malformed",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutated_valid_chain",
+      "line": 310,
+      "doc": "Create a valid chain dict, mutate one field, verify clean handling.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "field",
+        "bad_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_required_fields",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_extra_unexpected_fields",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_model_validate_malformed",
+      "line": 353,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutated_valid_link",
+      "line": 375,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "field",
+        "bad_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_model_validate_malformed",
+      "line": 392,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "val"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mutated_valid_context",
+      "line": 408,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self",
+        "field",
+        "bad_value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_did_bulk",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_identity_bulk",
+      "line": 448,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_jwk_bulk",
+      "line": 453,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scope_chain_bulk",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_link_bulk",
+      "line": 463,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "fuzz"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestAgentDIDFuzzing",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentIdentityFuzzing",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestJWKFuzzing",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScopeChainFuzzing",
+      "line": 279,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDelegationLinkFuzzing",
+      "line": 350,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestUserContextFuzzing",
+      "line": 389,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBulkFuzzing",
+      "line": 418,
+      "doc": "Generate many malformed inputs programmatically.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 13,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

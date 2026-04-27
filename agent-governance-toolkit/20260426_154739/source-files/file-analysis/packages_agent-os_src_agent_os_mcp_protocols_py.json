@@ -1,0 +1,476 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_protocols.py",
+  "extension": ".py",
+  "size_bytes": 5076,
+  "line_count": 161,
+  "documentation": {
+    "file_docstring": "Persistence protocols and in-memory defaults for MCP governance components.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPSessionStore: Persistence contract for authenticated MCP sessions.",
+      "MCPNonceStore: Persistence contract for replay-protection nonces.",
+      "MCPRateLimitStore: Persistence contract for per-agent rate-limit buckets.",
+      "MCPAuditSink: Persistence contract for structured audit records.",
+      "InMemorySessionStore: Thread-safe in-memory session storage.",
+      "InMemoryNonceStore: Thread-safe in-memory nonce storage with TTL cleanup and eviction.",
+      "InMemoryRateLimitStore: Thread-safe in-memory rate-limit bucket storage.",
+      "InMemoryAuditSink: Thread-safe in-memory audit sink for structured records.",
+      "get: Return the stored session for *session_id*, if present.",
+      "set: Persist *session* keyed by its session identifier."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record",
+    "MCPNonceStore",
+    "MCPRateLimitStore",
+    "cleanup",
+    "InMemorySessionStore",
+    "InMemoryNonceStore",
+    "set_bucket",
+    "InMemoryAuditSink",
+    "has",
+    "delete",
+    "get_bucket",
+    "InMemoryRateLimitStore",
+    "MCPSessionStore",
+    "add",
+    "set",
+    "entries",
+    "MCPAuditSink",
+    "get",
+    "count"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "threading",
+      "collections",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_utcnow",
+      "line": 13,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "datetime"
+    },
+    {
+      "name": "get",
+      "line": 20,
+      "doc": "Return the stored session for *session_id*, if present.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set",
+      "line": 23,
+      "doc": "Persist *session* keyed by its session identifier.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete",
+      "line": 26,
+      "doc": "Delete *session_id* and return ``True`` when it existed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has",
+      "line": 33,
+      "doc": "Return ``True`` when *nonce* is still tracked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "nonce"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "add",
+      "line": 36,
+      "doc": "Track *nonce* until *expires_at*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "nonce",
+        "expires_at"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cleanup",
+      "line": 39,
+      "doc": "Remove expired entries and return the number removed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_bucket",
+      "line": 46,
+      "doc": "Return the bucket state stored for *agent_id*, if present.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_bucket",
+      "line": 49,
+      "doc": "Persist *bucket* for *agent_id*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "bucket"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record",
+      "line": 56,
+      "doc": "Persist a structured audit *entry*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session"
+      ],
+      "returns": null
+    },
+    {
+      "name": "delete",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "nonce"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "add",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "nonce",
+        "expires_at"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cleanup",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "count",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_bucket",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_bucket",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "bucket"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "entries",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPSessionStore",
+      "line": 17,
+      "doc": "Persistence contract for authenticated MCP sessions.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPNonceStore",
+      "line": 30,
+      "doc": "Persistence contract for replay-protection nonces.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPRateLimitStore",
+      "line": 43,
+      "doc": "Persistence contract for per-agent rate-limit buckets.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPAuditSink",
+      "line": 53,
+      "doc": "Persistence contract for structured audit records.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InMemorySessionStore",
+      "line": 60,
+      "doc": "Thread-safe in-memory session storage.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "InMemoryNonceStore",
+      "line": 83,
+      "doc": "Thread-safe in-memory nonce storage with TTL cleanup and eviction.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "InMemoryRateLimitStore",
+      "line": 132,
+      "doc": "Thread-safe in-memory rate-limit bucket storage.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "InMemoryAuditSink",
+      "line": 148,
+      "doc": "Thread-safe in-memory audit sink for structured records.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "auth",
+      "logging"
+    ]
+  }
+}

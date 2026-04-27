@@ -1,0 +1,653 @@
+{
+  "path": "packages/agent-os/tests/test_safety_critical.py",
+  "extension": ".py",
+  "size_bytes": 15692,
+  "line_count": 414,
+  "documentation": {
+    "file_docstring": "Safety-critical tests for Agent OS governance primitives.\n\nCovers:\n- ToolCallInterceptor (PolicyInterceptor, CompositeInterceptor)\n- BoundedSemaphore concurrency control\n- StatelessKernel policy enforcement edge cases\n\nRun with: python -m pytest tests/test_safety_critical.py -v",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "ToolCallRequest / ToolCallResult data structures",
+      "=============================================================================",
+      "=============================================================================",
+      "PolicyInterceptor tests",
+      "=============================================================================",
+      "=============================================================================",
+      "CompositeInterceptor tests",
+      "=============================================================================",
+      "=============================================================================",
+      "BoundedSemaphore tests",
+      "=============================================================================",
+      "=============================================================================",
+      "StatelessKernel policy enforcement edge cases",
+      "============================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "test_call_count_without_context_allows: No context means call count is not checked.",
+      "test_all_must_allow: If any interceptor denies, the composite denies.",
+      "test_ordering_first_deny_wins: First interceptor to deny short-circuits the chain.",
+      "test_double_release_safety: Releasing more than acquired should not go below zero.",
+      "test_multiple_policies_applied_in_sequence: read_only blocks file_write before no_pii is even checked.",
+      "test_second_policy_catches_what_first_misses: read_only allows database_query, but no_pii blocks ssn in params."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_no_blocked_pattern_match_allows",
+    "test_call_count_under_limit_allows",
+    "test_acquire_release_cycle",
+    "test_allowed_tools_enforcement_pass",
+    "test_request_with_all_fields",
+    "test_result_with_modified_arguments",
+    "test_empty_allowed_tools_permits_all",
+    "test_request_defaults",
+    "test_result_allowed",
+    "test_call_count_without_context_allows",
+    "test_result_with_audit_entry",
+    "test_blocked_patterns_case_insensitive",
+    "TestToolCallDataStructures",
+    "TestPolicyInterceptor",
+    "test_release_then_acquire_again",
+    "test_double_release_safety",
+    "test_add_chaining",
+    "test_backpressure_detection_under_threshold",
+    "test_call_count_limit_blocks",
+    "test_ordering_first_deny_wins",
+    "test_blocked_patterns_detected",
+    "TestCompositeInterceptor",
+    "test_empty_chain_allows",
+    "test_all_allow_passes",
+    "test_add_returns_self",
+    "test_available_property",
+    "test_result_denied_with_reason",
+    "test_stats_after_release",
+    "test_stats_tracking",
+    "test_all_must_allow",
+    "test_allows_when_no_restrictions",
+    "test_allowed_tools_enforcement_block",
+    "TestPolicyEdgeCases",
+    "TestBoundedSemaphore",
+    "test_max_concurrent_enforcement",
+    "test_backpressure_detection_at_threshold"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "agent_os.integrations.base",
+      "agent_os.stateless"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_request_defaults",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_request_with_all_fields",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_result_allowed",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_result_denied_with_reason",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_result_with_modified_arguments",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_result_with_audit_entry",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allows_when_no_restrictions",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_tools_enforcement_pass",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_tools_enforcement_block",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_allowed_tools_permits_all",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_patterns_detected",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_patterns_case_insensitive",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_blocked_pattern_match_allows",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_call_count_limit_blocks",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_call_count_under_limit_allows",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_call_count_without_context_allows",
+      "line": 154,
+      "doc": "No context means call count is not checked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_chain_allows",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_must_allow",
+      "line": 175,
+      "doc": "If any interceptor denies, the composite denies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_allow_passes",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ordering_first_deny_wins",
+      "line": 200,
+      "doc": "First interceptor to deny short-circuits the chain.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_returns_self",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_chaining",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_acquire_release_cycle",
+      "line": 235,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_concurrent_enforcement",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_release_then_acquire_again",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_backpressure_detection_under_threshold",
+      "line": 261,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_backpressure_detection_at_threshold",
+      "line": 267,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats_tracking",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats_after_release",
+      "line": 287,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_double_release_safety",
+      "line": 297,
+      "doc": "Releasing more than acquired should not go below zero.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_available_property",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_policies_list_allows",
+      "line": 320,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_policy_name_gracefully_ignored",
+      "line": 329,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_policies_applied_in_sequence",
+      "line": 338,
+      "doc": "read_only blocks file_write before no_pii is even checked.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_second_policy_catches_what_first_misses",
+      "line": 349,
+      "doc": "read_only allows database_query, but no_pii blocks ssn in params.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_workflow_blocks_without_approval",
+      "line": 362,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_workflow_passes_with_approved_true",
+      "line": 374,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_error_message_contains_suggestion_blocked_action",
+      "line": 385,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_error_message_contains_suggestion_blocked_pattern",
+      "line": 395,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_error_message_contains_suggestion_approval_needed",
+      "line": 407,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestToolCallDataStructures",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyInterceptor",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCompositeInterceptor",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBoundedSemaphore",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyEdgeCases",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 5,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/managed_identity.py",
+  "extension": ".py",
+  "size_bytes": 11668,
+  "line_count": 326,
+  "documentation": {
+    "file_docstring": "Managed Identity Adapters for Enterprise Identity Providers.\n\nMaps AGT agent DIDs to enterprise identity providers (Entra ID, AWS IAM,\nGCP Workload Identity) so that governed agents can acquire cloud tokens\nusing their mesh identity.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Default IMDS / metadata endpoints (overridable for testing)",
+      "---------------------------------------------------------------------------",
+      "Azure Entra Managed Identity",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "AWS IAM Role",
+      "---------------------------------------------------------------------------",
+      "Discover role name",
+      "Fetch credentials for role",
+      "---------------------------------------------------------------------------",
+      "GCP Workload Identity",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ManagedIdentityAdapter: Abstract adapter for enterprise identity providers.\n\nSubclasses implement cloud-",
+      "EntraManagedIdentity: Azure Managed Identity adapter using the Instance Metadata Service.",
+      "AWSIAMIdentity: AWS IAM Role adapter using the EC2 instance metadata service.",
+      "GCPWorkloadIdentity: GCP Workload Identity adapter using the GCE metadata server.",
+      "get_token: Acquire an access token for the given scope.",
+      "validate_token: Validate a token and return its claims.\n\nThe base implementation performs struct",
+      "get_agent_mapping: Return a mapping between the agent DID and the cloud principal.",
+      "_cache_token: Cache a token with an expiry timestamp.",
+      "_get_cached_token: Return a cached token if still valid, else ``None``.",
+      "get_token: Acquire a token from the Azure IMDS endpoint."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_agent_mapping",
+    "AWSIAMIdentity",
+    "get_token",
+    "EntraManagedIdentity",
+    "validate_token",
+    "ManagedIdentityAdapter",
+    "GCPWorkloadIdentity"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "time",
+      "abc",
+      "typing",
+      "urllib.request",
+      "urllib.error",
+      "agentmesh.exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_token",
+      "line": 54,
+      "doc": "Acquire an access token for the given scope.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "scope"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_token",
+      "line": 57,
+      "doc": "Validate a token and return its claims.\n\nThe base implementation performs structural validation only.\nSubclasses may override with provider-specific introspection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_agent_mapping",
+      "line": 72,
+      "doc": "Return a mapping between the agent DID and the cloud principal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_cache_token",
+      "line": 79,
+      "doc": "Cache a token with an expiry timestamp.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope",
+        "token",
+        "ttl"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_cached_token",
+      "line": 83,
+      "doc": "Return a cached token if still valid, else ``None``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "client_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_token",
+      "line": 115,
+      "doc": "Acquire a token from the Azure IMDS endpoint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_token",
+      "line": 148,
+      "doc": "Validate an Azure JWT token (structural check).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_agent_mapping",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "role_arn"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_imds_token",
+      "line": 185,
+      "doc": "Acquire an IMDSv2 session token.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_token",
+      "line": 200,
+      "doc": "Acquire temporary credentials from the EC2 metadata service.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_token",
+      "line": 245,
+      "doc": "Structural validation for AWS tokens.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_agent_mapping",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "service_account"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_token",
+      "line": 283,
+      "doc": "Acquire an access token from the GCE metadata server.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_token",
+      "line": 315,
+      "doc": "Structural validation for GCP tokens.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "token"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "get_agent_mapping",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ManagedIdentityAdapter",
+      "line": 36,
+      "doc": "Abstract adapter for enterprise identity providers.\n\nSubclasses implement cloud-specific token acquisition and validation\nwhile maintaining a mapping between the agent's DID and the cloud\nidentity principal.",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EntraManagedIdentity",
+      "line": 99,
+      "doc": "Azure Managed Identity adapter using the Instance Metadata Service.",
+      "is_public": true,
+      "bases": [
+        "ManagedIdentityAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AWSIAMIdentity",
+      "line": 167,
+      "doc": "AWS IAM Role adapter using the EC2 instance metadata service.",
+      "is_public": true,
+      "bases": [
+        "ManagedIdentityAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GCPWorkloadIdentity",
+      "line": 267,
+      "doc": "GCP Workload Identity adapter using the GCE metadata server.",
+      "is_public": true,
+      "bases": [
+        "ManagedIdentityAdapter"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

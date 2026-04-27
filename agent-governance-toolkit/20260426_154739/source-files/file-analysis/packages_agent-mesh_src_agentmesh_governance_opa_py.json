@@ -1,0 +1,252 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/opa.py",
+  "extension": ".py",
+  "size_bytes": 14326,
+  "line_count": 392,
+  "documentation": {
+    "file_docstring": "OPA/Rego Policy Adapter\n\nEvaluates policies written in Rego (Open Policy Agent's policy language)\nalongside the existing YAML/JSON engine.\n\nTwo modes:\n  1. **Remote OPA** \u2014 Sends queries to an OPA server (e.g., http://localhost:8181)\n  2. **Embedded Rego** \u2014 Evaluates .rego files locally via subprocess call to `opa eval`\n\nWhy OPA/Rego?\n  Every Kubernetes platform engineer knows OPA. Supporting Rego lets\n  teams reuse their existing infra policies for agent governance.\n\nUsage:\n    from agentmesh.governance.opa import OPAEvaluator\n\n    # Remote OPA server\n    evaluator = OPAEvaluator(mode=\"remote\", opa_url=\"http://localhost:8181\")\n    decision = evaluator.evaluate(\"agentmesh/allow\", {\"agent\": {\"role\": \"analyst\"}, \"action\": \"export\"})\n\n    # Local rego file\n    evaluator = OPAEvaluator(mode=\"local\", rego_path=\"policies/mesh.rego\")\n    decision = evaluator.evaluate(\"data.agentmesh.allow\", {\"input\": {...}})\n\n    # Integrated with PolicyEngine\n    from agentmesh.governance.policy import PolicyEngine\n    engine = PolicyEngine()\n    engine.load_rego(\"policies/mesh.rego\", package=\"agentmesh\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Remote OPA server",
+      "Local rego file",
+      "Integrated with PolicyEngine",
+      "Check if opa CLI is available for local mode",
+      "V32: Sanitise query path to prevent URL injection",
+      "Only allow alphanumeric, dots, underscores, hyphens in query",
+      "Convert query path to URL: \"data.agentmesh.allow\" -> \"/v1/data/agentmesh/allow\"",
+      "URL-encode each segment as a safety net",
+      "Fallback: parse simple Rego rules ourselves",
+      "Write rego content to temp file",
+      "OPA eval output: {\"result\": [{\"expressions\": [{\"value\": true}]}]}",
+      "Determine what we're querying",
+      "Parse defaults",
+      "default allow = false",
+      "Parse rule bodies",
+      "Match: allow { ... } or allow { (multiline)",
+      "Single-line rule: allow { input.role == \"admin\" }",
+      "Evaluate all conditions (AND)",
+      "not input.xxx",
+      "input.xxx == \"value\"",
+      "Handle booleans",
+      "input.xxx != \"value\"",
+      "input.xxx (truthy check)",
+      "\u2500\u2500 Integration with PolicyEngine \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Now evaluate via OPA"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "OPADecision: Result from an OPA policy evaluation.\n\nAttributes:\n    allowed: Whether the poli",
+      "OPAEvaluator: Evaluate Rego policies via OPA.\n\nSupports two modes:\n- remote: Queries an OPA RE",
+      "load_rego_into_engine: Register a .rego file with the existing PolicyEngine.\n\nUsage:\n    from agentmesh",
+      "__init__: Initialise the OPA evaluator.\n\nArgs:\n    mode: Evaluation mode \u2014 ``\"remote\"`` qu",
+      "evaluate: Evaluate a Rego query against input data.\n\nArgs:\n    query: Rego query (e.g., \"d",
+      "_evaluate_remote: Query a remote OPA server via REST API.",
+      "_evaluate_local: Evaluate using local `opa eval` CLI or built-in fallback.",
+      "_evaluate_opa_cli: Run `opa eval` subprocess.",
+      "_evaluate_builtin: Built-in simple Rego evaluator for common patterns.\n\nSupports:\n- default allow =",
+      "_eval_rego_condition: Evaluate a single Rego condition line."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "load_rego_into_engine",
+    "OPADecision",
+    "evaluate",
+    "OPAEvaluator"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "subprocess",
+      "shutil",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "urllib.request",
+      "urllib.parse",
+      "re",
+      "tempfile"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_rego_into_engine",
+      "line": 372,
+      "doc": "Register a .rego file with the existing PolicyEngine.\n\nUsage:\n    from agentmesh.governance.policy import PolicyEngine\n    from agentmesh.governance.opa import load_rego_into_engine\n\n    engine = PolicyEngine()\n    opa = load_rego_into_engine(engine, \"policies/mesh.rego\")\n\n    # Now evaluate via OPA\n    decision = opa.evaluate(f\"data.{package}.allow\", {\"agent\": {\"role\": \"admin\"}})",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "engine",
+        "rego_path",
+        "package"
+      ],
+      "returns": "OPAEvaluator"
+    },
+    {
+      "name": "__init__",
+      "line": 78,
+      "doc": "Initialise the OPA evaluator.\n\nArgs:\n    mode: Evaluation mode \u2014 ``\"remote\"`` queries an OPA REST\n        API, ``\"local\"`` uses the ``opa eval`` CLI or a\n        built-in fallback parser.\n    opa_url: Base URL of the OPA server (remote mode only).\n    rego_path: Path to a ``.rego`` policy file (local mode).\n    rego_content: Inline Rego policy string (local mode).\n    timeout_seconds: Maximum time to wait for evaluation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "mode",
+        "opa_url",
+        "rego_path",
+        "rego_content",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 106,
+      "doc": "Evaluate a Rego query against input data.\n\nArgs:\n    query: Rego query (e.g., \"data.agentmesh.allow\")\n    input_data: Input context for evaluation\n\nReturns:\n    OPADecision with the result",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "input_data"
+      ],
+      "returns": "OPADecision"
+    },
+    {
+      "name": "_evaluate_remote",
+      "line": 140,
+      "doc": "Query a remote OPA server via REST API.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "input_data"
+      ],
+      "returns": "OPADecision"
+    },
+    {
+      "name": "_evaluate_local",
+      "line": 190,
+      "doc": "Evaluate using local `opa eval` CLI or built-in fallback.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "input_data"
+      ],
+      "returns": "OPADecision"
+    },
+    {
+      "name": "_evaluate_opa_cli",
+      "line": 210,
+      "doc": "Run `opa eval` subprocess.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "input_data"
+      ],
+      "returns": "OPADecision"
+    },
+    {
+      "name": "_evaluate_builtin",
+      "line": 261,
+      "doc": "Built-in simple Rego evaluator for common patterns.\n\nSupports:\n- default allow = false\n- allow { input.role == \"admin\" }\n- deny { input.action == \"delete\" }\n- allow { not input.pii }",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "input_data"
+      ],
+      "returns": "OPADecision"
+    },
+    {
+      "name": "_eval_rego_condition",
+      "line": 323,
+      "doc": "Evaluate a single Rego condition line.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "condition",
+        "input_data"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_resolve_rego_path",
+      "line": 354,
+      "doc": "Resolve a Rego path like 'input.agent.role' to a value.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "input_data"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "OPADecision",
+      "line": 49,
+      "doc": "Result from an OPA policy evaluation.\n\nAttributes:\n    allowed: Whether the policy permits the action.\n    raw_result: Raw response from the OPA engine.\n    query: The Rego query that was evaluated.\n    evaluation_ms: Evaluation latency in milliseconds.\n    source: How the evaluation was performed\n        (``\"remote\"``, ``\"local\"``, or ``\"fallback\"``).\n    error: Error message if evaluation failed, otherwise ``None``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "OPAEvaluator",
+      "line": 69,
+      "doc": "Evaluate Rego policies via OPA.\n\nSupports two modes:\n- remote: Queries an OPA REST API\n- local: Runs `opa eval` subprocess on .rego files",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 52,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

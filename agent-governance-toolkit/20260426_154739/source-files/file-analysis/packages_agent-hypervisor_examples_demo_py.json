@@ -1,0 +1,306 @@
+{
+  "path": "packages/agent-hypervisor/examples/demo.py",
+  "extension": ".py",
+  "size_bytes": 14315,
+  "line_count": 388,
+  "documentation": {
+    "file_docstring": "Hypervisor Demo -- Agent Governance in 60 Seconds\n\nDemonstrates the full lifecycle of the Agent Hypervisor:\n  1. Session creation with configurable governance\n  2. Agent admission via trust scoring (eff_score -> ring assignment)\n  3. Saga orchestration with reversibility tracking\n  4. Liability enforcement (sponsorship, bonding, penalty)\n  5. Audit trail with hash commitment\n\nRun:\n    cd modules/hypervisor\n    pip install -r examples/requirements.txt\n    python examples/demo.py",
+    "header_comments": [
+      "!/usr/bin/env python3",
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Add src to path for demo",
+      "\u2500\u2500 Demo 1: Session Lifecycle \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Create a session with audit enabled",
+      "Join agents with different trust scores",
+      "Activate",
+      "Capture some deltas for the audit trail",
+      "Terminate and get hash commitment",
+      "\u2500\u2500 Demo 2: Saga Orchestration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Create a saga for a multi-step workflow",
+      "Add steps",
+      "Execute steps (simulating success for first two)",
+      "Step 3 fails",
+      "Compensate completed steps",
+      "\u2500\u2500 Demo 3: Liability & Penalty \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Sponsor posts a bond for an agent",
+      "Agent misbehaves -- penalize!",
+      "\u2500\u2500 Demo 4: Audit Trail \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Agents make changes",
+      "Verify commitment",
+      "\u2500\u2500 Demo 5: Integration Adapters \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Mock reputation engine matching NexusTrustScorer protocol",
+      "Use history to differentiate agents",
+      "Mock behavioral verifier",
+      "Join with Nexus auto-resolution",
+      "IATP manifest parsing",
+      "\u2500\u2500 Main \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "slash_reputation",
+    "MockReputationEngine",
+    "step",
+    "record_task_outcome",
+    "warn",
+    "fail",
+    "calculate_trust_score",
+    "MockVerificationBackend",
+    "banner",
+    "check_drift"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "sys",
+      "hypervisor.core",
+      "hypervisor.models",
+      "hypervisor.audit.delta",
+      "hypervisor.integrations.nexus_adapter",
+      "hypervisor.integrations.verification_adapter",
+      "hypervisor.integrations.iatp_adapter",
+      "random"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "banner",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "title"
+      ],
+      "returns": null
+    },
+    {
+      "name": "step",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "warn",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "fail",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "demo_session_lifecycle",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "demo_saga",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "demo_liability",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "demo_audit",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "demo_integrations",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 363,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "success_exec",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "fail_exec",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "calculate_trust_score",
+      "line": 283,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verification_level",
+        "history",
+        "capabilities",
+        "privacy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "slash_reputation",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "reason",
+        "severity",
+        "evidence_hash",
+        "trace_id",
+        "broadcast"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_task_outcome",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "outcome"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_drift",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "claimed",
+        "observed"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockReputationEngine",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockVerificationBackend",
+      "line": 303,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 18,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

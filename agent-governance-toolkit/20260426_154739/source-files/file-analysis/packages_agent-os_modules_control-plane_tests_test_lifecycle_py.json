@@ -1,0 +1,1458 @@
+{
+  "path": "packages/agent-os/modules/control-plane/tests/test_lifecycle.py",
+  "extension": ".py",
+  "size_bytes": 38723,
+  "line_count": 1176,
+  "documentation": {
+    "file_docstring": "Tests for Agent Lifecycle Management (v0.2.0)\n\nThis module tests the comprehensive lifecycle management features:\n- ACP-001: Agent Health Checks\n- ACP-002: Agent Auto-Recovery\n- ACP-003: Circuit Breaker\n- ACP-004: Agent Scaling\n- ACP-005: Distributed Coordination\n- ACP-006: Agent Dependency Graph\n- ACP-007: Graceful Shutdown\n- ACP-008: Resource Quotas\n- ACP-009: Agent Observability\n- ACP-010: Hot Reload",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Health Monitoring",
+      "Auto-Recovery",
+      "Circuit Breaker",
+      "Scaling",
+      "Distributed Coordination",
+      "Dependency Graph",
+      "Graceful Shutdown",
+      "Resource Quotas",
+      "Observability",
+      "Hot Reload",
+      "Main Control Plane",
+      "============================================================================",
+      "Test Fixtures",
+      "============================================================================",
+      "============================================================================",
+      "ACP-001: Health Check Tests",
+      "============================================================================",
+      "============================================================================",
+      "ACP-002: Auto-Recovery Tests",
+      "============================================================================",
+      "Simulate multiple failures",
+      "Should not recover when at max restarts (depending on config)",
+      "The behavior depends on on_max_restarts setting",
+      "============================================================================",
+      "ACP-003: Circuit Breaker Tests",
+      "============================================================================",
+      "Wait for recovery timeout",
+      "Next call should transition to half-open",
+      "Open the circuit",
+      "Transition to half-open and succeed",
+      "============================================================================",
+      "ACP-004: Agent Scaling Tests",
+      "============================================================================",
+      "Should have gotten all 3 replicas",
+      "============================================================================",
+      "ACP-005: Distributed Coordination Tests",
+      "============================================================================",
+      "Should be able to acquire again",
+      "Lock should be held",
+      "Lock should be released",
+      "============================================================================",
+      "ACP-006: Dependency Graph Tests",
+      "============================================================================",
+      "database and cache should come before api-server",
+      "First group should contain database and cache",
+      "Second group should contain api-server",
+      "database not added",
+      "============================================================================",
+      "ACP-007: Graceful Shutdown Tests",
+      "============================================================================",
+      "Complete operation after short delay",
+      "============================================================================",
+      "ACP-008: Resource Quota Tests",
+      "============================================================================",
+      "Record 2 operations",
+      "Exceed memory",
+      "============================================================================",
+      "ACP-009: Observability Tests",
+      "============================================================================",
+      "Counter should have value 2",
+      "============================================================================",
+      "ACP-010: Hot Reload Tests",
+      "============================================================================",
+      "Force a version",
+      "Should detect change since computed version will differ",
+      "(module doesn't exist, so version will be different)",
+      "Behavior depends on whether module exists",
+      "============================================================================",
+      "Enhanced Control Plane Tests",
+      "============================================================================",
+      "============================================================================",
+      "Integration Tests",
+      "============================================================================",
+      "Register agents with dependencies",
+      "Start all",
+      "Check health",
+      "Get metrics",
+      "Stop all",
+      "The dependency graph should ensure database and cache start before api",
+      "(Note: this is validated by the dependency graph tests above)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MockAgent: Mock agent for testing",
+      "mock_agent: Create a mock agent",
+      "health_config: Create health check config",
+      "recovery_config: Create recovery config",
+      "TestHealthMonitor: Tests for health monitoring functionality",
+      "TestAutoRecovery: Tests for auto-recovery functionality",
+      "TestCircuitBreaker: Tests for circuit breaker functionality",
+      "TestAgentScaler: Tests for agent scaling functionality",
+      "TestDistributedCoordinator: Tests for distributed coordination functionality",
+      "TestDependencyGraph: Tests for dependency graph functionality"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestDependencyGraph",
+    "test_set_quota",
+    "test_register_agent",
+    "TestDistributedCoordinator",
+    "test_no_circular_dependency",
+    "test_can_execute_within_quota",
+    "test_agent_summary",
+    "test_get_dependencies",
+    "test_validate_missing_dependency",
+    "is_alive",
+    "TestAgentObservability",
+    "MockAgent",
+    "TestHotReload",
+    "test_get_agent_version",
+    "test_register_with_circuit_breaker",
+    "TestCircuitBreaker",
+    "test_check_quota_violations",
+    "test_prometheus_export",
+    "test_set_gauge",
+    "set_state",
+    "test_get_status",
+    "get_state",
+    "TestEnhancedControlPlane",
+    "test_manual_reset",
+    "health_config",
+    "TestHealthMonitor",
+    "test_operation_tracking",
+    "test_record_metric",
+    "test_shutdown_order",
+    "test_log_entry",
+    "TestIntegration",
+    "recovery_config",
+    "test_reload_history",
+    "TrackedAgent",
+    "test_parallel_startup_groups",
+    "test_startup_order",
+    "is_ready",
+    "test_resource_usage_update",
+    "failing_factory",
+    "TestAutoRecovery",
+    "TestResourceQuotas",
+    "test_cannot_execute_at_limit",
+    "TestGracefulShutdown",
+    "TestAgentScaler",
+    "test_increment_counter",
+    "test_add_agent",
+    "test_circular_dependency_detection",
+    "test_register_with_resources",
+    "test_circuit_breaker_registry",
+    "test_get_dependents",
+    "mock_agent",
+    "test_create_control_plane"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "asyncio",
+      "datetime",
+      "unittest.mock",
+      "sys",
+      "agent_control_plane.lifecycle"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "mock_agent",
+      "line": 122,
+      "doc": "Create a mock agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "health_config",
+      "line": 128,
+      "doc": "Create health check config",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "recovery_config",
+      "line": 141,
+      "doc": "Create recovery config",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_alive",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_ready",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "liveness_check",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "readiness_check",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_state",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "set_state",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_agent",
+      "line": 160,
+      "doc": "Test agent registration for health monitoring",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_liveness_check_success",
+      "line": 171,
+      "doc": "Test successful liveness check",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_liveness_check_failure",
+      "line": 184,
+      "doc": "Test failed liveness check",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_readiness_check_success",
+      "line": 197,
+      "doc": "Test successful readiness check",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_readiness_check_failure",
+      "line": 209,
+      "doc": "Test failed readiness check",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_health_check",
+      "line": 222,
+      "doc": "Test custom health check function",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregister_agent",
+      "line": 239,
+      "doc": "Test agent unregistration",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "health_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_agent",
+      "line": 258,
+      "doc": "Test agent registration for recovery",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "recovery_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handle_failure_recovery",
+      "line": 271,
+      "doc": "Test successful recovery after failure",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "recovery_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_restarts_limit",
+      "line": 286,
+      "doc": "Test max restarts limit is respected",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "recovery_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_recovery_history",
+      "line": 310,
+      "doc": "Test recovery history tracking",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "recovery_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_restart_count",
+      "line": 322,
+      "doc": "Test manual restart count reset",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "recovery_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initial_state_closed",
+      "line": 341,
+      "doc": "Test circuit breaker starts in closed state",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_opens_after_failures",
+      "line": 348,
+      "doc": "Test circuit opens after threshold failures",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_when_open",
+      "line": 360,
+      "doc": "Test requests are rejected when circuit is open",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_half_open_after_timeout",
+      "line": 370,
+      "doc": "Test circuit transitions to half-open after recovery timeout",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_closes_after_successful_half_open",
+      "line": 389,
+      "doc": "Test circuit closes after successful calls in half-open",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decorator_usage",
+      "line": 410,
+      "doc": "Test circuit breaker as decorator",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_manager_usage",
+      "line": 422,
+      "doc": "Test circuit breaker as context manager",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_manual_reset",
+      "line": 432,
+      "doc": "Test manual circuit reset",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circuit_breaker_registry",
+      "line": 443,
+      "doc": "Test circuit breaker registry",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_agent_type",
+      "line": 463,
+      "doc": "Test agent type registration",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scale_to",
+      "line": 476,
+      "doc": "Test scaling to specific replica count",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scale_up",
+      "line": 486,
+      "doc": "Test scaling up",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scale_down",
+      "line": 497,
+      "doc": "Test scaling down",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_replica_load_balanced",
+      "line": 508,
+      "doc": "Test round-robin load balancing",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_replicas_limit",
+      "line": 524,
+      "doc": "Test max replicas limit is respected",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_node_becomes_leader",
+      "line": 543,
+      "doc": "Test single node becomes leader",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_acquire_release_lock",
+      "line": 556,
+      "doc": "Test distributed lock acquisition and release",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_lock_context_manager",
+      "line": 570,
+      "doc": "Test lock as context manager",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_leader_info",
+      "line": 582,
+      "doc": "Test getting leader information",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_agent",
+      "line": 604,
+      "doc": "Test adding agents to the graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_dependencies",
+      "line": 614,
+      "doc": "Test getting agent dependencies",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_dependents",
+      "line": 624,
+      "doc": "Test getting agents that depend on an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circular_dependency_detection",
+      "line": 636,
+      "doc": "Test circular dependency detection",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_circular_dependency",
+      "line": 645,
+      "doc": "Test no circular dependency in valid graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_startup_order",
+      "line": 654,
+      "doc": "Test correct startup order",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_parallel_startup_groups",
+      "line": 667,
+      "doc": "Test parallel startup group generation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shutdown_order",
+      "line": 682,
+      "doc": "Test shutdown order is reverse of startup",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_missing_dependency",
+      "line": 693,
+      "doc": "Test validation catches missing dependencies",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_operation",
+      "line": 713,
+      "doc": "Test registering in-flight operations",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_complete_operation",
+      "line": 727,
+      "doc": "Test completing operations",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shutdown_drains_operations",
+      "line": 737,
+      "doc": "Test shutdown waits for operations to complete",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shutdown_hooks",
+      "line": 756,
+      "doc": "Test shutdown hooks are called",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_new_operations_during_shutdown",
+      "line": 772,
+      "doc": "Test new operations are rejected during shutdown",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_quota",
+      "line": 788,
+      "doc": "Test setting resource quota",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_can_execute_within_quota",
+      "line": 802,
+      "doc": "Test execution allowed within quota",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cannot_execute_at_limit",
+      "line": 811,
+      "doc": "Test execution denied at concurrent limit",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_operation_tracking",
+      "line": 824,
+      "doc": "Test operation start/end tracking",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_resource_usage_update",
+      "line": 837,
+      "doc": "Test resource usage updates",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_quota_violations",
+      "line": 848,
+      "doc": "Test quota violation detection",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_metric",
+      "line": 872,
+      "doc": "Test metric recording",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_increment_counter",
+      "line": 887,
+      "doc": "Test counter increment",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_gauge",
+      "line": 898,
+      "doc": "Test gauge setting",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_entry",
+      "line": 908,
+      "doc": "Test log entry creation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prometheus_export",
+      "line": 923,
+      "doc": "Test Prometheus format export",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_summary",
+      "line": 935,
+      "doc": "Test agent summary generation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_agent",
+      "line": 956,
+      "doc": "Test agent registration for hot reload",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_for_changes_no_change",
+      "line": 969,
+      "doc": "Test change detection when no changes",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_agent_version",
+      "line": 982,
+      "doc": "Test getting agent version",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reload_history",
+      "line": 991,
+      "doc": "Test reload history tracking",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_control_plane",
+      "line": 1007,
+      "doc": "Test control plane creation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_agent",
+      "line": 1017,
+      "doc": "Test agent registration",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_with_resources",
+      "line": 1030,
+      "doc": "Test agent registration with resource quota",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_with_circuit_breaker",
+      "line": 1047,
+      "doc": "Test agent registration with circuit breaker",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_start_all",
+      "line": 1066,
+      "doc": "Test starting all agents",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stop_all",
+      "line": 1079,
+      "doc": "Test stopping all agents",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_status",
+      "line": 1089,
+      "doc": "Test getting control plane status",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_lifecycle",
+      "line": 1109,
+      "doc": "Test complete agent lifecycle",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dependency_order",
+      "line": 1143,
+      "doc": "Test agents start in dependency order",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "custom_liveness",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "failing_factory",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_func",
+      "line": 415,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "breaker"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "complete_later",
+      "line": 745,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "shutdown_hook",
+      "line": 762,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 1150,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockAgent",
+      "line": 85,
+      "doc": "Mock agent for testing",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHealthMonitor",
+      "line": 156,
+      "doc": "Tests for health monitoring functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAutoRecovery",
+      "line": 254,
+      "doc": "Tests for auto-recovery functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCircuitBreaker",
+      "line": 337,
+      "doc": "Tests for circuit breaker functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentScaler",
+      "line": 459,
+      "doc": "Tests for agent scaling functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDistributedCoordinator",
+      "line": 539,
+      "doc": "Tests for distributed coordination functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDependencyGraph",
+      "line": 601,
+      "doc": "Tests for dependency graph functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGracefulShutdown",
+      "line": 709,
+      "doc": "Tests for graceful shutdown functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestResourceQuotas",
+      "line": 785,
+      "doc": "Tests for resource quota functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentObservability",
+      "line": 869,
+      "doc": "Tests for agent observability functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHotReload",
+      "line": 953,
+      "doc": "Tests for hot reload functionality",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEnhancedControlPlane",
+      "line": 1004,
+      "doc": "Tests for the enhanced agent control plane",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIntegration",
+      "line": 1105,
+      "doc": "Integration tests for lifecycle management",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrackedAgent",
+      "line": 1149,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "MockAgent"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 27,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

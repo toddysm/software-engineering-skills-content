@@ -1,0 +1,267 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_gateway.py",
+  "extension": ".py",
+  "size_bytes": 14326,
+  "line_count": 385,
+  "documentation": {
+    "file_docstring": "MCP Security Gateway \u2014 Public Preview\n\nA governance layer that sits between MCP clients and MCP servers,\nenforcing policy-based controls on all tool calls passing through.\n\nAddresses OWASP ASI02 (Tool Misuse & Exploitation) by providing:\n- Tool allow/deny list filtering\n- Parameter sanitization against dangerous patterns\n- Per-agent rate limiting / call budget enforcement\n- Structured audit logging of every tool invocation\n- Human-in-the-loop approval for sensitive tools",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Built-in dangerous parameter patterns (CE defaults) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "PII / sensitive data",
+      "Shell injection",
+      "Per-agent call counters for rate limiting",
+      "Audit log",
+      "Pre-compile built-in patterns",
+      "\u2500\u2500 Core interception \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Fail closed: deny access on unexpected evaluation errors",
+      "Record audit entry",
+      "\u2500\u2500 Policy evaluation pipeline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "1. Deny-list check",
+      "2. Allow-list check (empty list means all tools allowed)",
+      "3. Parameter sanitization",
+      "3a. Policy blocked patterns",
+      "3b. Built-in dangerous patterns",
+      "4. Rate limiting",
+      "Increment call counter (only on successful evaluation past this point)",
+      "5. Human approval",
+      "APPROVED \u2014 fall through",
+      "\u2500\u2500 Server wrapping \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Audit helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ApprovalStatus: Result of a human-approval check.",
+      "AuditEntry: A single audit-log record for a tool call.",
+      "GatewayConfig: Configuration returned by ``wrap_mcp_server``.",
+      "MCPGateway: Security gateway that sits between MCP clients and servers.\n\nEnforces governance",
+      "__init__: Args:\n    policy: Governance policy defining constraints and thresholds.\n    den",
+      "intercept_tool_call: Evaluate a tool call against the gateway's policy stack.\n\nArgs:\n    agent_id: Ag",
+      "wrap_mcp_server: Produce a ``GatewayConfig`` that layers governance on a server.\n\nArgs:\n    serve",
+      "audit_log: Return a copy of the audit log.\n\nReturns:\n    A shallow copy of the in-memory ``",
+      "get_agent_call_count: Return the number of calls made by *agent_id*.\n\nArgs:\n    agent_id: Agent identi",
+      "reset_agent_budget: Reset the call counter for *agent_id*.\n\nArgs:\n    agent_id: Agent identifier who"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "reset_agent_budget",
+    "AuditEntry",
+    "ApprovalStatus",
+    "to_dict",
+    "MCPGateway",
+    "intercept_tool_call",
+    "reset_all_budgets",
+    "get_agent_call_count",
+    "audit_log",
+    "GatewayConfig",
+    "wrap_mcp_server"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "re",
+      "threading",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_os._mcp_metrics",
+      "agent_os.credential_redactor",
+      "agent_os.integrations.base",
+      "agent_os.mcp_protocols"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 109,
+      "doc": "Args:\n    policy: Governance policy defining constraints and thresholds.\n    denied_tools: Explicit deny-list \u2014 these tools are never exposed.\n    sensitive_tools: Tools that require human approval before execution.\n    approval_callback: Sync callback invoked for sensitive-tool approval.\n        Signature: ``(agent_id, tool_name, params) -> ApprovalStatus``.\n    enable_builtin_sanitization: When True, apply built-in dangerous-\n        parameter patterns in addition to the policy's blocked_patterns.\n    metrics: Optional metrics recorder for gateway events.\n    rate_limit_store: Optional persistence backend for per-agent call\n        counts.\n    audit_sink: Optional sink for persisted audit records.\n    clock: Clock used when recording audit timestamps.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "intercept_tool_call",
+      "line": 160,
+      "doc": "Evaluate a tool call against the gateway's policy stack.\n\nArgs:\n    agent_id: Agent identity attempting the tool invocation.\n    tool_name: Tool being requested.\n    params: Structured tool parameters to evaluate.\n\nReturns:\n    ``(allowed, reason)`` \u2014 *allowed* is True when the call may\n    proceed; *reason* explains the decision.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name",
+        "params"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name",
+        "params"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap_mcp_server",
+      "line": 316,
+      "doc": "Produce a ``GatewayConfig`` that layers governance on a server.\n\nArgs:\n    server_config: Raw MCP server configuration to wrap.\n    policy: Governance policy to apply to the wrapped server.\n    denied_tools: Optional explicit deny-list.\n    sensitive_tools: Optional list of tools that require approval.\n\nThis does not mutate the original *server_config*; it returns a\nnew ``GatewayConfig`` object that downstream code can use to\ninstantiate a governed MCP proxy.\n\nReturns:\n    A ``GatewayConfig`` describing the governed server surface.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "server_config",
+        "policy"
+      ],
+      "returns": "GatewayConfig"
+    },
+    {
+      "name": "audit_log",
+      "line": 351,
+      "doc": "Return a copy of the audit log.\n\nReturns:\n    A shallow copy of the in-memory ``AuditEntry`` list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_call_count",
+      "line": 359,
+      "doc": "Return the number of calls made by *agent_id*.\n\nArgs:\n    agent_id: Agent identifier to inspect.\n\nReturns:\n    The number of accepted tool calls recorded for the agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "reset_agent_budget",
+      "line": 370,
+      "doc": "Reset the call counter for *agent_id*.\n\nArgs:\n    agent_id: Agent identifier whose budget should be reset.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_all_budgets",
+      "line": 379,
+      "doc": "Reset call counters for every agent.\n\nThis clears the recorded call count for each tracked agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ApprovalStatus",
+      "line": 54,
+      "doc": "Result of a human-approval check.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AuditEntry",
+      "line": 63,
+      "doc": "A single audit-log record for a tool call.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GatewayConfig",
+      "line": 87,
+      "doc": "Configuration returned by ``wrap_mcp_server``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MCPGateway",
+      "line": 99,
+      "doc": "Security gateway that sits between MCP clients and servers.\n\nEnforces governance policies on all tool calls passing through,\nproviding defense against tool misuse, data exfiltration, and\nunauthorized access (OWASP ASI02). The gateway redacts persisted audit\npayloads, enforces a per-agent call budget, and fails closed whenever\npolicy evaluation or approval hooks raise unexpected errors.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

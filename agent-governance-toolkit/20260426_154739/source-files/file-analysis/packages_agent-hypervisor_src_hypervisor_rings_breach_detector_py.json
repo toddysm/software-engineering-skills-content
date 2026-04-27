@@ -1,0 +1,220 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/rings/breach_detector.py",
+  "extension": ".py",
+  "size_bytes": 6865,
+  "line_count": 200,
+  "documentation": {
+    "file_docstring": "Ring Breach Detector \u2014 behavioral anomaly detection for rogue agents.\n\nDetects two classes of anomaly:\n\n1. **Tool-call frequency spikes** \u2014 an agent's call rate inside a sliding\n   window exceeds a configurable baseline by a severity-dependent multiplier.\n2. **Privilege-escalation attempts** \u2014 a low-privilege agent (Ring 3)\n   repeatedly calls into higher-privilege rings (Ring 0/1).  The *ring\n   distance* amplifies the anomaly score so that sandbox\u2192root jumps are\n   scored more aggressively than standard\u2192privileged ones.\n\nWhen a HIGH or CRITICAL breach is detected the internal circuit-breaker\ntrips and ``is_breaker_tripped()`` returns ``True`` until explicitly reset\nvia ``reset_breaker()``.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Multiplier thresholds: actual_rate / baseline_rate",
+      "Per-agent sliding-window timestamps",
+      "Per-agent circuit-breaker flag",
+      "Global breach history (bounded)",
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------",
+      "--- 1. Track timestamp in bounded deque ---",
+      "--- 2. Prune timestamps outside the sliding window ---",
+      "--- 3. Compute actual rate (calls / second) ---",
+      "--- 4. Ring-distance amplifier ---",
+      "Upward calls (low value = higher privilege) are escalations.",
+      "ExecutionRing values: 0=root, 1=priv, 2=std, 3=sandbox.",
+      "ring_distance > 0 means privilege escalation.",
+      "--- 5. Score = (actual / baseline) \u00d7 amplifier ---",
+      "--- 6. Map score \u2192 severity ---",
+      "--- 7. Build event ---",
+      "--- 8. Trip circuit-breaker on HIGH / CRITICAL ---",
+      "------------------------------------------------------------------",
+      "Read-only accessors",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "BreachEvent: A detected ring breach anomaly.",
+      "_agent_key: Internal composite key for per-agent tracking.",
+      "RingBreachDetector: Behavioural anomaly detector for rogue-agent ring abuse.\n\nParameters\n----------\n",
+      "record_call: Record a ring call and return a ``BreachEvent`` if anomalous.\n\nReturns ``None`` ",
+      "is_breaker_tripped: Return ``True`` if the circuit-breaker is tripped for this agent.",
+      "reset_breaker: Reset the circuit-breaker and clear the call window for this agent."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "breach_count",
+    "BreachSeverity",
+    "RingBreachDetector",
+    "BreachEvent",
+    "is_breaker_tripped",
+    "breach_history",
+    "record_call",
+    "reset_breaker"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "collections",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "hypervisor.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_agent_key",
+      "line": 63,
+      "doc": "Internal composite key for per-agent tracking.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_did",
+        "session_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "window_seconds",
+        "baseline_rate",
+        "max_events_per_agent",
+        "max_breach_history"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_call",
+      "line": 104,
+      "doc": "Record a ring call and return a ``BreachEvent`` if anomalous.\n\nReturns ``None`` when the call is within normal parameters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id",
+        "agent_ring",
+        "called_ring"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_breaker_tripped",
+      "line": 180,
+      "doc": "Return ``True`` if the circuit-breaker is tripped for this agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "reset_breaker",
+      "line": 184,
+      "doc": "Reset the circuit-breaker and clear the call window for this agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "breach_history",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "breach_count",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "BreachSeverity",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "BreachEvent",
+      "line": 49,
+      "doc": "A detected ring breach anomaly.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RingBreachDetector",
+      "line": 68,
+      "doc": "Behavioural anomaly detector for rogue-agent ring abuse.\n\nParameters\n----------\nwindow_seconds:\n    Sliding window (in seconds) over which call rates are measured.\nbaseline_rate:\n    Expected calls-per-second within the window.  Rates above multiples\n    of this value trigger breach events of increasing severity.\nmax_events_per_agent:\n    Maximum call timestamps retained per agent (bounded ``deque``).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "api"
+    ]
+  }
+}

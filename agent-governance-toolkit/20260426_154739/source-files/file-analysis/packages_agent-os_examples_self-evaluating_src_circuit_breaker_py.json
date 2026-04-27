@@ -1,0 +1,432 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/circuit_breaker.py",
+  "extension": ".py",
+  "size_bytes": 18434,
+  "line_count": 493,
+  "documentation": {
+    "file_docstring": "Automated Circuit Breaker System\n\nThis module implements an automated circuit breaker for managing agent rollouts\nwith deterministic metrics. It provides:\n\n1. The Probe: Gradual rollout of new agent behavior (1% \u2192 5% \u2192 20% \u2192 100%)\n2. The Watchdog: Real-time monitoring of deterministic metrics\n3. Auto-Scale: Automatic expansion when metrics hold\n4. Auto-Rollback: Immediate rollback when metrics degrade\n\nKey Metrics:\n- Task Completion Rate: Must stay above threshold (default 85%)\n- Latency: Must stay below threshold (default 2000ms)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Metric thresholds",
+      "Rollout configuration",
+      "Auto-scale configuration",
+      "Filter to version and time window",
+      "Calculate metrics",
+      "Get the most recent phase",
+      "Get metrics for new version",
+      "Check if metrics meet thresholds",
+      "Decision logic",
+      "Metrics degraded - trip the breaker",
+      "Already at full rollout",
+      "Metrics are excellent - advance to next phase",
+      "Metrics acceptable but not excellent - maintain current phase",
+      "Breaker tripped - all traffic to old version",
+      "Load saved state if exists",
+      "Restore state",
+      "Deterministic routing based on request_id",
+      "Random routing"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RolloutPhase: Rollout phases for gradual deployment.",
+      "CircuitBreakerState: Circuit breaker states.",
+      "CircuitBreakerConfig: Configuration for circuit breaker thresholds and behavior.",
+      "MetricSnapshot: A snapshot of metrics at a point in time.",
+      "CircuitBreakerMetrics: Tracks and calculates metrics for circuit breaker decisions.\n\nMonitors:\n- Task C",
+      "CircuitBreakerWatchdog: Real-time monitoring and decision engine for circuit breaker.\n\nContinuously moni",
+      "CircuitBreakerController: Main controller for automated circuit breaker system.\n\nOrchestrates the probe, w",
+      "to_dict: Convert config to dictionary.",
+      "to_dict: Convert to dictionary.",
+      "record_execution: Record a single execution for metrics tracking.\n\nArgs:\n    version: \"old\" or \"ne"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_traffic_split",
+    "to_dict",
+    "reset",
+    "CircuitBreakerMetrics",
+    "CircuitBreakerController",
+    "CircuitBreakerWatchdog",
+    "check_thresholds",
+    "should_use_new_version",
+    "evaluate_and_decide",
+    "MetricSnapshot",
+    "get_status",
+    "get_metrics_for_version",
+    "clear_old_metrics",
+    "CircuitBreakerState",
+    "evaluate",
+    "record_execution",
+    "clear_metrics",
+    "CircuitBreakerConfig",
+    "RolloutPhase"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "random",
+      "time",
+      "typing",
+      "datetime",
+      "dataclasses",
+      "enum"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 62,
+      "doc": "Convert config to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 85,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 99,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_execution",
+      "line": 103,
+      "doc": "Record a single execution for metrics tracking.\n\nArgs:\n    version: \"old\" or \"new\"\n    success: True if task completed successfully\n    latency_ms: Execution latency in milliseconds\n    phase: Current rollout phase\n    timestamp: Optional timestamp, defaults to now",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "version",
+        "success",
+        "latency_ms",
+        "phase",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics_for_version",
+      "line": 126,
+      "doc": "Calculate metrics for a specific version within a time window.\n\nArgs:\n    version: \"old\" or \"new\"\n    window_minutes: Time window in minutes, defaults to config setting\n    \nReturns:\n    MetricSnapshot or None if insufficient data",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "version",
+        "window_minutes"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_thresholds",
+      "line": 171,
+      "doc": "Check if metrics meet minimum thresholds.\n\nReturns:\n    (passes, reason) tuple",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "snapshot"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_old_metrics",
+      "line": 186,
+      "doc": "Clear metrics older than specified hours.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_metrics",
+      "line": 194,
+      "doc": "Clear all metrics. Useful for testing or reset scenarios.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config",
+        "metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 216,
+      "doc": "Evaluate current metrics and make rollout decision.\n\nReturns:\n    Decision dictionary with action, reason, and next phase",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_next_phase",
+      "line": 327,
+      "doc": "Get the next rollout phase.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "RolloutPhase"
+    },
+    {
+      "name": "get_traffic_split",
+      "line": 340,
+      "doc": "Get current traffic split between old and new versions.\n\nReturns:\n    (old_percentage, new_percentage) tuple",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 364,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config",
+        "state_file"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_state",
+      "line": 375,
+      "doc": "Load circuit breaker state from file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save_state",
+      "line": 397,
+      "doc": "Save circuit breaker state to file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "should_use_new_version",
+      "line": 409,
+      "doc": "Determine if this request should use the new version.\n\nUses deterministic hash-based routing if request_id provided,\notherwise uses random selection based on traffic split.\n\nArgs:\n    request_id: Optional identifier for consistent routing\n    \nReturns:\n    True if should use new version, False for old version",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_execution",
+      "line": 438,
+      "doc": "Record an execution and save state.\n\nArgs:\n    version: \"old\" or \"new\"\n    success: True if task completed successfully\n    latency_ms: Execution latency in milliseconds",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "version",
+        "success",
+        "latency_ms"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_and_decide",
+      "line": 455,
+      "doc": "Evaluate metrics and make rollout decision.\n\nReturns:\n    Decision dictionary from watchdog",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_status",
+      "line": 466,
+      "doc": "Get current circuit breaker status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 485,
+      "doc": "Reset circuit breaker to initial state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RolloutPhase",
+      "line": 29,
+      "doc": "Rollout phases for gradual deployment.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerState",
+      "line": 38,
+      "doc": "Circuit breaker states.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerConfig",
+      "line": 46,
+      "doc": "Configuration for circuit breaker thresholds and behavior.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MetricSnapshot",
+      "line": 76,
+      "doc": "A snapshot of metrics at a point in time.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CircuitBreakerMetrics",
+      "line": 90,
+      "doc": "Tracks and calculates metrics for circuit breaker decisions.\n\nMonitors:\n- Task Completion Rate: Percentage of successful task completions\n- Latency: Average response time in milliseconds",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerWatchdog",
+      "line": 199,
+      "doc": "Real-time monitoring and decision engine for circuit breaker.\n\nContinuously monitors metrics and makes decisions about:\n- Advancing to next rollout phase\n- Tripping the breaker (rollback)\n- Maintaining current phase",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerController",
+      "line": 357,
+      "doc": "Main controller for automated circuit breaker system.\n\nOrchestrates the probe, watchdog, and auto-scale functionality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 69,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

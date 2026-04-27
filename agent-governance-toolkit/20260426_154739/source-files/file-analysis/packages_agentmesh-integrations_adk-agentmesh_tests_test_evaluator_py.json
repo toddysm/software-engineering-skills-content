@@ -1,0 +1,692 @@
+{
+  "path": "packages/agentmesh-integrations/adk-agentmesh/tests/test_evaluator.py",
+  "extension": ".py",
+  "size_bytes": 15376,
+  "line_count": 432,
+  "documentation": {
+    "file_docstring": "Tests for ADK AgentMesh governance integration.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "ADKPolicyEvaluator \u2014 tool call evaluation",
+      "---------------------------------------------------------------------------",
+      "evaluator has max_tool_calls=3",
+      "4th call should be denied",
+      "agent-a is at the limit, agent-b should still work",
+      "---------------------------------------------------------------------------",
+      "Config loading",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "DelegationScope",
+      "---------------------------------------------------------------------------",
+      "\"admin\" should be filtered out \u2014 not in parent",
+      "---------------------------------------------------------------------------",
+      "GovernanceCallbacks",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "AuditEvent & LoggingAuditHandler",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "PolicyDecision",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Delegation evaluation",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_run: Run an async coroutine synchronously.",
+      "evaluator: A basic evaluator with common test settings.",
+      "sample_policy_path: Write a minimal YAML policy to a temp file.",
+      "TestBlockedTools: Blocked tools must be denied.",
+      "TestAllowedTools: Unrestricted tools should pass when no allowlist is set.",
+      "TestRateLimit: Rate limiting must kick in after max_tool_calls.",
+      "TestApprovalRequired: Tools requiring approval should escalate.",
+      "TestAuditLog: Audit log must capture governance decisions.",
+      "TestConfigLoading: Policy loading from YAML.",
+      "TestDelegationScope: Delegation scope narrowing must be monotonic."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_scope_blocks_unlisted_tool",
+    "TestBlockedTools",
+    "TestGovernanceCallbacks",
+    "test_narrow_cannot_increase_tool_calls",
+    "test_max_depth_zero_blocks_delegation",
+    "test_to_json",
+    "TestApprovalRequired",
+    "test_narrow_can_set_read_only",
+    "TestAuditEvent",
+    "TestConfigLoading",
+    "test_defaults",
+    "TestDelegationScope",
+    "TestAllowedTools",
+    "TestDelegationEvaluation",
+    "test_from_config",
+    "test_narrow_cannot_increase_depth",
+    "TestPolicyDecision",
+    "test_read_only_blocks_write",
+    "test_logging_handler",
+    "test_read_only_allows_read",
+    "TestAuditLog",
+    "test_narrow_read_only_is_sticky",
+    "test_missing_config_raises",
+    "test_narrow_reduces_depth",
+    "test_to_dict",
+    "test_narrow_tools_subset",
+    "test_verdict_enum_values",
+    "TestRateLimit",
+    "evaluator",
+    "test_narrow_can_decrease_tool_calls",
+    "sample_policy_path"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "textwrap",
+      "pathlib",
+      "pytest",
+      "adk_agentmesh.evaluator",
+      "adk_agentmesh.governance",
+      "adk_agentmesh.audit"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_run",
+      "line": 22,
+      "doc": "Run an async coroutine synchronously.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "coro"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluator",
+      "line": 28,
+      "doc": "A basic evaluator with common test settings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "sample_policy_path",
+      "line": 39,
+      "doc": "Write a minimal YAML policy to a temp file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tmp_path"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "test_blocked_tool_is_denied",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_second_blocked_tool_is_also_denied",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_tool_passes",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_restricts_tools",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_permits_listed_tool",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rate_limit_exceeded",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rate_limit_per_agent",
+      "line": 143,
+      "doc": "Different agents have independent counters.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reset_counters",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_approval_required_escalation",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_populated",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_has_timestamps",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_config",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sample_policy_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_config_raises",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_loaded_policy_blocks_tool",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "sample_policy_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_loaded_policy_escalates_approval",
+      "line": 246,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "sample_policy_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_reduces_depth",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_cannot_increase_depth",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_cannot_increase_tool_calls",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_can_decrease_tool_calls",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_tools_subset",
+      "line": 283,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_read_only_is_sticky",
+      "line": 291,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_narrow_can_set_read_only",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_read_only_blocks_write",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_read_only_allows_read",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scope_blocks_unlisted_tool",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_depth_zero_blocks_delegation",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_json",
+      "line": 365,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_logging_handler",
+      "line": 373,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "caplog"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 394,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verdict_enum_values",
+      "line": 401,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_allowed_by_default",
+      "line": 415,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delegation_logged",
+      "line": 424,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestBlockedTools",
+      "line": 61,
+      "doc": "Blocked tools must be denied.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAllowedTools",
+      "line": 85,
+      "doc": "Unrestricted tools should pass when no allowlist is set.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRateLimit",
+      "line": 119,
+      "doc": "Rate limiting must kick in after max_tool_calls.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestApprovalRequired",
+      "line": 176,
+      "doc": "Tools requiring approval should escalate.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditLog",
+      "line": 191,
+      "doc": "Audit log must capture governance decisions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestConfigLoading",
+      "line": 221,
+      "doc": "Policy loading from YAML.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDelegationScope",
+      "line": 260,
+      "doc": "Delegation scope narrowing must be monotonic.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGovernanceCallbacks",
+      "line": 306,
+      "doc": "GovernanceCallbacks wiring into ADK lifecycle.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditEvent",
+      "line": 349,
+      "doc": "Structured audit event serialization.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyDecision",
+      "line": 391,
+      "doc": "PolicyDecision dataclass behavior.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDelegationEvaluation",
+      "line": 411,
+      "doc": "Agent delegation evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 7,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

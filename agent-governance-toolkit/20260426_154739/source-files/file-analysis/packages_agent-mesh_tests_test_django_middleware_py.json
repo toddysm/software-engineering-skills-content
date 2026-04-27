@@ -1,0 +1,395 @@
+{
+  "path": "packages/agent-mesh/tests/test_django_middleware.py",
+  "extension": ".py",
+  "size_bytes": 11990,
+  "line_count": 321,
+  "documentation": {
+    "file_docstring": "Tests for Django trust verification middleware and decorators.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Copyright (c) Agent-Mesh Contributors. All rights reserved.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Skip the entire module when Django is not installed.",
+      "Minimal Django settings \u2014 must be configured before any Django import.",
+      "\u2500\u2500 Dummy views & URL configuration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "URL patterns used by the middleware's resolve step.",
+      "\u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Test class \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Create agent keypair and sign the DID",
+      "V24: response must NOT leak trust_score or required_score",
+      "score 750 >= new threshold 300 \u2192 should pass",
+      "score 750 < per-view 800 \u2192 403",
+      "Save originals",
+      "Also make sure import machinery can't find django",
+      "Remove cached django_middleware modules so they re-import",
+      "Should import without error; __all__ is empty",
+      "Restore django modules",
+      "Re-import to restore state"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "_ok_view: Simple view that returns 200.",
+      "_make_middleware: Create an AgentTrustMiddleware wrapping a dummy get_response.",
+      "_get: Build a GET request with optional trust headers.",
+      "TestAgentTrustMiddleware: Tests for AgentTrustMiddleware.",
+      "TestTrustRequiredDecorator: Tests for @trust_required decorator.",
+      "TestTrustExemptDecorator: Tests for @trust_exempt decorator.",
+      "TestImportWithoutDjango: Verify the package is importable when Django is absent.",
+      "test_did_without_signature_rejected: DID-only requests (no signature) get score 0, below 500 default.",
+      "test_invalid_signature_rejected: A fabricated signature string is rejected.",
+      "test_unregistered_agent_rejected: Agent DID not in AGENTMESH_AGENT_KEYS gets score 0."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_did_without_signature_rejected",
+    "test_import_does_not_crash_without_django",
+    "TestTrustExemptDecorator",
+    "test_exempt_skips_verification",
+    "TestTrustRequiredDecorator",
+    "test_custom_did_header",
+    "test_invalid_signature_rejected",
+    "test_settings_override_defaults",
+    "test_valid_did_with_signature_passes",
+    "test_per_view_threshold_enforced",
+    "test_exempt_preserves_function_name",
+    "test_exempt_path_bypasses_verification",
+    "test_missing_did_returns_403",
+    "test_unregistered_agent_rejected",
+    "test_decorator_preserves_function_name",
+    "test_exempt_sets_agent_did",
+    "TestAgentTrustMiddleware",
+    "TestImportWithoutDjango"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "importlib",
+      "json",
+      "sys",
+      "pytest",
+      "django.conf",
+      "django",
+      "django.http",
+      "django.test",
+      "django.urls",
+      "agentmesh.integrations.django_middleware",
+      "cryptography.hazmat.primitives.asymmetric",
+      "base64",
+      "cryptography.hazmat.primitives.asymmetric",
+      "cryptography.hazmat.primitives.asymmetric",
+      "base64",
+      "cryptography.hazmat.primitives.asymmetric",
+      "base64",
+      "cryptography.hazmat.primitives.asymmetric",
+      "base64",
+      "builtins"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_ok_view",
+      "line": 47,
+      "doc": "Simple view that returns 200.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_high_trust_view",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_exempt_view",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "trust_exempt"
+      ],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_middleware",
+      "line": 73,
+      "doc": "Create an AgentTrustMiddleware wrapping a dummy get_response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "get_response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get",
+      "line": 80,
+      "doc": "Build a GET request with optional trust headers.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_did_returns_403",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_did_with_signature_passes",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_without_signature_rejected",
+      "line": 126,
+      "doc": "DID-only requests (no signature) get score 0, below 500 default.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_signature_rejected",
+      "line": 138,
+      "doc": "A fabricated signature string is rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregistered_agent_rejected",
+      "line": 158,
+      "doc": "Agent DID not in AGENTMESH_AGENT_KEYS gets score 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exempt_path_bypasses_verification",
+      "line": 169,
+      "doc": "Paths listed in AGENTMESH_EXEMPT_PATHS skip trust checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_settings_override_defaults",
+      "line": 180,
+      "doc": "Custom settings override the built-in defaults.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_did_header",
+      "line": 202,
+      "doc": "AGENTMESH_DID_HEADER changes which header is read.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_per_view_threshold_enforced",
+      "line": 233,
+      "doc": "@trust_required(min_score=800) rejects score 750 even with valid sig.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_decorator_preserves_function_name",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exempt_skips_verification",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exempt_preserves_function_name",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exempt_sets_agent_did",
+      "line": 272,
+      "doc": "Even exempt views get agent_did set on request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_import_does_not_crash_without_django",
+      "line": 283,
+      "doc": "Simulate Django not installed by temporarily removing it from sys.modules.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_no_django",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestAgentTrustMiddleware",
+      "line": 94,
+      "doc": "Tests for AgentTrustMiddleware.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustRequiredDecorator",
+      "line": 230,
+      "doc": "Tests for @trust_required decorator.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustExemptDecorator",
+      "line": 260,
+      "doc": "Tests for @trust_exempt decorator.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestImportWithoutDjango",
+      "line": 280,
+      "doc": "Verify the package is importable when Django is absent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 23,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

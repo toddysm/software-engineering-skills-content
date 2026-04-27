@@ -1,0 +1,407 @@
+{
+  "path": "packages/agent-os/src/agent_os/_circuit_breaker_impl.py",
+  "extension": ".py",
+  "size_bytes": 7485,
+  "line_count": 232,
+  "documentation": {
+    "file_docstring": "Standalone circuit breaker implementation.\n\nThis module provides a self-contained circuit breaker that requires no\nexternal packages beyond the Python standard library.  It is used as a\nfallback by ``agent_os.circuit_breaker`` when ``agent_sre`` is not installed.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CircuitOpenError: Raised when a call is attempted on an open circuit.",
+      "CircuitBreakerConfig: Configuration for a circuit breaker instance.",
+      "CircuitBreaker: Standalone circuit breaker (used when agent_sre is not installed).",
+      "CascadeDetector: Detects cascading failures across multiple agents."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "state",
+    "CircuitBreaker",
+    "get_breaker",
+    "record_success",
+    "CircuitState",
+    "CircuitOpenError",
+    "reset_timeout_seconds",
+    "failure_count",
+    "call",
+    "CascadeDetector",
+    "record_failure",
+    "reset",
+    "check_cascade",
+    "CircuitBreakerConfig",
+    "get_state",
+    "get_affected_agents",
+    "reset_all"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "inspect",
+      "threading",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "retry_after"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "failure_threshold",
+        "recovery_timeout_seconds",
+        "half_open_max_calls",
+        "reset_timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_timeout_seconds",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "reset_timeout_seconds",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "reset_timeout_seconds.setter"
+      ],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "state",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "failure_count",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_state",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "CircuitState"
+    },
+    {
+      "name": "call",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "record_success",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_failure",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_prepare_call",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_maybe_transition_to_half_open",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_transition",
+      "line": 183,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_time_until_recovery",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agents",
+        "cascade_threshold",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_breaker",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_cascade",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_affected_agents",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_all",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_await_result",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "CircuitState",
+      "line": 20,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitOpenError",
+      "line": 26,
+      "doc": "Raised when a call is attempted on an open circuit.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerConfig",
+      "line": 42,
+      "doc": "Configuration for a circuit breaker instance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreaker",
+      "line": 82,
+      "doc": "Standalone circuit breaker (used when agent_sre is not installed).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CascadeDetector",
+      "line": 193,
+      "doc": "Detects cascading failures across multiple agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

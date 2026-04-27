@@ -1,0 +1,415 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/lifecycle/manager.py",
+  "extension": ".py",
+  "size_bytes": 12252,
+  "line_count": 362,
+  "documentation": {
+    "file_docstring": "Lifecycle Manager \u2014 orchestrates the agent lifecycle state machine.\n\nManages provisioning, activation, suspension, and decommissioning\nof agents with full audit trail and policy enforcement.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Valid state transitions",
+      "Issue initial credential",
+      "Transition to decommissioning",
+      "Revoke credentials if policy requires",
+      "Complete decommission",
+      "--- Internal helpers ---"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "LifecycleError: Error in lifecycle management.",
+      "LifecycleManager: Manages the lifecycle of agents from provisioning to decommission.\n\nThe manager ",
+      "request_provisioning: Request provisioning of a new agent.\n\nIf policy requires approval, agent starts ",
+      "approve: Approve a pending agent request.",
+      "reject: Reject a pending agent request.",
+      "activate: Activate a provisioned agent and issue initial credentials.",
+      "heartbeat: Record a heartbeat from an active agent.",
+      "suspend: Suspend an active agent.",
+      "resume: Resume a suspended agent.",
+      "decommission: Start decommissioning an agent."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "list_by_owner",
+    "LifecycleError",
+    "resume",
+    "summary",
+    "suspend",
+    "change_owner",
+    "heartbeat",
+    "approve",
+    "activate",
+    "rotate_credentials",
+    "get",
+    "agents",
+    "LifecycleManager",
+    "reject",
+    "request_provisioning",
+    "decommission",
+    "list_by_state",
+    "get_audit_trail"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "uuid",
+      "datetime",
+      "pathlib",
+      "typing",
+      "models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "storage_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agents",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request_provisioning",
+      "line": 90,
+      "doc": "Request provisioning of a new agent.\n\nIf policy requires approval, agent starts in PENDING_APPROVAL.\nOtherwise, goes directly to PROVISIONED.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "owner",
+        "purpose",
+        "agent_type",
+        "actor",
+        "tags"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "approve",
+      "line": 137,
+      "doc": "Approve a pending agent request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "reject",
+      "line": 148,
+      "doc": "Reject a pending agent request.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "reason",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "activate",
+      "line": 161,
+      "doc": "Activate a provisioned agent and issue initial credentials.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "heartbeat",
+      "line": 174,
+      "doc": "Record a heartbeat from an active agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "suspend",
+      "line": 190,
+      "doc": "Suspend an active agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "reason",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "resume",
+      "line": 202,
+      "doc": "Resume a suspended agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "decommission",
+      "line": 213,
+      "doc": "Start decommissioning an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "reason",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "change_owner",
+      "line": 241,
+      "doc": "Transfer ownership of an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "new_owner",
+        "actor"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "rotate_credentials",
+      "line": 256,
+      "doc": "Rotate credentials for an active agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "get",
+      "line": 273,
+      "doc": "Get an agent by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_by_state",
+      "line": 277,
+      "doc": "List agents in a specific lifecycle state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_by_owner",
+      "line": 281,
+      "doc": "List agents owned by a specific person/team.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "owner"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_trail",
+      "line": 285,
+      "doc": "Get the full audit trail for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "summary",
+      "line": 290,
+      "doc": "Generate lifecycle summary statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_agent",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ManagedAgent"
+    },
+    {
+      "name": "_transition",
+      "line": 312,
+      "doc": "Execute a validated state transition.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "new_state",
+        "event_type",
+        "actor",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_issue_credential",
+      "line": 339,
+      "doc": "Issue a new short-lived credential.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_save",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load",
+      "line": 353,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "LifecycleError",
+      "line": 61,
+      "doc": "Error in lifecycle management.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "LifecycleManager",
+      "line": 65,
+      "doc": "Manages the lifecycle of agents from provisioning to decommission.\n\nThe manager enforces:\n- State machine transitions (invalid transitions are rejected)\n- Policy compliance (owner required, approval workflows)\n- Credential lifecycle (rotation, expiry, revocation)\n- Full audit trail (every state change is recorded)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

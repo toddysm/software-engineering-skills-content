@@ -1,0 +1,1077 @@
+{
+  "path": "packages/agent-os/tests/test_security_policy_enforcement.py",
+  "extension": ".py",
+  "size_bytes": 34909,
+  "line_count": 966,
+  "documentation": {
+    "file_docstring": "Security policy enforcement tests across framework integrations.\n\nValidates that governance policies are consistently enforced regardless\nof which framework adapter is used:\n  - GovernancePolicy enforcement (tool limits, blocked patterns, timeouts)\n  - PolicyEvaluator rule matching (allow/deny/audit/block actions)\n  - Prompt injection detection across all attack categories\n  - Memory guard poisoning detection\n  - MCP security scanning (tool poisoning, rug pulls)\n  - Sandbox enforcement (blocked imports, AST inspection)\n  - Cross-adapter policy consistency (LangChain, CrewAI, AutoGen)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "GovernancePolicy Enforcement",
+      "============================================================================",
+      "First two calls should pass",
+      "Third call should be blocked",
+      "Backdate start time to exceed timeout",
+      "Non-matching should pass",
+      "============================================================================",
+      "Cross-Adapter Policy Consistency",
+      "============================================================================",
+      "============================================================================",
+      "PolicyEvaluator \u2014 Declarative Rule Enforcement",
+      "============================================================================",
+      "Delete is denied",
+      "Write is audited (allowed)",
+      "============================================================================",
+      "Prompt Injection Detection",
+      "============================================================================",
+      "Both should detect obvious injection",
+      "============================================================================",
+      "Memory Guard \u2014 Poisoning Detection",
+      "============================================================================",
+      "Verify unmodified entry passes",
+      "Tamper with content",
+      "============================================================================",
+      "MCP Security Scanner",
+      "============================================================================",
+      "Register original tool",
+      "Check for rug pull with changed description",
+      "Re-registering with same definition should not change version",
+      "============================================================================",
+      "Sandbox Enforcement",
+      "============================================================================",
+      "============================================================================",
+      "Drift Detection",
+      "============================================================================",
+      "Establish baseline",
+      "Same output should have zero drift",
+      "Establish baseline",
+      "Completely different output",
+      "Establish baseline via post_execute",
+      "Different output should trigger drift event",
+      "============================================================================",
+      "Policy Strictness Comparison",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestGovernancePolicyEnforcement: Test that GovernancePolicy blocks are consistently enforced.",
+      "TestCrossAdapterPolicyConsistency: Test that policy enforcement is consistent across all adapters.",
+      "TestPolicyEvaluatorEnforcement: Test declarative policy rule evaluation.",
+      "TestPromptInjectionEnforcement: Test prompt injection detection across all attack types.",
+      "TestMemoryGuardEnforcement: Test memory guard against poisoning attacks.",
+      "TestMCPSecurityEnforcement: Test MCP security scanning for tool poisoning.",
+      "TestSandboxEnforcement: Test sandbox blocks dangerous operations.",
+      "TestDriftDetection: Test semantic drift detection in post-execution.",
+      "TestPolicyStrictness: Test policy comparison and conflict detection.",
+      "test_max_tool_calls_enforced: pre_execute denies after max_tool_calls exceeded."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_identical_output_zero_drift",
+    "test_gt_operator",
+    "test_matches_operator_regex",
+    "test_deny_rule_blocks_action",
+    "test_conflict_detection",
+    "test_direct_override_detected",
+    "TestPolicyEvaluatorEnforcement",
+    "test_max_tool_calls_enforced",
+    "test_diff_reports_changes",
+    "TestPolicyStrictness",
+    "test_multi_turn_escalation",
+    "test_allowlist_overrides",
+    "test_integrity_verification",
+    "test_allow_rule_permits_action",
+    "test_tool_fingerprint_stability",
+    "TestMCPSecurityEnforcement",
+    "test_injection_pattern_blocked",
+    "test_sandbox_config_defaults",
+    "test_role_play_jailbreak",
+    "test_multiple_policies_combined",
+    "test_blocklist_overrides",
+    "test_policy_allows_clean_input",
+    "test_hidden_instruction_detected",
+    "test_autogen_enforces_tool_limit",
+    "test_stricter_policy_detected",
+    "test_timeout_enforcement",
+    "test_delimiter_attack_detected",
+    "test_in_operator",
+    "test_memory_entry_create_factory",
+    "TestMemoryGuardEnforcement",
+    "test_context_manipulation",
+    "test_memory_entry_hash_computation",
+    "test_blocked_pattern_glob",
+    "test_blocked_import_raises",
+    "test_rug_pull_detection",
+    "TestCrossAdapterPolicyConsistency",
+    "TestSandboxEnforcement",
+    "TestGovernancePolicyEnforcement",
+    "test_dan_mode",
+    "test_crewai_enforces_tool_limit",
+    "test_different_output_high_drift",
+    "test_blocked_pattern_regex",
+    "test_identical_not_stricter",
+    "test_looser_not_stricter",
+    "test_human_approval_required",
+    "test_strict_sensitivity",
+    "test_langchain_enforces_tool_limit",
+    "TestDriftDetection",
+    "test_blocked_pattern_consistent_across_adapters",
+    "test_clean_tool_passes",
+    "test_blocked_pattern_substring",
+    "test_no_matching_rule_uses_default",
+    "test_first_output_sets_baseline",
+    "test_drift_event_emitted",
+    "test_audit_trail_populated",
+    "test_forget_instructions_detected",
+    "LowConfidence",
+    "test_chat_marker_injection",
+    "test_ast_security_visitor_detects_eval",
+    "test_clean_write_allowed",
+    "test_batch_detection",
+    "test_install_uninstall_lifecycle",
+    "test_audit_rule_allows_but_logs",
+    "test_priority_ordering",
+    "TestPromptInjectionEnforcement",
+    "test_allowed_import_passes",
+    "test_confidence_threshold",
+    "test_block_rule_denies",
+    "test_code_injection_blocked",
+    "test_clean_input_passes"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "re",
+      "time",
+      "datetime",
+      "unittest.mock",
+      "pytest",
+      "agent_os.integrations.base",
+      "agent_os.policies.schema",
+      "agent_os.policies.evaluator",
+      "agent_os.prompt_injection",
+      "agent_os.memory_guard",
+      "agent_os.mcp_security",
+      "agent_os.sandbox",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.crewai_adapter",
+      "agent_os.integrations.autogen_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.crewai_adapter",
+      "agent_os.integrations.autogen_adapter",
+      "agent_os.exceptions",
+      "sys",
+      "ast",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter",
+      "agent_os.integrations.langchain_adapter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_max_tool_calls_enforced",
+      "line": 77,
+      "doc": "pre_execute denies after max_tool_calls exceeded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_timeout_enforcement",
+      "line": 100,
+      "doc": "pre_execute denies after timeout exceeded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern_substring",
+      "line": 114,
+      "doc": "pre_execute blocks substring patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern_regex",
+      "line": 126,
+      "doc": "pre_execute blocks regex patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern_glob",
+      "line": 145,
+      "doc": "pre_execute blocks glob patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_human_approval_required",
+      "line": 160,
+      "doc": "pre_execute blocks when human approval is required.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_confidence_threshold",
+      "line": 172,
+      "doc": "pre_execute blocks low-confidence inputs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_allows_clean_input",
+      "line": 187,
+      "doc": "pre_execute allows clean input within limits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_policy",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_langchain_enforces_tool_limit",
+      "line": 218,
+      "doc": "LangChain adapter enforces tool call limits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_crewai_enforces_tool_limit",
+      "line": 229,
+      "doc": "CrewAI adapter enforces tool call limits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_autogen_enforces_tool_limit",
+      "line": 240,
+      "doc": "AutoGen adapter enforces tool call limits.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_pattern_consistent_across_adapters",
+      "line": 251,
+      "doc": "Blocked patterns enforce identically across adapters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_evaluator",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rules"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_rule_blocks_action",
+      "line": 286,
+      "doc": "A deny rule blocks matching context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allow_rule_permits_action",
+      "line": 306,
+      "doc": "An allow rule permits matching context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_rule_allows_but_logs",
+      "line": 324,
+      "doc": "An audit rule allows the action (for logging purposes).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_block_rule_denies",
+      "line": 344,
+      "doc": "A block rule denies matching context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_priority_ordering",
+      "line": 362,
+      "doc": "Higher priority rules are evaluated first.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_matching_rule_uses_default",
+      "line": 392,
+      "doc": "When no rule matches, the default action is applied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_gt_operator",
+      "line": 409,
+      "doc": "Greater-than operator evaluates correctly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_in_operator",
+      "line": 430,
+      "doc": "IN operator matches against a list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_matches_operator_regex",
+      "line": 448,
+      "doc": "MATCHES operator uses regex matching.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_policies_combined",
+      "line": 469,
+      "doc": "Multiple policy documents are evaluated together.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_detector",
+      "line": 523,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sensitivity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_direct_override_detected",
+      "line": 527,
+      "doc": "Direct instruction override is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_forget_instructions_detected",
+      "line": 534,
+      "doc": "'Forget everything' pattern is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delimiter_attack_detected",
+      "line": 540,
+      "doc": "Delimiter-based context escape is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chat_marker_injection",
+      "line": 546,
+      "doc": "Chat format markers are detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_role_play_jailbreak",
+      "line": 552,
+      "doc": "Role-play/jailbreak attempts are detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dan_mode",
+      "line": 558,
+      "doc": "DAN mode pattern is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_manipulation",
+      "line": 564,
+      "doc": "Context manipulation is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multi_turn_escalation",
+      "line": 570,
+      "doc": "Multi-turn escalation references are detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_input_passes",
+      "line": 576,
+      "doc": "Normal, benign input is not flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_overrides",
+      "line": 583,
+      "doc": "Blocklist entries always trigger detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_overrides",
+      "line": 591,
+      "doc": "Allowlist entries suppress detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_strict_sensitivity",
+      "line": 598,
+      "doc": "Strict mode has lower detection thresholds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_batch_detection",
+      "line": 609,
+      "doc": "Batch detection scans multiple inputs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_trail_populated",
+      "line": 620,
+      "doc": "Detection populates the audit trail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_guard",
+      "line": 636,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_write_allowed",
+      "line": 639,
+      "doc": "Clean content is allowed through memory guard.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_injection_pattern_blocked",
+      "line": 646,
+      "doc": "Prompt injection in memory content is blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_code_injection_blocked",
+      "line": 656,
+      "doc": "Code injection patterns in memory are blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_integrity_verification",
+      "line": 666,
+      "doc": "Hash integrity verification detects tampering.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_entry_hash_computation",
+      "line": 685,
+      "doc": "MemoryEntry.compute_hash is deterministic.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_memory_entry_create_factory",
+      "line": 692,
+      "doc": "MemoryEntry.create sets timestamp and hash automatically.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_scanner",
+      "line": 709,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_tool_passes",
+      "line": 712,
+      "doc": "Clean tool definition passes security scan.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hidden_instruction_detected",
+      "line": 723,
+      "doc": "Hidden instructions in tool descriptions are detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rug_pull_detection",
+      "line": 736,
+      "doc": "Tool definition changes are detected as rug pulls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_fingerprint_stability",
+      "line": 757,
+      "doc": "Same tool definition produces same fingerprint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocked_import_raises",
+      "line": 788,
+      "doc": "Importing blocked modules raises SecurityError.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_import_passes",
+      "line": 800,
+      "doc": "Non-blocked modules pass through sandbox.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_uninstall_lifecycle",
+      "line": 810,
+      "doc": "Hook can be installed and uninstalled cleanly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sandbox_config_defaults",
+      "line": 822,
+      "doc": "SandboxConfig has sensible defaults.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ast_security_visitor_detects_eval",
+      "line": 830,
+      "doc": "AST visitor flags eval() calls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_first_output_sets_baseline",
+      "line": 852,
+      "doc": "First output establishes baseline (no drift score).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_identical_output_zero_drift",
+      "line": 864,
+      "doc": "Identical output produces drift score 0.0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_different_output_high_drift",
+      "line": 881,
+      "doc": "Completely different output produces high drift score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drift_event_emitted",
+      "line": 898,
+      "doc": "DRIFT_DETECTED event is emitted when threshold exceeded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stricter_policy_detected",
+      "line": 927,
+      "doc": "Stricter policy is correctly identified.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_identical_not_stricter",
+      "line": 937,
+      "doc": "Identical policies are not 'stricter'.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_looser_not_stricter",
+      "line": 943,
+      "doc": "Looser policy is not stricter.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_conflict_detection",
+      "line": 949,
+      "doc": "Policy conflicts are detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_diff_reports_changes",
+      "line": 960,
+      "doc": "Policy diff reports changed fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestGovernancePolicyEnforcement",
+      "line": 74,
+      "doc": "Test that GovernancePolicy blocks are consistently enforced.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrossAdapterPolicyConsistency",
+      "line": 208,
+      "doc": "Test that policy enforcement is consistent across all adapters.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyEvaluatorEnforcement",
+      "line": 275,
+      "doc": "Test declarative policy rule evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPromptInjectionEnforcement",
+      "line": 520,
+      "doc": "Test prompt injection detection across all attack types.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMemoryGuardEnforcement",
+      "line": 633,
+      "doc": "Test memory guard against poisoning attacks.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPSecurityEnforcement",
+      "line": 706,
+      "doc": "Test MCP security scanning for tool poisoning.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSandboxEnforcement",
+      "line": 785,
+      "doc": "Test sandbox blocks dangerous operations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDriftDetection",
+      "line": 849,
+      "doc": "Test semantic drift detection in post-execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyStrictness",
+      "line": 924,
+      "doc": "Test policy comparison and conflict detection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LowConfidence",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

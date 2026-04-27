@@ -1,0 +1,1100 @@
+{
+  "path": "packages/agent-os/tests/test_mcp_security.py",
+  "extension": ".py",
+  "size_bytes": 23943,
+  "line_count": 626,
+  "documentation": {
+    "file_docstring": "Tests for MCP Security \u2014 tool poisoning defense module.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "TestMCPThreatTypes \u2014 enums exist and have expected values",
+      "============================================================================",
+      "============================================================================",
+      "TestToolFingerprint \u2014 hashing, creation",
+      "============================================================================",
+      "============================================================================",
+      "TestHiddenInstructions \u2014 zero-width chars, markdown comments, base64",
+      "============================================================================",
+      "============================================================================",
+      "TestDescriptionInjection \u2014 injection patterns in tool descriptions",
+      "============================================================================",
+      "============================================================================",
+      "TestSchemaAbuse \u2014 overly permissive schemas, hidden fields, instruction defaults",
+      "============================================================================",
+      "============================================================================",
+      "TestRugPullDetection \u2014 register tool, change desc \u2192 detected",
+      "============================================================================",
+      "============================================================================",
+      "TestCrossServerAttacks \u2014 impersonation and typosquatting",
+      "============================================================================",
+      "============================================================================",
+      "TestScanTool \u2014 full scan of clean and poisoned tools",
+      "============================================================================",
+      "Should have no TOOL_POISONING/HIDDEN_INSTRUCTION/DESCRIPTION_INJECTION",
+      "============================================================================",
+      "TestScanServer \u2014 batch scan returning ScanResult",
+      "============================================================================",
+      "============================================================================",
+      "TestBenignTools \u2014 normal tools that should NOT trigger",
+      "============================================================================",
+      "============================================================================",
+      "TestAuditLog \u2014 scan creates audit entries",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "setup_method",
+    "test_all_threat_types_enumerable",
+    "test_permissive_schema_no_properties",
+    "test_clean_schema_passes",
+    "test_clean_server",
+    "TestRugPullDetection",
+    "test_scan_creates_audit_entry",
+    "broken",
+    "test_excessive_whitespace_hidden",
+    "test_fingerprint_creation",
+    "test_scan_server_records_server_scan",
+    "test_instruction_override_pattern",
+    "record_scan",
+    "TestCrossServerAttacks",
+    "test_no_rug_pull_same_definition",
+    "test_html_comment",
+    "test_same_tool_name_different_servers",
+    "test_file_reader_tool",
+    "test_threat_types_exist",
+    "TestToolFingerprint",
+    "record_decision",
+    "test_no_rug_pull_unregistered_tool",
+    "test_clock_and_audit_sink_injection",
+    "test_data_exfiltration_curl",
+    "test_scan_result_dataclass",
+    "test_simple_search_tool",
+    "test_calculator_tool",
+    "test_ignore_previous_instructions",
+    "test_suspicious_required_field",
+    "test_mixed_server",
+    "test_multiple_threat_types",
+    "test_send_to_pattern",
+    "test_typosquatting_detection",
+    "test_scan_tool_fails_closed_on_unexpected_error",
+    "test_no_cross_server_same_server",
+    "test_audit_entry_contains_threat_info",
+    "test_fingerprint_description_hash_matches",
+    "test_rug_pull_schema_change",
+    "test_register_updates_version",
+    "test_zero_width_space",
+    "TestAuditLog",
+    "test_bidi_override",
+    "TestMCPThreatTypes",
+    "test_markdown_comment",
+    "test_database_query_tool",
+    "test_audit_log_returns_copy",
+    "TestSchemaAbuse",
+    "TestHiddenInstructions",
+    "test_severity_levels",
+    "test_hidden_instruction_in_property_description",
+    "test_clean_tool_no_threats",
+    "test_fingerprint_schema_hash",
+    "test_instruction_in_default_value",
+    "record_threats_detected",
+    "record_rate_limit_hit",
+    "test_audit_log_starts_empty",
+    "test_scan_tool_records_scan_and_threats",
+    "test_base64_encoded_instruction",
+    "test_all_severities_enumerable",
+    "test_zero_width_joiner",
+    "test_include_contents_of",
+    "test_rug_pull_description_change",
+    "TestDescriptionInjection",
+    "TestScanServer",
+    "test_fingerprint_hashes_are_sha256",
+    "test_role_assignment",
+    "TestBenignTools",
+    "TestMetrics",
+    "test_multiple_scans_create_entries",
+    "TestScanTool",
+    "test_poisoned_tool_detected"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "time",
+      "pytest",
+      "agent_os.mcp_protocols",
+      "agent_os.mcp_security",
+      "base64"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 25,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_decision",
+      "line": 29,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_threats_detected",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "count"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_rate_limit_hit",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_scan",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_threat_types_exist",
+      "line": 52,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_severity_levels",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_threat_types_enumerable",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_severities_enumerable",
+      "line": 68,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_creation",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_hashes_are_sha256",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_description_hash_matches",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_fingerprint_schema_hash",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 121,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_zero_width_space",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_zero_width_joiner",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bidi_override",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_html_comment",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_markdown_comment",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_base64_encoded_instruction",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_excessive_whitespace_hidden",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_instruction_override_pattern",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ignore_previous_instructions",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_role_assignment",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_data_exfiltration_curl",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_send_to_pattern",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_include_contents_of",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 227,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_permissive_schema_no_properties",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_suspicious_required_field",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_instruction_in_default_value",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hidden_instruction_in_property_description",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_schema_passes",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 298,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rug_pull_description_change",
+      "line": 301,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rug_pull_schema_change",
+      "line": 308,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_rug_pull_same_definition",
+      "line": 319,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_rug_pull_unregistered_tool",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_updates_version",
+      "line": 328,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 340,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_tool_name_different_servers",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_typosquatting_detection",
+      "line": 349,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_cross_server_same_server",
+      "line": 355,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_tool_no_threats",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_tool_records_scan_and_threats",
+      "line": 390,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_server_records_server_scan",
+      "line": 408,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_poisoned_tool_detected",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_threat_types",
+      "line": 435,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clock_and_audit_sink_injection",
+      "line": 445,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_tool_fails_closed_on_unexpected_error",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 485,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_server",
+      "line": 488,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mixed_server",
+      "line": 499,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_result_dataclass",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 525,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_simple_search_tool",
+      "line": 528,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_calculator_tool",
+      "line": 538,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_reader_tool",
+      "line": 552,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_database_query_tool",
+      "line": 568,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 592,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_starts_empty",
+      "line": 595,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_creates_audit_entry",
+      "line": 598,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_scans_create_entries",
+      "line": 605,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_returns_copy",
+      "line": 610,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_contains_threat_info",
+      "line": 617,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "broken",
+      "line": 467,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "_FakeMetrics",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": false,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPThreatTypes",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestToolFingerprint",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHiddenInstructions",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDescriptionInjection",
+      "line": 183,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSchemaAbuse",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRugPullDetection",
+      "line": 297,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCrossServerAttacks",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScanTool",
+      "line": 366,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMetrics",
+      "line": 386,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScanServer",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBenignTools",
+      "line": 524,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditLog",
+      "line": 591,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 55,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

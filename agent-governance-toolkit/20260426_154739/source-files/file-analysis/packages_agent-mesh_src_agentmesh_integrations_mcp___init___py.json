@@ -1,0 +1,355 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/integrations/mcp/__init__.py",
+  "extension": ".py",
+  "size_bytes": 17554,
+  "line_count": 487,
+  "documentation": {
+    "file_docstring": "MCP (Model Context Protocol) Integration for AgentMesh\n=======================================================\n\nProvides trust-gated MCP server and client implementations that verify\nagent identity before allowing tool access.\n\nFeatures:\n- Trust verification before tool invocation\n- Capability-based tool access control\n- CMVK authentication for MCP connections\n- Audit logging of all tool calls\n\nExample:\n    >>> from agentmesh.integrations.mcp import TrustGatedMCPServer\n    >>> from agentmesh.identity import AgentIdentity\n    >>>\n    >>> identity = AgentIdentity.create(\n    ...     name=\"tool-server\",\n    ...     sponsor_id=\"admin@example.com\",\n    ...     capabilities=[\"provide:sql\", \"provide:filesystem\"]\n    ... )\n    >>>\n    >>> server = TrustGatedMCPServer(identity, min_trust_score=400)\n    >>> server.register_tool(\"sql_query\", sql_handler, required_capability=\"use:sql\")\n    >>> await server.start()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Trust requirements",
+      "Audit",
+      "Trust metadata",
+      "Timing",
+      "Result",
+      "P10: Circuit breaker \u2014 track consecutive failures per tool",
+      "P05: Maximum tool description length to prevent prompt injection via descriptions",
+      "P12: Maximum total size of tool arguments (bytes when serialized)",
+      "P05: Sanitize tool description \u2014 truncate and strip control characters",
+      "Check cache",
+      "Expired \u2014 remove stale entry",
+      "V22: Evict expired entries when cache grows too large",
+      "Use TrustBridge if available",
+      "Basic verification via card",
+      "Exact match",
+      "Wildcard match (e.g., \"use:*\" matches \"use:sql\")",
+      "P12: Reject oversized arguments to prevent memory DoS",
+      "Check tool exists",
+      "Verify trust score",
+      "Check capability",
+      "Execute tool",
+      "P10: Circuit breaker \u2014 reject if tool has too many consecutive failures",
+      "V12: Validate arguments against input_schema before dispatch",
+      "P11: Sanitize exception \u2014 don't log full message (may contain PII)",
+      "Keep last 1000 calls",
+      "V18: Validate server URL scheme",
+      "Block common internal/loopback targets",
+      "Verify server identity if TrustBridge available",
+      "Extract server DID from URL or discovery",
+      "In real implementation, fetch agent.json and extract DID",
+      "Convenience exports"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPMessageType: MCP message types.",
+      "MCPTool: MCP tool definition with trust requirements.",
+      "MCPToolCall: Record of an MCP tool invocation.",
+      "TrustGatedMCPServer: MCP Server with AgentMesh trust verification.\n\nAll tool invocations require:\n1. ",
+      "TrustGatedMCPClient: MCP Client with AgentMesh identity.\n\nAutomatically attaches identity credentials",
+      "register_tool: Register a tool with trust requirements.\n\nArgs:\n    name: Tool name\n    handler:",
+      "verify_client: Verify client identity before allowing tool access.",
+      "_evict_expired_clients: Remove expired entries from the verified clients cache.",
+      "_check_capability: Check if client has required capability (with wildcard support).",
+      "invoke_tool: Invoke a tool with trust verification.\n\nArgs:\n    tool_name: Name of tool to inv"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "list_tools",
+    "MCPToolCall",
+    "TrustGatedMCPClient",
+    "MCPTool",
+    "MCPMessageType",
+    "register_tool",
+    "TrustGatedMCPServer",
+    "get_credentials",
+    "get_audit_summary"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "uuid",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "enum",
+      "re",
+      "json",
+      "urllib.parse"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "trust_bridge",
+        "min_trust_score",
+        "audit_all_calls"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_tool",
+      "line": 131,
+      "doc": "Register a tool with trust requirements.\n\nArgs:\n    name: Tool name\n    handler: Async handler function\n    description: Tool description (max 1000 chars, stripped of control chars)\n    input_schema: JSON Schema for inputs\n    required_capability: Capability needed to invoke\n    min_trust_score: Minimum trust score (overrides server default)\n    require_human_sponsor: Require direct human sponsor",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "handler",
+        "description",
+        "input_schema",
+        "required_capability",
+        "min_trust_score",
+        "require_human_sponsor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_client",
+      "line": 174,
+      "doc": "Verify client identity before allowing tool access.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "client_did",
+        "client_card"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_evict_expired_clients",
+      "line": 213,
+      "doc": "Remove expired entries from the verified clients cache.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_capability",
+      "line": 223,
+      "doc": "Check if client has required capability (with wildcard support).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client_capabilities",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "invoke_tool",
+      "line": 244,
+      "doc": "Invoke a tool with trust verification.\n\nArgs:\n    tool_name: Name of tool to invoke\n    arguments: Tool arguments\n    caller_did: Caller's agent DID\n    caller_capabilities: Caller's granted capabilities\n    caller_trust_score: Caller's trust score\n\nReturns:\n    MCPToolCall with result or error",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "arguments",
+        "caller_did",
+        "caller_capabilities",
+        "caller_trust_score"
+      ],
+      "returns": "MCPToolCall"
+    },
+    {
+      "name": "_record_call",
+      "line": 361,
+      "doc": "Record call for audit.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "call"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_tools",
+      "line": 369,
+      "doc": "List available tools in MCP format.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_summary",
+      "line": 385,
+      "doc": "Get summary of tool usage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 403,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "trust_bridge"
+      ],
+      "returns": null
+    },
+    {
+      "name": "connect",
+      "line": 412,
+      "doc": "Connect to MCP server with trust verification.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_url"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_discover_server_did",
+      "line": 442,
+      "doc": "Discover server DID from /.well-known/agent.json",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_url"
+      ],
+      "returns": null
+    },
+    {
+      "name": "invoke",
+      "line": 447,
+      "doc": "Invoke tool on MCP server.\n\nAutomatically attaches identity credentials.\n\nRaises:\n    NotImplementedError: HTTP transport is not yet available.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_url",
+        "tool_name",
+        "arguments"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_credentials",
+      "line": 471,
+      "doc": "Get identity credentials for MCP authentication.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPMessageType",
+      "line": 43,
+      "doc": "MCP message types.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MCPTool",
+      "line": 52,
+      "doc": "MCP tool definition with trust requirements.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MCPToolCall",
+      "line": 71,
+      "doc": "Record of an MCP tool invocation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustGatedMCPServer",
+      "line": 93,
+      "doc": "MCP Server with AgentMesh trust verification.\n\nAll tool invocations require:\n1. Valid agent identity (CMVK verification)\n2. Sufficient trust score\n3. Required capabilities",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrustGatedMCPClient",
+      "line": 396,
+      "doc": "MCP Client with AgentMesh identity.\n\nAutomatically attaches identity credentials to MCP requests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 60,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

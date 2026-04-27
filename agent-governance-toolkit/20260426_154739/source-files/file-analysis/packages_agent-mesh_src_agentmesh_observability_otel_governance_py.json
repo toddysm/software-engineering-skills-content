@@ -1,0 +1,171 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/observability/otel_governance.py",
+  "extension": ".py",
+  "size_bytes": 6981,
+  "line_count": 201,
+  "documentation": {
+    "file_docstring": "OpenTelemetry tracing for governance events.\n\nExports OTEL spans for every policy decision, trust evaluation,\nsignal delivery, and audit event in the governance toolkit.  All\nrecording methods are safe no-ops when ``opentelemetry`` is not\ninstalled.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Conditional OpenTelemetry imports",
+      "---------------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Properties",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Public tracing methods",
+      "------------------------------------------------------------------",
+      "Promote well-known context keys to attributes"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernanceTracer: OpenTelemetry tracer for governance events.\n\nExports OTEL spans for every policy",
+      "enabled: Return ``True`` when OpenTelemetry is available.",
+      "trace_policy_decision: Create an OTEL span for a policy decision.\n\nArgs:\n    policy_name: Identifier of",
+      "trace_trust_evaluation: Create a span for trust score evaluation.\n\nArgs:\n    agent_did: DID of the agent",
+      "trace_signal_delivery: Trace agent signal delivery (SIGKILL, SIGPOLICY, etc.).\n\nArgs:\n    agent_id: Ide",
+      "trace_audit_event: Trace audit log entries.\n\nArgs:\n    entry_id: Unique identifier for the audit en"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "trace_policy_decision",
+    "trace_trust_evaluation",
+    "trace_signal_delivery",
+    "trace_audit_event",
+    "GovernanceTracer",
+    "enabled"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "typing",
+      "opentelemetry",
+      "opentelemetry.sdk.trace",
+      "opentelemetry.sdk.resources"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_name",
+        "tracer_provider"
+      ],
+      "returns": null
+    },
+    {
+      "name": "enabled",
+      "line": 76,
+      "doc": "Return ``True`` when OpenTelemetry is available.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "trace_policy_decision",
+      "line": 84,
+      "doc": "Create an OTEL span for a policy decision.\n\nArgs:\n    policy_name: Identifier of the policy that was evaluated.\n    decision: Dict containing at least ``action`` (e.g.\n        ``\"ALLOW\"`` / ``\"DENY\"``) and optionally ``reason``.\n    context: Arbitrary context dict.  Keys such as\n        ``agent_did``, ``resource``, or ``namespace`` are\n        promoted to span attributes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "decision",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_trust_evaluation",
+      "line": 122,
+      "doc": "Create a span for trust score evaluation.\n\nArgs:\n    agent_did: DID of the agent whose trust was evaluated.\n    trust_score: Computed trust score.\n    decision: Resulting decision (e.g. ``\"trusted\"`` /\n        ``\"untrusted\"`` / ``\"probation\"``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "trust_score",
+        "decision"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_signal_delivery",
+      "line": 149,
+      "doc": "Trace agent signal delivery (SIGKILL, SIGPOLICY, etc.).\n\nArgs:\n    agent_id: Identifier of the target agent.\n    signal_name: Signal name, e.g. ``\"SIGKILL\"`` or\n        ``\"SIGPOLICY\"``.\n    reason: Human-readable reason for the signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "signal_name",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_audit_event",
+      "line": 176,
+      "doc": "Trace audit log entries.\n\nArgs:\n    entry_id: Unique identifier for the audit entry.\n    event_type: Type of the audit event (e.g.\n        ``\"policy_violation\"`` or ``\"trust_update\"``).\n    agent_did: DID of the agent associated with the event.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry_id",
+        "event_type",
+        "agent_did"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernanceTracer",
+      "line": 31,
+      "doc": "OpenTelemetry tracer for governance events.\n\nExports OTEL spans for every policy decision, trust evaluation,\nand security event in the governance toolkit.\n\nAll methods are safe no-ops when ``opentelemetry-api`` /\n``opentelemetry-sdk`` are not installed, so the class can always be\nimported and instantiated.\n\nArgs:\n    service_name: Service name written into the OTel resource.\n        Defaults to ``\"agent-governance-toolkit\"``.\n    tracer_provider: An explicit ``TracerProvider``.  When *None*\n        the global provider is used.\n\nExample::\n\n    tracer = GovernanceTracer()\n    tracer.trace_policy_decision(\n        policy_name=\"max-delegation-depth\",\n        decision={\"action\": \"DENY\", \"reason\": \"depth exceeded\"},\n        context={\"agent_did\": \"did:mesh:abc\"},\n    )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

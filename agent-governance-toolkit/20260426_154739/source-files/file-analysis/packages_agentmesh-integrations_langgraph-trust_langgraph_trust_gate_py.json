@@ -1,0 +1,225 @@
+{
+  "path": "packages/agentmesh-integrations/langgraph-trust/langgraph_trust/gate.py",
+  "extension": ".py",
+  "size_bytes": 6117,
+  "line_count": 171,
+  "documentation": {
+    "file_docstring": "TrustGate: Conditional checkpoint node that gates graph transitions on trust score.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Capability check via identity manager"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustScoreTracker: In-memory dynamic trust scoring (0.0-1.0). Thread-safe.\n\nAgents start at ``defau",
+      "TrustGate: A LangGraph node that gates execution based on trust score.\n\nUse as a node funct",
+      "__call__: LangGraph node function: evaluate trust and return state update."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_score",
+    "TrustGate",
+    "TrustScoreTracker",
+    "history",
+    "record_success",
+    "record_failure",
+    "set_score",
+    "scores"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "threading",
+      "datetime",
+      "typing",
+      "langgraph_trust.identity",
+      "langgraph_trust.state"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "default_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_score",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "record_success",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "delta"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "record_failure",
+      "line": 43,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "severity"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "set_score",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "history",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scores",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_score",
+        "tracker",
+        "identity_manager",
+        "agent_name",
+        "required_capabilities",
+        "review_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 108,
+      "doc": "LangGraph node function: evaluate trust and return state update.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_verdict",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verdict",
+        "score",
+        "agent",
+        "did",
+        "reason",
+        "cap_violations"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustScoreTracker",
+      "line": 15,
+      "doc": "In-memory dynamic trust scoring (0.0-1.0). Thread-safe.\n\nAgents start at ``default_score``. Successful interactions raise the\nscore by ``success_delta``; failures drop it by the configured severity.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrustGate",
+      "line": 70,
+      "doc": "A LangGraph node that gates execution based on trust score.\n\nUse as a node function in ``StateGraph.add_node``.  The gate reads the\n``trust_agent`` key from state (or falls back to the ``agent_name`` set at\nconstruction time), looks up the agent's current trust score, and writes\na ``TrustState`` verdict back into the graph state under the\n``trust_result`` key.\n\nDownstream conditional edges can branch on\n``state[\"trust_result\"][\"verdict\"]``.\n\nExample::\n\n    gate = TrustGate(min_score=0.7, tracker=tracker)\n    graph.add_node(\"trust_check\", gate)\n    graph.add_conditional_edges(\"trust_check\", trust_edge(\n        pass_node=\"execute\",\n        fail_node=\"human_review\",\n    ))",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 8,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Minimal mixed concerns"
+    ],
+    "concerns": [],
+    "detected_concerns": []
+  }
+}

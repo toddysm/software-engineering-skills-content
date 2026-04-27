@@ -1,0 +1,329 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/audit.py",
+  "extension": ".py",
+  "size_bytes": 12329,
+  "line_count": 402,
+  "documentation": {
+    "file_docstring": "CMVK Audit Trail Module\n\nProvides immutable audit logging for verification operations.\nAll verifications can be logged with timestamps, inputs, and results\nfor compliance and forensic analysis.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Group by operation",
+      "Log warning but don't fail",
+      "Read existing or create new",
+      "============================================================================",
+      "Helper Functions",
+      "============================================================================",
+      "Create deterministic JSON representation",
+      "============================================================================",
+      "Global Audit Trail Instance",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AuditEntry: Immutable audit record for a single verification.\n\nAll fields are frozen to ensu",
+      "AuditTrail: Audit trail manager for verification operations.\n\nMaintains an immutable log of ",
+      "_hash_inputs: Create SHA-256 hash of inputs for privacy-preserving audit.",
+      "_compute_checksum: Compute checksum for audit entry integrity.",
+      "get_audit_trail: Get or create the global audit trail instance.",
+      "configure_audit_trail: Configure the global audit trail.\n\nArgs:\n    persist_path: Path to persist audit",
+      "to_dict: Convert to dictionary for serialization.",
+      "verify_integrity: Verify the entry's checksum is valid.",
+      "__post_init__: Load existing entries if persist path exists.",
+      "log: Log a verification operation.\n\nArgs:\n    operation: Type of operation (e.g., \"ve"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "export_csv",
+    "log",
+    "export_json",
+    "AuditEntry",
+    "get_statistics",
+    "AuditTrail",
+    "clear",
+    "to_dict",
+    "verify_integrity",
+    "get_entries",
+    "serialize",
+    "configure_audit_trail",
+    "get_audit_trail"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "threading",
+      "uuid",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "numpy",
+      "csv"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_hash_inputs",
+      "line": 343,
+      "doc": "Create SHA-256 hash of inputs for privacy-preserving audit.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "inputs"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_compute_checksum",
+      "line": 362,
+      "doc": "Compute checksum for audit entry integrity.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "get_audit_trail",
+      "line": 375,
+      "doc": "Get or create the global audit trail instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "AuditTrail"
+    },
+    {
+      "name": "configure_audit_trail",
+      "line": 383,
+      "doc": "Configure the global audit trail.\n\nArgs:\n    persist_path: Path to persist audit entries\n    auto_persist: Whether to automatically persist each entry\n\nReturns:\n    The configured AuditTrail instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "persist_path",
+        "auto_persist"
+      ],
+      "returns": "AuditTrail"
+    },
+    {
+      "name": "to_dict",
+      "line": 60,
+      "doc": "Convert to dictionary for serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "verify_integrity",
+      "line": 64,
+      "doc": "Verify the entry's checksum is valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__post_init__",
+      "line": 93,
+      "doc": "Load existing entries if persist path exists.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log",
+      "line": 98,
+      "doc": "Log a verification operation.\n\nArgs:\n    operation: Type of operation (e.g., \"verify_embeddings\")\n    inputs: Input data (will be hashed, not stored directly)\n    drift_score: Drift score from verification\n    confidence: Confidence score\n    metric_used: Distance metric used\n    profile_used: Threshold profile applied\n    passed: Whether verification passed\n    result_details: Additional result information\n    metadata: Additional context (user, session, etc.)\n\nReturns:\n    The created AuditEntry",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "operation",
+        "inputs",
+        "drift_score",
+        "confidence",
+        "metric_used",
+        "profile_used",
+        "passed",
+        "result_details",
+        "metadata"
+      ],
+      "returns": "AuditEntry"
+    },
+    {
+      "name": "get_entries",
+      "line": 162,
+      "doc": "Query audit entries with optional filters.\n\nArgs:\n    start_time: Filter entries after this time\n    end_time: Filter entries before this time\n    operation: Filter by operation type\n    passed_only: If True, only passed; if False, only failed; if None, all\n\nReturns:\n    List of matching AuditEntry records",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "start_time",
+        "end_time",
+        "operation",
+        "passed_only"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 200,
+      "doc": "Calculate summary statistics for the audit trail.\n\nReturns:\n    Dictionary with counts, pass rates, and drift statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "verify_integrity",
+      "line": 242,
+      "doc": "Verify integrity of all audit entries.\n\nReturns:\n    Tuple of (all_valid, list of invalid entry IDs)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_json",
+      "line": 257,
+      "doc": "Export audit trail to JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_csv",
+      "line": 269,
+      "doc": "Export audit trail to CSV file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_from_file",
+      "line": 299,
+      "doc": "Load entries from persist file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_persist_entry",
+      "line": 312,
+      "doc": "Append entry to persist file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear",
+      "line": 332,
+      "doc": "Clear all entries (use with caution).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "serialize",
+      "line": 346,
+      "doc": "Convert objects to JSON-serializable format.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "obj"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AuditEntry",
+      "line": 26,
+      "doc": "Immutable audit record for a single verification.\n\nAll fields are frozen to ensure auditability.\n\nAttributes:\n    id: Unique identifier for this verification\n    timestamp: UTC timestamp of verification\n    operation: Type of verification operation\n    inputs_hash: SHA-256 hash of input data (for privacy)\n    result_summary: Summary of verification result\n    drift_score: The drift score from verification\n    confidence: The confidence score\n    metric_used: Distance metric used\n    profile_used: Threshold profile applied (if any)\n    passed: Whether verification passed thresholds\n    metadata: Additional context (user, session, etc.)\n    checksum: Integrity checksum for this entry",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AuditTrail",
+      "line": 78,
+      "doc": "Audit trail manager for verification operations.\n\nMaintains an immutable log of all verifications with optional\npersistence to file.\n\nThread-safe for concurrent verifications.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

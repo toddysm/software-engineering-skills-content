@@ -1,0 +1,258 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/services/rate_limiter.py",
+  "extension": ".py",
+  "size_bytes": 7398,
+  "line_count": 209,
+  "documentation": {
+    "file_docstring": "Service/proxy-level rate limiting for Agent Mesh.\n\nThis module applies token-bucket limits at the trust-proxy service layer with\nper-agent and global buckets, backpressure signaling, and configurable thresholds.\n\nSee also:\n    - hypervisor.security.rate_limiter: runtime-layer per-agent/per-ring limits.\n    - agent_os.integrations.rate_limiter: tool-call policy limits in Agent OS.\n    - agentmesh.services.rate_limit_middleware: HTTP edge middleware in Agent Mesh.\n    - agent_os.policies.rate_limiting: shared token-bucket primitives.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "V23: Evict oldest buckets when limit reached"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RateLimitConfig: Configuration for rate limiting.",
+      "RateLimitResult: Result of a rate limit check.",
+      "TokenBucket: Token bucket algorithm for rate limiting.\n\nArgs:\n    rate: Tokens added per seco",
+      "RateLimiter: Per-agent and global rate limiter using token buckets.\n\nArgs:\n    global_rate: G",
+      "_refill: Add tokens based on elapsed time.",
+      "consume: Try to consume tokens. Returns True if allowed.",
+      "tokens_available: Current token count after refill.",
+      "time_until_available: Seconds until the requested number of tokens are available.",
+      "_get_agent_bucket: Get or create a per-agent token bucket.",
+      "allow: Check both per-agent and global limits. Returns True if allowed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "service",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "service path"
+    ]
+  },
+  "exports": [
+    "check",
+    "RateLimiter",
+    "RateLimitConfig",
+    "allow",
+    "get_status",
+    "reset",
+    "TokenBucket",
+    "time_until_available",
+    "RateLimitResult",
+    "tokens_available",
+    "consume"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "time",
+      "threading",
+      "typing",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rate",
+        "capacity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_refill",
+      "line": 61,
+      "doc": "Add tokens based on elapsed time.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "consume",
+      "line": 68,
+      "doc": "Try to consume tokens. Returns True if allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tokens"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "tokens_available",
+      "line": 77,
+      "doc": "Current token count after refill.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "time_until_available",
+      "line": 83,
+      "doc": "Seconds until the requested number of tokens are available.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tokens"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "global_rate",
+        "global_capacity",
+        "per_agent_rate",
+        "per_agent_capacity",
+        "backpressure_threshold",
+        "max_agent_buckets"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_agent_bucket",
+      "line": 123,
+      "doc": "Get or create a per-agent token bucket.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "TokenBucket"
+    },
+    {
+      "name": "allow",
+      "line": 137,
+      "doc": "Check both per-agent and global limits. Returns True if allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check",
+      "line": 146,
+      "doc": "Full rate limit check returning a structured result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "RateLimitResult"
+    },
+    {
+      "name": "get_status",
+      "line": 173,
+      "doc": "Current rate limit status.\n\nArgs:\n    agent_did: If provided, include per-agent status. Otherwise global only.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "reset",
+      "line": 190,
+      "doc": "Reset limits for an agent or all agents.\n\nArgs:\n    agent_did: If provided, reset only that agent. Otherwise reset everything.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RateLimitConfig",
+      "line": 22,
+      "doc": "Configuration for rate limiting.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RateLimitResult",
+      "line": 37,
+      "doc": "Result of a rate limit check.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TokenBucket",
+      "line": 46,
+      "doc": "Token bucket algorithm for rate limiting.\n\nArgs:\n    rate: Tokens added per second.\n    capacity: Maximum burst size (max tokens in the bucket).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RateLimiter",
+      "line": 93,
+      "doc": "Per-agent and global rate limiter using token buckets.\n\nArgs:\n    global_rate: Global tokens per second.\n    global_capacity: Global max burst.\n    per_agent_rate: Per-agent tokens per second.\n    per_agent_capacity: Per-agent max burst.\n    backpressure_threshold: Fraction of capacity at which backpressure is signaled.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "auth"
+    ]
+  }
+}

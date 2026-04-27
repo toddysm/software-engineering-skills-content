@@ -1,0 +1,412 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/cascade/circuit_breaker.py",
+  "extension": ".py",
+  "size_bytes": 8399,
+  "line_count": 266,
+  "documentation": {
+    "file_docstring": "Per-agent circuit breakers with cascade detection.\n\nImplements the circuit breaker pattern to prevent cascading failures\nacross multi-agent workflows, while also preserving the legacy\n``agent_os.circuit_breaker`` API through compatible names and behavior.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CircuitOpenError: Raised when a call is attempted on an open circuit.",
+      "CircuitBreakerConfig: Configuration for a circuit breaker instance.\n\nSupports both the canonical ``rec",
+      "CircuitBreaker: Hybrid circuit breaker supporting SRE and legacy agent-os callers.",
+      "CascadeDetector: Detects cascading failures across multiple agents.",
+      "state: Return the current state as an uppercase string.",
+      "get_state: Return the current state, transitioning OPEN \u2192 HALF_OPEN if needed.",
+      "call: Execute *func* through the circuit breaker.\n\nSync callables return their result ",
+      "reset: Manually reset the circuit breaker to CLOSED.",
+      "get_breaker: Return the circuit breaker for *agent_id*, or None if not registered.",
+      "check_cascade: Return ``True`` if a cascading failure is detected."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "state",
+    "CircuitBreaker",
+    "get_breaker",
+    "record_success",
+    "CircuitState",
+    "CircuitOpenError",
+    "reset_timeout_seconds",
+    "failure_count",
+    "call",
+    "CascadeDetector",
+    "record_failure",
+    "reset",
+    "check_cascade",
+    "CircuitBreakerConfig",
+    "get_state",
+    "get_affected_agents",
+    "reset_all"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "inspect",
+      "threading",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "retry_after"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "failure_threshold",
+        "recovery_timeout_seconds",
+        "half_open_max_calls",
+        "reset_timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_timeout_seconds",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "reset_timeout_seconds",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "reset_timeout_seconds.setter"
+      ],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "state",
+      "line": 113,
+      "doc": "Return the current state as an uppercase string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "failure_count",
+      "line": 118,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_state",
+      "line": 121,
+      "doc": "Return the current state, transitioning OPEN \u2192 HALF_OPEN if needed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "CircuitState"
+    },
+    {
+      "name": "call",
+      "line": 127,
+      "doc": "Execute *func* through the circuit breaker.\n\nSync callables return their result directly. Awaitable results are returned\nas a coroutine so legacy async callers can ``await cb.call(...)``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "record_success",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_failure",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 184,
+      "doc": "Manually reset the circuit breaker to CLOSED.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_prepare_call",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_maybe_transition_to_half_open",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_transition",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_time_until_recovery",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 226,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agents",
+        "cascade_threshold",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_breaker",
+      "line": 237,
+      "doc": "Return the circuit breaker for *agent_id*, or None if not registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_cascade",
+      "line": 241,
+      "doc": "Return ``True`` if a cascading failure is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_affected_agents",
+      "line": 245,
+      "doc": "Return agent IDs whose circuits are currently OPEN.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_all",
+      "line": 253,
+      "doc": "Reset every circuit breaker.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_await_result",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "CircuitState",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitOpenError",
+      "line": 28,
+      "doc": "Raised when a call is attempted on an open circuit.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreakerConfig",
+      "line": 44,
+      "doc": "Configuration for a circuit breaker instance.\n\nSupports both the canonical ``recovery_timeout_seconds`` name and the\nlegacy ``reset_timeout_seconds`` alias used by ``agent_os``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CircuitBreaker",
+      "line": 90,
+      "doc": "Hybrid circuit breaker supporting SRE and legacy agent-os callers.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CascadeDetector",
+      "line": 223,
+      "doc": "Detects cascading failures across multiple agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

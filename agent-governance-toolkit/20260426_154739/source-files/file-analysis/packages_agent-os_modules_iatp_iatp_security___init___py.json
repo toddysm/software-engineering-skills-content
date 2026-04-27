@@ -1,0 +1,232 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/security/__init__.py",
+  "extension": ".py",
+  "size_bytes": 8771,
+  "line_count": 270,
+  "documentation": {
+    "file_docstring": "Security and privacy validation logic.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Luhn algorithm",
+      "Double every second digit from right to left",
+      "Add remaining digits",
+      "Patterns for detecting sensitive data",
+      "Check for credit cards with Luhn validation",
+      "Email is less sensitive but still PII",
+      "Check for credit card data with permanent retention",
+      "Check for SSN with any non-ephemeral retention",
+      "Low trust score warning",
+      "No reversibility warning",
+      "No idempotency warning",
+      "Data retention warning",
+      "Human review warning",
+      "Quarantine if:",
+      "- Trust score is very low",
+      "- No reversibility and permanent storage",
+      "- Untrusted agent",
+      "Convert to string for pattern matching",
+      "Redact credit cards",
+      "Redact SSN"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_luhn_check: Validate a credit card number using the Luhn algorithm.\n\nArgs:\n    card_number: ",
+      "SecurityValidator: Validates requests against capability manifests and security policies.",
+      "PrivacyScrubber: Scrubs sensitive data from payloads before logging.",
+      "validate_attestation: Validate an agent attestation record.\n\nThis ensures the agent is running verifie",
+      "detect_sensitive_data: Detect sensitive data in the request payload.\nUses Luhn algorithm to validate cr",
+      "validate_privacy_policy: Validate that the request complies with privacy policies.\n\nReturns:\n    Tuple of",
+      "generate_warning_message: Generate a warning message for risky requests that aren't blocked.\nReturns None ",
+      "should_quarantine: Determine if requests to this agent should be quarantined.",
+      "scrub_payload: Create a scrubbed copy of the payload for logging.\nRedacts sensitive information",
+      "_redact_in_dict: Recursively redact patterns in dictionary."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "validate_privacy_policy",
+    "SecurityValidator",
+    "PrivacyScrubber",
+    "detect_sensitive_data",
+    "scrub_payload",
+    "validate_attestation",
+    "generate_warning_message",
+    "should_quarantine"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "re",
+      "typing",
+      "iatp.attestation",
+      "iatp.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_luhn_check",
+      "line": 19,
+      "doc": "Validate a credit card number using the Luhn algorithm.\n\nArgs:\n    card_number: String of digits (spaces/dashes already removed)\n\nReturns:\n    bool: True if valid according to Luhn algorithm",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "card_number"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_attestation",
+      "line": 61,
+      "doc": "Validate an agent attestation record.\n\nThis ensures the agent is running verified code and not a hacked version.\n\nArgs:\n    attestation: The attestation record from the agent\n    verify_signature: Whether to verify cryptographic signature\n\nReturns:\n    Tuple of (is_valid, error_message)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attestation",
+        "verify_signature"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_sensitive_data",
+      "line": 82,
+      "doc": "Detect sensitive data in the request payload.\nUses Luhn algorithm to validate credit card numbers.\nReturns a list of detected sensitive data types.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_privacy_policy",
+      "line": 107,
+      "doc": "Validate that the request complies with privacy policies.\n\nReturns:\n    Tuple of (is_valid, error_message)\n    is_valid: True if request should be allowed\n    error_message: Description of the violation if blocked",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "generate_warning_message",
+      "line": 144,
+      "doc": "Generate a warning message for risky requests that aren't blocked.\nReturns None if no warnings are needed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "should_quarantine",
+      "line": 194,
+      "doc": "Determine if requests to this agent should be quarantined.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "scrub_payload",
+      "line": 222,
+      "doc": "Create a scrubbed copy of the payload for logging.\nRedacts sensitive information.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "payload"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_redact_in_dict",
+      "line": 251,
+      "doc": "Recursively redact patterns in dictionary.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "data",
+        "pattern",
+        "replacement"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SecurityValidator",
+      "line": 48,
+      "doc": "Validates requests against capability manifests and security policies.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PrivacyScrubber",
+      "line": 218,
+      "doc": "Scrubs sensitive data from payloads before logging.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

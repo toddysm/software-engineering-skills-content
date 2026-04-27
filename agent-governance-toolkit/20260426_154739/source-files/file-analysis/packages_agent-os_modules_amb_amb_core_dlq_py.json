@@ -1,0 +1,300 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/dlq.py",
+  "extension": ".py",
+  "size_bytes": 11000,
+  "line_count": 345,
+  "documentation": {
+    "file_docstring": "Dead Letter Queue (DLQ) for AMB.\n\nThis module provides DLQ functionality for handling failed messages.\nMessages that cannot be processed are moved to the DLQ for investigation\nand potential retry.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Type alias for DLQ handler",
+      "Add failed message",
+      "Get entries for investigation",
+      "Retry a message",
+      "Evict oldest if at capacity",
+      "Add or update entry",
+      "Call handler outside lock",
+      "Filter by reason if specified",
+      "Sort by timestamp (newest first)",
+      "Apply pagination",
+      "Update retry count"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DLQReason: Reasons why a message was moved to DLQ.",
+      "DLQEntry: Entry in the Dead Letter Queue.\n\nContains the original message plus metadata abo",
+      "DeadLetterQueue: Dead Letter Queue for managing failed messages.\n\nProvides storage, retrieval, an",
+      "to_dict: Convert entry to dictionary for serialization.",
+      "__init__: Initialize the Dead Letter Queue.\n\nArgs:\n    max_size: Maximum number of entries",
+      "add: Add an entry to the DLQ.\n\nArgs:\n    entry: DLQ entry to add\n    \nReturns:\n    Tr",
+      "get: Get a specific DLQ entry by message ID.\n\nArgs:\n    message_id: The message ID to",
+      "get_entries: Get DLQ entries with optional filtering.\n\nArgs:\n    topic: Filter by original to",
+      "remove: Remove an entry from the DLQ.\n\nArgs:\n    message_id: Message ID to remove\n    \nR",
+      "retry: Retry processing a failed message.\n\nArgs:\n    message_id: Message ID to retry\n  "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "max_size",
+    "size",
+    "DeadLetterQueue",
+    "to_dict",
+    "DLQEntry",
+    "DLQReason"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "enum",
+      "typing",
+      "datetime",
+      "dataclasses",
+      "collections",
+      "asyncio",
+      "amb_core.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 50,
+      "doc": "Convert entry to dictionary for serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 93,
+      "doc": "Initialize the Dead Letter Queue.\n\nArgs:\n    max_size: Maximum number of entries to store\n    max_retries: Maximum retry attempts before permanent failure\n    on_entry_added: Optional callback when entry is added",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_size",
+        "max_retries",
+        "on_entry_added"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add",
+      "line": 114,
+      "doc": "Add an entry to the DLQ.\n\nArgs:\n    entry: DLQ entry to add\n    \nReturns:\n    True if added, False if DLQ is full and oldest entry was evicted",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get",
+      "line": 151,
+      "doc": "Get a specific DLQ entry by message ID.\n\nArgs:\n    message_id: The message ID to look up\n    \nReturns:\n    DLQ entry or None if not found",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_entries",
+      "line": 163,
+      "doc": "Get DLQ entries with optional filtering.\n\nArgs:\n    topic: Filter by original topic\n    reason: Filter by failure reason\n    limit: Maximum entries to return\n    offset: Number of entries to skip\n    \nReturns:\n    List of DLQ entries",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "reason",
+        "limit",
+        "offset"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove",
+      "line": 198,
+      "doc": "Remove an entry from the DLQ.\n\nArgs:\n    message_id: Message ID to remove\n    \nReturns:\n    True if removed, False if not found",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "retry",
+      "line": 220,
+      "doc": "Retry processing a failed message.\n\nArgs:\n    message_id: Message ID to retry\n    handler: Handler function to process the message\n    \nReturns:\n    True if successful, False if failed or not found\n    \nRaises:\n    ValueError: If max retries exceeded",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message_id",
+        "handler"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "retry_all",
+      "line": 259,
+      "doc": "Retry all messages in the DLQ.\n\nArgs:\n    handler: Handler function to process messages\n    topic: Optional topic filter\n    \nReturns:\n    Dict mapping message IDs to success/failure",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "handler",
+        "topic"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear",
+      "line": 285,
+      "doc": "Clear entries from the DLQ.\n\nArgs:\n    topic: Optional topic filter (clears all if None)\n    \nReturns:\n    Number of entries cleared",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__len__",
+      "line": 309,
+      "doc": "Get number of entries in DLQ.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "size",
+      "line": 314,
+      "doc": "Get current size of DLQ.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "max_size",
+      "line": 319,
+      "doc": "Get maximum size of DLQ.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_stats",
+      "line": 323,
+      "doc": "Get DLQ statistics.\n\nReturns:\n    Dict with DLQ statistics",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "DLQReason",
+      "line": 20,
+      "doc": "Reasons why a message was moved to DLQ.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DLQEntry",
+      "line": 31,
+      "doc": "Entry in the Dead Letter Queue.\n\nContains the original message plus metadata about the failure.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DeadLetterQueue",
+      "line": 68,
+      "doc": "Dead Letter Queue for managing failed messages.\n\nProvides storage, retrieval, and retry capabilities for messages\nthat failed to process successfully.\n\nExample:\n    dlq = DeadLetterQueue(max_size=1000)\n    \n    # Add failed message\n    entry = DLQEntry(\n        message=failed_message,\n        reason=DLQReason.HANDLER_ERROR,\n        error_message=\"Connection timeout\"\n    )\n    await dlq.add(entry)\n    \n    # Get entries for investigation\n    entries = await dlq.get_entries(topic=\"fraud.alerts\")\n    \n    # Retry a message\n    await dlq.retry(entry.message.id, retry_handler)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

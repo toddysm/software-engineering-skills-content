@@ -1,0 +1,157 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/chaos/adversarial_policy.py",
+  "extension": ".py",
+  "size_bytes": 8359,
+  "line_count": 247,
+  "documentation": {
+    "file_docstring": "Adversarial Policy Evaluation \u2014 automated policy stress-testing.\n\nRuns a battery of adversarial attack vectors against agent policies to\nsurface weaknesses *before* deployment. The evaluator does **not** call\nreal LLMs; it synthesises malicious ``ToolCallRequest`` payloads and\nverifies that the governance layer blocks them.\n\nArchitecture:\n    AdversarialEvaluator\n        \u251c\u2500 load built-in + custom AttackVectors\n        \u251c\u2500 for each vector: build ToolCallRequest, run through interceptor\n        \u2514\u2500 collect results into EvaluationReport (pass/fail, risk score)\n\nBuilt-in attack categories:\n    - **prompt_injection**: Attempts to override system instructions.\n    - **tool_abuse**: Calls to dangerous / disallowed tools.\n    - **policy_override**: Payloads that try to weaken governance settings.\n    - **privilege_escalation**: Attempts to act as a higher-privileged agent.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AttackCategory: High-level classification of an attack vector.",
+      "AttackVector: A single adversarial test case.\n\nAttributes:\n    name: Human-readable label for ",
+      "VectorResult: Outcome of running a single attack vector.\n\nAttributes:\n    vector: The attack v",
+      "EvaluationReport: Aggregate results of an adversarial evaluation run.\n\nAttributes:\n    results: Pe",
+      "AdversarialEvaluator: Runs adversarial attack vectors against a governance interceptor.\n\nArgs:\n    int",
+      "evaluate: Run *vectors* (defaults to built-ins) and return a report."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "EvaluationReport",
+    "AdversarialEvaluator",
+    "VectorResult",
+    "AttackVector",
+    "AttackCategory",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "collections.abc",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_os.integrations.base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "interceptor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 169,
+      "doc": "Run *vectors* (defaults to built-ins) and return a report.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "vectors"
+      ],
+      "returns": "EvaluationReport"
+    },
+    {
+      "name": "_build_recommendations",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "report"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AttackCategory",
+      "line": 34,
+      "doc": "High-level classification of an attack vector.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AttackVector",
+      "line": 44,
+      "doc": "A single adversarial test case.\n\nAttributes:\n    name: Human-readable label for the attack.\n    category: Classification of the attack type.\n    payload: Dict representing malicious tool-call arguments.\n    expected_outcome: ``\"blocked\"`` if governance should reject the call,\n        ``\"allowed\"`` if it is expected to pass (e.g. a benign baseline).\n    tool_name: The tool name to use in the synthesised request.\n    agent_id: Optional agent identity override.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VectorResult",
+      "line": 66,
+      "doc": "Outcome of running a single attack vector.\n\nAttributes:\n    vector: The attack vector that was evaluated.\n    actual_outcome: ``\"blocked\"`` or ``\"allowed\"``.\n    passed: ``True`` when actual matches expected.\n    reason: Explanation from the interceptor (if blocked).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "EvaluationReport",
+      "line": 83,
+      "doc": "Aggregate results of an adversarial evaluation run.\n\nAttributes:\n    results: Per-vector outcomes.\n    total: Number of vectors evaluated.\n    passed: Number of vectors whose actual outcome matched expected.\n    failed: Number of mismatches (potential vulnerabilities).\n    risk_score: ``failed / total`` \u2014 0.0 is ideal.\n    recommendations: Human-readable suggestions based on failures.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AdversarialEvaluator",
+      "line": 158,
+      "doc": "Runs adversarial attack vectors against a governance interceptor.\n\nArgs:\n    interceptor: Any object implementing ``intercept(request) -> result``\n        (e.g. ``PolicyInterceptor``, ``CompositeInterceptor``).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

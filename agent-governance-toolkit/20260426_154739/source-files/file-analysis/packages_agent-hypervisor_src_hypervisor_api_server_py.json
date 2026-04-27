@@ -1,0 +1,479 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/api/server.py",
+  "extension": ".py",
+  "size_bytes": 26657,
+  "line_count": 742,
+  "documentation": {
+    "file_docstring": "FastAPI REST API server for the Agent Hypervisor.\n\nExposes the hypervisor's core capabilities \u2014 sessions, rings, sagas,\nliability, events, and health \u2014 as a RESTful API with OpenAPI docs.\n\nRun with: uvicorn hypervisor.api.server:app",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Global state \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Lifespan \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 App factory \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Health \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Sessions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Rings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Sagas \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Find the step to return its state",
+      "\u2500\u2500 Liability \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Events \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Audit endpoints \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Verification endpoints \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_hv: Get the global Hypervisor instance.",
+      "_bus: Get the global event bus.",
+      "_get_managed: Get a managed session or raise 404.",
+      "lifespan: Initialize hypervisor on startup, clean up on shutdown.",
+      "create_app: Create and configure the FastAPI application.",
+      "health_check: Health check endpoint.",
+      "get_stats: Get overall hypervisor statistics.",
+      "create_session: Create a new Shared Session.",
+      "list_sessions: List all sessions, optionally filtered by state.",
+      "get_session: Get detailed session information including participants and sagas."
+    ]
+  },
+  "purpose": {
+    "primary_role": "api",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "api/endpoint path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "create_app"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "os",
+      "contextlib",
+      "typing",
+      "fastapi",
+      "fastapi.middleware.cors",
+      "hypervisor",
+      "hypervisor.api.models",
+      "hypervisor.core",
+      "hypervisor.models",
+      "hypervisor.observability.event_bus",
+      "hypervisor.verification.history"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_hv",
+      "line": 67,
+      "doc": "Get the global Hypervisor instance.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Hypervisor"
+    },
+    {
+      "name": "_bus",
+      "line": 74,
+      "doc": "Get the global event bus.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "HypervisorEventBus"
+    },
+    {
+      "name": "_get_managed",
+      "line": 81,
+      "doc": "Get a managed session or raise 404.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": "ManagedSession"
+    },
+    {
+      "name": "_participant_info",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "p"
+      ],
+      "returns": "ParticipantInfo"
+    },
+    {
+      "name": "lifespan",
+      "line": 103,
+      "doc": "Initialize hypervisor on startup, clean up on shutdown.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asynccontextmanager"
+      ],
+      "args": [
+        "app"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_app",
+      "line": 115,
+      "doc": "Create and configure the FastAPI application.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "FastAPI"
+    },
+    {
+      "name": "health_check",
+      "line": 145,
+      "doc": "Health check endpoint.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 151,
+      "doc": "Get overall hypervisor statistics.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "StatsResponse"
+    },
+    {
+      "name": "create_session",
+      "line": 180,
+      "doc": "Create a new Shared Session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "req"
+      ],
+      "returns": "CreateSessionResponse"
+    },
+    {
+      "name": "list_sessions",
+      "line": 200,
+      "doc": "List all sessions, optionally filtered by state.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_session",
+      "line": 224,
+      "doc": "Get detailed session information including participants and sagas.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": "SessionDetailResponse"
+    },
+    {
+      "name": "join_session",
+      "line": 250,
+      "doc": "Join an agent to a session via the IATP handshake.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id",
+        "req"
+      ],
+      "returns": "JoinSessionResponse"
+    },
+    {
+      "name": "activate_session",
+      "line": 277,
+      "doc": "Activate a session after handshaking is complete.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "terminate_session",
+      "line": 290,
+      "doc": "Terminate a session and commit audit trail.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_ring_distribution",
+      "line": 313,
+      "doc": "Get the ring distribution for all participants in a session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": "RingDistributionResponse"
+    },
+    {
+      "name": "get_agent_ring",
+      "line": 328,
+      "doc": "Get an agent's current ring level across all active sessions.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_did"
+      ],
+      "returns": "AgentRingResponse"
+    },
+    {
+      "name": "check_ring_access",
+      "line": 348,
+      "doc": "Check if an action is allowed for the given ring level and sigma.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "req"
+      ],
+      "returns": "RingCheckResponse"
+    },
+    {
+      "name": "create_saga",
+      "line": 379,
+      "doc": "Create a new saga for a session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": "CreateSagaResponse"
+    },
+    {
+      "name": "list_sagas",
+      "line": 396,
+      "doc": "List all sagas in a session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_saga",
+      "line": 427,
+      "doc": "Get detailed saga information including steps and state.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "saga_id"
+      ],
+      "returns": "SagaDetailResponse"
+    },
+    {
+      "name": "add_saga_step",
+      "line": 460,
+      "doc": "Add a step to an existing saga.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "saga_id",
+        "req"
+      ],
+      "returns": "AddStepResponse"
+    },
+    {
+      "name": "execute_saga_step",
+      "line": 493,
+      "doc": "Execute a pending saga step (using a no-op executor for API-driven flow).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "saga_id",
+        "step_id"
+      ],
+      "returns": "ExecuteStepResponse"
+    },
+    {
+      "name": "create_vouch",
+      "line": 527,
+      "doc": "Create a sponsorship bond between agents in a session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id",
+        "req"
+      ],
+      "returns": "VouchResponse"
+    },
+    {
+      "name": "list_vouches",
+      "line": 558,
+      "doc": "List all sponsors in a session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_liability",
+      "line": 582,
+      "doc": "Get an agent's liability exposure across all sessions.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_did"
+      ],
+      "returns": "LiabilityExposureResponse"
+    },
+    {
+      "name": "query_events",
+      "line": 617,
+      "doc": "Query events with optional filters.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "event_type",
+        "session_id",
+        "agent_did",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_event_stats",
+      "line": 651,
+      "doc": "Get event type counts.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": "EventStatsResponse"
+    },
+    {
+      "name": "list_commitments",
+      "line": 663,
+      "doc": "List all session commitments.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_commitment",
+      "line": 680,
+      "doc": "Get commitment for a specific session.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_commitment",
+      "line": 697,
+      "doc": "Verify a session's audit log root matches its commitment.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "session_id",
+        "expected_root"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_agent_history",
+      "line": 714,
+      "doc": "Verify an agent's transaction history.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_verification_cache",
+      "line": 739,
+      "doc": "Clear cached verification result for an agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_noop_executor",
+      "line": 500,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 65,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

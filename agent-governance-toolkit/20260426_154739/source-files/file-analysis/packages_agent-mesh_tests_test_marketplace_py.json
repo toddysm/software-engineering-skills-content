@@ -1,0 +1,696 @@
+{
+  "path": "packages/agent-mesh/tests/test_marketplace.py",
+  "extension": ".py",
+  "size_bytes": 14579,
+  "line_count": 371,
+  "documentation": {
+    "file_docstring": "Tests for AgentMesh Plugin Marketplace.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Manifest validation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Registry CRUD",
+      "---------------------------------------------------------------------------",
+      "New instance should restore state",
+      "---------------------------------------------------------------------------",
+      "Signing & verification",
+      "---------------------------------------------------------------------------",
+      "Tamper with the description",
+      "Public key bytes should match",
+      "---------------------------------------------------------------------------",
+      "Installer",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestPluginManifest: Tests for manifest validation and serialization.",
+      "TestManifestIO: Tests for loading and saving manifests.",
+      "TestPluginRegistry: Tests for the plugin registry.",
+      "TestPluginSigning: Tests for Ed25519 signing and verification.",
+      "TestPluginInstaller: Tests for plugin installation, uninstallation, and sandboxing."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_empty_name_rejected",
+    "TestPluginRegistry",
+    "test_get_specific_version",
+    "test_get_latest_version",
+    "test_sign_and_verify",
+    "test_install_and_list",
+    "test_install_with_dependency",
+    "test_save_and_load",
+    "test_invalid_name_characters",
+    "test_load_from_directory",
+    "test_valid_manifest",
+    "TestPluginSigning",
+    "test_missing_signature_raises",
+    "test_signable_bytes_excludes_signature",
+    "TestManifestIO",
+    "test_signable_bytes_deterministic",
+    "test_signer_public_key",
+    "test_tampered_manifest_fails",
+    "test_sandbox_blocks_restricted_modules",
+    "test_list_plugins_no_filter",
+    "test_search_by_name",
+    "test_empty_author_rejected",
+    "test_search_by_description",
+    "test_search_no_results",
+    "ed25519_keypair",
+    "test_uninstall",
+    "test_circular_dependency_detected",
+    "test_register_and_get",
+    "test_duplicate_registration_rejected",
+    "TestPluginManifest",
+    "test_uninstall_nonexistent",
+    "test_list_plugins_type_filter",
+    "test_two_part_version_ok",
+    "test_unregister_specific_version",
+    "test_get_nonexistent_version",
+    "test_unregister_nonexistent",
+    "test_install_with_signature_verification",
+    "TestPluginInstaller",
+    "test_plugin_types",
+    "test_load_missing_file",
+    "test_invalid_version_format",
+    "test_sandbox_allows_safe_modules",
+    "test_file_persistence",
+    "test_wrong_key_fails",
+    "manifest",
+    "test_unregister"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "pathlib",
+      "pytest",
+      "yaml",
+      "cryptography.hazmat.primitives.asymmetric",
+      "agentmesh.marketplace",
+      "cryptography.hazmat.primitives"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_manifest",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "manifest",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "ed25519_keypair",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_valid_manifest",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_name_rejected",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_name_characters",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_version_format",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_two_part_version_ok",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_author_rejected",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_plugin_types",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signable_bytes_deterministic",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signable_bytes_excludes_signature",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_save_and_load",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_from_directory",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_missing_file",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_and_get",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_duplicate_registration_rejected",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregister",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregister_specific_version",
+      "line": 146,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregister_nonexistent",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_latest_version",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_specific_version",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_nonexistent_version",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_search_by_name",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_search_by_description",
+      "line": 188,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_search_no_results",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_plugins_no_filter",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_plugins_type_filter",
+      "line": 205,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_persistence",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sign_and_verify",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "ed25519_keypair"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tampered_manifest_fails",
+      "line": 243,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "ed25519_keypair"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wrong_key_fails",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "ed25519_keypair"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_signature_raises",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_signer_public_key",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ed25519_keypair"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_and_list",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_uninstall",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_uninstall_nonexistent",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_with_dependency",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_circular_dependency_detected",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sandbox_allows_safe_modules",
+      "line": 345,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sandbox_blocks_restricted_modules",
+      "line": 349,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_install_with_signature_verification",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "ed25519_keypair"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestPluginManifest",
+      "line": 59,
+      "doc": "Tests for manifest validation and serialization.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestManifestIO",
+      "line": 100,
+      "doc": "Tests for loading and saving manifests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginRegistry",
+      "line": 124,
+      "doc": "Tests for the plugin registry.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginSigning",
+      "line": 229,
+      "doc": "Tests for Ed25519 signing and verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginInstaller",
+      "line": 296,
+      "doc": "Tests for plugin installation, uninstallation, and sandboxing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

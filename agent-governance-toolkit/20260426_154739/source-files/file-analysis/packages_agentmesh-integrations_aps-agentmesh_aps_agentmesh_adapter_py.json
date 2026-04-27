@@ -1,0 +1,330 @@
+{
+  "path": "packages/agentmesh-integrations/aps-agentmesh/aps_agentmesh/adapter.py",
+  "extension": ".py",
+  "size_bytes": 9901,
+  "line_count": 279,
+  "documentation": {
+    "file_docstring": "APS-AgentMesh Adapter \u2014 Bridge between APS structural authorization and AGT policy evaluation.\n\nAPS PolicyDecision artifacts become hard constraints in AGT's PolicyEngine.\nAPS passport grades become trust signals in AGT's TrustManager.\nAPS delegation scope chains become capability proofs.\n\nUsage with AGT PolicyEngine:\n    gate = APSPolicyGate()\n    context = gate.inject(aps_decision_json, delegation_chain_json)\n    # Pass to AGT: policy_engine.evaluate(context)\n\nUsage for trust bridging:\n    bridge = APSTrustBridge()\n    trust_score = bridge.grade_to_score(passport_grade=2)  # \u2192 700",
+    "header_comments": [],
+    "inline_comments": [
+      "Pass to AGT: policy_engine.evaluate(context)",
+      "\u2500\u2500 APS Passport Grade \u2192 AGT Trust Score mapping \u2500\u2500",
+      "Grade 0 (self-signed):     \u2192 100 (low trust, unverified)",
+      "Grade 1 (issuer countersigned): \u2192 400 (moderate, AEOESS processed)",
+      "Grade 2 (runtime-bound):   \u2192 700 (high, infrastructure-attested)",
+      "Grade 3 (principal-bound): \u2192 900 (very high, verified human/org)",
+      "Fail closed: cannot verify without nacl",
+      "Pass to AGT: policy_engine.evaluate('deploy.production', ctx)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "APSDecision: Parsed APS PolicyDecision artifact.",
+      "APSScopeChain: Parsed APS delegation scope chain.",
+      "verify_aps_signature: Verify an Ed25519 signature from APS.\n\nReturns True if signature is valid. Requi",
+      "aps_context: Build an AGT-compatible context dict from APS artifacts.\n\nThis is the primary br",
+      "APSPolicyGate: Injects APS PolicyDecision into AGT's PolicyEngine evaluation context.\n\nAPS stru",
+      "APSTrustBridge: Maps APS passport grades to AGT trust scores.\n\nDefault mapping:\n  Grade 0 (self-",
+      "APSScopeVerifier: Validates APS delegation scope chains for AGT task assignment.\n\nChecks:\n- Does t",
+      "covers_scope: Check if delegation covers a required scope (prefix match).",
+      "build_context: Build AGT-compatible context from APS artifacts.",
+      "is_permitted: Quick check: does APS permit this action?"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "APSPolicyGate",
+    "aps_context",
+    "verify_aps_signature",
+    "grade_to_score",
+    "APSTrustBridge",
+    "from_json",
+    "is_permit",
+    "meets_threshold",
+    "APSScopeChain",
+    "APSDecision",
+    "covers_scope",
+    "spend_remaining",
+    "build_context",
+    "is_permitted",
+    "grade_label",
+    "verify",
+    "APSScopeVerifier"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "dataclasses",
+      "typing",
+      "nacl.signing",
+      "nacl.exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "verify_aps_signature",
+      "line": 116,
+      "doc": "Verify an Ed25519 signature from APS.\n\nReturns True if signature is valid. Requires PyNaCl.\nInstall with: pip install PyNaCl\nIn production, use the agent-passport-system Python SDK for full verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "payload",
+        "signature",
+        "public_key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "aps_context",
+      "line": 137,
+      "doc": "Build an AGT-compatible context dict from APS artifacts.\n\nThis is the primary bridge function. The returned dict can be passed\ndirectly to AGT's PolicyEngine.evaluate(action, context).\n\nExample AGT policy rule that consumes this:\n    - name: require-aps-authorization\n      conditions:\n        aps_decision.verdict: 'permit'\n      allowed_actions:\n        - 'deploy.*'",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "decision",
+        "scope_chain",
+        "passport_grade"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_json",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "raw"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_permit",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "from_json",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "raw"
+      ],
+      "returns": null
+    },
+    {
+      "name": "covers_scope",
+      "line": 102,
+      "doc": "Check if delegation covers a required scope (prefix match).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "spend_remaining",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "build_context",
+      "line": 202,
+      "doc": "Build AGT-compatible context from APS artifacts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "decision",
+        "scope_chain",
+        "passport_grade"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_permitted",
+      "line": 211,
+      "doc": "Quick check: does APS permit this action?",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "decision"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "mapping"
+      ],
+      "returns": null
+    },
+    {
+      "name": "grade_to_score",
+      "line": 233,
+      "doc": "Convert APS passport grade to AGT trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "passport_grade"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "meets_threshold",
+      "line": 237,
+      "doc": "Check if passport grade meets a minimum trust score threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "passport_grade",
+        "min_score"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "grade_label",
+      "line": 241,
+      "doc": "Human-readable label for a passport grade.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "passport_grade"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "verify",
+      "line": 256,
+      "doc": "Verify a scope chain covers a required scope and budget.\n\nReturns (allowed, reason).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope_chain",
+        "required_scope",
+        "required_spend"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "APSDecision",
+      "line": 46,
+      "doc": "Parsed APS PolicyDecision artifact.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "APSScopeChain",
+      "line": 78,
+      "doc": "Parsed APS delegation scope chain.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "APSPolicyGate",
+      "line": 189,
+      "doc": "Injects APS PolicyDecision into AGT's PolicyEngine evaluation context.\n\nAPS structural authorization becomes a hard constraint (gate).\nAGT behavioral trust scoring remains a soft signal.\n\nUsage:\n    gate = APSPolicyGate()\n    ctx = gate.build_context(aps_decision, scope_chain, passport_grade=2)\n    # Pass to AGT: policy_engine.evaluate('deploy.production', ctx)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "APSTrustBridge",
+      "line": 217,
+      "doc": "Maps APS passport grades to AGT trust scores.\n\nDefault mapping:\n  Grade 0 (self-signed) \u2192 100\n  Grade 1 (issuer countersigned) \u2192 400\n  Grade 2 (runtime-bound) \u2192 700\n  Grade 3 (principal-bound) \u2192 900\n\nCustom mappings can be provided.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "APSScopeVerifier",
+      "line": 246,
+      "doc": "Validates APS delegation scope chains for AGT task assignment.\n\nChecks:\n- Does the delegation cover the required scope?\n- Is the delegation within depth limits?\n- Is there remaining spend budget?",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 24,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

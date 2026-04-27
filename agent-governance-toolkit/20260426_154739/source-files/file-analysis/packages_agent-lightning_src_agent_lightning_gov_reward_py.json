@@ -1,0 +1,271 @@
+{
+  "path": "packages/agent-lightning/src/agent_lightning_gov/reward.py",
+  "extension": ".py",
+  "size_bytes": 10578,
+  "line_count": 339,
+  "documentation": {
+    "file_docstring": "PolicyReward - Convert Policy Violations to RL Penalties\n=========================================================\n\nProvides reward functions that integrate Agent OS governance\ninto Agent-Lightning's RL training loop.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Penalty for each violation severity level",
+      "Bonus for clean execution (no violations)",
+      "Whether to use multiplicative penalty (reward * factor) vs additive",
+      "Minimum reward floor (prevent extreme negative rewards)",
+      "Maximum reward ceiling",
+      "Track reward statistics",
+      "Calculate base reward",
+      "Get violations from rollout or check kernel",
+      "Calculate penalty",
+      "Calculate final reward",
+      "Apply clean execution bonus",
+      "Apply bounds",
+      "Update statistics",
+      "Emit to Agent-Lightning",
+      "Try to get from kernel's recent history",
+      "Emit multi-dimensional reward",
+      "Agent-Lightning not available"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RewardConfig: Configuration for policy-aware rewards.",
+      "policy_penalty: Calculate penalty from a list of policy violations.\n\nThis is a simple helper for",
+      "PolicyReward: Reward function wrapper that adds policy violation penalties.\n\nThis class wraps ",
+      "CompositeReward: Combine multiple reward functions with weights.\n\nExample:\n    >>> reward = Compo",
+      "create_policy_reward: Factory function to create a PolicyReward with custom configuration.\n\nArgs:\n    ",
+      "__init__: Initialize policy-aware reward function.\n\nArgs:\n    kernel: Agent OS KernelSpace",
+      "_default_base_reward: Default base reward: 1.0 for success, 0.0 for failure.",
+      "__call__: Calculate reward for a rollout.\n\nArgs:\n    rollout: GovernedRollout or similar o",
+      "_get_violations: Extract violations from rollout.",
+      "_calculate_penalty: Calculate total penalty from violations."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "reset_stats",
+    "policy_penalty",
+    "CompositeReward",
+    "create_policy_reward",
+    "RewardConfig",
+    "PolicyReward",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "typing",
+      "agentlightning.emitter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "policy_penalty",
+      "line": 44,
+      "doc": "Calculate penalty from a list of policy violations.\n\nThis is a simple helper for computing penalties outside of the\nfull PolicyReward class.\n\nArgs:\n    violations: List of PolicyViolation objects\n    critical_penalty: Penalty for critical violations\n    high_penalty: Penalty for high severity violations\n    medium_penalty: Penalty for medium severity violations\n    low_penalty: Penalty for low severity violations\n\nReturns:\n    Total penalty (negative number)\n\nExample:\n    >>> penalty = policy_penalty(rollout.violations)\n    >>> final_reward = base_reward + penalty",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "violations"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "create_policy_reward",
+      "line": 306,
+      "doc": "Factory function to create a PolicyReward with custom configuration.\n\nArgs:\n    kernel: Agent OS KernelSpace\n    base_reward_fn: Base reward function\n    severity_penalties: Dict mapping severity to penalty\n    clean_bonus: Bonus for clean execution\n    multiplicative: Use multiplicative penalty\n\nReturns:\n    Configured PolicyReward instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "kernel"
+      ],
+      "returns": "PolicyReward"
+    },
+    {
+      "name": "__init__",
+      "line": 112,
+      "doc": "Initialize policy-aware reward function.\n\nArgs:\n    kernel: Agent OS KernelSpace for policy checking\n    base_reward_fn: Optional base reward function\n    config: Reward configuration",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_default_base_reward",
+      "line": 137,
+      "doc": "Default base reward: 1.0 for success, 0.0 for failure.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rollout"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__call__",
+      "line": 145,
+      "doc": "Calculate reward for a rollout.\n\nArgs:\n    rollout: GovernedRollout or similar object with violations\n    emit: Whether to emit reward to Agent-Lightning\n\nReturns:\n    Final reward with policy penalties applied",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rollout"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_get_violations",
+      "line": 199,
+      "doc": "Extract violations from rollout.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rollout"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_penalty",
+      "line": 210,
+      "doc": "Calculate total penalty from violations.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "violations"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_emit_reward",
+      "line": 220,
+      "doc": "Emit reward to Agent-Lightning.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "final_reward",
+        "base_reward",
+        "penalty",
+        "violations"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 248,
+      "doc": "Get reward statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset_stats",
+      "line": 259,
+      "doc": "Reset statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 279,
+      "doc": "Initialize composite reward.\n\nArgs:\n    components: List of (reward_fn, weight) tuples\n    normalize: Whether to normalize weights to sum to 1",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "components"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 298,
+      "doc": "Calculate weighted sum of all reward components.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rollout"
+      ],
+      "returns": "float"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RewardConfig",
+      "line": 21,
+      "doc": "Configuration for policy-aware rewards.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyReward",
+      "line": 87,
+      "doc": "Reward function wrapper that adds policy violation penalties.\n\nThis class wraps any base reward function and subtracts penalties\nfor policy violations, creating a learning signal that discourages\nunsafe behavior during RL training.\n\nExample:\n    >>> from agent_os import KernelSpace\n    >>> from agent_os.policies import SQLPolicy\n    >>>\n    >>> kernel = KernelSpace(policy=SQLPolicy())\n    >>>\n    >>> # Define base reward (task completion, accuracy, etc.)\n    >>> def accuracy_reward(rollout):\n    ...     return rollout.task_output.accuracy if rollout.success else 0.0\n    >>>\n    >>> # Wrap with policy awareness\n    >>> reward_fn = PolicyReward(kernel, base_reward_fn=accuracy_reward)\n    >>>\n    >>> # Use in training\n    >>> reward = reward_fn(rollout)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CompositeReward",
+      "line": 267,
+      "doc": "Combine multiple reward functions with weights.\n\nExample:\n    >>> reward = CompositeReward([\n    ...     (accuracy_reward, 1.0),\n    ...     (policy_reward, 0.5),\n    ...     (efficiency_reward, 0.3),\n    ... ])",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 38,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

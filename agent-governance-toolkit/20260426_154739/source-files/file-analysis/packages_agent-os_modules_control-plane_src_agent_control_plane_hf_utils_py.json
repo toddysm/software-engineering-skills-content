@@ -1,0 +1,226 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/hf_utils.py",
+  "extension": ".py",
+  "size_bytes": 17133,
+  "line_count": 563,
+  "documentation": {
+    "file_docstring": "Hugging Face Hub Utilities for Agent Control Plane\n\nThis module provides utilities for interacting with Hugging Face Hub, including:\n    - Uploading experiment logs and results\n    - Downloading/uploading datasets\n    - Model card generation\n    - Dataset versioning and management\n\nInstallation:\n    pip install huggingface_hub datasets\n\nUsage:\n    from agent_control_plane.hf_utils import (\n        upload_experiment_logs,\n        download_red_team_dataset,\n        create_model_card,\n    )\n    \n    # Upload experiment results\n    upload_experiment_logs(\n        results_path=\"experiments/results.json\",\n        repo_id=\"microsoft/acp-experiment-logs\",\n    )\n\nConfiguration:\n    Set HF_TOKEN environment variable or use `huggingface-cli login`",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Upload experiment results",
+      "=============================================================================",
+      "Configuration",
+      "=============================================================================",
+      "=============================================================================",
+      "Dataset Operations",
+      "=============================================================================",
+      "Convert to Dataset if needed",
+      "Generate commit message",
+      "Push to hub",
+      "=============================================================================",
+      "Experiment Log Operations",
+      "=============================================================================",
+      "Load and enrich results",
+      "Add metadata",
+      "Generate unique filename",
+      "Create temp file with enriched data",
+      "Upload to hub",
+      "Ensure repo exists",
+      "Cleanup temp file",
+      "Filter for log files",
+      "=============================================================================",
+      "Model Card Generation",
+      "=============================================================================",
+      "Generate markdown",
+      "{info.model_name}",
+      "# Intended Use",
+      "# Installation",
+      "# Quick Start",
+      "Create a governed OpenAI client",
+      "All tool calls are now governed by the control plane",
+      "# Citation",
+      "# Authors",
+      "# License",
+      "=============================================================================",
+      "Convenience Exports",
+      "=============================================================================",
+      "Configuration",
+      "Dataset operations",
+      "Experiment logs",
+      "Model card"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HFConfig: Configuration for Hugging Face Hub operations.\n\nAttributes:\n    default_org: Def",
+      "download_red_team_dataset: Download the Agent Control Plane red team benchmark dataset.\n\nThis dataset conta",
+      "upload_dataset: Upload a dataset to Hugging Face Hub.\n\nArgs:\n    data: Dataset to upload. Can be",
+      "upload_experiment_logs: Upload experiment results/logs to Hugging Face Hub.\n\nThis function uploads exper",
+      "list_experiment_logs: List available experiment logs in the repository.\n\nArgs:\n    repo_id: Repository",
+      "ModelCardInfo: Information for generating a Hugging Face Model Card.\n\nAttributes:\n    model_nam",
+      "create_model_card: Generate a Hugging Face Model Card README.md content.\n\nArgs:\n    info: ModelCard",
+      "get_token: Get the HF token from config or environment."
+    ]
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path"
+    ]
+  },
+  "exports": [
+    "upload_dataset",
+    "list_experiment_logs",
+    "HFConfig",
+    "upload_experiment_logs",
+    "get_token",
+    "ModelCardInfo",
+    "download_red_team_dataset",
+    "create_model_card"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "os",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "datasets",
+      "datasets",
+      "huggingface_hub",
+      "huggingface_hub",
+      "huggingface_hub"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "download_red_team_dataset",
+      "line": 79,
+      "doc": "Download the Agent Control Plane red team benchmark dataset.\n\nThis dataset contains 60 adversarial prompts across categories:\n- Direct attacks\n- Prompt injection\n- Privilege escalation\n- Data exfiltration\n\nArgs:\n    config: HF configuration (uses default if not provided).\n    split: Dataset split to load (\"train\").\n    streaming: If True, return an iterable dataset for memory efficiency.\n\nReturns:\n    Hugging Face Dataset object.\n\nRaises:\n    ImportError: If datasets library is not installed.\n    \nExample:\n    >>> from agent_control_plane.hf_utils import download_red_team_dataset\n    >>> dataset = download_red_team_dataset()\n    >>> print(f\"Loaded {len(dataset)} prompts\")\n    >>> for item in dataset:\n    ...     print(f\"Category: {item['category']}, Blocked: {item['expected_blocked']}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "config",
+        "split",
+        "streaming"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "upload_dataset",
+      "line": 133,
+      "doc": "Upload a dataset to Hugging Face Hub.\n\nArgs:\n    data: Dataset to upload. Can be:\n        - Dict mapping column names to lists\n        - List of dicts (one per row)\n        - Existing HF Dataset object\n    repo_id: Target repository ID (e.g., \"username/dataset-name\").\n    config: HF configuration (uses default if not provided).\n    private: If True, create a private repository.\n    commit_message: Custom commit message.\n\nReturns:\n    URL of the uploaded dataset.\n\nRaises:\n    ImportError: If datasets/huggingface_hub libraries not installed.\n    \nExample:\n    >>> from agent_control_plane.hf_utils import upload_dataset\n    >>> data = {\n    ...     \"prompt\": [\"attack 1\", \"attack 2\"],\n    ...     \"category\": [\"injection\", \"exfil\"],\n    ...     \"blocked\": [True, True],\n    ... }\n    >>> url = upload_dataset(data, \"my-user/my-dataset\")\n    >>> print(f\"Uploaded to: {url}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data",
+        "repo_id",
+        "config",
+        "private",
+        "commit_message"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "upload_experiment_logs",
+      "line": 214,
+      "doc": "Upload experiment results/logs to Hugging Face Hub.\n\nThis function uploads experiment results for reproducibility tracking.\nResults are stored in a structured format with metadata.\n\nArgs:\n    results_path: Path to results JSON file or directory.\n    repo_id: Target repository ID. Uses config default if not provided.\n    config: HF configuration (uses default if not provided).\n    experiment_name: Optional name for the experiment run.\n    metadata: Additional metadata to include.\n\nReturns:\n    URL of the uploaded file.\n\nRaises:\n    FileNotFoundError: If results_path doesn't exist.\n    ImportError: If huggingface_hub library not installed.\n    \nExample:\n    >>> from agent_control_plane.hf_utils import upload_experiment_logs\n    >>> url = upload_experiment_logs(\n    ...     results_path=\"experiments/results.json\",\n    ...     experiment_name=\"ablation_study_v2\",\n    ...     metadata={\"gpu\": \"A100\", \"seed\": 42},\n    ... )\n    >>> print(f\"Logs uploaded to: {url}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results_path",
+        "repo_id",
+        "config",
+        "experiment_name",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "list_experiment_logs",
+      "line": 317,
+      "doc": "List available experiment logs in the repository.\n\nArgs:\n    repo_id: Repository ID to list from.\n    config: HF configuration (uses default if not provided).\n    limit: Maximum number of files to list.\n\nReturns:\n    List of file metadata dicts with name, size, and last_modified.\n    \nExample:\n    >>> from agent_control_plane.hf_utils import list_experiment_logs\n    >>> logs = list_experiment_logs()\n    >>> for log in logs[:5]:\n    ...     print(f\"{log['name']} - {log['size']} bytes\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_id",
+        "config",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_model_card",
+      "line": 396,
+      "doc": "Generate a Hugging Face Model Card README.md content.\n\nArgs:\n    info: ModelCardInfo with details. Uses defaults if not provided.\n\nReturns:\n    Markdown string for the model card.\n    \nExample:\n    >>> from agent_control_plane.hf_utils import create_model_card, ModelCardInfo\n    >>> info = ModelCardInfo(\n    ...     model_name=\"My ACP Instance\",\n    ...     intended_use=[\"Enterprise AI governance\"],\n    ...     limitations=[\"Requires policy configuration\"],\n    ... )\n    >>> card = create_model_card(info)\n    >>> print(card)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "info"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_token",
+      "line": 66,
+      "doc": "Get the HF token from config or environment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "HFConfig",
+      "line": 51,
+      "doc": "Configuration for Hugging Face Hub operations.\n\nAttributes:\n    default_org: Default organization/user for uploads.\n    red_team_dataset: Repository ID for the red team benchmark dataset.\n    experiment_logs_repo: Repository ID for experiment logs.\n    token: HF API token (if not set, uses HF_TOKEN env var).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ModelCardInfo",
+      "line": 371,
+      "doc": "Information for generating a Hugging Face Model Card.\n\nAttributes:\n    model_name: Name of the model/system.\n    description: Brief description.\n    intended_use: Primary intended use cases.\n    limitations: Known limitations and out-of-scope uses.\n    training_data: Description of training data (if applicable).\n    metrics: Evaluation metrics and results.\n    citation: BibTeX citation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 58,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

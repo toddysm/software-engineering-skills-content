@@ -1,0 +1,182 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/intent_detection.py",
+  "extension": ".py",
+  "size_bytes": 12049,
+  "line_count": 327,
+  "documentation": {
+    "file_docstring": "Intent Detection System\n\nThis module detects the user's intent from their first interaction\nand applies appropriate success metrics based on that intent.\n\nIntent Types:\n1. Troubleshooting (Short-Lived): Users want quick resolution\n   - Metric: Time-to-Resolution (turns to complete)\n   - Success: <= 3 turns\n   - Failure: > 3 turns means user is trapped, not engaged\n\n2. Brainstorming (Long-Lived): Users want deep exploration\n   - Metric: Depth of Context (conversation richness)\n   - Success: Multi-turn deep conversation\n   - Failure: Too short means we failed to be creative enough",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Extract JSON from response (handle markdown code blocks)",
+      "Validate the intent type",
+      "Default to unknown if detection fails",
+      "Simple heuristic: average response length normalized",
+      "Normalize to 0-1 (assuming 500 chars per turn is \"deep\")",
+      "Test troubleshooting queries",
+      "Test brainstorming queries",
+      "Test metrics evaluation",
+      "Good: Quick resolution",
+      "Bad: Too many turns (trapped)",
+      "Good: Deep conversation",
+      "Bad: Too short"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "IntentDetector: Detects user intent from their first interaction.\n\nThis helps us understand what",
+      "IntentMetrics: Evaluates conversation success based on detected intent.\n\nDifferent intents have",
+      "main: Example usage of intent detection.",
+      "detect_intent: Detect the user's intent from their query.\n\nArgs:\n    query: The user's first qu",
+      "evaluate_troubleshooting: Evaluate a troubleshooting conversation.\n\nArgs:\n    turn_count: Number of turns ",
+      "evaluate_brainstorming: Evaluate a brainstorming conversation.\n\nArgs:\n    turn_count: Number of turns in",
+      "calculate_context_depth: Calculate context depth score for a conversation.\n\nThis is a simple heuristic ba"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "detect_intent",
+    "evaluate_brainstorming",
+    "calculate_context_depth",
+    "main",
+    "IntentDetector",
+    "evaluate_troubleshooting",
+    "IntentMetrics"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "os",
+      "typing",
+      "openai",
+      "dotenv"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "line": 256,
+      "doc": "Example usage of intent detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_intent",
+      "line": 44,
+      "doc": "Detect the user's intent from their query.\n\nArgs:\n    query: The user's first query\n    verbose: Print detection details\n    \nReturns:\n    Dictionary with:\n    - intent: \"troubleshooting\" or \"brainstorming\"\n    - confidence: 0-1 confidence score\n    - reasoning: Explanation of the classification",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "verbose"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_troubleshooting",
+      "line": 136,
+      "doc": "Evaluate a troubleshooting conversation.\n\nArgs:\n    turn_count: Number of turns in the conversation\n    resolved: Whether the issue was resolved\n    \nReturns:\n    Evaluation with success status and reasoning",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "turn_count",
+        "resolved"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate_brainstorming",
+      "line": 175,
+      "doc": "Evaluate a brainstorming conversation.\n\nArgs:\n    turn_count: Number of turns in the conversation\n    context_depth_score: 0-1 score for how deep/rich the conversation was\n    \nReturns:\n    Evaluation with success status and reasoning",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "turn_count",
+        "context_depth_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate_context_depth",
+      "line": 221,
+      "doc": "Calculate context depth score for a conversation.\n\nThis is a simple heuristic based on:\n- Number of distinct topics/concepts discussed\n- Average response length\n- Back-and-forth engagement\n\nArgs:\n    conversation_history: List of conversation turns\n    verbose: Print calculation details\n    \nReturns:\n    Depth score between 0 and 1",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "conversation_history",
+        "verbose"
+      ],
+      "returns": "float"
+    }
+  ],
+  "classes": [
+    {
+      "name": "IntentDetector",
+      "line": 32,
+      "doc": "Detects user intent from their first interaction.\n\nThis helps us understand what success looks like for different\ntypes of conversations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IntentMetrics",
+      "line": 126,
+      "doc": "Evaluates conversation success based on detected intent.\n\nDifferent intents have different success criteria:\n- Troubleshooting: Fast resolution is success\n- Brainstorming: Deep exploration is success",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

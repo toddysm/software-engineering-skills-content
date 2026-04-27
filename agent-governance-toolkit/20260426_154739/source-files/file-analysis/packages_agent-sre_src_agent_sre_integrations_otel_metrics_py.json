@@ -1,0 +1,205 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/otel/metrics.py",
+  "extension": ".py",
+  "size_bytes": 9065,
+  "line_count": 286,
+  "documentation": {
+    "file_docstring": "OpenTelemetry metrics exporter for Agent SRE.\n\nExports SLO/SLI metrics, error budget gauges, cost metrics, and incident\ncounts as native OTEL metrics that any OTLP-compatible backend can ingest.\n\nUsage:\n    from agent_sre.integrations.otel.metrics import MetricsExporter\n\n    exporter = MetricsExporter(service_name=\"my-agent-fleet\")\n    exporter.record_sli(sli)\n    exporter.record_slo(slo)\n    exporter.record_cost(agent_id=\"bot-1\", cost_usd=0.35)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "SLI metrics",
+      "SLO metrics",
+      "Cost metrics",
+      "Latency histogram",
+      "Incident gauge",
+      "Resilience gauge"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MetricsExporter: Exports Agent SRE metrics via OpenTelemetry Metrics API.\n\nRegisters gauges, coun",
+      "record_sli: Record an SLI measurement as OTEL metrics.\n\nArgs:\n    sli_name: Name of the SLI ",
+      "record_slo: Record SLO status as OTEL metrics.\n\nArgs:\n    slo_name: Name of the SLO\n    stat",
+      "record_slo_from_object: Record metrics directly from an SLO object.\n\nArgs:\n    slo: An agent_sre.slo.obj",
+      "record_cost: Record a cost event.\n\nArgs:\n    agent_id: Agent identifier\n    cost_usd: Cost in",
+      "record_latency: Record a latency measurement.\n\nArgs:\n    latency_ms: Latency in milliseconds\n   ",
+      "record_incidents_open: Record the number of open incidents.\n\nArgs:\n    count: Number of currently open ",
+      "record_resilience: Record a fault impact score from a chaos experiment.\n\nArgs:\n    experiment_name:"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record_slo",
+    "record_resilience",
+    "record_cost",
+    "record_incidents_open",
+    "MetricsExporter",
+    "record_sli",
+    "record_slo_from_object",
+    "record_latency"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "typing",
+      "opentelemetry",
+      "agent_sre.integrations.otel.conventions",
+      "opentelemetry.metrics"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_name",
+        "meter_provider"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_sli",
+      "line": 139,
+      "doc": "Record an SLI measurement as OTEL metrics.\n\nArgs:\n    sli_name: Name of the SLI (e.g., \"task_success_rate\")\n    value: Current SLI value\n    target: SLI target value\n    window: Time window (e.g., \"24h\")\n    compliance: Fraction meeting target (0.0-1.0)\n    labels: Additional labels/attributes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sli_name",
+        "value",
+        "target",
+        "window",
+        "compliance",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_slo",
+      "line": 168,
+      "doc": "Record SLO status as OTEL metrics.\n\nArgs:\n    slo_name: Name of the SLO\n    status: Status string (\"healthy\", \"warning\", \"critical\", \"exhausted\")\n    error_budget_remaining: Remaining budget fraction (0.0-1.0)\n    burn_rate: Current burn rate\n    labels: Additional labels/attributes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo_name",
+        "status",
+        "error_budget_remaining",
+        "burn_rate",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_slo_from_object",
+      "line": 194,
+      "doc": "Record metrics directly from an SLO object.\n\nArgs:\n    slo: An agent_sre.slo.objectives.SLO instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_cost",
+      "line": 221,
+      "doc": "Record a cost event.\n\nArgs:\n    agent_id: Agent identifier\n    cost_usd: Cost in USD for this event\n    avg_per_task: Average cost per task\n    budget_utilization: Budget utilization fraction (0.0-1.0)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "cost_usd",
+        "avg_per_task",
+        "budget_utilization"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_latency",
+      "line": 243,
+      "doc": "Record a latency measurement.\n\nArgs:\n    latency_ms: Latency in milliseconds\n    agent_id: Optional agent identifier\n    labels: Additional labels/attributes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "latency_ms",
+        "agent_id",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_incidents_open",
+      "line": 261,
+      "doc": "Record the number of open incidents.\n\nArgs:\n    count: Number of currently open incidents\n    labels: Additional labels/attributes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "count",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_resilience",
+      "line": 270,
+      "doc": "Record a fault impact score from a chaos experiment.\n\nArgs:\n    experiment_name: Name of the chaos experiment\n    score: Fault impact score (0-100)\n    agent_id: Target agent identifier",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "experiment_name",
+        "score",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MetricsExporter",
+      "line": 51,
+      "doc": "Exports Agent SRE metrics via OpenTelemetry Metrics API.\n\nRegisters gauges, counters, and histograms following agent-specific\nsemantic conventions. Metrics are exported through whatever\nMeterProvider is configured (OTLP, Prometheus, console, etc.).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 12,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

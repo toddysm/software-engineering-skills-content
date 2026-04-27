@@ -1,0 +1,265 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/adapters/aws_sqs_broker.py",
+  "extension": ".py",
+  "size_bytes": 13233,
+  "line_count": 376,
+  "documentation": {
+    "file_docstring": "AWS SQS broker adapter for AMB.\n\nAmazon SQS provides fully managed message queues for microservices,\ndistributed systems, and serverless applications.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Subscribe",
+      "Publish",
+      "Get or create main queue",
+      "Try to get existing queue",
+      "Create new queue",
+      "Cancel all tasks",
+      "Serialize message",
+      "Build send parameters",
+      "FIFO queues require message group ID",
+      "Send message",
+      "Start polling task",
+      "Receive messages",
+      "Parse message",
+      "Check topic filter",
+      "Delete message after processing",
+      "Leave message in queue for retry",
+      "Generate correlation ID",
+      "Create response queue",
+      "Subscribe to responses (using correlation ID as topic filter)",
+      "Set reply-to",
+      "Publish request",
+      "Wait for response",
+      "Receive with short visibility timeout"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AWSSQSBroker: AWS SQS broker adapter.\n\nThis adapter uses AWS SQS queues for reliable message d",
+      "__init__: Initialize AWS SQS broker.\n\nArgs:\n    region_name: AWS region\n    queue_url: Exi",
+      "connect: Connect to AWS SQS.",
+      "disconnect: Disconnect from AWS SQS.",
+      "publish: Publish message to SQS queue.\n\nArgs:\n    message: Message to publish\n    wait_fo",
+      "subscribe: Subscribe to messages on a topic.\n\nStarts polling the SQS queue for messages mat",
+      "_poll_task: Poll SQS queue for messages.",
+      "unsubscribe: Unsubscribe from messages.\n\nArgs:\n    subscription_id: Subscription ID",
+      "request: Send request and wait for response.\n\nUses a temporary response queue for the req",
+      "get_pending_messages: Peek at pending messages in the queue.\n\nNote: SQS doesn't support true peeking, "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AWSSQSBroker"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "json",
+      "uuid",
+      "typing",
+      "amb_core.broker",
+      "amb_core.models",
+      "aioboto3",
+      "botocore.exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 55,
+      "doc": "Initialize AWS SQS broker.\n\nArgs:\n    region_name: AWS region\n    queue_url: Existing queue URL (optional)\n    queue_name: Queue name to create/use\n    use_fifo: Use FIFO queue for ordered delivery\n    aws_access_key_id: AWS access key (uses env vars if not provided)\n    aws_secret_access_key: AWS secret key (uses env vars if not provided)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "region_name",
+        "queue_url",
+        "queue_name",
+        "use_fifo",
+        "aws_access_key_id",
+        "aws_secret_access_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "connect",
+      "line": 90,
+      "doc": "Connect to AWS SQS.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disconnect",
+      "line": 124,
+      "doc": "Disconnect from AWS SQS.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish",
+      "line": 139,
+      "doc": "Publish message to SQS queue.\n\nArgs:\n    message: Message to publish\n    wait_for_confirmation: Wait for SQS acknowledgment (always true for SQS)\n\nReturns:\n    Message ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "wait_for_confirmation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "subscribe",
+      "line": 187,
+      "doc": "Subscribe to messages on a topic.\n\nStarts polling the SQS queue for messages matching the topic.\n\nArgs:\n    topic: Topic to filter messages by\n    handler: Message handler\n\nReturns:\n    Subscription ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "handler"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_poll_task",
+      "line": 212,
+      "doc": "Poll SQS queue for messages.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "subscription_id",
+        "topic",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unsubscribe",
+      "line": 253,
+      "doc": "Unsubscribe from messages.\n\nArgs:\n    subscription_id: Subscription ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "subscription_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request",
+      "line": 267,
+      "doc": "Send request and wait for response.\n\nUses a temporary response queue for the request-response pattern.\n\nArgs:\n    message: Request message\n    timeout: Timeout in seconds\n\nReturns:\n    Response message",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "timeout"
+      ],
+      "returns": "Message"
+    },
+    {
+      "name": "get_pending_messages",
+      "line": 315,
+      "doc": "Peek at pending messages in the queue.\n\nNote: SQS doesn't support true peeking, so this uses visibility timeout\nand then returns messages to the queue.\n\nArgs:\n    topic: Topic to filter by\n    limit: Maximum messages to retrieve\n\nReturns:\n    List of messages",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 355,
+      "doc": "Check if connected to AWS SQS.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "purge_queue",
+      "line": 370,
+      "doc": "Purge all messages from the queue.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "response_handler",
+      "line": 290,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AWSSQSBroker",
+      "line": 27,
+      "doc": "AWS SQS broker adapter.\n\nThis adapter uses AWS SQS queues for reliable message delivery.\nSupports both standard queues and FIFO queues for ordered processing.\n\nExample:\n    ```python\n    from amb_core.adapters import AWSSQSBroker\n    \n    broker = AWSSQSBroker(\n        region_name=\"us-east-1\",\n        queue_url=\"https://sqs.us-east-1.amazonaws.com/123456789/my-queue\"\n    )\n    await broker.connect()\n    \n    # Subscribe\n    async def handler(msg):\n        print(f\"Received: {msg.payload}\")\n    \n    await broker.subscribe(\"agent.tasks\", handler)\n    \n    # Publish\n    await broker.publish(Message(topic=\"agent.tasks\", payload={\"task\": \"analyze\"}))\n    ```",
+      "is_public": true,
+      "bases": [
+        "BrokerAdapter"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 44,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

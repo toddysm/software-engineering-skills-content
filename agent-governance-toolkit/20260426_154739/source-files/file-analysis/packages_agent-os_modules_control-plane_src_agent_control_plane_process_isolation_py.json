@@ -1,0 +1,539 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/process_isolation.py",
+  "extension": ".py",
+  "size_bytes": 27699,
+  "line_count": 777,
+  "documentation": {
+    "file_docstring": "Process-Level Agent Isolation\n\nProvides real OS-level process isolation for agent execution, addressing\nthe limitation that in-process SIGKILL (AgentKernelPanic) is catchable\nby a broad ``except BaseException`` in Python.\n\nThis module runs agents in separate processes where ``os.kill(SIGKILL)``\nis truly non-catchable by agent code.\n\nArchitecture::\n\n    +-------------------------------------------+\n    |  Supervisor Process (Kernel Space)        |\n    |  - ProcessIsolationManager                |\n    |  - IsolatedSignalDispatcher               |\n    |                                           |\n    |  +------------+  +------------+           |\n    |  | Agent A    |  | Agent B    |           |\n    |  | (Process)  |  | (Process)  |           |\n    |  +------------+  +------------+           |\n    +-------------------------------------------+\n\nIsolation Levels:\n    COOPERATIVE  -- In-process, exception-based (current behaviour)\n    PROCESS      -- Separate process via multiprocessing.Process\n    SUBPROCESS   -- Separate process via subprocess.Popen\n\nSecurity Model:\n    - In-process signals  = cooperative path (can be caught)\n    - Process-level kill  = enforcement path (non-catchable)\n\nSee Also:\n    signals.py -- In-process cooperative signal handling",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "================================================================",
+      "Enums",
+      "================================================================",
+      "================================================================",
+      "Result dataclass",
+      "================================================================",
+      "================================================================",
+      "Worker function (module top-level so multiprocessing can pickle it)",
+      "================================================================",
+      "Bootstrap script executed inside a ``subprocess.Popen`` child.",
+      "The parent sends: base64(hmac_key + b\"|\" + hmac_sig + b\"|\" + json_payload)",
+      "The child verifies the HMAC before deserializing.",
+      "The JSON payload contains {\"module\": \"...\", \"qualname\": \"...\", \"args\": [...], \"kwargs\": {...}}",
+      "and the target function is resolved via importlib, avoiding pickle deserialization.",
+      "================================================================",
+      "AgentProcessHandle",
+      "================================================================",
+      "---- internal fields (hidden from repr) ----",
+      "--------------------------------------------------------------",
+      "Public API",
+      "--------------------------------------------------------------",
+      "Flag early so a concurrent wait() sees it immediately.",
+      "Windows: process.kill() calls TerminateProcess",
+      "Wait briefly for the OS to reap the process.",
+      "Fast path -- already resolved.",
+      "--------------------------------------------------------------",
+      "Internal helpers",
+      "--------------------------------------------------------------",
+      "Timed out -- forcibly kill.",
+      "Killed (by us, or by an external timeout timer)?",
+      "Killed by another thread (e.g. timeout timer)?",
+      "Process exited without writing to the queue.",
+      "================================================================",
+      "ProcessIsolationManager",
+      "================================================================",
+      "----------------------------------------------------------",
+      "Spawn",
+      "----------------------------------------------------------",
+      "Optional watchdog timer.",
+      "----------------------------------------------------------",
+      "Kill / Terminate",
+      "----------------------------------------------------------",
+      "----------------------------------------------------------",
+      "Queries",
+      "----------------------------------------------------------",
+      "----------------------------------------------------------",
+      "Maintenance",
+      "----------------------------------------------------------",
+      "----------------------------------------------------------",
+      "Internal helpers",
+      "----------------------------------------------------------",
+      "Validate target is an importable function (not a lambda/closure)",
+      "Serialize as JSON with function reference instead of pickling callables",
+      "Sign payload with HMAC to prevent tampering",
+      "================================================================",
+      "IsolatedSignalDispatcher",
+      "================================================================",
+      "No isolated process -- fall back to cooperative exception.",
+      "================================================================",
+      "Factory",
+      "================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "IsolationLevel: Level of process isolation for agent execution.",
+      "AgentProcessState: Lifecycle state of an isolated agent process.",
+      "AgentProcessResult: Result from an isolated agent process.",
+      "_agent_worker: Execute *target* inside the child process, sending the outcome via *result_queue",
+      "AgentProcessHandle: Handle to a running agent process.\n\nProvides real process-level control includin",
+      "ProcessIsolationManager: Manages agent processes with real OS-level isolation.\n\nUnlike in-process ``Agent",
+      "IsolatedSignalDispatcher: Signal dispatcher that uses real process isolation for SIGKILL.\n\nExtends :class:",
+      "create_isolated_signal_dispatcher: Factory function for creating isolated signal dispatchers.",
+      "terminate: Send SIGTERM (graceful shutdown request).",
+      "kill: Send real OS SIGKILL -- truly non-catchable.\n\nOn Unix:    ``os.kill(pid, signal."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "AgentProcessState",
+    "list_agents",
+    "spawn",
+    "kill_all",
+    "IsolatedSignalDispatcher",
+    "terminate",
+    "ProcessIsolationManager",
+    "IsolationLevel",
+    "get_handle",
+    "cleanup",
+    "is_alive",
+    "AgentProcessResult",
+    "AgentProcessHandle",
+    "kill",
+    "create_isolated_signal_dispatcher",
+    "wait"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "hashlib",
+      "hmac",
+      "json",
+      "logging",
+      "multiprocessing",
+      "os",
+      "signal",
+      "subprocess",
+      "sys",
+      "threading",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing",
+      "signals"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_agent_worker",
+      "line": 108,
+      "doc": "Execute *target* inside the child process, sending the outcome via *result_queue*.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "target",
+        "args",
+        "kwargs",
+        "result_queue"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_isolated_signal_dispatcher",
+      "line": 769,
+      "doc": "Factory function for creating isolated signal dispatchers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": "IsolatedSignalDispatcher"
+    },
+    {
+      "name": "terminate",
+      "line": 224,
+      "doc": "Send SIGTERM (graceful shutdown request).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "kill",
+      "line": 252,
+      "doc": "Send real OS SIGKILL -- truly non-catchable.\n\nOn Unix:    ``os.kill(pid, signal.SIGKILL)``\nOn Windows: ``TerminateProcess`` via ``process.kill()``\nThis is the real deal -- the OS scheduler handles it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_alive",
+      "line": 302,
+      "doc": "Check whether the underlying OS process is still running.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "wait",
+      "line": 312,
+      "doc": "Block until the process finishes (or *timeout* expires) and return its result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "timeout"
+      ],
+      "returns": "AgentProcessResult"
+    },
+    {
+      "name": "_wait_process",
+      "line": 341,
+      "doc": "Wait logic for ``IsolationLevel.PROCESS``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "timeout"
+      ],
+      "returns": "AgentProcessResult"
+    },
+    {
+      "name": "_wait_subprocess",
+      "line": 355,
+      "doc": "Wait logic for ``IsolationLevel.SUBPROCESS``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "timeout"
+      ],
+      "returns": "AgentProcessResult"
+    },
+    {
+      "name": "_read_queue_result",
+      "line": 379,
+      "doc": "Read the result dict from the multiprocessing Queue.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "AgentProcessResult"
+    },
+    {
+      "name": "_parse_subprocess_output",
+      "line": 446,
+      "doc": "Parse JSON result from subprocess stdout.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "stdout",
+        "stderr"
+      ],
+      "returns": "AgentProcessResult"
+    },
+    {
+      "name": "__init__",
+      "line": 504,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "default_isolation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "spawn",
+      "line": 517,
+      "doc": "Spawn an agent function in an isolated process.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target",
+        "agent_id",
+        "args",
+        "kwargs",
+        "isolation",
+        "timeout"
+      ],
+      "returns": "AgentProcessHandle"
+    },
+    {
+      "name": "kill",
+      "line": 570,
+      "doc": "Send SIGKILL to agent process -- truly non-catchable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "terminate",
+      "line": 581,
+      "doc": "Send SIGTERM for graceful shutdown.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "kill_all",
+      "line": 592,
+      "doc": "Kill all running agents.  Returns count killed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_handle",
+      "line": 610,
+      "doc": "Retrieve the handle for a specific agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_agents",
+      "line": 615,
+      "doc": "Return a snapshot of all tracked agent handles.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cleanup",
+      "line": 624,
+      "doc": "Remove completed / terminated / failed processes from tracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_next_id",
+      "line": 649,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_spawn_multiprocessing",
+      "line": 653,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "target",
+        "args",
+        "kwargs"
+      ],
+      "returns": "AgentProcessHandle"
+    },
+    {
+      "name": "_spawn_subprocess",
+      "line": 677,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "target",
+        "args",
+        "kwargs"
+      ],
+      "returns": "AgentProcessHandle"
+    },
+    {
+      "name": "_on_timeout",
+      "line": 718,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 740,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "process_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_kill",
+      "line": 748,
+      "doc": "Override: route SIGKILL through real process isolation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "info"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "IsolationLevel",
+      "line": 67,
+      "doc": "Level of process isolation for agent execution.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentProcessState",
+      "line": 75,
+      "doc": "Lifecycle state of an isolated agent process.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentProcessResult",
+      "line": 91,
+      "doc": "Result from an isolated agent process.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentProcessHandle",
+      "line": 202,
+      "doc": "Handle to a running agent process.\n\nProvides real process-level control including non-catchable termination.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ProcessIsolationManager",
+      "line": 496,
+      "doc": "Manages agent processes with real OS-level isolation.\n\nUnlike in-process ``AgentKernelPanic`` (which can be caught with\n``try/except``), this runs agents in separate processes where\n``os.kill(SIGKILL)`` is truly non-catchable by the agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "IsolatedSignalDispatcher",
+      "line": 732,
+      "doc": "Signal dispatcher that uses real process isolation for SIGKILL.\n\nExtends :class:`SignalDispatcher` so that ``SIGKILL`` routes through\n:class:`ProcessIsolationManager` for a true OS-level kill, while all\nother signals continue to use the cooperative in-process path.",
+      "is_public": true,
+      "bases": [
+        "SignalDispatcher"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 87,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

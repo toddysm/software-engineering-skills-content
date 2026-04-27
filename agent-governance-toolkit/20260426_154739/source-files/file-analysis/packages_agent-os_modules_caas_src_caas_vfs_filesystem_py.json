@@ -1,0 +1,302 @@
+{
+  "path": "packages/agent-os/modules/caas/src/caas/vfs/filesystem.py",
+  "extension": ".py",
+  "size_bytes": 14275,
+  "line_count": 452,
+  "documentation": {
+    "file_docstring": "Virtual File System implementation.\n\nA lightweight in-memory file system that maintains project state and allows\nmultiple agents to share and see each other's file edits.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create root directory",
+      "Load from disk if storage path exists",
+      "Remove duplicate slashes and ensure leading slash",
+      "Normalize to remove .. and . components",
+      "Create each parent directory",
+      "Ensure parent directories exist",
+      "Create initial edit record",
+      "Create file node",
+      "Create edit record",
+      "Update file node",
+      "If it's a directory, check if it's empty",
+      "Check if this path is a child of the directory",
+      "Only immediate children (no subdirectories)",
+      "Check if this file is in the requested directory",
+      "Include all descendants",
+      "Include only immediate children"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "VirtualFileSystem: Lightweight in-memory virtual file system for SDLC agents.\n\nFeatures:\n- In-memor",
+      "__init__: Initialize the virtual file system.\n\nArgs:\n    root_path: Root path for the file",
+      "_normalize_path: Normalize a file path.",
+      "_ensure_directory: Ensure a directory exists in the file system.",
+      "_ensure_parent_directories: Ensure all parent directories exist for a given path.",
+      "create_file: Create a new file in the file system.\n\nArgs:\n    path: Path where to create the ",
+      "read_file: Read the content of a file.\n\nArgs:\n    path: Path of the file to read\n    \nRetur",
+      "update_file: Update an existing file.\n\nArgs:\n    path: Path of the file to update\n    content",
+      "delete_file: Delete a file from the file system.\n\nArgs:\n    path: Path of the file to delete\n",
+      "_get_children: Get all immediate children of a directory."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "VirtualFileSystem",
+    "create_file",
+    "update_file",
+    "get_file_history",
+    "delete_file",
+    "get_file_info",
+    "get_state",
+    "list_files",
+    "read_file"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "datetime",
+      "pathlib",
+      "typing",
+      "caas.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 44,
+      "doc": "Initialize the virtual file system.\n\nArgs:\n    root_path: Root path for the file system (default: \"/\")\n    storage_path: Optional path for persistent storage",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "root_path",
+        "storage_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_normalize_path",
+      "line": 63,
+      "doc": "Normalize a file path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_ensure_directory",
+      "line": 79,
+      "doc": "Ensure a directory exists in the file system.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_ensure_parent_directories",
+      "line": 95,
+      "doc": "Ensure all parent directories exist for a given path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_file",
+      "line": 108,
+      "doc": "Create a new file in the file system.\n\nArgs:\n    path: Path where to create the file\n    content: Initial content of the file\n    agent_id: ID of the agent creating the file\n    metadata: Optional metadata for the file\n    \nReturns:\n    The created FileNode\n    \nRaises:\n    ValueError: If file already exists or path is invalid",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "content",
+        "agent_id",
+        "metadata"
+      ],
+      "returns": "FileNode"
+    },
+    {
+      "name": "read_file",
+      "line": 168,
+      "doc": "Read the content of a file.\n\nArgs:\n    path: Path of the file to read\n    \nReturns:\n    The file content\n    \nRaises:\n    FileNotFoundError: If file doesn't exist\n    ValueError: If path is a directory",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "update_file",
+      "line": 194,
+      "doc": "Update an existing file.\n\nArgs:\n    path: Path of the file to update\n    content: New content\n    agent_id: ID of the agent updating the file\n    message: Optional commit-like message\n    \nReturns:\n    The updated FileNode\n    \nRaises:\n    FileNotFoundError: If file doesn't exist\n    ValueError: If path is a directory",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "content",
+        "agent_id",
+        "message"
+      ],
+      "returns": "FileNode"
+    },
+    {
+      "name": "delete_file",
+      "line": 248,
+      "doc": "Delete a file from the file system.\n\nArgs:\n    path: Path of the file to delete\n    agent_id: ID of the agent deleting the file\n    \nReturns:\n    True if deleted successfully\n    \nRaises:\n    FileNotFoundError: If file doesn't exist",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_get_children",
+      "line": 285,
+      "doc": "Get all immediate children of a directory.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_files",
+      "line": 303,
+      "doc": "List files in a directory.\n\nArgs:\n    directory_path: Path of the directory to list\n    recursive: Whether to list recursively\n    \nReturns:\n    FileListResponse with list of files\n    \nRaises:\n    FileNotFoundError: If directory doesn't exist\n    ValueError: If path is not a directory",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "directory_path",
+        "recursive"
+      ],
+      "returns": "FileListResponse"
+    },
+    {
+      "name": "get_file_info",
+      "line": 365,
+      "doc": "Get information about a file without reading its content.\n\nArgs:\n    path: Path of the file\n    \nReturns:\n    FileResponse with file information\n    \nRaises:\n    FileNotFoundError: If file doesn't exist",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "FileResponse"
+    },
+    {
+      "name": "get_file_history",
+      "line": 397,
+      "doc": "Get the edit history of a file.\n\nArgs:\n    path: Path of the file\n    \nReturns:\n    List of FileEdit objects\n    \nRaises:\n    FileNotFoundError: If file doesn't exist",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_state",
+      "line": 418,
+      "doc": "Get the complete file system state.\n\nReturns:\n    VFSState object representing the entire file system",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "VFSState"
+    },
+    {
+      "name": "_save_to_disk",
+      "line": 427,
+      "doc": "Save the file system state to disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_from_disk",
+      "line": 439,
+      "doc": "Load the file system state from disk.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "VirtualFileSystem",
+      "line": 25,
+      "doc": "Lightweight in-memory virtual file system for SDLC agents.\n\nFeatures:\n- In-memory file storage with dict-based tree structure\n- Version history tracking for all file edits\n- Multi-agent support with agent ID tracking\n- CRUD operations: create, read, update, delete\n- Directory support with recursive operations\n\nExample:\n    >>> vfs = VirtualFileSystem()\n    >>> vfs.create_file(\"/project/main.py\", \"print('hello')\", \"agent-1\")\n    >>> content = vfs.read_file(\"/project/main.py\")\n    >>> vfs.update_file(\"/project/main.py\", \"print('world')\", \"agent-2\")\n    >>> history = vfs.get_file_history(\"/project/main.py\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 60,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

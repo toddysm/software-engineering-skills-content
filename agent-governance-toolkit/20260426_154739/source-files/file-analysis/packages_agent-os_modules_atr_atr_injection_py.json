@@ -1,0 +1,432 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/injection.py",
+  "extension": ".py",
+  "size_bytes": 12728,
+  "line_count": 422,
+  "documentation": {
+    "file_docstring": "Dependency Injection for ATR tools.\n\nProvides a mechanism for injecting configuration, credentials, and other\ndependencies into tool functions at execution time.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Wrap factory to cache result",
+      "Check factories first",
+      "Then check direct registrations",
+      "Check subclasses",
+      "Fall back to token's default",
+      "Try self first",
+      "Fall back to parent",
+      "Convert positional args to kwargs",
+      "Check each parameter for injection markers",
+      "Skip if already provided",
+      "Check if default is an injection marker",
+      "Determine the key to use",
+      "Resolve the dependency",
+      "Global container instance"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "InjectionToken: Token for identifying injectable dependencies.\n\nExample:\n    >>> CONFIG_TOKEN = ",
+      "InjectionMarker: Marker class to identify parameters that need injection.\n\nUsed as a default valu",
+      "inject: Mark a parameter for dependency injection.\n\nUse this as a default value for para",
+      "DependencyContainer: Container for managing injectable dependencies.\n\nProvides a thread-safe containe",
+      "ChildContainer: Child container that inherits from a parent.",
+      "InjectionResolver: Resolves injection markers in function calls.\n\nUsed by the runtime to inject dep",
+      "InjectionError: Raised when dependency injection fails.",
+      "get_container: Get the global dependency container.\n\nReturns:\n    The global DependencyContaine",
+      "set_container: Set the global dependency container.\n\nArgs:\n    container: The container to use ",
+      "__init__: Initialize injection token.\n\nArgs:\n    name: Unique name for this token.\n    def"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "InjectionResolver",
+    "resolve",
+    "register",
+    "inject",
+    "InjectionMarker",
+    "ChildContainer",
+    "clear",
+    "create_child",
+    "InjectionToken",
+    "InjectionError",
+    "register_instance",
+    "cached_factory",
+    "DependencyContainer",
+    "unregister",
+    "set_container",
+    "resolve_parameters",
+    "has",
+    "get_container"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "inspect",
+      "threading",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "inject",
+      "line": 79,
+      "doc": "Mark a parameter for dependency injection.\n\nUse this as a default value for parameters that should be injected\nby the runtime when the tool is executed.\n\nArgs:\n    token: Optional injection token, type, or name string.\n           If None, uses the parameter's type annotation.\n    optional: If True, allow None when dependency isn't available.\n    default: Default value if dependency isn't available.\n\nReturns:\n    InjectionMarker instance (used as parameter default).\n\nExample:\n    >>> @atr.register()\n    ... def pdf_parser(\n    ...     file_path: str,\n    ...     config: Config = inject(),  # Inject by type\n    ...     api_key: str = inject(\"api_key\"),  # Inject by name\n    ... ) -> dict:\n    ...     ...",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "token"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_container",
+      "line": 406,
+      "doc": "Get the global dependency container.\n\nReturns:\n    The global DependencyContainer instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "DependencyContainer"
+    },
+    {
+      "name": "set_container",
+      "line": 415,
+      "doc": "Set the global dependency container.\n\nArgs:\n    container: The container to use globally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "container"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 40,
+      "doc": "Initialize injection token.\n\nArgs:\n    name: Unique name for this token.\n    default: Default value if not provided.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "default"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__repr__",
+      "line": 50,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__hash__",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__eq__",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__repr__",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 126,
+      "doc": "Initialize empty container.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 134,
+      "doc": "Register a dependency.\n\nArgs:\n    key: Type, name string, or InjectionToken.\n    value: The value to inject (mutually exclusive with factory).\n    factory: Factory function to create the value.\n    singleton: If using factory, whether to cache the result.\n\nReturns:\n    Self for chaining.\n\nRaises:\n    ValueError: If both value and factory are provided.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_instance",
+      "line": 184,
+      "doc": "Register an instance by its type.\n\nConvenience method that registers the instance using its type as key.\n\nArgs:\n    instance: The instance to register.\n\nReturns:\n    Self for chaining.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "instance"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve",
+      "line": 197,
+      "doc": "Resolve a dependency.\n\nArgs:\n    key: Type, name string, or InjectionToken to resolve.\n    default: Default value if not found.\n\nReturns:\n    The resolved dependency or default.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "default"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has",
+      "line": 234,
+      "doc": "Check if a dependency is registered.\n\nArgs:\n    key: The key to check.\n\nReturns:\n    True if registered, False otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "unregister",
+      "line": 254,
+      "doc": "Unregister a dependency.\n\nArgs:\n    key: The key to unregister.\n\nReturns:\n    True if was registered, False otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "clear",
+      "line": 278,
+      "doc": "Clear all registered dependencies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_child",
+      "line": 286,
+      "doc": "Create a child container that inherits from this one.\n\nThe child can override dependencies without affecting the parent.\n\nReturns:\n    New child container.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 301,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "parent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve",
+      "line": 305,
+      "doc": "Resolve from self first, then parent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "default"
+      ],
+      "returns": null
+    },
+    {
+      "name": "has",
+      "line": 317,
+      "doc": "Check self and parent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 328,
+      "doc": "Initialize resolver with a container.\n\nArgs:\n    container: The dependency container to use.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "container"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve_parameters",
+      "line": 336,
+      "doc": "Resolve injection markers in function parameters.\n\nArgs:\n    func: The function being called.\n    args: Positional arguments provided.\n    kwargs: Keyword arguments provided.\n\nReturns:\n    Updated kwargs with injected values.\n\nRaises:\n    InjectionError: If a required dependency cannot be resolved.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func",
+        "args",
+        "kwargs"
+      ],
+      "returns": null
+    },
+    {
+      "name": "cached_factory",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "InjectionToken",
+      "line": 30,
+      "doc": "Token for identifying injectable dependencies.\n\nExample:\n    >>> CONFIG_TOKEN = InjectionToken[Config](\"config\")\n    >>> @atr.register()\n    ... def my_tool(config: Config = inject(CONFIG_TOKEN)) -> str:\n    ...     return config.api_key",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "InjectionMarker",
+      "line": 63,
+      "doc": "Marker class to identify parameters that need injection.\n\nUsed as a default value for parameters that should be injected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DependencyContainer",
+      "line": 111,
+      "doc": "Container for managing injectable dependencies.\n\nProvides a thread-safe container for registering and resolving\ndependencies used by tools.\n\nExample:\n    >>> container = DependencyContainer()\n    >>> container.register(Config, Config(api_key=\"secret\"))\n    >>> container.register(\"database\", db_connection)\n    >>>\n    >>> config = container.resolve(Config)\n    >>> db = container.resolve(\"database\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ChildContainer",
+      "line": 298,
+      "doc": "Child container that inherits from a parent.",
+      "is_public": true,
+      "bases": [
+        "DependencyContainer"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "InjectionResolver",
+      "line": 322,
+      "doc": "Resolves injection markers in function calls.\n\nUsed by the runtime to inject dependencies into tool functions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "InjectionError",
+      "line": 396,
+      "doc": "Raised when dependency injection fails.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 76,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

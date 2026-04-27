@@ -1,0 +1,362 @@
+{
+  "path": "packages/agent-os/modules/mute-agent/src/agents/mute_agent.py",
+  "extension": ".py",
+  "size_bytes": 24297,
+  "line_count": 624,
+  "documentation": {
+    "file_docstring": "Mute Agent - Graph-Constrained Agent with State Awareness\n\nThis agent uses the Mute Agent architecture with enhancements for:\n1. State-aware graph constraints (resource states, current focus)\n2. Permission-based edge pruning\n3. Deterministic action validation through graph traversal\n\nThe key advantage: Context is encoded in the graph structure,\nnot retrieved probabilistically at runtime.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import the shared infrastructure API",
+      "Import Mute Agent core",
+      "Failure analysis",
+      "Performance metrics",
+      "No clarification needed - graph is deterministic",
+      "Dimension 1: Operations (what actions are available)",
+      "Dimension 2: Permissions (who can do what)",
+      "Dimension 3: State (resource state constraints)",
+      "Dimension 4: Context (current focus tracking)",
+      "Get current system state",
+      "Clear existing nodes (rebuild fresh each time)",
+      "Build graph for current state",
+      "Add to context dimension if this is the current focus",
+      "Add edge from operations to focused service",
+      "This makes operations on the focused service valid",
+      "Add user node",
+      "Add permission edges based on user role and environment",
+      "User can perform write operations on this service",
+      "Force delete requires SRE/Admin",
+      "PARTIAL services can't be restarted or scaled",
+      "Only force_delete is allowed",
+      "Add a CONFLICTS_WITH edge to block these operations",
+      "Running services can be restarted and scaled",
+      "Stopped services can be started but not restarted",
+      "Add a strong constraint that operations without explicit",
+      "service target should use the current focus",
+      "Add edge prioritizing current focus for ambiguous operations",
+      "Token costs (much lower due to graph pruning)",
+      "Build graph from current state",
+      "Parse command to determine intent",
+      "Resolve parameters using graph",
+      "Graph constraint prevented execution",
+      "Execute the action",
+      "Get current focus from context",
+      "Check if service is explicitly mentioned in command",
+      "Try explicit match first",
+      "Check if environment is also mentioned",
+      "If only one service with this name, use it",
+      "If no explicit match and command uses pronoun (\"it\", \"the service\")",
+      "Use current focus from graph",
+      "If still no target, check for last log viewed",
+      "Check graph constraints for this action + target",
+      "Action is valid - prepare parameters",
+      "Add extra parameters for specific actions",
+      "Look for \"scale to N\" or \"N replicas\" patterns specifically",
+      "This avoids matching numbers in service names",
+      "Check for CONFLICTS_WITH edges in state dimension",
+      "Check permissions dimension",
+      "Look for ENABLES edge from action to service",
+      "Get service environment to provide helpful error",
+      "Map action to API call"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MuteAgentResult: Result from Mute Agent execution.",
+      "GraphEngine: Graph Engine for Mute Agent - builds state-aware constraint graphs.\n\nThis is ext",
+      "MuteAgent: The Mute Agent - Graph-Constrained Agent\n\nUses the Mute Agent architecture with ",
+      "__init__: Initialize graph engine with access to infrastructure state.",
+      "_initialize_dimensions: Initialize the dimensional subgraphs.",
+      "build_graph_from_state: Build a constraint graph from current infrastructure state.\n\nThis is the key dif",
+      "_add_operation_nodes: Add operation action nodes.",
+      "_add_service_nodes: Add nodes for each service.",
+      "_add_permission_constraints: Add permission-based constraints.",
+      "_add_state_constraints: Add state-based constraints (e.g., can't restart PARTIAL services)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MuteAgent",
+    "GraphEngine",
+    "get_statistics",
+    "execute_request",
+    "build_graph_from_state",
+    "MuteAgentResult"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "sys",
+      "os",
+      "src.core.tools",
+      "mute_agent",
+      "mute_agent.knowledge_graph.graph_elements",
+      "mute_agent.knowledge_graph.subgraph",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 75,
+      "doc": "Initialize graph engine with access to infrastructure state.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "api"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_initialize_dimensions",
+      "line": 81,
+      "doc": "Initialize the dimensional subgraphs.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "build_graph_from_state",
+      "line": 115,
+      "doc": "Build a constraint graph from current infrastructure state.\n\nThis is the key difference from baseline: The graph encodes\nALL context, so the agent doesn't need to reason about it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "MultidimensionalKnowledgeGraph"
+    },
+    {
+      "name": "_add_operation_nodes",
+      "line": 138,
+      "doc": "Add operation action nodes.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_add_service_nodes",
+      "line": 156,
+      "doc": "Add nodes for each service.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_state",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_add_permission_constraints",
+      "line": 193,
+      "doc": "Add permission-based constraints.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user",
+        "system_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_add_state_constraints",
+      "line": 231,
+      "doc": "Add state-based constraints (e.g., can't restart PARTIAL services).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "system_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_add_context_constraints",
+      "line": 273,
+      "doc": "Add context-based constraints.\n\nThis is the KEY to solving the \"Stale State\" scenario:\nThe graph encodes which service is currently in focus.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "system_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 313,
+      "doc": "Initialize with access to infrastructure API.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "api"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_request",
+      "line": 319,
+      "doc": "Execute a user request using graph-based constraints.\n\nNo reflection loops, no clarification needed - the graph\nencodes all context deterministically.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_command",
+        "context"
+      ],
+      "returns": "MuteAgentResult"
+    },
+    {
+      "name": "_parse_command",
+      "line": 384,
+      "doc": "Parse user command to determine intent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "command"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_resolve_with_graph",
+      "line": 403,
+      "doc": "Resolve parameters using graph constraints.\n\nThis is deterministic - no guessing, no hallucination.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "intent",
+        "command",
+        "context",
+        "kg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_action_in_graph",
+      "line": 506,
+      "doc": "Validate if action is allowed by checking all graph constraints.\n\nThis checks:\n1. Permission dimension - does user have rights?\n2. State dimension - is service in right state?\n3. Context dimension - is this the right target?",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "service_id",
+        "kg",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_execute_action",
+      "line": 560,
+      "doc": "Execute the validated action.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "parameters",
+        "context",
+        "token_count",
+        "graph_traversals"
+      ],
+      "returns": "MuteAgentResult"
+    },
+    {
+      "name": "get_statistics",
+      "line": 602,
+      "doc": "Get performance statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MuteAgentResult",
+      "line": 46,
+      "doc": "Result from Mute Agent execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GraphEngine",
+      "line": 68,
+      "doc": "Graph Engine for Mute Agent - builds state-aware constraint graphs.\n\nThis is extracted as a separate component per the PRD structure.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MuteAgent",
+      "line": 301,
+      "doc": "The Mute Agent - Graph-Constrained Agent\n\nUses the Mute Agent architecture with state-aware graph constraints.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 98,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

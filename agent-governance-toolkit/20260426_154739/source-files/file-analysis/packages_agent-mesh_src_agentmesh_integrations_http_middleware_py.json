@@ -1,0 +1,223 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/integrations/http_middleware.py",
+  "extension": ".py",
+  "size_bytes": 6248,
+  "line_count": 175,
+  "documentation": {
+    "file_docstring": "HTTP Trust Middleware for AgentMesh\n====================================\n\nFramework-agnostic middleware that validates incoming HTTP requests against\nAgentMesh trust headers (X-Agent-DID, X-Agent-Public-Key, X-Agent-Capabilities).\n\nProvides a generic ``TrustMiddleware`` class plus thin decorators for Flask\n(``flask_trust_required``) and FastAPI (``fastapi_trust_required``).  Missing\nframeworks are handled gracefully \u2014 the decorators simply raise ImportError\nat call time if their framework is unavailable.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "V16: Default to strict mode \u2014 require explicit opt-in for permissive",
+      "-- core verification (framework-independent) -------------------------",
+      "Verify signature when both identity and peer key are available",
+      "Check required capabilities",
+      "-- Framework-specific decorators -----------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustConfig: Configuration for trust verification.",
+      "VerificationResult: Outcome of a trust verification check.",
+      "TrustMiddleware: Framework-agnostic HTTP trust verification.\n\nParameters\n----------\nidentity : Ag",
+      "flask_trust_required: Flask decorator that rejects untrusted requests.",
+      "fastapi_trust_required: FastAPI dependency that rejects untrusted requests.",
+      "verify_request: Verify trust headers and return *(result, error_body | None)*.\n\n*error_body* is ",
+      "response_headers: Return trust headers to attach to outgoing responses."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "verify_request",
+    "fastapi_trust_required",
+    "decorator",
+    "response_headers",
+    "TrustConfig",
+    "TrustMiddleware",
+    "flask_trust_required",
+    "wrapper",
+    "VerificationResult"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "functools",
+      "typing",
+      "agentmesh.identity.agent_id",
+      "flask",
+      "fastapi",
+      "fastapi"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "flask_trust_required",
+      "line": 135,
+      "doc": "Flask decorator that rejects untrusted requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "middleware",
+        "config"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "fastapi_trust_required",
+      "line": 156,
+      "doc": "FastAPI dependency that rejects untrusted requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "middleware",
+        "config"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "_fastapi_http_exc",
+      "line": 173,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "status",
+        "detail"
+      ],
+      "returns": "Exception"
+    },
+    {
+      "name": "__init__",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_request",
+      "line": 70,
+      "doc": "Verify trust headers and return *(result, error_body | None)*.\n\n*error_body* is a JSON-serialisable dict when verification fails, or\n``None`` on success.  The caller decides how to turn it into a\nframework-specific response.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "headers",
+        "config_override"
+      ],
+      "returns": null
+    },
+    {
+      "name": "response_headers",
+      "line": 122,
+      "doc": "Return trust headers to attach to outgoing responses.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "decorator",
+      "line": 142,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "fn"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "dependency",
+      "line": 163,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrapper",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustConfig",
+      "line": 29,
+      "doc": "Configuration for trust verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VerificationResult",
+      "line": 39,
+      "doc": "Outcome of a trust verification check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustMiddleware",
+      "line": 48,
+      "doc": "Framework-agnostic HTTP trust verification.\n\nParameters\n----------\nidentity : AgentIdentity, optional\n    Local agent identity used to verify signatures and attach response\n    headers.\nconfig : TrustConfig, optional\n    Verification thresholds and behaviour knobs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

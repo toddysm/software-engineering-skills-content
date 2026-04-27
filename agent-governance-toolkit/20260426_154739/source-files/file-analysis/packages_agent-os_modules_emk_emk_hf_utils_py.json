@@ -1,0 +1,173 @@
+{
+  "path": "packages/agent-os/modules/emk/emk/hf_utils.py",
+  "extension": ".py",
+  "size_bytes": 12222,
+  "line_count": 421,
+  "documentation": {
+    "file_docstring": "Hugging Face Hub utilities for EMK.\n\nThis module provides functions to push and pull episode data and experiment\nresults to/from the Hugging Face Hub for sharing and reproducibility.\n\nRequirements:\n    pip install agent-os-kernel[full]  # includes emk with huggingface support\n\nExample:\n    >>> from emk.hf_utils import upload_episodes_to_hub\n    >>> upload_episodes_to_hub(\n    ...     episodes=my_episodes,\n    ...     repo_id=\"microsoft/emk-experiments\",\n    ...     filename=\"episodes.jsonl\"\n    ... )\n\nNote:\n    You must be logged in to Hugging Face Hub to push data:\n    >>> huggingface_hub.login()\n    or set the HF_TOKEN environment variable.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Lazy import to avoid requiring huggingface_hub at import time",
+      "Create repository if it doesn't exist",
+      "Serialize episodes to JSONL",
+      "Generate commit message if not provided",
+      "Upload file",
+      "Cleanup temp file",
+      "Import Episode here to avoid circular imports",
+      "Download file",
+      "Parse episodes",
+      "Create repository if it doesn't exist",
+      "Add metadata to results",
+      "Modify filename with timestamp if requested",
+      "Serialize to JSON",
+      "Build tags list",
+      "Build dataset card content",
+      "{repo_id.split('/')[-1]}",
+      "# Dataset Information",
+      "# Usage",
+      "# Episode Schema",
+      "# License",
+      "Upload README"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_hf_hub: Check if huggingface_hub is available and raise helpful error if not.",
+      "upload_episodes_to_hub: Upload episodes to a Hugging Face Hub dataset repository.\n\nThis function seriali",
+      "download_episodes_from_hub: Download episodes from a Hugging Face Hub dataset repository.\n\nArgs:\n    repo_id",
+      "push_experiment_results: Push experiment results to Hugging Face Hub.\n\nThis is useful for tracking experi",
+      "create_dataset_card: Create or update a dataset card (README.md) for an EMK dataset.\n\nArgs:\n    repo_",
+      "_get_emk_version: Get the current emk version."
+    ]
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "create_dataset_card",
+    "push_experiment_results",
+    "upload_episodes_to_hub",
+    "download_episodes_from_hub"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "tempfile",
+      "datetime",
+      "pathlib",
+      "typing",
+      "emk.schema",
+      "huggingface_hub",
+      "huggingface_hub",
+      "emk.schema",
+      "huggingface_hub",
+      "huggingface_hub",
+      "emk",
+      "huggingface_hub"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_hf_hub",
+      "line": 41,
+      "doc": "Check if huggingface_hub is available and raise helpful error if not.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "upload_episodes_to_hub",
+      "line": 59,
+      "doc": "Upload episodes to a Hugging Face Hub dataset repository.\n\nThis function serializes episodes to JSONL format and uploads them\nto the specified Hugging Face Hub repository.\n\nArgs:\n    episodes: List of Episode objects to upload.\n    repo_id: The Hugging Face Hub repository ID (e.g., \"username/repo-name\").\n    filename: Name of the file in the repository (default: \"episodes.jsonl\").\n    commit_message: Custom commit message (auto-generated if not provided).\n    private: Whether the repository should be private (default: False).\n    token: Hugging Face API token (uses cached token if not provided).\n    branch: Branch to upload to (default: main).\n\nReturns:\n    str: URL of the uploaded file.\n\nRaises:\n    ImportError: If huggingface_hub is not installed.\n    ValueError: If episodes list is empty.\n\nExample:\n    >>> from emk import Episode\n    >>> from emk.hf_utils import upload_episodes_to_hub\n    >>> episodes = [Episode(goal=\"Test\", action=\"Run\", result=\"Pass\", reflection=\"Good\")]\n    >>> url = upload_episodes_to_hub(\n    ...     episodes=episodes,\n    ...     repo_id=\"microsoft/emk-test-data\"\n    ... )\n    >>> print(f\"Uploaded to: {url}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "episodes",
+        "repo_id",
+        "filename"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "download_episodes_from_hub",
+      "line": 144,
+      "doc": "Download episodes from a Hugging Face Hub dataset repository.\n\nArgs:\n    repo_id: The Hugging Face Hub repository ID (e.g., \"username/repo-name\").\n    filename: Name of the file in the repository (default: \"episodes.jsonl\").\n    token: Hugging Face API token (uses cached token if not provided).\n    revision: Git revision (branch, tag, or commit) to download from.\n\nReturns:\n    List[Episode]: List of Episode objects loaded from the repository.\n\nRaises:\n    ImportError: If huggingface_hub is not installed.\n    FileNotFoundError: If the file doesn't exist in the repository.\n\nExample:\n    >>> from emk.hf_utils import download_episodes_from_hub\n    >>> episodes = download_episodes_from_hub(\n    ...     repo_id=\"microsoft/emk-test-data\"\n    ... )\n    >>> print(f\"Downloaded {len(episodes)} episodes\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_id",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "push_experiment_results",
+      "line": 200,
+      "doc": "Push experiment results to Hugging Face Hub.\n\nThis is useful for tracking experiment runs and sharing reproducible\nresults with the research community.\n\nArgs:\n    results: Dictionary of experiment results to upload.\n    repo_id: The Hugging Face Hub repository ID.\n    filename: Name of the results file (default: \"results.json\").\n    commit_message: Custom commit message.\n    private: Whether the repository should be private.\n    token: Hugging Face API token.\n    append_timestamp: Whether to append timestamp to filename (default: True).\n\nReturns:\n    str: URL of the uploaded file.\n\nExample:\n    >>> from emk.hf_utils import push_experiment_results\n    >>> results = {\n    ...     \"accuracy\": 0.95,\n    ...     \"latency_ms\": 12.5,\n    ...     \"episodes_processed\": 1000\n    ... }\n    >>> url = push_experiment_results(\n    ...     results=results,\n    ...     repo_id=\"microsoft/emk-experiments\"\n    ... )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results",
+        "repo_id",
+        "filename"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "create_dataset_card",
+      "line": 289,
+      "doc": "Create or update a dataset card (README.md) for an EMK dataset.\n\nArgs:\n    repo_id: The Hugging Face Hub repository ID.\n    description: Description of the dataset.\n    num_episodes: Number of episodes in the dataset (optional).\n    tags: List of tags for the dataset (optional).\n    license: License identifier (default: \"mit\").\n    token: Hugging Face API token.\n\nReturns:\n    str: URL of the dataset card.\n\nExample:\n    >>> from emk.hf_utils import create_dataset_card\n    >>> url = create_dataset_card(\n    ...     repo_id=\"microsoft/emk-agent-logs\",\n    ...     description=\"Agent experience logs from production system\",\n    ...     num_episodes=10000,\n    ...     tags=[\"agents\", \"episodic-memory\", \"nlp\"]\n    ... )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_id",
+        "description"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_get_emk_version",
+      "line": 407,
+      "doc": "Get the current emk version.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    }
+  ],
+  "classes": [],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

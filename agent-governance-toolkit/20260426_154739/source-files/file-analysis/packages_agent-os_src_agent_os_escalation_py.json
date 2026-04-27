@@ -1,0 +1,248 @@
+{
+  "path": "packages/agent-os/src/agent_os/escalation.py",
+  "extension": ".py",
+  "size_bytes": 10123,
+  "line_count": 279,
+  "documentation": {
+    "file_docstring": "Human-in-the-loop escalation workflows for AI agent governance.\n\nProvides approval gates, timeout escalation, and configurable escalation\npolicies so agents can't take high-risk actions without human sign-off.\n\nThis directly addresses the criticism that AGT has \"no human escalation\nprimitives baked in.\" Now it does.\n\nUsage:\n    from agent_os.escalation import EscalationManager, EscalationPolicy\n\n    policy = EscalationPolicy(\n        actions_requiring_approval=[\"delete_file\", \"deploy\", \"send_email\"],\n        timeout_seconds=300,\n        default_on_timeout=\"deny\",\n    )\n    manager = EscalationManager(policy)\n\n    decision = await manager.request_approval(\n        agent_id=\"agent-1\",\n        action=\"deploy\",\n        context={\"target\": \"production\", \"version\": \"2.1.0\"},\n    )\n    if decision.approved:\n        # proceed\n        ...",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "proceed",
+      "Notify approval handler",
+      "Wait for response or timeout",
+      "Handle timeout"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "EscalationOutcome: Outcome of an escalation request.",
+      "EscalationRequest: A pending human approval request.",
+      "EscalationDecision: Result of an escalation request.",
+      "EscalationPolicy: Policy governing when and how actions are escalated to humans.",
+      "EscalationManager: Manages human-in-the-loop approval workflows.\n\nWhen an agent requests a high-ris",
+      "requires_approval: Check if an action requires human approval per policy.",
+      "request_approval: Request human approval for an action.\n\nIf the action doesn't require approval, r",
+      "approve: Approve a pending escalation request (called by human/UI).",
+      "deny: Deny a pending escalation request (called by human/UI).",
+      "pending_requests: Get all pending escalation requests."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "EscalationManager",
+    "requires_approval",
+    "deny",
+    "audit_trail",
+    "EscalationPolicy",
+    "EscalationDecision",
+    "approve",
+    "EscalationRequest",
+    "pending_requests",
+    "EscalationOutcome"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "uuid",
+      "datetime",
+      "enum",
+      "typing",
+      "pydantic",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "approval_handler",
+        "timeout_handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "requires_approval",
+      "line": 139,
+      "doc": "Check if an action requires human approval per policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "request_approval",
+      "line": 156,
+      "doc": "Request human approval for an action.\n\nIf the action doesn't require approval, returns auto-approved.\nOtherwise, creates an escalation request and waits for response.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "action",
+        "context",
+        "reason",
+        "urgency"
+      ],
+      "returns": "EscalationDecision"
+    },
+    {
+      "name": "approve",
+      "line": 240,
+      "doc": "Approve a pending escalation request (called by human/UI).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "decided_by",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "deny",
+      "line": 251,
+      "doc": "Deny a pending escalation request (called by human/UI).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request_id",
+        "decided_by",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "pending_requests",
+      "line": 263,
+      "doc": "Get all pending escalation requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "audit_trail",
+      "line": 268,
+      "doc": "Get the escalation audit trail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record_event",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "agent_id",
+        "action",
+        "data"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "EscalationOutcome",
+      "line": 42,
+      "doc": "Outcome of an escalation request.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EscalationRequest",
+      "line": 51,
+      "doc": "A pending human approval request.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EscalationDecision",
+      "line": 66,
+      "doc": "Result of an escalation request.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EscalationPolicy",
+      "line": 76,
+      "doc": "Policy governing when and how actions are escalated to humans.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EscalationManager",
+      "line": 113,
+      "doc": "Manages human-in-the-loop approval workflows.\n\nWhen an agent requests a high-risk action, the manager:\n1. Checks if the action requires approval (per policy)\n2. Creates an EscalationRequest\n3. Notifies the approval handler (webhook, UI, Slack, etc.)\n4. Waits for human response or timeout\n5. Returns the decision\n\nThe approval handler is pluggable \u2014 implement your own notification\nsystem (Slack bot, email, Teams, dashboard, etc.)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "api"
+    ]
+  }
+}

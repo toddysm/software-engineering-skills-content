@@ -1,0 +1,534 @@
+{
+  "path": "packages/agent-mesh/tests/test_http_middleware.py",
+  "extension": ".py",
+  "size_bytes": 11730,
+  "line_count": 326,
+  "documentation": {
+    "file_docstring": "Tests for HTTP trust middleware (#118).\n\nCovers TrustMiddleware core verification, header extraction, trust score\nenforcement, error responses, and framework-specific decorators (Flask/FastAPI).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Core TrustMiddleware tests",
+      "---------------------------------------------------------------------------",
+      "No identity/public key \u2192 score defaults to 1.0",
+      "---------------------------------------------------------------------------",
+      "Flask decorator tests (skipped if Flask not installed)",
+      "---------------------------------------------------------------------------",
+      "Test the core middleware directly (bypasses header-case issues)",
+      "---------------------------------------------------------------------------",
+      "FastAPI dependency tests (skipped if FastAPI not installed)",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestTrustMiddlewareVerification: Core verify_request tests.",
+      "TestHeaderExtraction: X-Agent-DID, X-Agent-Public-Key, X-Agent-Capabilities parsing.",
+      "TestTrustScoreEnforcement: Trust score threshold enforcement.",
+      "TestErrorResponses: Error body shape for rejected requests.",
+      "TestResponseHeaders: Outgoing response headers.",
+      "TestFlaskDecorator: Tests for flask_trust_required decorator.",
+      "TestFastAPIDependency: Tests for FastAPI integration with TrustMiddleware.\n\nNote: ``fastapi_trust_requi",
+      "test_valid_request_passes: Request with valid trust headers passes verification.",
+      "test_missing_did_permissive_passes: Missing X-Agent-DID in permissive mode still passes.",
+      "test_missing_did_strict_rejected: Missing X-Agent-DID in strict mode returns error."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_response_headers_with_identity",
+    "test_missing_did_permissive_passes",
+    "test_missing_did_blocked",
+    "TestErrorResponses",
+    "test_did_extracted",
+    "test_missing_did_error_body",
+    "test_insufficient_score_error_body",
+    "test_valid_request_passes",
+    "test_valid_trust_passes",
+    "TestFastAPIDependency",
+    "test_response_headers_without_identity",
+    "protected",
+    "TestTrustScoreEnforcement",
+    "TestTrustMiddlewareVerification",
+    "test_missing_capabilities_error_body",
+    "TestHeaderExtraction",
+    "TestFlaskDecorator",
+    "TestResponseHeaders",
+    "test_capabilities_split",
+    "test_missing_did_strict_rejected",
+    "test_valid_did_strict_mode",
+    "test_score_at_threshold_passes",
+    "test_missing_capabilities_rejected",
+    "test_empty_capabilities_string",
+    "test_missing_header_error_json",
+    "test_insufficient_trust_score_rejected",
+    "test_score_below_threshold_fails"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "agentmesh.identity.agent_id",
+      "agentmesh.integrations.http_middleware",
+      "flask",
+      "agentmesh.integrations.http_middleware",
+      "fastapi",
+      "starlette.testclient",
+      "starlette.testclient",
+      "starlette.testclient",
+      "fastapi"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_identity",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": "AgentIdentity"
+    },
+    {
+      "name": "_headers",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "did",
+        "public_key",
+        "capabilities"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_request_passes",
+      "line": 53,
+      "doc": "Request with valid trust headers passes verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_did_permissive_passes",
+      "line": 62,
+      "doc": "Missing X-Agent-DID in permissive mode still passes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_did_strict_rejected",
+      "line": 70,
+      "doc": "Missing X-Agent-DID in strict mode returns error.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insufficient_trust_score_rejected",
+      "line": 79,
+      "doc": "Request missing required capabilities is rejected with error body.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_capabilities_rejected",
+      "line": 90,
+      "doc": "Request missing required capabilities is rejected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_did_extracted",
+      "line": 105,
+      "doc": "X-Agent-DID is parsed into peer_did.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capabilities_split",
+      "line": 111,
+      "doc": "X-Agent-Capabilities is split on comma.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_capabilities_string",
+      "line": 122,
+      "doc": "Empty capabilities string yields empty list, no crash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_at_threshold_passes",
+      "line": 134,
+      "doc": "Trust score exactly at threshold should pass.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_below_threshold_fails",
+      "line": 141,
+      "doc": "Verify that missing required capabilities triggers rejection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_did_error_body",
+      "line": 154,
+      "doc": "403-style error body for missing DID in strict mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insufficient_score_error_body",
+      "line": 162,
+      "doc": "Error body includes missing capabilities list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_capabilities_error_body",
+      "line": 172,
+      "doc": "Error body lists missing capabilities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_response_headers_with_identity",
+      "line": 187,
+      "doc": "Response headers include DID and public key when identity is set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_response_headers_without_identity",
+      "line": 197,
+      "doc": "Response headers are empty when no identity is set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_app",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "middleware"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_trust_passes",
+      "line": 226,
+      "doc": "Request in permissive mode reaches the endpoint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_did_blocked",
+      "line": 235,
+      "doc": "Request without DID in strict mode is blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_header_error_json",
+      "line": 243,
+      "doc": "Blocked request returns JSON error body.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_did_strict_mode",
+      "line": 252,
+      "doc": "Request with DID header in strict mode passes via direct verify.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_app",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "middleware"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_trust_passes",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_did_blocked",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_header_error_json",
+      "line": 312,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_did_strict_mode",
+      "line": 321,
+      "doc": "Request with DID header in strict mode passes via direct verify.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "protected",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "trust_dep",
+      "line": 281,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "request"
+      ],
+      "returns": null
+    },
+    {
+      "name": "protected",
+      "line": 290,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "result"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestTrustMiddlewareVerification",
+      "line": 50,
+      "doc": "Core verify_request tests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestHeaderExtraction",
+      "line": 102,
+      "doc": "X-Agent-DID, X-Agent-Public-Key, X-Agent-Capabilities parsing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustScoreEnforcement",
+      "line": 131,
+      "doc": "Trust score threshold enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestErrorResponses",
+      "line": 151,
+      "doc": "Error body shape for rejected requests.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestResponseHeaders",
+      "line": 184,
+      "doc": "Outgoing response headers.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFlaskDecorator",
+      "line": 210,
+      "doc": "Tests for flask_trust_required decorator.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFastAPIDependency",
+      "line": 268,
+      "doc": "Tests for FastAPI integration with TrustMiddleware.\n\nNote: ``fastapi_trust_required`` uses ``from __future__ import annotations``\nwhich turns type hints into strings.  FastAPI cannot resolve the ``Request``\nannotation in that context, so we build a thin wrapper directly in the test.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 13,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

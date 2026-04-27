@@ -1,0 +1,462 @@
+{
+  "path": "packages/agent-os/tests/test_kernel_critical.py",
+  "extension": ".py",
+  "size_bytes": 13531,
+  "line_count": 386,
+  "documentation": {
+    "file_docstring": "Critical Kernel Tests - Tests for AAIF compliance.\n\nThese tests verify the core kernel guarantees:\n1. SIGKILL is non-catchable (agent can't intercept)\n2. Policy violations trigger enforcement <5ms\n3. VFS permissions enforced (agent can't read /kernel/config)\n4. CMVK catches drift >10%",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check if optional modules are available",
+      "Try to set a custom handler for SIGKILL",
+      "SIGKILL handlers should not be changeable",
+      "set_handler returns None for SIGKILL (cannot override)",
+      "Send SIGKILL - default handler should be used",
+      "Custom handler should NOT be called - SIGKILL uses kernel handler",
+      "Set custom handler for SIGSTOP",
+      "SIGSTOP can be handled with custom handler",
+      "Perform cleanup",
+      "Verify graceful shutdown was triggered",
+      "KernelSpace uses _check_policy (private) - test instantiation speed instead",
+      "Kernel creation should be fast",
+      "Test kernel creation speed",
+      "Attempt to read protected kernel path - should raise or return None",
+      "If it doesn't raise, verify behavior",
+      "Expected - permission denied or path not found",
+      "Write to agent's working memory (VFS expects bytes or str)",
+      "Read back",
+      "Mount point may not exist - that's OK for this test",
+      "Agent A writes",
+      "Agent B tries to read Agent A's data",
+      "Should be None or raise - cross-agent reads blocked",
+      "Test that VFS can be used for audit operations",
+      "The actual append-only enforcement depends on implementation",
+      "Compare two significantly different outputs",
+      "Should detect drift",
+      "Same output",
+      "Low drift expected",
+      "Similar texts should have low drift score",
+      "Simulate user-space crash",
+      "Kernel should catch and isolate",
+      "Kernel should still be operational",
+      "Can create new kernel instance",
+      "Kernel should have internal policy handling",
+      "The exact attribute name may vary",
+      "Execute on kernel1",
+      "Execute same context on kernel2 - should work identically",
+      "Results should be equivalent (stateless)",
+      "Must serialize to JSON",
+      "Must deserialize back",
+      "Verify roundtrip",
+      "Even with creative action names, policies are enforced",
+      "Either blocked (success=False) or allowed but logged",
+      "Current implementation may allow unknown actions",
+      "The key is that blocked_actions ARE blocked"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestSignalEnforcement: Test POSIX-style signal enforcement.",
+      "TestPolicyEnforcementLatency: Test that policy enforcement is fast (<5ms).",
+      "TestVFSPermissions: Test Virtual File System permission enforcement.",
+      "TestCMVKDriftDetection: Test CMVK Verification Kernel drift detection.",
+      "TestKernelVsUserSpace: Test strict separation of kernel and user space.",
+      "TestStatelessArchitecture: Test stateless kernel design (MCP compliance).",
+      "TestZeroViolationGuarantee: Test 0% policy violation guarantee.",
+      "test_sigkill_cannot_be_caught: SIGKILL must be non-catchable by agents.",
+      "test_sigstop_pauses_execution: SIGSTOP should pause agent execution.",
+      "test_sigint_allows_graceful_shutdown: SIGINT should allow graceful interrupt."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_sigstop_pauses_execution",
+    "test_sigkill_cannot_be_caught",
+    "test_agent_cannot_read_kernel_config",
+    "TestVFSPermissions",
+    "TestCMVKDriftDetection",
+    "stop_handler",
+    "test_policy_check_under_5ms",
+    "test_drift_over_10_percent_detected",
+    "test_policy_engine_in_kernel_space",
+    "TestStatelessArchitecture",
+    "test_consensus_detected",
+    "test_audit_log_is_append_only",
+    "test_sigint_allows_graceful_shutdown",
+    "TestZeroViolationGuarantee",
+    "TestSignalEnforcement",
+    "test_agent_can_read_own_memory",
+    "TestPolicyEnforcementLatency",
+    "test_complex_policy_under_10ms",
+    "test_agent_cannot_read_other_agent_memory",
+    "TestKernelVsUserSpace",
+    "int_handler",
+    "crashing_llm_call",
+    "test_kernel_survives_user_crash",
+    "handler"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "time",
+      "asyncio",
+      "unittest.mock",
+      "sys",
+      "agent_control_plane.signals",
+      "agent_control_plane",
+      "agent_control_plane.vfs",
+      "cmvk",
+      "agent_control_plane.signals",
+      "agent_control_plane.signals",
+      "agent_control_plane.signals",
+      "agent_control_plane",
+      "agent_control_plane",
+      "agent_control_plane.vfs",
+      "agent_control_plane.vfs",
+      "json",
+      "agent_control_plane.vfs",
+      "json",
+      "agent_control_plane.vfs",
+      "cmvk",
+      "cmvk",
+      "agent_control_plane",
+      "agent_control_plane",
+      "agent_os.stateless",
+      "agent_os.stateless",
+      "json",
+      "agent_os.stateless"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_sigkill_cannot_be_caught",
+      "line": 54,
+      "doc": "SIGKILL must be non-catchable by agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sigstop_pauses_execution",
+      "line": 78,
+      "doc": "SIGSTOP should pause agent execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sigint_allows_graceful_shutdown",
+      "line": 95,
+      "doc": "SIGINT should allow graceful interrupt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_check_under_5ms",
+      "line": 117,
+      "doc": "Policy enforcement must complete in <5ms.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_complex_policy_under_10ms",
+      "line": 137,
+      "doc": "Complex policy with multiple rules should be <10ms.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_cannot_read_kernel_config",
+      "line": 158,
+      "doc": "User-space agents cannot read /kernel/config.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_can_read_own_memory",
+      "line": 173,
+      "doc": "Agents can read their own /mem/working space.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_agent_cannot_read_other_agent_memory",
+      "line": 192,
+      "doc": "Agents cannot read other agents' memory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_log_is_append_only",
+      "line": 213,
+      "doc": "Audit log at /audit must be append-only.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drift_over_10_percent_detected",
+      "line": 232,
+      "doc": "CMVK must detect drift >10%.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_consensus_detected",
+      "line": 250,
+      "doc": "CMVK should confirm consensus when models agree.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_survives_user_crash",
+      "line": 271,
+      "doc": "Kernel must survive user-space LLM crashes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_engine_in_kernel_space",
+      "line": 293,
+      "doc": "Policy engine must run in kernel space.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_in_request_not_server",
+      "line": 308,
+      "doc": "All state must be in request context, not server.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_serializable",
+      "line": 334,
+      "doc": "Execution context must be fully serializable.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_bypass_possible",
+      "line": 361,
+      "doc": "Policy checks cannot be bypassed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sig_info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop_handler",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sig_info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "int_handler",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "sig_info"
+      ],
+      "returns": null
+    },
+    {
+      "name": "crashing_llm_call",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestSignalEnforcement",
+      "line": 51,
+      "doc": "Test POSIX-style signal enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyEnforcementLatency",
+      "line": 114,
+      "doc": "Test that policy enforcement is fast (<5ms).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVFSPermissions",
+      "line": 155,
+      "doc": "Test Virtual File System permission enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCMVKDriftDetection",
+      "line": 225,
+      "doc": "Test CMVK Verification Kernel drift detection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestKernelVsUserSpace",
+      "line": 268,
+      "doc": "Test strict separation of kernel and user space.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestStatelessArchitecture",
+      "line": 304,
+      "doc": "Test stateless kernel design (MCP compliance).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestZeroViolationGuarantee",
+      "line": 357,
+      "doc": "Test 0% policy violation guarantee.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

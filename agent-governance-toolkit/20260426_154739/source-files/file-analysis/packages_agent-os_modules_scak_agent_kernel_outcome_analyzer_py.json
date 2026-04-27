@@ -1,0 +1,222 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/outcome_analyzer.py",
+  "extension": ".py",
+  "size_bytes": 12380,
+  "line_count": 338,
+  "documentation": {
+    "file_docstring": "Outcome Analyzer - Filters agent outcomes for competence issues.\n\nThis is part of Loop 2 (Alignment Engine) that identifies when agents\n\"give up\" with negative results instead of delivering value.\n\nEnhanced with:\n- Tool execution telemetry to distinguish valid empty results from laziness\n- Semantic analysis for detecting subtle forms of refusal",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check if this is a give-up signal (regex-based)",
+      "Perform semantic analysis if enabled",
+      "Determine outcome type with enhanced logic",
+      "Check each pattern category",
+      "Check regex signal",
+      "Check semantic signal",
+      "Analyze tool telemetry",
+      "Decision logic with false positive prevention",
+      "Agent said \"no data found\" or similar",
+      "Check if tools were actually called and returned empty",
+      "Valid empty result: Tools called, returned empty -> SUCCESS",
+      "Tools called but errored -> Potential laziness (didn't handle errors)",
+      "No tools called -> Clear laziness",
+      "Mixed results or unclear -> Default to GIVE_UP for audit",
+      "No give-up signal detected"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "OutcomeAnalyzer: Analyzes agent outcomes to detect \"Give-Up Signals\" (Laziness).\n\nThis filters fo",
+      "_load_give_up_patterns: Load patterns that indicate agent is giving up.",
+      "analyze_outcome: Analyze an agent's outcome to determine if it gave up.\n\nEnhanced with tool telem",
+      "_detect_give_up_signal: Detect if the response contains a give-up signal.\n\nThese are \"Negative Results\" ",
+      "_determine_outcome_type: Determine outcome type with enhanced logic.\n\nConsiders:\n1. Regex-based give-up s",
+      "_analyze_tool_execution: Analyze tool execution telemetry.\n\nReturns a dict with:\n- tools_called: bool - W",
+      "should_trigger_audit: Determine if this outcome should trigger a Completeness Audit.\n\nThe Completeness",
+      "get_give_up_rate: Calculate the give-up rate for an agent.\n\nThis metric helps identify agents that",
+      "get_outcome_history: Get outcome history with optional filters."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "OutcomeAnalyzer",
+    "get_outcome_history",
+    "get_give_up_rate",
+    "analyze_outcome",
+    "should_trigger_audit"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "re",
+      "typing",
+      "datetime",
+      "models",
+      "semantic_analyzer"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "use_semantic_analysis"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_give_up_patterns",
+      "line": 51,
+      "doc": "Load patterns that indicate agent is giving up.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "analyze_outcome",
+      "line": 86,
+      "doc": "Analyze an agent's outcome to determine if it gave up.\n\nEnhanced with tool telemetry correlation and semantic analysis.\n\nArgs:\n    agent_id: ID of the agent\n    user_prompt: Original user request\n    agent_response: Agent's response\n    context: Additional context\n    tool_telemetry: Tool execution telemetry data\n    \nReturns:\n    AgentOutcome with classification and analysis",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "user_prompt",
+        "agent_response",
+        "context",
+        "tool_telemetry"
+      ],
+      "returns": "AgentOutcome"
+    },
+    {
+      "name": "_detect_give_up_signal",
+      "line": 151,
+      "doc": "Detect if the response contains a give-up signal.\n\nThese are \"Negative Results\" that trigger the Completeness Auditor.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_determine_outcome_type",
+      "line": 168,
+      "doc": "Determine outcome type with enhanced logic.\n\nConsiders:\n1. Regex-based give-up signal\n2. Tool execution telemetry\n3. Semantic analysis\n\nKey Enhancement: Correlation with tool execution to avoid false positives",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_response",
+        "give_up_signal",
+        "tool_telemetry",
+        "semantic_analysis"
+      ],
+      "returns": "OutcomeType"
+    },
+    {
+      "name": "_analyze_tool_execution",
+      "line": 230,
+      "doc": "Analyze tool execution telemetry.\n\nReturns a dict with:\n- tools_called: bool - Were any tools called?\n- all_empty_results: bool - Did all tools return empty results?\n- has_errors: bool - Did any tools error?\n- tool_count: int - Number of tools called",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_telemetry"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "should_trigger_audit",
+      "line": 283,
+      "doc": "Determine if this outcome should trigger a Completeness Audit.\n\nThe Completeness Auditor is only triggered on \"Give-Up Signals\"\nto avoid expensive auditing of every interaction.\n\nArgs:\n    outcome: The agent outcome\n    \nReturns:\n    True if Completeness Auditor should be triggered",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "outcome"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_give_up_rate",
+      "line": 298,
+      "doc": "Calculate the give-up rate for an agent.\n\nThis metric helps identify agents that are consistently lazy.\n\nArgs:\n    agent_id: Optional agent ID to filter by\n    recent_n: Number of recent outcomes to analyze\n    \nReturns:\n    Give-up rate as a float between 0 and 1",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "recent_n"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_outcome_history",
+      "line": 323,
+      "doc": "Get outcome history with optional filters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "outcome_type",
+        "limit"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "OutcomeAnalyzer",
+      "line": 32,
+      "doc": "Analyzes agent outcomes to detect \"Give-Up Signals\" (Laziness).\n\nThis filters for competence issues - when agents comply with safety rules\nbut fail to deliver value (e.g., \"No data found\" is safe, but wrong if data exists).\n\nEnhanced Features:\n1. Tool Execution Telemetry - Correlates give-up signals with tool usage\n2. Semantic Analysis - Goes beyond regex for subtle refusal detection\n3. False Positive Prevention - Distinguishes valid empty results from laziness",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 59,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

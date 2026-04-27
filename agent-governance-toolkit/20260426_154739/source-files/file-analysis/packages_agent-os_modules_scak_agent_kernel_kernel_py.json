@@ -1,0 +1,369 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/kernel.py",
+  "extension": ".py",
+  "size_bytes": 30235,
+  "line_count": 744,
+  "documentation": {
+    "file_docstring": "Self-Correcting Agent Kernel - Main orchestrator.\n\nImplements the Dual-Loop Architecture:\n- Loop 1 (Runtime): Constraint Engine (Safety)\n- Loop 2 (Offline): Alignment Engine (Quality & Efficiency)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "LOOP 1: Runtime Safety Components",
+      "LOOP 2: Offline Alignment Components",
+      "Triage Engine: Decides sync (JIT) vs async (batch) correction",
+      "Background queue for async failures (placeholder for production implementation)",
+      "Model version tracking for semantic purge",
+      "Configure logging",
+      "Step 0: Triage - Decide sync (JIT) or async (batch) correction strategy",
+      "Prepare enhanced context for triage including failed_action and chain_of_thought",
+      "Add to async queue for later processing",
+      "Step 1: Detect and classify failure with full trace",
+      "Step 2: Deep cognitive analysis",
+      "Generate cognitive diagnosis if trace available",
+      "Step 3: Simulate alternative path",
+      "Step 4: Counterfactual simulation with Shadow Agent",
+      "Step 5: Create and optionally apply patch",
+      "Classify patch for lifecycle management (Semantic Purge integration)",
+      "============================================================================",
+      "DUAL-LOOP ARCHITECTURE: Loop 2 (Alignment Engine) Methods",
+      "============================================================================",
+      "Step 1: Analyze the outcome with enhanced telemetry",
+      "Step 2: Check if this triggers Completeness Audit (Give-Up Signal)",
+      "Step 2a: Auto-nudge if enabled",
+      "Note: In a real system, you would re-invoke the agent with the nudge",
+      "For demo purposes, we'll simulate the nudge result",
+      "Real implementation would call: retry_response = agent.invoke(nudge_prompt)",
+      "Step 3: Run Completeness Audit (Differential Auditing)",
+      "Step 4: If teacher found data (laziness detected), create competence patch",
+      "Create a patch from the competence lesson",
+      "Step 5: Classify patch for lifecycle management (Semantic Purge)",
+      "Register with auditor",
+      "Apply patch",
+      "Create a synthetic failure for the audit",
+      "Create analysis",
+      "Create simulation",
+      "Create patch",
+      "Trigger semantic purge",
+      "Update model version",
+      "Update all agent states",
+      "Calculate competence score (0-100)",
+      "Higher score = better value delivery",
+      "Penalize for high give-up rate",
+      "Penalize for laziness detection",
+      "Reward for nudge effectiveness",
+      "Ensure bounds",
+      "Process up to batch_size items",
+      "Process the failure without triage (already decided async)",
+      "Temporarily remove user_prompt to skip triage"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SelfCorrectingAgentKernel: Main kernel implementing the Dual-Loop Architecture.\n\nLOOP 1 (Runtime): The Cons",
+      "__init__: Initialize the self-correcting agent kernel with Dual-Loop Architecture.\n\nArgs:\n",
+      "_setup_logging: Setup logging configuration.",
+      "handle_failure: Handle an agent failure through the full self-correction pipeline.\n\nEnhanced to ",
+      "get_agent_status: Get the current status of an agent.\n\nArgs:\n    agent_id: ID of the agent\n    \nRe",
+      "rollback_patch: Rollback a previously applied patch.\n\nArgs:\n    patch_id: ID of the patch to rol",
+      "get_failure_history: Get failure history.\n\nArgs:\n    agent_id: Optional filter by agent ID\n    limit:",
+      "get_patch_history: Get patch history.\n\nArgs:\n    agent_id: Optional filter by agent ID\n    \nReturns",
+      "wake_up_and_fix: Convenience method that wakes up the kernel, analyzes the failure,\nsimulates a b",
+      "handle_outcome: Handle an agent outcome through the Alignment Engine (Loop 2).\n\nThis is the entr"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "process_async_queue",
+    "wake_up_and_fix",
+    "get_agent_status",
+    "get_alignment_stats",
+    "rollback_patch",
+    "get_failure_history",
+    "get_patch_history",
+    "get_classified_patches",
+    "handle_outcome",
+    "get_triage_stats",
+    "SelfCorrectingAgentKernel",
+    "handle_failure",
+    "upgrade_model"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "typing",
+      "datetime",
+      "models",
+      "detector",
+      "analyzer",
+      "simulator",
+      "patcher",
+      "outcome_analyzer",
+      "completeness_auditor",
+      "semantic_purge",
+      "triage",
+      "nudge_mechanism",
+      "uuid",
+      "datetime",
+      "models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 50,
+      "doc": "Initialize the self-correcting agent kernel with Dual-Loop Architecture.\n\nArgs:\n    config: Optional configuration dictionary",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_setup_logging",
+      "line": 98,
+      "doc": "Setup logging configuration.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_failure",
+      "line": 106,
+      "doc": "Handle an agent failure through the full self-correction pipeline.\n\nEnhanced to support full trace capture, cognitive diagnosis, and triage routing.\n\nThis is the main entry point when an agent fails in production.\n\nArgs:\n    agent_id: Identifier of the failed agent\n    error_message: Error message from the failure\n    context: Additional context about the failure\n    stack_trace: Optional stack trace\n    auto_patch: Whether to automatically apply the patch (default: True)\n    user_prompt: Original user prompt (for full trace)\n    chain_of_thought: Agent's reasoning steps (for cognitive analysis)\n    failed_action: The specific action that failed\n    user_metadata: User metadata (e.g., VIP status) for triage decisions\n    \nReturns:\n    Dictionary containing the results of the self-correction process",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "error_message",
+        "context",
+        "stack_trace",
+        "auto_patch",
+        "user_prompt",
+        "chain_of_thought",
+        "failed_action",
+        "user_metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_status",
+      "line": 288,
+      "doc": "Get the current status of an agent.\n\nArgs:\n    agent_id: ID of the agent\n    \nReturns:\n    AgentState object with current status",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "AgentState"
+    },
+    {
+      "name": "rollback_patch",
+      "line": 300,
+      "doc": "Rollback a previously applied patch.\n\nArgs:\n    patch_id: ID of the patch to rollback\n    \nReturns:\n    True if rollback was successful",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patch_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_failure_history",
+      "line": 312,
+      "doc": "Get failure history.\n\nArgs:\n    agent_id: Optional filter by agent ID\n    limit: Maximum number of failures to return\n    \nReturns:\n    List of AgentFailure objects",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_patch_history",
+      "line": 325,
+      "doc": "Get patch history.\n\nArgs:\n    agent_id: Optional filter by agent ID\n    \nReturns:\n    List of CorrectionPatch objects",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wake_up_and_fix",
+      "line": 337,
+      "doc": "Convenience method that wakes up the kernel, analyzes the failure,\nsimulates a better path, and patches the agent.\n\nThis is the main method referenced in the problem statement.\n\nArgs:\n    agent_id: ID of the failed agent\n    error_message: Error message from the failure\n    context: Additional context",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "error_message",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_outcome",
+      "line": 363,
+      "doc": "Handle an agent outcome through the Alignment Engine (Loop 2).\n\nThis is the entry point for the Completeness Auditor. Instead of waiting\nfor hard failures, we proactively detect when agents \"give up\" with\nnegative results.\n\nEnhanced with:\n- Tool execution telemetry correlation\n- Automatic nudging on give-up detection\n- Semantic analysis\n\nArgs:\n    agent_id: ID of the agent\n    user_prompt: Original user request\n    agent_response: Agent's response\n    context: Additional context\n    tool_telemetry: Optional tool execution telemetry\n    auto_nudge: Whether to automatically nudge on give-up (default: True)\n    \nReturns:\n    Dictionary with outcome analysis, audit results, and nudge results",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "user_prompt",
+        "agent_response",
+        "context",
+        "tool_telemetry",
+        "auto_nudge"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_competence_patch",
+      "line": 464,
+      "doc": "Create a patch from a completeness audit.\n\nCompetence patches teach the agent to avoid giving up too early.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "audit"
+      ],
+      "returns": "CorrectionPatch"
+    },
+    {
+      "name": "upgrade_model",
+      "line": 538,
+      "doc": "Upgrade the model version and trigger Semantic Purge.\n\nThis is the \"Purge Event\" that removes Type A (Syntax) patches\nthat are likely fixed in the new model version.\n\nArgs:\n    new_model_version: New model version (e.g., \"gpt-5\")\n    \nReturns:\n    Dictionary with purge statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "new_model_version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_alignment_stats",
+      "line": 579,
+      "doc": "Get statistics about the Alignment Engine (Loop 2).\n\nEnhanced to include:\n- Completeness auditor metrics\n- Semantic purge metrics\n- Nudge mechanism effectiveness\n- Value delivery metrics (competence focus)\n\nReturns:\n    Dictionary with comprehensive stats about quality and efficiency",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_calculate_value_delivery_metrics",
+      "line": 603,
+      "doc": "Calculate metrics focused on competence and value delivery.\n\nThis differentiates the system from standard governance tools\nthat only focus on safety/compliance (Loop 1). We measure:\n- Give-up rate (lower is better)\n- Laziness detection rate\n- Nudge success rate\n- Competence patch effectiveness\n\nReturns:\n    Dictionary with value delivery metrics",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_classified_patches",
+      "line": 649,
+      "doc": "Get patches classified by type.\n\nReturns:\n    Dictionary with purgeable and permanent patches",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "process_async_queue",
+      "line": 661,
+      "doc": "Process failures from the async queue (background/nightly processing).\n\nThis method would typically run in a background worker or during\noff-peak hours to fix non-critical failures that were queued.\n\nArgs:\n    batch_size: Maximum number of failures to process in this batch\n    \nReturns:\n    Dictionary with processing statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "batch_size"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_triage_stats",
+      "line": 733,
+      "doc": "Get statistics about triage decisions.\n\nReturns:\n    Dictionary with triage statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SelfCorrectingAgentKernel",
+      "line": 34,
+      "doc": "Main kernel implementing the Dual-Loop Architecture.\n\nLOOP 1 (Runtime): The Constraint Engine filters for Safety\nLOOP 2 (Offline): The Alignment Engine filters for Quality & Efficiency:\n    - Completeness Auditor: Detects \"laziness\" (give-up signals)\n    - Semantic Purge: Manages patch lifecycle (scale by subtraction)\n\nWhen an agent fails OR gives up:\n1. Detects and classifies the outcome\n2. Analyzes for safety (Loop 1) and competence (Loop 2)\n3. Simulates alternative paths\n4. Patches the agent with classified, lifecycle-managed fixes",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

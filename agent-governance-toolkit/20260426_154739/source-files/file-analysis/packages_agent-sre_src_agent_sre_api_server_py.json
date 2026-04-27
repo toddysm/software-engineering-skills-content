@@ -1,0 +1,562 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/api/server.py",
+  "extension": ".py",
+  "size_bytes": 21114,
+  "line_count": 598,
+  "documentation": {
+    "file_docstring": "FastAPI REST API server for Agent-SRE.\n\nProvides comprehensive endpoints for SLO management, cost tracking,\nchaos engineering, incident response, and progressive delivery.\n\nRun with::\n\n    uvicorn agent_sre.api.server:app",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "In-memory stores (reset on restart)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Lightweight SLI for API-registered SLOs",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Lifespan",
+      "---------------------------------------------------------------------------",
+      "cleanup (nothing needed for in-memory stores)",
+      "---------------------------------------------------------------------------",
+      "Application factory",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "=========================================================================",
+      "Health & stats",
+      "=========================================================================",
+      "=========================================================================",
+      "SLO endpoints",
+      "=========================================================================",
+      "=========================================================================",
+      "Cost endpoints",
+      "=========================================================================",
+      "=========================================================================",
+      "Chaos endpoints",
+      "=========================================================================",
+      "=========================================================================",
+      "Incident endpoints",
+      "=========================================================================",
+      "=========================================================================",
+      "Delivery endpoints",
+      "========================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_APISli: Minimal SLI backed by manual event recording.",
+      "create_app: Create and configure the FastAPI application.",
+      "health_check: Service health check.",
+      "sre_stats: Overall SRE statistics.",
+      "prometheus_metrics: Prometheus-compatible metrics endpoint.",
+      "register_slo: Register a new SLO.",
+      "list_slos: List all SLOs with current status.",
+      "get_slo: Get SLO details including indicators, budget, and burn rate.",
+      "get_slo_history: Get SLO snapshots over time.",
+      "record_slo_event: Record a good or bad event against an SLO."
+    ]
+  },
+  "purpose": {
+    "primary_role": "api",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "api/endpoint path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_cost_alerts",
+    "get_incident",
+    "record_slo_event",
+    "create_app",
+    "ingest_signal",
+    "start_experiment",
+    "prometheus_metrics",
+    "collect",
+    "get_experiment",
+    "list_incidents",
+    "advance_rollout",
+    "create_rollout",
+    "create_experiment",
+    "get_slo",
+    "sre_stats",
+    "get_budget",
+    "record_cost",
+    "cost_summary",
+    "list_experiments",
+    "register_slo",
+    "list_slos",
+    "acknowledge_incident",
+    "inject_fault",
+    "health_check",
+    "get_slo_history",
+    "list_rollouts",
+    "list_budgets",
+    "resolve_incident",
+    "get_rollout"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "os",
+      "time",
+      "contextlib",
+      "typing",
+      "fastapi",
+      "fastapi.middleware.cors",
+      "agent_sre.chaos.engine",
+      "agent_sre.cost.guard",
+      "agent_sre.delivery.rollout",
+      "agent_sre.incidents.detector",
+      "agent_sre.slo.dashboard",
+      "agent_sre.slo.indicators",
+      "agent_sre.slo.objectives",
+      "collections.abc",
+      "agent_sre.api.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_lifespan",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [
+        "asynccontextmanager"
+      ],
+      "args": [
+        "app"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_app",
+      "line": 118,
+      "doc": "Create and configure the FastAPI application.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "FastAPI"
+    },
+    {
+      "name": "_get_dashboard",
+      "line": 144,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "SLODashboard"
+    },
+    {
+      "name": "_get_cost_guard",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "CostGuard"
+    },
+    {
+      "name": "_get_incident_detector",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "IncidentDetector"
+    },
+    {
+      "name": "_bump",
+      "line": 159,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "counter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 170,
+      "doc": "Service health check.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "sre_stats",
+      "line": 179,
+      "doc": "Overall SRE statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "prometheus_metrics",
+      "line": 196,
+      "doc": "Prometheus-compatible metrics endpoint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "register_slo",
+      "line": 231,
+      "doc": "Register a new SLO.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_slos",
+      "line": 256,
+      "doc": "List all SLOs with current status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_slo",
+      "line": 265,
+      "doc": "Get SLO details including indicators, budget, and burn rate.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "slo_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_slo_history",
+      "line": 276,
+      "doc": "Get SLO snapshots over time.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "slo_name",
+        "since",
+        "until"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_slo_event",
+      "line": 291,
+      "doc": "Record a good or bad event against an SLO.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "slo_name",
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_budgets",
+      "line": 308,
+      "doc": "List all agent budgets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "get_budget",
+      "line": 319,
+      "doc": "Get budget details for a specific agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_cost",
+      "line": 328,
+      "doc": "Record a cost event.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_cost_alerts",
+      "line": 346,
+      "doc": "Get active cost alerts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "cost_summary",
+      "line": 354,
+      "doc": "Cost summary across all agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "create_experiment",
+      "line": 367,
+      "doc": "Create a chaos experiment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_experiments",
+      "line": 401,
+      "doc": "List chaos experiments.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_experiment",
+      "line": 413,
+      "doc": "Get experiment details including fault impact score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "experiment_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start_experiment",
+      "line": 423,
+      "doc": "Start a chaos experiment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "experiment_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "inject_fault",
+      "line": 436,
+      "doc": "Inject a fault into a running experiment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "experiment_id",
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_incidents",
+      "line": 459,
+      "doc": "List incidents with optional severity/state filters.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "severity",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_incident",
+      "line": 475,
+      "doc": "Get incident details.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "incident_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "acknowledge_incident",
+      "line": 486,
+      "doc": "Acknowledge an incident.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "incident_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve_incident",
+      "line": 500,
+      "doc": "Resolve an incident.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "incident_id",
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "ingest_signal",
+      "line": 515,
+      "doc": "Ingest a reliability signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_rollout",
+      "line": 549,
+      "doc": "Create a staged rollout.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "body"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_rollouts",
+      "line": 567,
+      "doc": "List rollouts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_rollout",
+      "line": 579,
+      "doc": "Get rollout details and progress.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "rollout_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "advance_rollout",
+      "line": 589,
+      "doc": "Advance rollout to the next step.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "rollout_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "target",
+        "window"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SLIValue"
+    }
+  ],
+  "classes": [
+    {
+      "name": "_APISli",
+      "line": 86,
+      "doc": "Minimal SLI backed by manual event recording.",
+      "is_public": false,
+      "bases": [
+        "SLI"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

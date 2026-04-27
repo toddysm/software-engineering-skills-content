@@ -1,0 +1,385 @@
+{
+  "path": "packages/agentmesh-integrations/openai-agents-agentmesh/openai_agents_agentmesh/trust.py",
+  "extension": ".py",
+  "size_bytes": 9531,
+  "line_count": 305,
+  "documentation": {
+    "file_docstring": "Trust layer for OpenAI Agents SDK \u2014 function call gating and handoff verification.\n\nIn OpenAI Agents SDK, agents call functions and hand off to other agents.\nThis module adds AgentMesh trust verification to both flows:\n\n1. **TrustedFunctionGuard**: Before an agent calls a function, verify the\n   agent's trust score meets the function's threshold.\n\n2. **HandoffVerifier**: Before Agent A hands off to Agent B, verify both\n   agents' trust scores and ensure the handoff is within delegation bounds.\n\n3. **AgentTrustContext**: Carries trust metadata through the conversation,\n   enabling \"On-Behalf-Of\" flows (Agent B knows it's working for User X\n   via Agent A).\n\nNo OpenAI SDK dependency \u2014 works with any agent framework via duck typing.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "1. Blocked",
+      "2. Trust threshold",
+      "Self-delegation",
+      "Source trust",
+      "Target trust",
+      "Mutual trust (if required)",
+      "Delegation depth"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FunctionCallResult: Result of a function call trust check.",
+      "HandoffResult: Result of a handoff trust verification.",
+      "AgentTrustContext: Trust context propagated through agent conversations.\n\nEnables \"On-Behalf-Of\" fl",
+      "TrustedFunctionGuard: Trust-gated function calling for OpenAI Agents SDK.\n\nChecks agent trust score be",
+      "HandoffVerifier: Trust verification for agent-to-agent handoffs.\n\nIn OpenAI Agents SDK, agents ca",
+      "add_delegation: Add an agent to the scope chain.\n\nReturns False if max depth would be exceeded.",
+      "check_call: Check if an agent is trusted enough to call a function.\n\nOrder of checks:\n1. Fun",
+      "set_threshold: Set trust threshold for a specific function.",
+      "verify_handoff: Verify a handoff from source agent to target agent.\n\nChecks:\n1. Source agent mee"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AgentTrustContext",
+    "check_call",
+    "set_threshold",
+    "get_stats",
+    "HandoffResult",
+    "FunctionCallResult",
+    "add_delegation",
+    "delegation_depth",
+    "unblock_function",
+    "deny",
+    "TrustedFunctionGuard",
+    "verify_handoff",
+    "block_function",
+    "to_dict",
+    "get_log",
+    "HandoffVerifier",
+    "current_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_delegation",
+      "line": 88,
+      "doc": "Add an agent to the scope chain.\n\nReturns False if max depth would be exceeded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "delegation_depth",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "current_agent",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_trust_score",
+        "sensitive_functions",
+        "blocked_functions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_call",
+      "line": 137,
+      "doc": "Check if an agent is trusted enough to call a function.\n\nOrder of checks:\n1. Function not blocked\n2. Trust score meets function-specific threshold (or default)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "agent_trust_score",
+        "function_name",
+        "arguments"
+      ],
+      "returns": "FunctionCallResult"
+    },
+    {
+      "name": "set_threshold",
+      "line": 183,
+      "doc": "Set trust threshold for a specific function.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "function_name",
+        "min_trust"
+      ],
+      "returns": null
+    },
+    {
+      "name": "block_function",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "function_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unblock_function",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "function_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_log",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_trust_score",
+        "max_delegation_depth",
+        "require_mutual_trust"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_handoff",
+      "line": 230,
+      "doc": "Verify a handoff from source agent to target agent.\n\nChecks:\n1. Source agent meets trust threshold\n2. Target agent meets trust threshold\n3. Delegation depth within bounds (if context provided)\n4. Source != Target (no self-delegation)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "source_did",
+        "source_trust",
+        "target_did",
+        "target_trust",
+        "context"
+      ],
+      "returns": "HandoffResult"
+    },
+    {
+      "name": "get_log",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 298,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "deny",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "reason"
+      ],
+      "returns": "FunctionCallResult"
+    },
+    {
+      "name": "deny",
+      "line": 247,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "reason"
+      ],
+      "returns": "HandoffResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "FunctionCallResult",
+      "line": 30,
+      "doc": "Result of a function call trust check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "HandoffResult",
+      "line": 51,
+      "doc": "Result of a handoff trust verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentTrustContext",
+      "line": 74,
+      "doc": "Trust context propagated through agent conversations.\n\nEnables \"On-Behalf-Of\" flows: when Agent A delegates to Agent B,\nthe context carries the original user identity and the scope chain.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustedFunctionGuard",
+      "line": 118,
+      "doc": "Trust-gated function calling for OpenAI Agents SDK.\n\nChecks agent trust score before allowing function calls.\nSupports per-function trust thresholds for sensitive operations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "HandoffVerifier",
+      "line": 208,
+      "doc": "Trust verification for agent-to-agent handoffs.\n\nIn OpenAI Agents SDK, agents can hand off tasks to other agents.\nHandoffVerifier ensures:\n- Both source and target agents meet trust thresholds\n- Delegation depth is within bounds\n- Trust context is properly propagated",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

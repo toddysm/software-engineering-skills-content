@@ -1,0 +1,220 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/services/behavior_monitor.py",
+  "extension": ".py",
+  "size_bytes": 6563,
+  "line_count": 180,
+  "documentation": {
+    "file_docstring": "Agent Behavior Monitor\n======================\n\nRuntime anomaly detection and quarantine for rogue agent behavior.\nTracks per-agent metrics and triggers alerts or quarantine when\nthresholds are breached.\n\nMonitored signals:\n  - Tool call frequency (burst detection)\n  - Consecutive failure rate\n  - Capability escalation attempts\n  - Trust score manipulation attempts\n\nUsage::\n\n    monitor = AgentBehaviorMonitor()\n    monitor.record_tool_call(\"did:mesh:abc\", \"sql_query\", success=True)\n    # ... later ...\n    if monitor.is_quarantined(\"did:mesh:abc\"):\n        raise PermissionError(\"Agent is quarantined\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "... later ...",
+      "Rolling window for burst detection",
+      "Burst detection",
+      "Auto-release after quarantine duration"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentMetrics: Rolling metrics for a single agent.",
+      "AgentBehaviorMonitor: Monitors agent behavior and quarantines anomalous agents.\n\nArgs:\n    burst_windo",
+      "record_tool_call: Record a tool invocation and check for anomalies.",
+      "record_capability_denial: Record a denied capability check (possible privilege escalation).",
+      "is_quarantined: Check if an agent is currently quarantined.",
+      "release_quarantine: Manually release an agent from quarantine.",
+      "get_metrics: Get current metrics for an agent (read-only snapshot).",
+      "get_quarantined_agents: List all currently quarantined agents."
+    ]
+  },
+  "purpose": {
+    "primary_role": "service",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "service path"
+    ]
+  },
+  "exports": [
+    "AgentBehaviorMonitor",
+    "get_quarantined_agents",
+    "record_tool_call",
+    "release_quarantine",
+    "record_capability_denial",
+    "is_quarantined",
+    "AgentMetrics",
+    "get_metrics"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "threading",
+      "dataclasses",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "burst_window_seconds",
+        "burst_threshold",
+        "consecutive_failure_threshold",
+        "capability_denial_threshold",
+        "quarantine_duration",
+        "max_tracked_agents"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_metrics",
+      "line": 84,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "AgentMetrics"
+    },
+    {
+      "name": "record_tool_call",
+      "line": 96,
+      "doc": "Record a tool invocation and check for anomalies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_capability_denial",
+      "line": 132,
+      "doc": "Record a denied capability check (possible privilege escalation).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "capability"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_quarantine",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_quarantined",
+      "line": 152,
+      "doc": "Check if an agent is currently quarantined.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "release_quarantine",
+      "line": 163,
+      "doc": "Manually release an agent from quarantine.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 174,
+      "doc": "Get current metrics for an agent (read-only snapshot).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_quarantined_agents",
+      "line": 178,
+      "doc": "List all currently quarantined agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentMetrics",
+      "line": 38,
+      "doc": "Rolling metrics for a single agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentBehaviorMonitor",
+      "line": 54,
+      "doc": "Monitors agent behavior and quarantines anomalous agents.\n\nArgs:\n    burst_window_seconds: Time window for burst detection.\n    burst_threshold: Max calls in the burst window before alert.\n    consecutive_failure_threshold: Failures in a row before quarantine.\n    capability_denial_threshold: Denied capability checks before quarantine.\n    quarantine_duration: How long an auto-quarantine lasts.\n    max_tracked_agents: Evict oldest agents beyond this limit.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 23,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "auth",
+      "logging"
+    ]
+  }
+}

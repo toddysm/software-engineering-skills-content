@@ -1,0 +1,422 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/metrics.py",
+  "extension": ".py",
+  "size_bytes": 14252,
+  "line_count": 440,
+  "documentation": {
+    "file_docstring": "Metrics collection for ATR tools.\n\nProvides latency tracking, error rate monitoring, and usage statistics.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Get or create metrics for this tool",
+      "Update counts",
+      "Update latency",
+      "Store time series data",
+      "Cleanup old data",
+      "Notify callbacks",
+      "Global metrics collector"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MetricType: Types of metrics collected.",
+      "ToolMetrics: Metrics for a single tool.\n\nAttributes:\n    name: Tool name.\n    total_calls: To",
+      "TimeWindowMetrics: Metrics within a specific time window.",
+      "MetricsCollector: Collects and aggregates tool metrics.\n\nThread-safe collector that tracks tool ex",
+      "MetricsContext: Context manager for measuring tool execution.\n\nExample:\n    >>> with MetricsCont",
+      "get_collector: Get the global metrics collector.\n\nReturns:\n    The global MetricsCollector inst",
+      "set_collector: Set the global metrics collector.\n\nArgs:\n    collector: The collector to use glo",
+      "avg_latency_ms: Average latency in milliseconds.",
+      "success_rate: Success rate as a percentage (0-100).",
+      "error_rate: Error rate as a percentage (0-100)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "TimeWindowMetrics",
+    "avg_latency_ms",
+    "to_dict",
+    "reset",
+    "get_all_metrics",
+    "set_collector",
+    "add_callback",
+    "MetricsContext",
+    "MetricType",
+    "get_metrics",
+    "record_call",
+    "get_time_window_metrics",
+    "ToolMetrics",
+    "success_rate",
+    "MetricsCollector",
+    "error_rate",
+    "remove_callback",
+    "get_error_breakdown",
+    "get_collector",
+    "export_prometheus"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "threading",
+      "time",
+      "collections",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "contextlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_collector",
+      "line": 424,
+      "doc": "Get the global metrics collector.\n\nReturns:\n    The global MetricsCollector instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "MetricsCollector"
+    },
+    {
+      "name": "set_collector",
+      "line": 433,
+      "doc": "Set the global metrics collector.\n\nArgs:\n    collector: The collector to use globally.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "collector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "avg_latency_ms",
+      "line": 61,
+      "doc": "Average latency in milliseconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "success_rate",
+      "line": 68,
+      "doc": "Success rate as a percentage (0-100).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "error_rate",
+      "line": 75,
+      "doc": "Error rate as a percentage (0-100).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 81,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "avg_latency_ms",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 135,
+      "doc": "Initialize collector.\n\nArgs:\n    retention_period: How long to retain detailed time-series data.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "retention_period"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_call",
+      "line": 147,
+      "doc": "Record a tool call.\n\nArgs:\n    tool_name: Name of the tool.\n    latency_ms: Call latency in milliseconds.\n    success: Whether the call succeeded.\n    error: Exception if call failed.\n    rate_limited: Whether call was rate limited.\n    metadata: Additional metadata to record.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "latency_ms",
+        "success",
+        "error",
+        "rate_limited",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_cleanup_old_data",
+      "line": 218,
+      "doc": "Remove data older than retention period.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_metrics",
+      "line": 225,
+      "doc": "Get metrics for a specific tool.\n\nArgs:\n    tool_name: Name of the tool.\n\nReturns:\n    ToolMetrics instance or None if tool not tracked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_all_metrics",
+      "line": 237,
+      "doc": "Get metrics for all tools.\n\nReturns:\n    Dictionary mapping tool names to metrics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_time_window_metrics",
+      "line": 246,
+      "doc": "Get metrics for a specific time window.\n\nArgs:\n    tool_name: Name of the tool.\n    window: Time window to aggregate over.\n\nReturns:\n    TimeWindowMetrics or None if no data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "window"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_error_breakdown",
+      "line": 282,
+      "doc": "Get breakdown of error types.\n\nArgs:\n    tool_name: Name of the tool.\n    window: Optional time window (None = all time).\n\nReturns:\n    Dictionary mapping error types to counts.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "window"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_callback",
+      "line": 309,
+      "doc": "Add a callback to be notified of new metrics.\n\nArgs:\n    callback: Function called with (tool_name, event_data).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_callback",
+      "line": 317,
+      "doc": "Remove a callback.\n\nArgs:\n    callback: The callback to remove.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 326,
+      "doc": "Reset metrics.\n\nArgs:\n    tool_name: Specific tool to reset, or None for all.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_prometheus",
+      "line": 340,
+      "doc": "Export metrics in Prometheus format.\n\nReturns:\n    Prometheus-compatible metrics string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 385,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "collector",
+        "tool_name",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__enter__",
+      "line": 396,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__exit__",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MetricType",
+      "line": 20,
+      "doc": "Types of metrics collected.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolMetrics",
+      "line": 31,
+      "doc": "Metrics for a single tool.\n\nAttributes:\n    name: Tool name.\n    total_calls: Total number of calls.\n    successful_calls: Number of successful calls.\n    failed_calls: Number of failed calls.\n    rate_limited_calls: Number of rate-limited calls.\n    total_latency_ms: Total latency in milliseconds.\n    min_latency_ms: Minimum latency.\n    max_latency_ms: Maximum latency.\n    last_called: Timestamp of last call.\n    last_error: Last error message if any.\n    error_types: Count of each error type.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TimeWindowMetrics",
+      "line": 101,
+      "doc": "Metrics within a specific time window.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MetricsCollector",
+      "line": 118,
+      "doc": "Collects and aggregates tool metrics.\n\nThread-safe collector that tracks tool execution metrics\nincluding call counts, latencies, and error rates.\n\nExample:\n    >>> collector = MetricsCollector()\n    >>>\n    >>> # Record a successful call\n    >>> collector.record_call(\"my_tool\", latency_ms=150.0, success=True)\n    >>>\n    >>> # Get metrics\n    >>> metrics = collector.get_metrics(\"my_tool\")\n    >>> print(f\"Average latency: {metrics.avg_latency_ms}ms\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MetricsContext",
+      "line": 376,
+      "doc": "Context manager for measuring tool execution.\n\nExample:\n    >>> with MetricsContext(collector, \"my_tool\") as ctx:\n    ...     result = my_tool()\n    ...     ctx.success = True",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "path": "packages/agent-os/services/cloud-board/workers/dispute_resolver.py",
+  "extension": ".py",
+  "size_bytes": 10265,
+  "line_count": 309,
+  "documentation": {
+    "file_docstring": "Dispute Resolver Worker\n\nBackground worker that automatically processes and resolves disputes\nby replaying flight recorder logs against the Control Plane.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check for disputes ready to resolve",
+      "Process up to max_concurrent",
+      "Fetch and validate logs",
+      "Replay against Control Plane",
+      "Apply resolution",
+      "Remove from pending",
+      "In production, would:",
+      "1. Fetch logs from storage",
+      "2. Verify hash integrity",
+      "3. Validate log format",
+      "4. Check signatures",
+      "In production, would:",
+      "1. Parse both logs",
+      "2. Identify disputed operations",
+      "3. Replay each operation against Control Plane",
+      "4. Compare expected vs actual outcomes",
+      "5. Determine which agent was truthful",
+      "Placeholder - would use actual replay logic",
+      "In production, would:",
+      "1. Update escrow status",
+      "2. Distribute credits",
+      "3. Update reputation scores",
+      "4. Record compliance event",
+      "5. Notify parties",
+      "Penalize the party that didn't submit evidence",
+      "Remove from pending",
+      "Sort by priority",
+      "Global worker instance"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PendingDispute: A dispute waiting to be resolved.",
+      "DisputeResolverWorker: Background worker for automated dispute resolution.\n\nResponsibilities:\n- Monitor",
+      "get_worker: Get or create the worker instance.",
+      "main: Run the worker standalone.",
+      "start: Start the worker.",
+      "stop: Stop the worker.",
+      "_resolution_loop: Main resolution loop.",
+      "_timeout_loop: Check for timed-out disputes.",
+      "_resolve_dispute: Resolve a dispute.",
+      "_validate_logs: Validate flight recorder logs."
+    ]
+  },
+  "purpose": {
+    "primary_role": "service",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "service path",
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "submit_evidence",
+    "add_dispute",
+    "DisputeResolverWorker",
+    "get_queue_status",
+    "get_worker",
+    "PendingDispute"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "logging",
+      "datetime",
+      "typing",
+      "dataclasses"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_worker",
+      "line": 294,
+      "doc": "Get or create the worker instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "DisputeResolverWorker"
+    },
+    {
+      "name": "main",
+      "line": 302,
+      "doc": "Run the worker standalone.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 44,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "check_interval_seconds",
+        "max_concurrent_resolutions",
+        "auto_resolve_timeout_hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 58,
+      "doc": "Start the worker.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stop",
+      "line": 68,
+      "doc": "Stop the worker.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolution_loop",
+      "line": 73,
+      "doc": "Main resolution loop.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_timeout_loop",
+      "line": 93,
+      "doc": "Check for timed-out disputes.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_resolve_dispute",
+      "line": 115,
+      "doc": "Resolve a dispute.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_logs",
+      "line": 156,
+      "doc": "Validate flight recorder logs.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "logs_hash"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_replay_and_compare",
+      "line": 169,
+      "doc": "Replay logs against Control Plane and compare.\n\nThis is the core Arbiter logic - deterministically determines\nwhich agent's claim is accurate.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "requester_logs_hash",
+        "provider_logs_hash"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_resolution",
+      "line": 190,
+      "doc": "Apply the resolution to escrow and reputation.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute",
+        "outcome"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_auto_resolve_timeout",
+      "line": 208,
+      "doc": "Auto-resolve a timed-out dispute.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_dispute",
+      "line": 232,
+      "doc": "Add a dispute to the resolution queue.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id",
+        "escrow_id",
+        "requester_did",
+        "provider_did",
+        "priority"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit_evidence",
+      "line": 257,
+      "doc": "Submit evidence for a dispute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "dispute_id",
+        "party",
+        "logs_hash"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_queue_status",
+      "line": 278,
+      "doc": "Get current queue status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PendingDispute",
+      "line": 21,
+      "doc": "A dispute waiting to be resolved.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DisputeResolverWorker",
+      "line": 33,
+      "doc": "Background worker for automated dispute resolution.\n\nResponsibilities:\n- Monitor for disputes ready for resolution\n- Replay flight recorder logs against Control Plane\n- Determine outcomes and apply penalties\n- Update escrows based on resolution",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 42,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

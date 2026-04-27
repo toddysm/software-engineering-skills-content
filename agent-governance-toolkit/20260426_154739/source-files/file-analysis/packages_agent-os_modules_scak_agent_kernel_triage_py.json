@@ -1,0 +1,136 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/triage.py",
+  "extension": ".py",
+  "size_bytes": 5811,
+  "line_count": 152,
+  "documentation": {
+    "file_docstring": "Failure Triage Engine - Decides sync (JIT) vs async (batch) correction strategy.\n\nThis is the missing component that sits between Failure Detection and Correction.\nIt analyzes the context to determine if a failure should be fixed immediately\n(blocking the user) or asynchronously (returning error quickly, fixing later).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Critical tools that require synchronous fixing (can be customized via config)",
+      "Keywords indicating high-effort prompts requiring deep thinking",
+      "Rule 0: Cognitive failures with full trace (chain_of_thought + failed_action)",
+      "These warrant immediate deep analysis with Shadow Teacher",
+      "Rule 1: Safety/Write Operations are always Critical",
+      "Check context for critical actions (fallback if tool_name not provided)",
+      "Also check failed_action if present",
+      "Rule 2: \"High Effort\" prompts request deep thinking",
+      "Rule 3: VIP users get priority treatment (optional)",
+      "Rule 4: Default to Async for \"Read/Query\" failures to save user time"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FixStrategy: Strategy for fixing agent failures.",
+      "FailureTriage: Decision engine for routing failures to sync (JIT) or async (batch) correction.\n",
+      "__init__: Initialize the triage engine.\n\nArgs:\n    config: Optional configuration for cust",
+      "decide_strategy: Decide whether to fix this failure sync (JIT) or async (batch).\n\nDecision Rules ",
+      "is_critical: Convenience method to check if a failure is critical (needs SYNC_JIT).\n\nArgs:\n  "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "FailureTriage",
+    "decide_strategy",
+    "is_critical",
+    "FixStrategy"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 35,
+      "doc": "Initialize the triage engine.\n\nArgs:\n    config: Optional configuration for custom critical tools and keywords",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "decide_strategy",
+      "line": 69,
+      "doc": "Decide whether to fix this failure sync (JIT) or async (batch).\n\nDecision Rules (in priority order):\n1. Cognitive failures with full trace \u2192 SYNC_JIT (deep diagnosis needed)\n2. Safety/Write Operations \u2192 SYNC_JIT\n3. High Effort Prompts \u2192 SYNC_JIT  \n4. VIP Users \u2192 SYNC_JIT\n5. Default (Read/Query) \u2192 ASYNC_BATCH\n\nArgs:\n    prompt: The user prompt that led to the failure\n    tool_name: Name of the tool that failed (if available)\n    user_metadata: Metadata about the user (e.g., VIP status)\n    context: Additional context about the failure\n    \nReturns:\n    FixStrategy indicating sync (JIT) or async (batch) correction",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "tool_name",
+        "user_metadata",
+        "context"
+      ],
+      "returns": "FixStrategy"
+    },
+    {
+      "name": "is_critical",
+      "line": 132,
+      "doc": "Convenience method to check if a failure is critical (needs SYNC_JIT).\n\nArgs:\n    prompt: The user prompt\n    tool_name: Name of the tool that failed\n    user_metadata: User metadata\n    context: Additional context\n    \nReturns:\n    True if critical (SYNC_JIT), False if non-critical (ASYNC_BATCH)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "tool_name",
+        "user_metadata",
+        "context"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "FixStrategy",
+      "line": 16,
+      "doc": "Strategy for fixing agent failures.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FailureTriage",
+      "line": 22,
+      "doc": "Decision engine for routing failures to sync (JIT) or async (batch) correction.\n\nThe triage engine applies three rules to determine criticality:\n1. Safety/Write Operations \u2192 SYNC_JIT (must fix immediately)\n2. High Effort Prompts \u2192 SYNC_JIT (user expects deep thinking)\n3. Read/Query Operations \u2192 ASYNC_BATCH (save user time)\n\nThis enables \"thinking fast\" (async) for trivial failures and\n\"thinking slow\" (sync) for critical failures.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 23,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

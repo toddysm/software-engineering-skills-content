@@ -1,0 +1,237 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/hf_utils.py",
+  "extension": ".py",
+  "size_bytes": 14200,
+  "line_count": 536,
+  "documentation": {
+    "file_docstring": "Hugging Face Hub Utilities for AMB\n==================================\n\nThis module provides utilities for uploading and downloading experiment results,\ndatasets, and logs to/from the Hugging Face Hub.\n\nFeatures:\n    - Upload experiment results and benchmarks\n    - Push/pull message log datasets\n    - Version control for research artifacts\n\nRequirements:\n    pip install huggingface_hub\n\nUsage:\n    from amb_core.hf_utils import upload_experiment_logs, download_dataset\n\n    # Upload benchmark results\n    upload_experiment_logs(\n        file_path=\"experiments/results.json\",\n        repo_id=\"microsoft/amb-benchmarks\"\n    )\n\n    # Download existing dataset\n    df = download_dataset(\"microsoft/amb-message-logs\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Upload benchmark results",
+      "Download existing dataset",
+      "Create repo if it doesn't exist",
+      "Repo might already exist",
+      "Generate path in repo with timestamp",
+      "Generate commit message",
+      "Upload file",
+      "If \"latest\", find most recent file",
+      "Filter to JSON files in runs directory",
+      "Download file",
+      "Create repo",
+      "Convert to JSONL format",
+      "Create temporary file",
+      "Upload",
+      "{repo_id.split('/')[-1]}",
+      "# Dataset Description",
+      "## Supported Tasks",
+      "## Data Format",
+      "# Usage",
+      "Download latest results",
+      "# Citation",
+      "# License"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_check_hf_available: Check if huggingface_hub is installed.",
+      "upload_experiment_logs: Upload experiment logs or benchmark results to Hugging Face Hub.\n\nThis function ",
+      "download_dataset: Download a dataset file from Hugging Face Hub.\n\nArgs:\n    repo_id: Repository ID",
+      "push_message_logs: Push a list of message logs as a dataset to Hugging Face Hub.\n\nThis is useful fo",
+      "create_dataset_card: Create or update the dataset card (README.md) for a HF dataset.\n\nArgs:\n    repo_",
+      "HFDatasetManager: High-level manager for Hugging Face dataset operations.\n\nThis class provides a c",
+      "__init__: Initialize the dataset manager.\n\nArgs:\n    repo_id: Repository ID on HF Hub (e.g",
+      "upload_results: Upload experiment results to the repository.\n\nArgs:\n    file_path: Path to the r",
+      "get_latest_results: Download and parse the latest results file.\n\nArgs:\n    local_dir: Local director",
+      "list_runs: List all experiment runs in the repository.\n\nReturns:\n    List of run file paths"
+    ]
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "create_dataset_card",
+    "download_dataset",
+    "upload_experiment_logs",
+    "list_runs",
+    "get_latest_results",
+    "HFDatasetManager",
+    "push_message_logs",
+    "upload_results",
+    "push_logs"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "os",
+      "datetime",
+      "pathlib",
+      "typing",
+      "huggingface_hub",
+      "tempfile",
+      "tempfile"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_check_hf_available",
+      "line": 64,
+      "doc": "Check if huggingface_hub is installed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "upload_experiment_logs",
+      "line": 73,
+      "doc": "Upload experiment logs or benchmark results to Hugging Face Hub.\n\nThis function uploads a single file (typically JSON results from experiments)\nto a dataset repository on the Hugging Face Hub.\n\nArgs:\n    file_path: Local path to the file to upload.\n    repo_id: Repository ID on HF Hub (e.g., \"microsoft/amb-benchmarks\").\n    path_in_repo: Destination path in the repository. Defaults to filename\n        with timestamp prefix.\n    commit_message: Git commit message. Auto-generated if not provided.\n    token: HF API token. Uses HF_TOKEN env var or cached token if not provided.\n    private: Whether to create a private repository if it doesn't exist.\n\nReturns:\n    URL to the uploaded file on Hugging Face Hub.\n\nRaises:\n    ImportError: If huggingface_hub is not installed.\n    FileNotFoundError: If the file_path doesn't exist.\n\nExample:\n    >>> url = upload_experiment_logs(\n    ...     \"experiments/results.json\",\n    ...     \"microsoft/amb-benchmarks\"\n    ... )\n    >>> print(f\"Uploaded to: {url}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "file_path",
+        "repo_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "download_dataset",
+      "line": 153,
+      "doc": "Download a dataset file from Hugging Face Hub.\n\nArgs:\n    repo_id: Repository ID on HF Hub (e.g., \"microsoft/amb-benchmarks\").\n    filename: Specific file to download, or \"latest\" to get most recent.\n    local_dir: Local directory to save the file. Defaults to HF cache.\n    token: HF API token. Uses HF_TOKEN env var or cached token if not provided.\n\nReturns:\n    Path to the downloaded file.\n\nRaises:\n    ImportError: If huggingface_hub is not installed.\n\nExample:\n    >>> path = download_dataset(\n    ...     \"microsoft/amb-benchmarks\",\n    ...     filename=\"latest\"\n    ... )\n    >>> with open(path) as f:\n    ...     data = json.load(f)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_id",
+        "filename"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "push_message_logs",
+      "line": 208,
+      "doc": "Push a list of message logs as a dataset to Hugging Face Hub.\n\nThis is useful for collecting agent communication patterns for research.\n\nArgs:\n    messages: List of message dictionaries to push.\n    repo_id: Repository ID on HF Hub.\n    split: Dataset split name (train, test, validation).\n    token: HF API token.\n    private: Whether to create a private repository.\n\nReturns:\n    URL to the dataset on Hugging Face Hub.\n\nExample:\n    >>> messages = [\n    ...     {\"topic\": \"agent.thoughts\", \"payload\": {\"thought\": \"analyzing...\"}, \"timestamp\": \"2024-01-01T00:00:00Z\"},\n    ...     {\"topic\": \"agent.actions\", \"payload\": {\"action\": \"search\"}, \"timestamp\": \"2024-01-01T00:00:01Z\"},\n    ... ]\n    >>> url = push_message_logs(messages, \"microsoft/amb-message-logs\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "messages",
+        "repo_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "create_dataset_card",
+      "line": 277,
+      "doc": "Create or update the dataset card (README.md) for a HF dataset.\n\nArgs:\n    repo_id: Repository ID on HF Hub.\n    description: Dataset description.\n    license: License identifier.\n    language: Language code.\n    tags: List of tags for the dataset.\n    token: HF API token.\n\nExample:\n    >>> create_dataset_card(\n    ...     \"microsoft/amb-benchmarks\",\n    ...     description=\"AMB performance benchmarks across different configurations.\",\n    ...     tags=[\"message-bus\", \"agents\", \"benchmarks\"]\n    ... )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 420,
+      "doc": "Initialize the dataset manager.\n\nArgs:\n    repo_id: Repository ID on HF Hub (e.g., \"username/dataset-name\").\n    token: HF API token. Uses HF_TOKEN env var if not provided.\n    auto_create: Whether to automatically create the repo if it doesn't exist.\n    private: Whether to create a private repository.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "repo_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "upload_results",
+      "line": 455,
+      "doc": "Upload experiment results to the repository.\n\nArgs:\n    file_path: Path to the results file (JSON).\n    commit_message: Git commit message.\n\nReturns:\n    URL to the uploaded file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_latest_results",
+      "line": 478,
+      "doc": "Download and parse the latest results file.\n\nArgs:\n    local_dir: Local directory to save the file.\n\nReturns:\n    Parsed JSON data from the latest results file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "local_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_runs",
+      "line": 501,
+      "doc": "List all experiment runs in the repository.\n\nReturns:\n    List of run file paths.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "push_logs",
+      "line": 515,
+      "doc": "Push message logs to the repository.\n\nArgs:\n    messages: List of message dictionaries.\n    split: Dataset split name.\n\nReturns:\n    URL to the uploaded data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "messages"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "HFDatasetManager",
+      "line": 403,
+      "doc": "High-level manager for Hugging Face dataset operations.\n\nThis class provides a convenient interface for managing experiment\nresults and message logs on Hugging Face Hub.\n\nAttributes:\n    repo_id: Repository ID on HF Hub.\n    token: HF API token.\n\nExample:\n    >>> manager = HFDatasetManager(\"microsoft/amb-benchmarks\")\n    >>> manager.upload_results(\"experiments/results.json\")\n    >>> latest = manager.get_latest_results()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

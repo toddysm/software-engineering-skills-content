@@ -1,0 +1,83 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/__init__.py",
+  "extension": ".py",
+  "size_bytes": 5918,
+  "line_count": 218,
+  "documentation": {
+    "file_docstring": "CMVK - Cross-Model Verification Kernel\n======================================\n\nA mathematical and adversarial verification library for calculating\ndrift/hallucination scores between outputs.\n\nLayer 1: The Primitive\nPublication Target: PyPI (pip install cmvk)\n\nThis library provides pure functions for verification:\n\n- :func:`verify` - Compare two text outputs for semantic drift\n- :func:`verify_embeddings` - Compare embedding vectors with configurable metrics\n- :func:`verify_distributions` - Compare probability distributions (KL divergence)\n- :func:`verify_sequences` - Compare sequences with alignment\n\nAll functions are pure (no side effects) and use only numpy/scipy.\n\nVersion 0.2.0 Features\n----------------------\n\n- **Configurable Distance Metrics** (CMVK-001/002): Support for cosine, euclidean,\n  manhattan, chebyshev, and mahalanobis distances\n- **Metric Selection API** (CMVK-003): `verify_embeddings(metric=\"euclidean\")`\n- **Batch Verification** (CMVK-004): `verify_embeddings_batch()` for efficiency\n- **Threshold Profiles** (CMVK-005): Pre-configured thresholds for carbon, financial, medical\n- **Audit Trail** (CMVK-006): Immutable logging with timestamps\n- **Dimensional Weighting** (CMVK-008): Weight certain dimensions higher\n- **Explainable Drift** (CMVK-010): Per-dimension contribution analysis\n\nExample Usage\n-------------\n\nBasic text verification::\n\n    import cmvk\n\n    score = cmvk.verify(\n        output_a=\"def add(a, b): return a + b\",\n        output_b=\"def add(x, y): return x + y\"\n    )\n    print(f\"Drift: {score.drift_score:.2f}\")  # ~0.15 (low = similar)\n\nEnhanced embedding comparison with Euclidean distance::\n\n    import cmvk\n    import numpy as np\n\n    # Euclidean distance preserves magnitude - critical for fraud detection\n    claim_vec = np.array([0.82, 150.0])   # Claimed NDVI, carbon\n    obs_vec = np.array([0.316, 95.0])     # Observed values\n\n    score = cmvk.verify_embeddings(\n        claim_vec, obs_vec,\n        metric=\"euclidean\",           # Preserves magnitude (CMVK-001)\n        weights=[0.6, 0.4],           # NDVI weighted higher (CMVK-008)\n        threshold_profile=\"carbon\",   # Domain-specific thresholds (CMVK-005)\n        explain=True                  # Show dimension contributions (CMVK-010)\n    )\n\n    print(f\"Drift: {score.drift_score:.2f}\")\n    print(f\"Explanation: {score.explanation}\")\n\nBatch verification::\n\n    scores = cmvk.verify_embeddings_batch(\n        claims_vectors,\n        observations_vectors,\n        metric=\"euclidean\",\n        threshold_profile=\"carbon\"\n    )\n    summary = cmvk.aggregate_embedding_scores(scores, threshold_profile=\"carbon\")\n    print(f\"Pass rate: {summary['pass_rate']:.1%}\")\n\nFor Hugging Face Hub integration, see :mod:`cmvk.hf_utils`.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Euclidean distance preserves magnitude - critical for fraud detection",
+      "Audit trail",
+      "Distance metrics module",
+      "Threshold profiles",
+      "Constitutional Validator (CMVK-011)",
+      "Metadata",
+      "Types (exported for type annotations)",
+      "Core verification functions",
+      "Batch operations (CMVK-004)",
+      "Distance metrics (CMVK-001/002/003)",
+      "Threshold profiles (CMVK-005)",
+      "Audit trail (CMVK-006)",
+      "Constitutional Validator (CMVK-011)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "__getattr__: Lazy loading for optional submodules."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "typing",
+      "audit",
+      "metrics",
+      "profiles",
+      "types",
+      "verification",
+      "constitutional"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__getattr__",
+      "line": 200,
+      "doc": "Lazy loading for optional submodules.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [],
+  "complexity_score": 14,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

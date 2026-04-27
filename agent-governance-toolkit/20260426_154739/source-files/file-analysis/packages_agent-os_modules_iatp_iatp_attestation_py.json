@@ -1,0 +1,359 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/attestation.py",
+  "extension": ".py",
+  "size_bytes": 14440,
+  "line_count": 461,
+  "documentation": {
+    "file_docstring": "Attestation and Reputation Management for IATP.\n\nThis module provides:\n1. Agent attestation verification using Ed25519 cryptographic signatures\n2. Reputation score tracking and slashing\n3. Integration with cmvk for hallucination detection",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check if attestation is expired",
+      "Verify the signing key is trusted",
+      "Verify cryptographic signature (simplified version)",
+      "In production, this would use proper RSA/Ed25519 signature verification",
+      "Cache valid attestation",
+      "Graceful fallback: accept if public key exists but library missing",
+      "Reconstruct the canonical message that was signed",
+      "Calculate expiration",
+      "Create message to sign",
+      "Sign with Ed25519 if private key provided and library available",
+      "Fall back to unsigned if key is malformed",
+      "No private key or no crypto library \u2014 unsigned placeholder",
+      "Determine score penalty based on severity",
+      "Create reputation event",
+      "Apply to score",
+      "Small positive reward for successful operations",
+      "Merge with existing score if present",
+      "For simplicity, keep the lower score (more conservative)",
+      "Import new score"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_get_utc_timestamp: Get current UTC timestamp in ISO 8601 format.",
+      "AttestationValidator: Validates agent attestations to prevent running hacked/modified code.\n\nThis impl",
+      "generate_ed25519_keypair: Generate an Ed25519 key pair for IATP attestation signing.\n\nReturns:\n    Tuple o",
+      "ReputationManager: Manages reputation scores across the agent network.\n\nThis implements \"Reputation",
+      "__init__: Initialize the attestation validator.\n\nArgs:\n    control_plane_public_keys: Dict",
+      "add_trusted_key: Add a trusted public key from a Control Plane.\n\nArgs:\n    key_id: Identifier for",
+      "validate_attestation: Validate an agent attestation record.\n\nArgs:\n    attestation: The attestation re",
+      "_verify_signature: Verify the Ed25519 cryptographic signature of an attestation.\n\nThe public key is",
+      "create_attestation: Create a new attestation record (used by Control Plane).\n\nArgs:\n    agent_id: Ag",
+      "compute_codebase_hash: Compute SHA-256 hash of codebase content.\n\nArgs:\n    codebase_content: String re"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_score",
+    "import_reputation_data",
+    "ReputationManager",
+    "get_or_create_score",
+    "generate_ed25519_keypair",
+    "record_success",
+    "add_trusted_key",
+    "export_reputation_data",
+    "compute_codebase_hash",
+    "AttestationValidator",
+    "get_trust_level",
+    "validate_attestation",
+    "record_failure",
+    "record_hallucination",
+    "create_attestation"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "base64",
+      "hashlib",
+      "datetime",
+      "typing",
+      "iatp.models",
+      "cryptography.hazmat.primitives.asymmetric.ed25519",
+      "cryptography.hazmat.primitives.serialization",
+      "cryptography.exceptions",
+      "datetime",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_get_utc_timestamp",
+      "line": 41,
+      "doc": "Get current UTC timestamp in ISO 8601 format.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "str"
+    },
+    {
+      "name": "generate_ed25519_keypair",
+      "line": 228,
+      "doc": "Generate an Ed25519 key pair for IATP attestation signing.\n\nReturns:\n    Tuple of (private_key_b64, public_key_b64) \u2014 both raw base64 encoded.\n\nRaises:\n    RuntimeError: If the cryptography library is not installed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 54,
+      "doc": "Initialize the attestation validator.\n\nArgs:\n    control_plane_public_keys: Dict mapping key_id to public key (PEM format)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "control_plane_public_keys"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_trusted_key",
+      "line": 64,
+      "doc": "Add a trusted public key from a Control Plane.\n\nArgs:\n    key_id: Identifier for the public key\n    public_key: PEM-encoded public key",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key_id",
+        "public_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_attestation",
+      "line": 74,
+      "doc": "Validate an agent attestation record.\n\nArgs:\n    attestation: The attestation record to validate\n    verify_signature: Whether to verify the cryptographic signature\n\nReturns:\n    Tuple of (is_valid, error_message)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attestation",
+        "verify_signature"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_verify_signature",
+      "line": 116,
+      "doc": "Verify the Ed25519 cryptographic signature of an attestation.\n\nThe public key is stored as raw base64 (32 bytes). The signature\nis base64-encoded Ed25519 over the canonical attestation message.\n\nArgs:\n    attestation: The attestation to verify\n\nReturns:\n    True if signature is valid",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attestation"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "create_attestation",
+      "line": 156,
+      "doc": "Create a new attestation record (used by Control Plane).\n\nArgs:\n    agent_id: Agent identifier\n    codebase_hash: SHA-256 hash of codebase\n    config_hash: SHA-256 hash of configuration\n    signing_key_id: Key ID to use for signing\n    private_key: Private key for signing (PEM format)\n    expires_in_hours: Hours until attestation expires\n\nReturns:\n    Signed attestation record",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "codebase_hash",
+        "config_hash",
+        "signing_key_id",
+        "private_key",
+        "expires_in_hours"
+      ],
+      "returns": "AttestationRecord"
+    },
+    {
+      "name": "compute_codebase_hash",
+      "line": 215,
+      "doc": "Compute SHA-256 hash of codebase content.\n\nArgs:\n    codebase_content: String representation of codebase\n\nReturns:\n    Hexadecimal SHA-256 hash",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "codebase_content"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 265,
+      "doc": "Initialize the reputation manager.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_or_create_score",
+      "line": 269,
+      "doc": "Get or create a reputation score for an agent.\n\nArgs:\n    agent_id: Agent identifier\n\nReturns:\n    ReputationScore instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ReputationScore"
+    },
+    {
+      "name": "record_hallucination",
+      "line": 288,
+      "doc": "Record a hallucination detected by cmvk and slash reputation.\n\nArgs:\n    agent_id: Agent that hallucinated\n    severity: Severity level ('critical', 'high', 'medium', 'low')\n    trace_id: Associated trace ID\n    details: Additional context about the hallucination\n\nReturns:\n    Updated reputation score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "severity",
+        "trace_id",
+        "details"
+      ],
+      "returns": "ReputationScore"
+    },
+    {
+      "name": "record_success",
+      "line": 335,
+      "doc": "Record a successful transaction to improve reputation.\n\nArgs:\n    agent_id: Agent that performed successfully\n    trace_id: Associated trace ID\n\nReturns:\n    Updated reputation score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "trace_id"
+      ],
+      "returns": "ReputationScore"
+    },
+    {
+      "name": "record_failure",
+      "line": 367,
+      "doc": "Record a failure event (timeout, error, etc.).\n\nArgs:\n    agent_id: Agent that failed\n    failure_type: Type of failure (e.g., 'timeout', 'error')\n    trace_id: Associated trace ID\n    details: Additional context\n\nReturns:\n    Updated reputation score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "failure_type",
+        "trace_id",
+        "details"
+      ],
+      "returns": "ReputationScore"
+    },
+    {
+      "name": "get_score",
+      "line": 403,
+      "doc": "Get the reputation score for an agent.\n\nArgs:\n    agent_id: Agent identifier\n\nReturns:\n    ReputationScore if exists, None otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_level",
+      "line": 415,
+      "doc": "Get the trust level based on reputation score.\n\nArgs:\n    agent_id: Agent identifier\n\nReturns:\n    Appropriate TrustLevel enum value",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "TrustLevel"
+    },
+    {
+      "name": "export_reputation_data",
+      "line": 428,
+      "doc": "Export all reputation data for network-wide propagation.\n\nReturns:\n    Dictionary containing all reputation scores",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "import_reputation_data",
+      "line": 440,
+      "doc": "Import reputation data from other nodes in the network.\n\nArgs:\n    data: Dictionary of reputation scores from other nodes",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_generate_event_id",
+      "line": 458,
+      "doc": "Generate a unique event ID.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AttestationValidator",
+      "line": 46,
+      "doc": "Validates agent attestations to prevent running hacked/modified code.\n\nThis implements the \"Attestation Handshake\" where agents exchange\ncryptographic proof that they're running verified code.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ReputationManager",
+      "line": 256,
+      "doc": "Manages reputation scores across the agent network.\n\nThis implements \"Reputation Slashing\" where agents that misbehave\n(e.g., hallucinate, timeout, fail) have their scores reduced.\nOther agents can use reputation scores to make trust decisions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 40,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

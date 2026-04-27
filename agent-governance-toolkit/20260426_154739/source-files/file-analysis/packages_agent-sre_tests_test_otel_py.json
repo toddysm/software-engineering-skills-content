@@ -1,0 +1,732 @@
+{
+  "path": "packages/agent-sre/tests/test_otel.py",
+  "extension": ".py",
+  "size_bytes": 24470,
+  "line_count": 692,
+  "documentation": {
+    "file_docstring": "Tests for OpenTelemetry integration \u2014 metrics, traces, and events.\n\nUses in-memory OTEL exporters to verify that Agent SRE data is correctly\nconverted to OTEL signals without requiring a running collector.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "========== Fixtures ==========",
+      "========== Metrics Tests ==========",
+      "Record some events",
+      "========== Trace Tests ==========",
+      "Root has cost_usd=0.0, so attribute should not be set",
+      "========== Event Tests ==========",
+      "========== Integration Tests ==========",
+      "Create SLO",
+      "Record events",
+      "One failure",
+      "Export to OTEL",
+      "Verify metrics exist",
+      "Log the status",
+      "Record cost",
+      "Log cost alert",
+      "Verify metrics"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_InMemorySpanExporter: Minimal in-memory span exporter for testing.",
+      "trace_exporter_with_memory: Create a trace exporter with in-memory span capture.",
+      "TestMetricsExporter: Test SLI/SLO metrics export.",
+      "TestTraceExporter: Test replay trace -> OTEL span conversion.",
+      "TestEventLogger: Test structured event logging.",
+      "TestOtelIntegration: End-to-end tests combining metrics + traces + events.",
+      "test_record_sli: SLI values are recorded as gauge metrics.",
+      "test_record_sli_with_compliance: SLI compliance is recorded alongside value.",
+      "test_record_slo: SLO status, error budget, and burn rate are recorded.",
+      "test_record_slo_from_object: SLO object can be exported directly."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestMetricsExporter",
+    "test_record_incidents_open",
+    "test_log_slo_status_change",
+    "test_log_signal",
+    "event_logger",
+    "test_record_resilience",
+    "test_export_trace_cost_in_attributes",
+    "test_log_incident_resolved",
+    "TestEventLogger",
+    "test_imports_from_package",
+    "test_slo_status_codes_mapping",
+    "test_trace_and_cost_workflow",
+    "test_export_trace_error_status",
+    "shutdown",
+    "test_export_empty_trace",
+    "metric_reader",
+    "meter_provider",
+    "test_export_trace_creates_spans",
+    "test_record_slo_from_object",
+    "test_span_io_data_serialized",
+    "test_log_burn_rate_alert",
+    "test_record_slo",
+    "test_log_cost_alert",
+    "export",
+    "get_finished_spans",
+    "TestTraceExporter",
+    "test_multiple_sli_labels",
+    "test_export_trace_attributes",
+    "test_record_cost",
+    "test_record_sli_with_compliance",
+    "metrics_exporter",
+    "test_log_incident_detected",
+    "span_exporter",
+    "test_record_latency",
+    "test_log_fault_injected",
+    "test_export_trace_span_names",
+    "clear",
+    "test_log_chaos_completed",
+    "TestOtelIntegration",
+    "test_full_slo_workflow",
+    "test_record_sli",
+    "test_incident_without_agent_id",
+    "trace_exporter_with_memory",
+    "test_export_span_simple"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "pytest",
+      "opentelemetry.sdk.metrics",
+      "opentelemetry.sdk.metrics.export",
+      "opentelemetry.sdk.trace",
+      "opentelemetry.sdk.trace.export",
+      "opentelemetry.trace",
+      "agent_sre.integrations.otel",
+      "agent_sre.integrations.otel.conventions",
+      "agent_sre.replay.capture",
+      "agent_sre.slo.indicators",
+      "agent_sre.slo.objectives",
+      "agent_sre.slo.indicators",
+      "agent_sre.slo.objectives",
+      "agent_sre.integrations.otel"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "metric_reader",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "meter_provider",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "metrics_exporter",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "meter_provider"
+      ],
+      "returns": null
+    },
+    {
+      "name": "span_exporter",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "trace_exporter_with_memory",
+      "line": 79,
+      "doc": "Create a trace exporter with in-memory span capture.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "event_logger",
+      "line": 89,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "spans"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_finished_spans",
+      "line": 34,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "clear",
+      "line": 37,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "shutdown",
+      "line": 40,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_sli",
+      "line": 99,
+      "doc": "SLI values are recorded as gauge metrics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_sli_with_compliance",
+      "line": 117,
+      "doc": "SLI compliance is recorded alongside value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_slo",
+      "line": 137,
+      "doc": "SLO status, error budget, and burn rate are recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_slo_from_object",
+      "line": 157,
+      "doc": "SLO object can be exported directly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_cost",
+      "line": 186,
+      "doc": "Cost metrics are recorded as counter + gauge.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_latency",
+      "line": 204,
+      "doc": "Latency is recorded as histogram.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_incidents_open",
+      "line": 219,
+      "doc": "Open incident count is recorded as gauge.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_resilience",
+      "line": 232,
+      "doc": "Fault impact score is recorded as gauge.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slo_status_codes_mapping",
+      "line": 249,
+      "doc": "All SLO statuses have numeric codes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_sli_labels",
+      "line": 257,
+      "doc": "Multiple SLIs with different labels don't overwrite each other.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_trace",
+      "line": 281,
+      "doc": "Create a sample trace with parent-child spans.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Trace"
+    },
+    {
+      "name": "test_export_trace_creates_spans",
+      "line": 332,
+      "doc": "Exporting a trace creates OTEL spans for each SRE span.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_trace_span_names",
+      "line": 341,
+      "doc": "OTEL spans have correct names from SRE spans.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_trace_attributes",
+      "line": 354,
+      "doc": "OTEL spans carry agent-specific attributes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_trace_cost_in_attributes",
+      "line": 367,
+      "doc": "Cost is included as span attribute when > 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_trace_error_status",
+      "line": 382,
+      "doc": "Error spans get OTEL ERROR status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_empty_trace",
+      "line": 411,
+      "doc": "Empty traces produce no spans.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_export_span_simple",
+      "line": 425,
+      "doc": "Simple span export works without a full trace.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_span_io_data_serialized",
+      "line": 444,
+      "doc": "Input/output data is serialized as JSON string attributes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_exporter_with_memory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_slo_status_change",
+      "line": 479,
+      "doc": "SLO status changes produce structured events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_burn_rate_alert",
+      "line": 493,
+      "doc": "Burn rate alerts produce structured events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_cost_alert",
+      "line": 506,
+      "doc": "Cost alerts produce structured events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_signal",
+      "line": 520,
+      "doc": "Signals produce structured events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_incident_detected",
+      "line": 533,
+      "doc": "Incidents produce structured events with severity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_incident_resolved",
+      "line": 549,
+      "doc": "Incident resolutions include duration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_fault_injected",
+      "line": 560,
+      "doc": "Chaos fault injections produce structured events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_log_chaos_completed",
+      "line": 574,
+      "doc": "Chaos experiment completions include fault impact score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_incident_without_agent_id",
+      "line": 586,
+      "doc": "Incident events work without agent_id.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_slo_workflow",
+      "line": 604,
+      "doc": "Full SLO lifecycle: create, record, evaluate, export, alert.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_and_cost_workflow",
+      "line": 655,
+      "doc": "Trace capture + cost recording + event logging together.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics_exporter",
+        "metric_reader",
+        "event_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_imports_from_package",
+      "line": 682,
+      "doc": "Public API is importable from the otel package.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "_InMemorySpanExporter",
+      "line": 21,
+      "doc": "Minimal in-memory span exporter for testing.",
+      "is_public": false,
+      "bases": [
+        "SpanExporter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestMetricsExporter",
+      "line": 96,
+      "doc": "Test SLI/SLO metrics export.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTraceExporter",
+      "line": 278,
+      "doc": "Test replay trace -> OTEL span conversion.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEventLogger",
+      "line": 476,
+      "doc": "Test structured event logging.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOtelIntegration",
+      "line": 601,
+      "doc": "End-to-end tests combining metrics + traces + events.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

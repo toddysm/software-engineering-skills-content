@@ -1,0 +1,318 @@
+{
+  "path": "packages/agent-os/modules/scak/agent_kernel/simulator.py",
+  "extension": ".py",
+  "size_bytes": 16639,
+  "line_count": 449,
+  "documentation": {
+    "file_docstring": "Path simulation system to test alternative solutions.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Construct modified prompt with hint",
+      "Simulate execution (in real system, this would run actual agent in sandbox)",
+      "Verify the fix",
+      "Simulate reasoning chain with hint consideration",
+      "Simulate a corrected action",
+      "In reality, this would be the actual agent's output",
+      "Agent would verify schema",
+      "Agent would check permissions first",
+      "Generic safe action",
+      "Success based on diagnosis confidence (deterministic)",
+      "Check if action has safety mechanisms that original lacked",
+      "Generate simulation ID",
+      "Build alternative path from suggested fixes",
+      "Predict outcome",
+      "Calculate risk score",
+      "Estimate success rate",
+      "Determine if simulation is successful",
+      "Create a dummy result",
+      "Use MCTS-inspired approach: try multiple hint variations",
+      "Early exit if we find a verified solution",
+      "Select best result (verified + successful, or highest success)",
+      "Variation 1: More concise",
+      "Variation 2: More explicit",
+      "Variation 3: Focus on specific action",
+      "Variation 4: Minimal version",
+      "Add validation step for control plane blocks",
+      "Add timeout handling for timeout failures",
+      "Generic alternative path for other failures",
+      "Lower risk if confidence is high",
+      "Lower risk if we have multiple steps (more thorough)",
+      "Higher risk for unknown failure types",
+      "Base success rate from confidence",
+      "Adjust based on risk",
+      "Bonus for having similar failures (we've seen this before)",
+      "Sort by estimated success rate (desc) and risk score (asc)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ShadowAgent: Shadow Agent for counterfactual simulation.\n\nReplays the user prompt with an inj",
+      "PathSimulator: Simulates alternative paths to avoid failures.",
+      "replay_with_hint: Replay the original prompt with an injected hint.\n\nThis simulates the agent exec",
+      "_simulate_execution: Simulate agent execution with the modified prompt.\n\nIn a real system, this would",
+      "_verify_fix: Verify that the fix actually works.\n\nThis is the key validation step - confirmin",
+      "simulate: Simulate an alternative path based on failure analysis.\n\nArgs:\n    analysis: The",
+      "simulate_counterfactual: Counterfactual simulation using Shadow Agent.\n\nThis is \"The Simulator\" - it repl",
+      "_mcts_search_minimal_hint: MCTS-inspired search for minimal hint that fixes the problem.\n\nThis searches for",
+      "_generate_hint_variations: Generate variations of the hint for MCTS exploration.\n\nThis finds different ways",
+      "_build_alternative_path: Build an alternative execution path from suggested fixes."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "replay_with_hint",
+    "get_best_simulation",
+    "simulate_counterfactual",
+    "ShadowAgent",
+    "simulate",
+    "PathSimulator"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "logging",
+      "uuid",
+      "typing",
+      "models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "replay_with_hint",
+      "line": 27,
+      "doc": "Replay the original prompt with an injected hint.\n\nThis simulates the agent executing with additional context/guidance.\n\nArgs:\n    original_prompt: Original user prompt that led to failure\n    hint: Hint to inject based on diagnosis\n    diagnosis: Cognitive glitch diagnosis\n    failure: Original failure for context\n    \nReturns:\n    ShadowAgentResult with execution outcome",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "original_prompt",
+        "hint",
+        "diagnosis",
+        "failure"
+      ],
+      "returns": "ShadowAgentResult"
+    },
+    {
+      "name": "_simulate_execution",
+      "line": 80,
+      "doc": "Simulate agent execution with the modified prompt.\n\nIn a real system, this would:\n1. Spin up a sandboxed agent instance\n2. Inject the hint into the system prompt or context\n3. Execute the agent with the original user prompt\n4. Capture the reasoning chain and action\n5. Check if the action would pass control plane checks",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "diagnosis",
+        "failure"
+      ],
+      "returns": "tuple"
+    },
+    {
+      "name": "_verify_fix",
+      "line": 135,
+      "doc": "Verify that the fix actually works.\n\nThis is the key validation step - confirming the hint flips the outcome\nfrom Fail to Pass.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "action",
+        "failure"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "simulate",
+      "line": 163,
+      "doc": "Simulate an alternative path based on failure analysis.\n\nArgs:\n    analysis: The failure analysis containing suggested fixes\n    \nReturns:\n    SimulationResult with the alternative path and predicted outcome",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis"
+      ],
+      "returns": "SimulationResult"
+    },
+    {
+      "name": "simulate_counterfactual",
+      "line": 211,
+      "doc": "Counterfactual simulation using Shadow Agent.\n\nThis is \"The Simulator\" - it replays the user prompt but injects a hint\nbased on the DiagnosisJSON. Uses MCTS-like approach to find minimal\nchange required to flip outcome from Fail to Pass.\n\nArgs:\n    diagnosis: Cognitive glitch diagnosis with hint\n    failure: Original failure with trace\n    \nReturns:\n    ShadowAgentResult showing if hint fixes the problem",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "diagnosis",
+        "failure"
+      ],
+      "returns": "ShadowAgentResult"
+    },
+    {
+      "name": "_mcts_search_minimal_hint",
+      "line": 256,
+      "doc": "MCTS-inspired search for minimal hint that fixes the problem.\n\nThis searches for the minimal change required to flip the outcome.\nIn full MCTS, we'd build a tree of hint variations and explore/exploit,\nbut here we do a simplified version with multiple trials.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt",
+        "diagnosis",
+        "failure"
+      ],
+      "returns": "ShadowAgentResult"
+    },
+    {
+      "name": "_generate_hint_variations",
+      "line": 295,
+      "doc": "Generate variations of the hint for MCTS exploration.\n\nThis finds different ways to provide the same guidance,\nsearching for the minimal effective intervention.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "base_hint"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_build_alternative_path",
+      "line": 324,
+      "doc": "Build an alternative execution path from suggested fixes.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_predict_outcome",
+      "line": 395,
+      "doc": "Predict the outcome of executing the alternative path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "alternative_path"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_calculate_risk",
+      "line": 406,
+      "doc": "Calculate risk score for the alternative path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "alternative_path"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_estimate_success_rate",
+      "line": 423,
+      "doc": "Estimate success rate of the alternative path.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "analysis",
+        "risk_score"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_best_simulation",
+      "line": 437,
+      "doc": "Get the best simulation from a list based on success rate and risk.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "simulations"
+      ],
+      "returns": "SimulationResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ShadowAgent",
+      "line": 16,
+      "doc": "Shadow Agent for counterfactual simulation.\n\nReplays the user prompt with an injected hint in a sandbox environment.\nThis is \"The Scientist\" that verifies if the hint actually fixes the problem.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PathSimulator",
+      "line": 155,
+      "doc": "Simulates alternative paths to avoid failures.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 53,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

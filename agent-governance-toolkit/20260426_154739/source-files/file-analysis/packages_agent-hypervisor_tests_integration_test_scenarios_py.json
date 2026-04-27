@@ -1,0 +1,800 @@
+{
+  "path": "packages/agent-hypervisor/tests/integration/test_scenarios.py",
+  "extension": ".py",
+  "size_bytes": 38806,
+  "line_count": 1059,
+  "documentation": {
+    "file_docstring": "Hypervisor Scenario Integration Tests\n\nMulti-module end-to-end scenarios that exercise the Hypervisor\nintegration adapters (Nexus, Verification, IATP) together.\n\nScenarios:\n1. Rogue agent detected by Verification \u2192 penalized by Hypervisor \u2192 reputation loss via Nexus\n2. New agent joins \u2192 IATP manifest parsed \u2192 ring assigned by Nexus score\n3. Behavioral drift triggers demotion cascade\n4. Trust decay over repeated low-drift violations\n5. Full cross-module governance: join \u2192 verify \u2192 drift \u2192 penalize \u2192 terminate",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Mock Nexus ReputationEngine",
+      "---------------------------------------------------------------------------",
+      "Return score based on history which carries agent_did",
+      "Reduce score",
+      "---------------------------------------------------------------------------",
+      "Mock Verification Backend",
+      "---------------------------------------------------------------------------",
+      "Use embedding_a as agent key for lookup",
+      "---------------------------------------------------------------------------",
+      "Helper: history carrier for Nexus",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Scenario 1: Rogue Agent Detection \u2192 Penalty \u2192 Nexus Reputation Loss",
+      "---------------------------------------------------------------------------",
+      "1) Resolve sigma from Nexus",
+      "2) Create session, join agent",
+      "3) Verification detects HIGH drift",
+      "4) Penalize via hypervisor",
+      "5) Report to Nexus",
+      "Nexus score should drop 500 (high penalty): 750 \u2192 250",
+      "6) Future resolution gives untrusted tier",
+      "---------------------------------------------------------------------------",
+      "Scenario 2: New Agent Joins with IATP Manifest \u2192 Nexus Score \u2192 Ring",
+      "---------------------------------------------------------------------------",
+      "Parse manifest",
+      "Enrich with Nexus",
+      "Join session with Nexus-enriched sigma",
+      "Ring 2 without consensus, but with enriched sigma",
+      "Should be forced to Strong mode (SSO tracks mode separately from config)",
+      "---------------------------------------------------------------------------",
+      "Scenario 3: Drift-Triggered Demotion Cascade",
+      "---------------------------------------------------------------------------",
+      "5 checks: 3 medium drifts, 2 clean",
+      "3 out of 5 should have failed (>= 0.30 medium threshold)",
+      "3 events triggered the callback",
+      "---------------------------------------------------------------------------",
+      "Scenario 4: Sponsor Cascade with Nexus Reporting",
+      "---------------------------------------------------------------------------",
+      "Create session",
+      "Join agents",
+      "A sponsors for B",
+      "Penalize B",
+      "B is blacklisted",
+      "A is clipped: 0.80 \u00d7 (1 - 0.80) = 0.16",
+      "Report both to Nexus",
+      "Verify penalty count in Nexus",
+      "---------------------------------------------------------------------------",
+      "Scenario 5: Full Cross-Module Governance Pipeline",
+      "---------------------------------------------------------------------------",
+      "=== Phase 1: IATP Manifest Parsing ===",
+      "=== Phase 2: Nexus Trust Enrichment ===",
+      "=== Phase 3: Session Join with Enriched Data ===",
+      "Non-reversible action should force Strong mode (SSO, not config)",
+      "=== Phase 4: Verification Behavioral Monitoring ===",
+      "First check \u2014 clean",
+      "Second check \u2014 HIGH drift (agent compromised?)",
+      "=== Phase 5: Penalty ===",
+      "=== Phase 6: Report to Nexus ===",
+      "820 - 500 = 320 (probationary)",
+      "=== Phase 7: Terminate Session ===",
+      "Capture audit delta so audit log root is produced",
+      "Verify complete governance trail",
+      "All verification checks pass",
+      "Report success to Nexus",
+      "Capture at least one delta so audit produces a audit log root",
+      "---------------------------------------------------------------------------",
+      "Scenario 6: Adapter Isolation and Fallback",
+      "---------------------------------------------------------------------------",
+      "First resolve populates cache",
+      "Invalidate",
+      "Invalidate all",
+      "---------------------------------------------------------------------------",
+      "Scenario 7: Verification Threshold Configuration",
+      "---------------------------------------------------------------------------",
+      "Default thresholds: 0.12 < 0.15 \u2192 NONE",
+      "Strict thresholds: LOW at 0.10",
+      "Default: 0.45 < 0.50 \u2192 MEDIUM",
+      "Relaxed: MEDIUM at 0.50, so 0.45 is still LOW",
+      "---------------------------------------------------------------------------",
+      "Scenario 8: Wired Adapters \u2014 Hypervisor core with injected adapters",
+      "---------------------------------------------------------------------------",
+      "sigma_raw=0 \u2192 IATP sigma_hint=0.8, but Nexus also resolves",
+      "Nexus gives 850/1000=0.85, IATP gives 0.8, min(0.8, 0.85)=0.8",
+      "Action should be registered",
+      "Nexus: 850/1000 = 0.85 \u2192 Ring 2",
+      "sigma_raw=0.95, Nexus=0.85 \u2192 min=0.85",
+      "HIGH drift",
+      "Auto-penalty should have fired",
+      "Nexus should have been notified"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MockTrustScore: Mimics nexus.reputation.TrustScore.",
+      "MockReputationEngine: Fake Nexus ReputationEngine for testing.",
+      "MockVerificationScore: Mimics behavioral verification score.",
+      "MockVerificationBackend: Fake Verification verifier for testing.",
+      "TestRogueAgentScenario: Flow: Agent joins \u2192 Verification detects drift \u2192 Hypervisor slashes \u2192 Nexus noti",
+      "TestIATPManifestOnboarding: Flow: IATP manifest \u2192 IATPAdapter parses \u2192 Nexus enriches \u2192 ring assigned",
+      "TestDriftDemotionCascade: Flow: Repeated MEDIUM drift \u2192 accumulate history \u2192 escalate \u2192 penalize",
+      "TestVoucherCascadeWithNexus: Flow: Agent A sponsors for B \u2192 B drifts \u2192 both penalized \u2192 both reported to Nexu",
+      "TestFullGovernancePipeline: The complete governance flow across all modules:\nIATP manifest \u2192 Nexus trust \u2192 R",
+      "TestAdapterFallbacks: Verify adapters work gracefully when underlying services are unavailable."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_critical_drift_immediate_slash",
+    "test_repeated_medium_drift_escalates",
+    "TestFullGovernancePipeline",
+    "verify_embeddings",
+    "test_nexus_adapter_without_scorer",
+    "test_custom_strict_thresholds",
+    "record_task_outcome",
+    "test_nexus_cache_invalidation",
+    "calculate_trust_score",
+    "AgentHistory",
+    "slash_reputation",
+    "MockVerificationScore",
+    "test_iatp_adapter_dict_manifest",
+    "TestVerificationThresholdConfiguration",
+    "TestDriftDemotionCascade",
+    "TestAdapterFallbacks",
+    "TestIATPManifestOnboarding",
+    "test_verification_adapter_without_verifier",
+    "TestVoucherCascadeWithNexus",
+    "MockTrustScore",
+    "test_custom_relaxed_thresholds",
+    "MockReputationEngine",
+    "TestRogueAgentScenario",
+    "TestWiredHypervisor",
+    "test_iatp_adapter_unknown_trust_level",
+    "set_score",
+    "setup",
+    "set_drift",
+    "MockVerificationBackend"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "typing",
+      "pytest",
+      "hypervisor",
+      "hypervisor.integrations.iatp_adapter",
+      "hypervisor.integrations.nexus_adapter",
+      "hypervisor.integrations.verification_adapter",
+      "hypervisor.audit.delta",
+      "hypervisor.audit.delta",
+      "hypervisor.integrations.iatp_adapter",
+      "hypervisor.integrations.nexus_adapter",
+      "hypervisor.integrations.verification_adapter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 59,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scores"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_score",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate_trust_score",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verification_level",
+        "history",
+        "capabilities",
+        "privacy"
+      ],
+      "returns": "MockTrustScore"
+    },
+    {
+      "name": "record_task_outcome",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "outcome"
+      ],
+      "returns": null
+    },
+    {
+      "name": "slash_reputation",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "reason",
+        "severity",
+        "evidence_hash",
+        "trace_id",
+        "broadcast"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "drift_scores"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_drift",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "drift"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_embeddings",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "embedding_a",
+        "embedding_b",
+        "metric",
+        "weights",
+        "threshold_profile",
+        "explain"
+      ],
+      "returns": "MockVerificationScore"
+    },
+    {
+      "name": "setup",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rogue_detected_slashed_reputation_reduced",
+      "line": 177,
+      "doc": "Full rogue agent lifecycle: join \u2192 drift \u2192 penalize \u2192 nexus penalty.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_agent_passes_verification_check",
+      "line": 240,
+      "doc": "An honest agent produces no drift \u2014 no penalty needed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 271,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_partner_gets_ring_1",
+      "line": 280,
+      "doc": "Agent with IATP verified_partner trust \u2192 Ring 1 (with consensus).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_agent_gets_sandbox",
+      "line": 326,
+      "doc": "Agent with low Nexus score \u2192 Ring 3 sandbox.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_reversible_actions_force_strong_mode",
+      "line": 366,
+      "doc": "Manifest with non-reversible actions forces Strong consistency.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 412,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_repeated_medium_drift_escalates",
+      "line": 421,
+      "doc": "Multiple MEDIUM drifts accumulate; drift rate tracks correctly.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_critical_drift_immediate_slash",
+      "line": 451,
+      "doc": "CRITICAL drift immediately signals for penalty.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 476,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_voucher_cascade_with_nexus_penalty",
+      "line": 485,
+      "doc": "Sponsor \u2192 penalize \u2192 sponsor clipped \u2192 both reported to Nexus.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 559,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_pipeline_join_to_slash_to_terminate",
+      "line": 570,
+      "doc": "Complete cross-module pipeline: manifest \u2192 join \u2192 drift \u2192 penalize \u2192 terminate.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clean_agent_full_pipeline",
+      "line": 695,
+      "doc": "Pipeline for a well-behaved agent: no penalty, clean termination.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_adapter_without_scorer",
+      "line": 749,
+      "doc": "NexusAdapter returns default sigma when no scorer is configured.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verification_adapter_without_verifier",
+      "line": 755,
+      "doc": "VerificationAdapter returns no-drift when no verifier is configured.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_verify_agent_without_verifier",
+      "line": 769,
+      "doc": "verify_agent is permissive when no verifier configured.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_iatp_adapter_dict_manifest",
+      "line": 775,
+      "doc": "IATPAdapter handles dict manifests for testing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_iatp_adapter_unknown_trust_level",
+      "line": 789,
+      "doc": "IATPAdapter handles unknown trust levels gracefully.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_cache_invalidation",
+      "line": 803,
+      "doc": "NexusAdapter cache can be invalidated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_strict_thresholds",
+      "line": 831,
+      "doc": "Strict thresholds: lower bars for flagging drift.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_relaxed_thresholds",
+      "line": 854,
+      "doc": "Relaxed thresholds: higher tolerance for drift.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup",
+      "line": 890,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_join_with_manifest_auto_parses",
+      "line": 908,
+      "doc": "Providing a manifest dict auto-parses actions and sigma.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_auto_resolves_sigma_when_zero",
+      "line": 943,
+      "doc": "When sigma_raw=0 and no manifest, Nexus resolves sigma.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nexus_conservative_merge",
+      "line": 959,
+      "doc": "When both sigma_raw and Nexus are available, uses lower (conservative).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_behavior_auto_slashes",
+      "line": 977,
+      "doc": "verify_behavior() auto-slashes on HIGH drift.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_behavior_no_slash_on_clean",
+      "line": 1004,
+      "doc": "verify_behavior() does NOT penalize on clean output.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_behavior_returns_none_without_verifier",
+      "line": 1027,
+      "doc": "Without Verification adapter, verify_behavior returns None.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_backward_compat_no_adapters",
+      "line": 1046,
+      "doc": "Hypervisor without adapters works exactly as before.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MockTrustScore",
+      "line": 48,
+      "doc": "Mimics nexus.reputation.TrustScore.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MockReputationEngine",
+      "line": 56,
+      "doc": "Fake Nexus ReputationEngine for testing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MockVerificationScore",
+      "line": 109,
+      "doc": "Mimics behavioral verification score.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "MockVerificationBackend",
+      "line": 116,
+      "doc": "Fake Verification verifier for testing.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentHistory",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TestRogueAgentScenario",
+      "line": 159,
+      "doc": "Flow: Agent joins \u2192 Verification detects drift \u2192 Hypervisor slashes \u2192 Nexus notified",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIATPManifestOnboarding",
+      "line": 265,
+      "doc": "Flow: IATP manifest \u2192 IATPAdapter parses \u2192 Nexus enriches \u2192 ring assigned",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDriftDemotionCascade",
+      "line": 406,
+      "doc": "Flow: Repeated MEDIUM drift \u2192 accumulate history \u2192 escalate \u2192 penalize",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVoucherCascadeWithNexus",
+      "line": 470,
+      "doc": "Flow: Agent A sponsors for B \u2192 B drifts \u2192 both penalized \u2192 both reported to Nexus",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFullGovernancePipeline",
+      "line": 551,
+      "doc": "The complete governance flow across all modules:\nIATP manifest \u2192 Nexus trust \u2192 Ring assignment \u2192 Verification monitoring \u2192\nDrift detected \u2192 Penalty \u2192 Nexus reputation loss \u2192 Session cleanup",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAdapterFallbacks",
+      "line": 746,
+      "doc": "Verify adapters work gracefully when underlying services are unavailable.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVerificationThresholdConfiguration",
+      "line": 827,
+      "doc": "Verify custom thresholds change drift severity classification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestWiredHypervisor",
+      "line": 882,
+      "doc": "Tests for Hypervisor with adapters wired directly into __init__,\nexercising auto-resolution of sigma, IATP manifest parsing, and\nautomatic Verification penalty via verify_behavior().",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 18,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

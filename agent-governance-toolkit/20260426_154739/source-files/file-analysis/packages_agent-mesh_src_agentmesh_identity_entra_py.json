@@ -1,0 +1,457 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/entra.py",
+  "extension": ".py",
+  "size_bytes": 14313,
+  "line_count": 395,
+  "documentation": {
+    "file_docstring": "Microsoft Entra Agent ID adapter for AgentMesh.\n\nBridges AgentMesh DID-based identity with Microsoft Entra Agent ID,\nenabling enterprise Zero Trust governance for AI agents via Entra's\nidentity lifecycle, Conditional Access, and sponsor accountability.\n\nRequires: azure-identity (optional dependency)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "AgentMesh identity",
+      "Entra identity",
+      "Sponsor (human accountability)",
+      "Lifecycle",
+      "Capabilities & access",
+      "Blueprint reference",
+      "-- Graph API integration (Issue #1173) -----------------------------------",
+      "-- Bridge validation (Issue #1174) ---------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "EntraAgentStatus: Entra Agent ID lifecycle states.",
+      "EntraAgentBlueprint: Template for creating Entra agent identities.",
+      "EntraAgentIdentity: Microsoft Entra Agent ID binding for an AgentMesh agent.\n\nMaps an AgentMesh DID ",
+      "EntraAgentRegistry: Registry mapping AgentMesh DIDs to Microsoft Entra Agent IDs.\n\nProvides enterpri",
+      "create: Create an Entra Agent ID binding for an AgentMesh agent.",
+      "record_activity: Update last activity timestamp.",
+      "suspend: Suspend agent identity (reversible).",
+      "reactivate: Reactivate a suspended agent.",
+      "disable: Disable agent identity (requires admin to re-enable).",
+      "is_active: Check if the agent identity is active."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "EntraAgentRegistry",
+    "to_audit_record",
+    "list_agents",
+    "EntraAgentBlueprint",
+    "get_sponsor_agents",
+    "reactivate",
+    "get_by_entra_id",
+    "sync_group_memberships",
+    "EntraAgentIdentity",
+    "create",
+    "suspend_agent",
+    "is_active",
+    "reactivate_agent",
+    "register_blueprint",
+    "verify_access",
+    "disable_agent",
+    "register",
+    "record_activity",
+    "get_audit_log",
+    "validate_bridge_configuration",
+    "has_scope",
+    "disable",
+    "EntraAgentStatus",
+    "get_by_did",
+    "suspend"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "datetime",
+      "enum",
+      "typing",
+      "pydantic",
+      "agentmesh.identity.entra_graph",
+      "agentmesh.identity.entra_graph"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create",
+      "line": 93,
+      "doc": "Create an Entra Agent ID binding for an AgentMesh agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "agent_did",
+        "agent_name",
+        "entra_object_id",
+        "tenant_id",
+        "sponsor_email",
+        "capabilities",
+        "scopes",
+        "blueprint"
+      ],
+      "returns": "EntraAgentIdentity"
+    },
+    {
+      "name": "record_activity",
+      "line": 120,
+      "doc": "Update last activity timestamp.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "suspend",
+      "line": 124,
+      "doc": "Suspend agent identity (reversible).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reactivate",
+      "line": 128,
+      "doc": "Reactivate a suspended agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disable",
+      "line": 133,
+      "doc": "Disable agent identity (requires admin to re-enable).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_active",
+      "line": 137,
+      "doc": "Check if the agent identity is active.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_scope",
+      "line": 141,
+      "doc": "Check if agent has a specific Entra API scope.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_audit_record",
+      "line": 145,
+      "doc": "Export identity state for audit logging.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tenant_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_blueprint",
+      "line": 177,
+      "doc": "Register an agent blueprint for consistent identity creation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "blueprint"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 181,
+      "doc": "Register an agent with both AgentMesh DID and Entra Agent ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "agent_name",
+        "entra_object_id",
+        "sponsor_email",
+        "capabilities",
+        "scopes",
+        "blueprint_name"
+      ],
+      "returns": "EntraAgentIdentity"
+    },
+    {
+      "name": "get_by_did",
+      "line": 215,
+      "doc": "Look up agent by AgentMesh DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_by_entra_id",
+      "line": 219,
+      "doc": "Look up agent by Entra object ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entra_object_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "suspend_agent",
+      "line": 224,
+      "doc": "Suspend an agent (e.g., on anomaly detection).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "reactivate_agent",
+      "line": 233,
+      "doc": "Reactivate a suspended agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "disable_agent",
+      "line": 242,
+      "doc": "Disable an agent (admin action).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "verify_access",
+      "line": 251,
+      "doc": "Verify an agent has the required Entra scope and is active.\n\nReturns (allowed, reason) tuple.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "required_scope"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_agents",
+      "line": 270,
+      "doc": "List all registered agents, optionally filtered by status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "status"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_sponsor_agents",
+      "line": 279,
+      "doc": "Get all agents owned by a specific sponsor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sponsor_email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 285,
+      "doc": "Return the full audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sync_group_memberships",
+      "line": 291,
+      "doc": "Sync Entra group memberships to AGT capabilities for an agent.\n\nFetches the agent's group memberships from Microsoft Graph API,\nmaps them to AGT capabilities using ``group_scope_map``, and\nupdates the agent's capabilities (preserving manually assigned ones).\n\nArgs:\n    agent_did: The agent's AgentMesh DID.\n    graph_client: An authenticated ``EntraGraphClient`` instance.\n    group_scope_map: Mapping of Entra group object IDs to lists\n        of AGT capability strings.\n\nReturns:\n    The updated list of capabilities.\n\nRaises:\n    KeyError: If the agent is not registered.\n    GraphAPIError: If the Graph API call fails.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "graph_client",
+        "group_scope_map"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_bridge_configuration",
+      "line": 340,
+      "doc": "Validate that an agent's Entra bridge configuration is complete.\n\nChecks that all required fields for enterprise identity bridging\nare populated. This validates the **configuration** (not live\nconnectivity to Entra or Agent365).\n\nReturns:\n    Tuple of (valid, issues) where issues is a list of problems found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_log_event",
+      "line": 378,
+      "doc": "Log an identity lifecycle event.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "identity",
+        "extra"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "EntraAgentStatus",
+      "line": 28,
+      "doc": "Entra Agent ID lifecycle states.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EntraAgentBlueprint",
+      "line": 37,
+      "doc": "Template for creating Entra agent identities.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EntraAgentIdentity",
+      "line": 50,
+      "doc": "Microsoft Entra Agent ID binding for an AgentMesh agent.\n\nMaps an AgentMesh DID identity to an Entra Agent ID, enabling:\n- Enterprise identity lifecycle management\n- Sponsor accountability (human owner per agent)\n- Conditional Access policies for agents\n- Unified audit trail across Entra + AgentMesh",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "EntraAgentRegistry",
+      "line": 161,
+      "doc": "Registry mapping AgentMesh DIDs to Microsoft Entra Agent IDs.\n\nProvides enterprise identity management for AI agents, bridging\nAgentMesh's cryptographic DID identity with Entra's lifecycle\ngovernance, Conditional Access, and sponsor accountability.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

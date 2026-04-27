@@ -1,0 +1,653 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/kernel_space.py",
+  "extension": ".py",
+  "size_bytes": 35600,
+  "line_count": 1009,
+  "documentation": {
+    "file_docstring": "Kernel Space - Protected core that survives agent crashes.\n\nThis module implements the kernel/user space separation for Agent OS.\nThe kernel space contains critical infrastructure that MUST survive\neven when user-space agents crash or hallucinate.\n\nKernel Space Components:\n    - Policy Engine (enforcement)\n    - Flight Recorder (audit)\n    - Signal Dispatcher (control)\n    - VFS Mount Manager (memory)\n    - IPC Router (communication)\n\nUser Space Components:\n    - LLM Generation\n    - Tool Execution\n    - Agent Logic\n    - Custom Handlers\n\nDesign Philosophy:\n    - Kernel survives agent crashes (isolation)\n    - Policy violations trigger kernel panic (0% tolerance)\n    - All agent actions pass through kernel syscalls\n    - Kernel state is checkpointed independently\n\nComparison with AIOS:\n    AIOS focuses on EFFICIENCY (GPU throughput, scheduling)\n    We focus on SAFETY (isolation, policy enforcement, audit)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import kernel components",
+      "Process control",
+      "File operations (VFS)",
+      "Memory operations",
+      "IPC operations",
+      "Signal operations",
+      "Policy operations (read-only from user space)",
+      "Register an agent in user space",
+      "Agent makes syscalls through the kernel",
+      "Kernel components (Ring 0)",
+      "Agent registry",
+      "Tool registry - maps tool names to callable executors",
+      "Syscall handlers",
+      "Boot complete",
+      "File operations",
+      "Signal operations",
+      "Policy operations",
+      "Process operations",
+      "Create kernel resources for this agent",
+      "Create agent context",
+      "Log to flight recorder using start_trace API",
+      "Check if agent is in valid state",
+      "Policy check (if policy engine available)",
+      "Build actionable error message",
+      "This is a policy violation - trigger signal",
+      "Re-raise kernel panics",
+      "Execute the syscall",
+      "If no policy engine, allow (permissive mode)",
+      "For SYS_EXEC, check the actual tool name (not \"code_execute\")",
+      "This avoids double-checking at both syscall and tool level",
+      "Map syscall to tool_name for policy check",
+      "Build args from syscall request",
+      "Check violation using policy engine (positional args: agent_role, tool_name, args)",
+      "Record to flight recorder",
+      "========== Syscall Implementations ==========",
+      "If no policy engine, allow all",
+      "Check violation using policy engine (positional args)",
+      "Clean up agent",
+      "Start trace in flight recorder",
+      "NOTE: Policy check already happened at syscall level in syscall()",
+      "We skip the double-check here for efficiency",
+      "Look up tool in registry",
+      "Execute the tool",
+      "Check if executor is async",
+      "========== Kernel Control ==========",
+      "Record to flight recorder using error API",
+      "Send SIGTERM to all agents",
+      "Clean up all agents",
+      "Runtime state",
+      "========== Convenience Methods ==========",
+      "Agent code runs here - isolated from kernel",
+      "If this raises, kernel catches it",
+      "Kernel panics propagate up",
+      "User space crashes are contained",
+      "Record crash",
+      "Signal the agent (if still exists)",
+      "Clean up",
+      "========== Factory Functions =========="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ProtectionRing: Protection rings (inspired by x86 architecture).\n\nRing 0: Kernel - Most privileg",
+      "SyscallType: System calls that user space can make into kernel.\n\nAll agent actions must go th",
+      "SyscallRequest: A system call request from user space.",
+      "SyscallResult: Result of a system call.",
+      "KernelState: Kernel operating state.",
+      "KernelMetrics: Kernel performance metrics.",
+      "KernelSpace: The Kernel Space \u2014 protected core of Agent OS.\n\nKernelSpace implements Ring 0, t",
+      "AgentContext: Context for an agent running in user space.\n\nThis is the agent's view of the ker",
+      "user_space_execution: Context manager for user-space agent execution.\n\nThis provides isolation - if th",
+      "create_kernel: Create a new kernel instance."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "register_tool",
+    "to_dict",
+    "ProtectionRing",
+    "SyscallRequest",
+    "shutdown",
+    "list_tools",
+    "unregister_tool",
+    "destroy_agent_context",
+    "KernelState",
+    "KernelMetrics",
+    "panic",
+    "state",
+    "AgentContext",
+    "SyscallResult",
+    "create_agent_context",
+    "SyscallType",
+    "KernelSpace",
+    "create_kernel",
+    "metrics"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "asyncio",
+      "logging",
+      "traceback",
+      "contextlib",
+      "signals",
+      "vfs",
+      "vfs"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "user_space_execution",
+      "line": 952,
+      "doc": "Context manager for user-space agent execution.\n\nThis provides isolation - if the agent crashes, the kernel survives.\n\nExample:\n    kernel = KernelSpace()\n    \n    async with user_space_execution(kernel, \"agent-001\") as ctx:\n        # Agent code runs here - isolated from kernel\n        await ctx.write(\"/mem/working/task.txt\", \"Hello World\")\n        \n        # If this raises, kernel catches it\n        result = await some_llm_call()",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asynccontextmanager"
+      ],
+      "args": [
+        "kernel",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_kernel",
+      "line": 1001,
+      "doc": "Create a new kernel instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "policy_engine",
+        "flight_recorder"
+      ],
+      "returns": "KernelSpace"
+    },
+    {
+      "name": "to_dict",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_engine",
+        "flight_recorder"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_init_syscall_handlers",
+      "line": 240,
+      "doc": "Initialize syscall handlers.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "state",
+      "line": 259,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "KernelState"
+    },
+    {
+      "name": "metrics",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "KernelMetrics"
+    },
+    {
+      "name": "create_agent_context",
+      "line": 270,
+      "doc": "Create a context for an agent in user space.\n\nAllocates all kernel resources the agent needs \u2014 a signal\ndispatcher, VFS instance, and policy context \u2014 and registers the\nagent in the kernel's internal registry.\n\nArgs:\n    agent_id: Unique string identifier for the agent. Must not\n        already be registered with this kernel.\n\nReturns:\n    An ``AgentContext`` bound to this kernel at\n    ``ProtectionRing.RING_3_USER``.\n\nRaises:\n    ValueError: If an agent with the given ``agent_id`` is already\n        registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "destroy_agent_context",
+      "line": 311,
+      "doc": "Remove an agent and release all its kernel resources.\n\nCleans up the agent's context, signal dispatcher, and VFS instance.\nNo-op if the agent is not registered.\n\nArgs:\n    agent_id: Identifier of the agent to remove.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "syscall",
+      "line": 329,
+      "doc": "Handle a system call from user space.\n\nAll agent actions MUST go through this interface. The kernel\nenforces policy, logs the attempt to the flight recorder, checks\nagent liveness, and dispatches to the appropriate syscall handler.\n\nArgs:\n    request: The syscall request describing the operation and its\n        arguments.\n    ctx: The calling agent's context, used for identity and\n        permission checks.\n\nReturns:\n    A ``SyscallResult`` indicating success or failure.  On success,\n    ``return_value`` contains the handler's output.  On failure,\n    ``error_code`` and ``error_message`` describe what went wrong:\n\n    - ``-1``: Agent has been terminated.\n    - ``-2``: Policy violation (action blocked).\n    - ``-3``: Unknown / unregistered syscall type.\n    - ``-4``: Handler raised an unexpected exception.\n\nRaises:\n    AgentKernelPanic: If a policy violation triggers a kernel\n        panic (0% tolerance mode).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_check_policy",
+      "line": 436,
+      "doc": "Check if syscall is allowed by policy.\n\nReturns:\n    Tuple of (allowed, error_message). If allowed is True, error_message is None.\n    If allowed is False, error_message contains actionable details.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_syscall_to_tool_name",
+      "line": 492,
+      "doc": "Map syscall type to a tool name for policy engine.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "syscall"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_sys_read",
+      "line": 512,
+      "doc": "SYS_READ: Read from VFS.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_write",
+      "line": 532,
+      "doc": "SYS_WRITE: Write to VFS.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_open",
+      "line": 554,
+      "doc": "SYS_OPEN: Open a file descriptor.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_close",
+      "line": 575,
+      "doc": "SYS_CLOSE: Close a file descriptor.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_signal",
+      "line": 593,
+      "doc": "SYS_SIGNAL: Send a signal to an agent.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_checkpolicy",
+      "line": 614,
+      "doc": "SYS_CHECKPOLICY: Check if an action is allowed before attempting it.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_exit",
+      "line": 663,
+      "doc": "SYS_EXIT: Agent requests termination.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "_sys_exec",
+      "line": 678,
+      "doc": "SYS_EXEC: Execute a tool through the kernel.\n\nThis is the critical choke point - ALL tool execution goes through here.\nThe kernel:\n1. Checks policy\n2. Records to flight recorder\n3. Executes the tool\n4. Returns result or error",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "ctx"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "register_tool",
+      "line": 768,
+      "doc": "Register a tool in the kernel's tool registry.\n\nRegistered tools can be invoked by agents via the ``SYS_EXEC``\nsyscall. The kernel wraps every invocation with policy checks and\nflight-recorder logging.\n\nArgs:\n    tool_name: Unique name for the tool (e.g. ``\"read_file\"``,\n        ``\"web_search\"``). If a tool with this name is already\n        registered, it is silently overwritten.\n    executor: A callable (sync or async) that implements the tool.\n        Arguments are passed as keyword arguments from the syscall's\n        ``args[\"args\"]`` dictionary.\n    description: Optional human-readable description, recorded in\n        the audit log for compliance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "executor",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_tool",
+      "line": 793,
+      "doc": "Unregister a tool from the kernel.\n\nArgs:\n    tool_name: Name of the tool to remove.\n\nReturns:\n    ``True`` if the tool was found and removed, ``False`` if no\n    tool with that name was registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_tools",
+      "line": 809,
+      "doc": "List all registered tool names.\n\nReturns:\n    A list of tool name strings currently in the registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "panic",
+      "line": 819,
+      "doc": "Trigger a kernel panic.\n\nThis is a catastrophic, unrecoverable failure that halts all agent\nprocessing. The panic is recorded in the flight recorder, kernel\nstate transitions to ``KernelState.PANIC``, and an\n``AgentKernelPanic`` exception is raised.\n\nArgs:\n    reason: Human-readable description of why the panic occurred.\n\nRaises:\n    AgentKernelPanic: Always raised to unwind the call stack.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "shutdown",
+      "line": 853,
+      "doc": "Perform a graceful kernel shutdown.\n\nSends ``SIGTERM`` to every registered agent, then destroys all\nagent contexts and transitions the kernel to\n``KernelState.SHUTDOWN``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "syscall",
+      "line": 897,
+      "doc": "Make a system call to the kernel.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "syscall_type"
+      ],
+      "returns": "SyscallResult"
+    },
+    {
+      "name": "read",
+      "line": 908,
+      "doc": "Read from VFS.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "write",
+      "line": 915,
+      "doc": "Write to VFS.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "data"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "exit",
+      "line": 922,
+      "doc": "Request termination.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "code"
+      ],
+      "returns": null
+    },
+    {
+      "name": "signal",
+      "line": 926,
+      "doc": "Send a signal to another agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "target",
+        "signal",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_policy",
+      "line": 941,
+      "doc": "Check if an action is allowed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "target"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ProtectionRing",
+      "line": 55,
+      "doc": "Protection rings (inspired by x86 architecture).\n\nRing 0: Kernel - Most privileged (policy, audit, signals)\nRing 1: Drivers - Backend drivers (VFS backends, tool executors)\nRing 2: Services - System services (monitoring, health checks)\nRing 3: User - Agent code (least privileged)",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SyscallType",
+      "line": 70,
+      "doc": "System calls that user space can make into kernel.\n\nAll agent actions must go through syscalls.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SyscallRequest",
+      "line": 110,
+      "doc": "A system call request from user space.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SyscallResult",
+      "line": 120,
+      "doc": "Result of a system call.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KernelState",
+      "line": 129,
+      "doc": "Kernel operating state.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "KernelMetrics",
+      "line": 139,
+      "doc": "Kernel performance metrics.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KernelSpace",
+      "line": 161,
+      "doc": "The Kernel Space \u2014 protected core of Agent OS.\n\nKernelSpace implements Ring 0, the most privileged execution layer in the\nAgent OS architecture. Inspired by operating system kernel design, it\nprovides strict isolation between the trusted kernel and untrusted agent\n(user-space) code.\n\nResponsibilities:\n    - **Policy enforcement**: All agent actions pass through kernel\n      syscalls where policies are checked before execution.\n    - **Flight recording**: Every syscall is logged to the\n      ``FlightRecorder`` for forensic audit and compliance.\n    - **Signal management**: Agents communicate through POSIX-style\n      signals (``SIGTERM``, ``SIGKILL``, ``SIGPAUSE``, etc.).\n    - **VFS management**: Each agent gets an isolated virtual filesystem.\n    - **Tool execution**: Tools are registered in the kernel and executed\n      through the ``SYS_EXEC`` syscall with full policy governance.\n\nThe kernel SURVIVES agent crashes. If an agent hallucinates, throws an\nexception, or violates policy, the kernel remains stable and can recover\nor terminate the agent.\n\nArgs:\n    policy_engine: Optional policy engine for syscall authorization.\n        When ``None``, the kernel runs in permissive mode (all syscalls\n        allowed).\n    flight_recorder: Optional ``FlightRecorder`` instance for audit\n        logging. When ``None``, audit logging is disabled.\n\nExample:\n    Basic kernel lifecycle::\n\n        kernel = KernelSpace()\n\n        # Register an agent in user space\n        agent_ctx = kernel.create_agent_context(\"agent-001\")\n\n        # Agent makes syscalls through the kernel\n        result = await kernel.syscall(SyscallRequest(\n            syscall=SyscallType.SYS_WRITE,\n            args={\"path\": \"/mem/working/notes.txt\", \"data\": \"Hello\"},\n        ), agent_ctx)\n\n    Using the context manager for automatic isolation::\n\n        async with user_space_execution(kernel, \"agent-001\") as ctx:\n            await ctx.write(\"/mem/working/task.txt\", \"Hello World\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentContext",
+      "line": 882,
+      "doc": "Context for an agent running in user space.\n\nThis is the agent's view of the kernel - it can only\ninteract with the kernel through syscalls.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 103,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

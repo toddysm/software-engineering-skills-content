@@ -1,0 +1,436 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/a2a_adapter.py",
+  "extension": ".py",
+  "size_bytes": 19992,
+  "line_count": 543,
+  "documentation": {
+    "file_docstring": "A2A (Agent-to-Agent) Protocol Adapter - Agent Control Plane Integration\n\nThis adapter provides governance for A2A protocol communications between agents.\nA2A is an open standard (originally from Google, now Linux Foundation) that enables\nsecure interoperability between AI agents from different frameworks and vendors.\n\nThe A2A adapter intercepts agent-to-agent messages and applies Agent Control Plane\ngovernance rules to ensure safe and auditable inter-agent communication.\n\nUsage:\n    from agent_control_plane import AgentControlPlane\n    from agent_control_plane.a2a_adapter import A2AAdapter, A2AAgent\n    \n    # Setup control plane\n    control_plane = AgentControlPlane()\n    agent_context = control_plane.create_agent(\"my-agent\", permissions)\n    \n    # Create governed A2A agent\n    a2a_agent = A2AAgent(\n        agent_id=\"my-agent\",\n        agent_card={\n            \"name\": \"My Agent\",\n            \"capabilities\": [\"data_processing\"],\n            \"description\": \"An agent that processes data\"\n        },\n        control_plane=control_plane,\n        agent_context=agent_context\n    )\n    \n    # Register capabilities\n    a2a_agent.register_capability(\"data_processing\", handle_data_processing)\n    \n    # All A2A communications are now governed!\n    a2a_agent.start()",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Setup control plane",
+      "Create governed A2A agent",
+      "Register capabilities",
+      "All A2A communications are now governed!",
+      "Mapping from A2A operations to ActionTypes",
+      "Task operations",
+      "Data operations",
+      "Code/compute operations",
+      "API/external operations",
+      "Merge default mapping with custom mapping",
+      "Track registered capabilities and their handlers",
+      "Track known peer agents (for discovery)",
+      "Route to appropriate handler based on message type",
+      "Success response",
+      "Governance blocked the action",
+      "Other errors",
+      "Map task type to capability",
+      "Check if we have this capability",
+      "Map to ActionType",
+      "THE KERNEL CHECK - This is where governance happens",
+      "Action is BLOCKED",
+      "Execute the capability handler",
+      "Check if we have permission to delegate tasks",
+      "Map query to action type",
+      "Discovery is generally safe - return our Agent Card",
+      "Store peer agent info",
+      "Negotiation typically involves discussing task parameters",
+      "Return accepted parameters",
+      "Check exact match",
+      "Pattern matching",
+      "Default to workflow trigger for unknown capabilities",
+      "Update Agent Card",
+      "Create default Agent Card if not provided",
+      "Create the adapter"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "A2AMessageType: A2A protocol message types",
+      "A2AAdapter: A2A Protocol Adapter with Agent Control Plane Governance.\n\nThis adapter intercep",
+      "A2AAgent: Simplified A2A Agent with built-in governance.\n\nThis class provides a simple way",
+      "create_governed_a2a_agent: Convenience function to create a governed A2A agent.\n\nArgs:\n    control_plane: A",
+      "__init__: Initialize the A2A adapter.\n\nArgs:\n    control_plane: The AgentControlPlane inst",
+      "handle_message: Handle an A2A protocol message with governance.\n\nThis is the main entry point fo",
+      "_handle_task_request: Handle a task request from another agent.",
+      "_handle_task_delegation: Handle task delegation (this agent delegating to another).",
+      "_handle_query: Handle a data query from another agent.",
+      "_handle_discovery: Handle agent discovery request."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "send_task_request",
+    "get_agent_card",
+    "start",
+    "create_governed_a2a_agent",
+    "add_capability_mapping",
+    "A2AAdapter",
+    "A2AAgent",
+    "A2AMessageType",
+    "handle_message",
+    "register_capability",
+    "discover_agents"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "json",
+      "logging",
+      "datetime",
+      "enum",
+      "uuid",
+      "agent_kernel",
+      "control_plane"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_governed_a2a_agent",
+      "line": 518,
+      "doc": "Convenience function to create a governed A2A agent.\n\nArgs:\n    control_plane: Agent Control Plane instance\n    agent_id: Agent ID\n    agent_card: Optional Agent Card\n    permissions: Optional agent permissions\n    \nReturns:\n    A governed A2AAgent instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id",
+        "agent_card",
+        "permissions"
+      ],
+      "returns": "A2AAgent"
+    },
+    {
+      "name": "__init__",
+      "line": 99,
+      "doc": "Initialize the A2A adapter.\n\nArgs:\n    control_plane: The AgentControlPlane instance for governance\n    agent_context: The AgentContext for this agent\n    agent_card: The Agent Card describing this agent's capabilities\n    capability_mapping: Optional mapping from capabilities to ActionTypes\n    on_block: Optional callback when an action is blocked\n    logger: Optional logger instance",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "control_plane",
+        "agent_context",
+        "agent_card",
+        "capability_mapping",
+        "on_block",
+        "logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_message",
+      "line": 140,
+      "doc": "Handle an A2A protocol message with governance.\n\nThis is the main entry point for A2A messages from other agents.\nIt validates the message, applies governance, and returns a response.\n\nArgs:\n    message: A2A protocol message\n    from_agent: ID of the sending agent\n    \nReturns:\n    A2A protocol response",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "from_agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_task_request",
+      "line": 197,
+      "doc": "Handle a task request from another agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_task_delegation",
+      "line": 242,
+      "doc": "Handle task delegation (this agent delegating to another).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_query",
+      "line": 276,
+      "doc": "Handle a data query from another agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_discovery",
+      "line": 313,
+      "doc": "Handle agent discovery request.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_handshake",
+      "line": 323,
+      "doc": "Handle handshake for establishing connection.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_handle_negotiate",
+      "line": 337,
+      "doc": "Handle task parameter negotiation.\n\nTODO: Implement actual negotiation logic with validation and governance.\nCurrently accepts all parameters as a placeholder.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "payload",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "_map_capability_to_action",
+      "line": 355,
+      "doc": "Map a capability to an ActionType.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": "ActionType"
+    },
+    {
+      "name": "_create_error_response",
+      "line": 387,
+      "doc": "Create an A2A error response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "msg_id",
+        "error_message"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "register_capability",
+      "line": 399,
+      "doc": "Register a capability that this agent can perform.\n\nArgs:\n    capability: Name of the capability\n    handler: Function to handle requests for this capability",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_capability_mapping",
+      "line": 416,
+      "doc": "Add a custom capability to ActionType mapping.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_card",
+      "line": 421,
+      "doc": "Get this agent's Agent Card for discovery.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "discover_agents",
+      "line": 429,
+      "doc": "Get list of discovered peer agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 445,
+      "doc": "Initialize an A2A agent.\n\nArgs:\n    agent_id: Unique identifier for this agent\n    control_plane: Agent Control Plane instance\n    agent_context: Agent context\n    agent_card: Optional Agent Card (description, capabilities, etc.)\n    logger: Optional logger",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "control_plane",
+        "agent_context",
+        "agent_card",
+        "logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_capability",
+      "line": 485,
+      "doc": "Register a capability with the agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle_message",
+      "line": 489,
+      "doc": "Handle an A2A message.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "from_agent"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "send_task_request",
+      "line": 493,
+      "doc": "Send a task request to another agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "to_agent",
+        "task_type",
+        "parameters"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "get_agent_card",
+      "line": 509,
+      "doc": "Get this agent's Agent Card.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Dict"
+    },
+    {
+      "name": "start",
+      "line": 513,
+      "doc": "Start the A2A agent (placeholder for actual implementation).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "A2AMessageType",
+      "line": 51,
+      "doc": "A2A protocol message types",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "A2AAdapter",
+      "line": 83,
+      "doc": "A2A Protocol Adapter with Agent Control Plane Governance.\n\nThis adapter intercepts A2A protocol messages between agents and applies\ngovernance rules. A2A enables agents to:\n- Discover other agents via Agent Cards\n- Delegate tasks to specialized agents\n- Request information from other agents\n- Coordinate multi-step workflows\n- Negotiate task parameters\n\nThe adapter ensures all inter-agent communications respect permissions\nand policies defined in the control plane.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "A2AAgent",
+      "line": 437,
+      "doc": "Simplified A2A Agent with built-in governance.\n\nThis class provides a simple way to create an A2A-compliant agent\nwith Agent Control Plane governance built in.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 66,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

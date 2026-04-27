@@ -1,0 +1,426 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/flight_recorder.py",
+  "extension": ".py",
+  "size_bytes": 30590,
+  "line_count": 846,
+  "documentation": {
+    "file_docstring": "Flight Recorder - Black Box Audit Logger for Agent Control Plane\n\nThis module provides SQLite-based audit logging for all agent actions,\ncapturing the exact state for forensic analysis and compliance.\n\nPerformance optimizations:\n- WAL mode for concurrent reads during writes\n- Batched writes with configurable flush interval\n- Connection pooling to reduce overhead\n\nSecurity features:\n- Merkle chain for tamper detection\n- Hash verification on reads",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Start a trace before executing a tool",
+      "Log the outcome",
+      "Query the audit log",
+      "Verify tamper-proof integrity",
+      "Batching state",
+      "Cache immutable trace data for content hash recomputation",
+      "Thread-local connections for better performance",
+      "Register cleanup on exit",
+      "Enable WAL mode for better concurrent performance",
+      "Enable WAL mode for concurrent reads during writes",
+      "Create the main audit log table with hash column for Merkle chain",
+      "Add hash columns if they don't exist (migration for existing DBs)",
+      "Create indexes for common queries",
+      "Get last hash for Merkle chain",
+      "Compute hash for Merkle chain (immutable after INSERT)",
+      "Compute content hash covering all substantive fields",
+      "Cache immutable data so log_success/log_violation can recompute",
+      "Total actions",
+      "By verdict",
+      "By agent",
+      "Average execution time",
+      "===== Tamper Detection =====",
+      "1. Verify chain link (previous_hash matches predecessor)",
+      "First entry should have None/null previous_hash",
+      "2. Verify content hash (detects field tampering including verdict)",
+      "===== Time-Travel Debugging Support ====="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FlightRecorder: The Black Box Recorder for AI Agents.\n\nLogs every action attempt with full conte",
+      "__init__: Initialize the Flight Recorder.\n\nSets up the SQLite database with WAL mode, crea",
+      "_get_connection: Get a thread-local database connection with WAL mode.",
+      "_compute_hash: Compute SHA256 hash for Merkle chain.",
+      "_compute_content_hash: Compute SHA-256 hash over all substantive fields for tamper detection.\n\nUnlike `",
+      "_recompute_content_hash: Recompute content hash using cached trace data.\n\nLooks up the immutable fields (",
+      "_flush_buffer: Flush pending writes to database.",
+      "_maybe_flush: Flush if batch size reached or interval exceeded.",
+      "_queue_write: Queue a write operation.",
+      "_flush_and_close: Flush buffer and close connections on exit."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "log_violation",
+    "start_trace",
+    "get_statistics",
+    "flush",
+    "log_success",
+    "query_logs",
+    "get_events_in_time_range",
+    "log_error",
+    "verify_integrity",
+    "close",
+    "get_log",
+    "log_shadow_exec",
+    "FlightRecorder"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "sqlite3",
+      "uuid",
+      "hashlib",
+      "threading",
+      "atexit",
+      "typing",
+      "datetime",
+      "pathlib",
+      "collections",
+      "json",
+      "logging"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 81,
+      "doc": "Initialize the Flight Recorder.\n\nSets up the SQLite database with WAL mode, creates the audit log\nschema if it doesn't exist, and restores the Merkle hash chain\nfrom the last recorded entry.\n\nArgs:\n    db_path: Path to the SQLite database file. The file is created\n        if it does not exist. Defaults to ``\"flight_recorder.db\"``.\n    batch_size: Number of write operations to buffer before\n        committing to disk. Larger values improve throughput at the\n        cost of increased memory usage. Defaults to ``100``.\n    flush_interval_seconds: Maximum number of seconds between\n        automatic flushes, regardless of buffer size. Defaults to\n        ``5.0``.\n    enable_batching: When ``False``, every write is committed\n        immediately (legacy behaviour). Defaults to ``True``.\n\nRaises:\n    sqlite3.OperationalError: If the database file cannot be opened\n        or the schema migration fails.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "db_path",
+        "batch_size",
+        "flush_interval_seconds",
+        "enable_batching"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_connection",
+      "line": 133,
+      "doc": "Get a thread-local database connection with WAL mode.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_compute_hash",
+      "line": 144,
+      "doc": "Compute SHA256 hash for Merkle chain.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "previous_hash"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_compute_content_hash",
+      "line": 149,
+      "doc": "Compute SHA-256 hash over all substantive fields for tamper detection.\n\nUnlike ``_compute_hash`` which builds the Merkle chain and is set\nonce at INSERT time, the content hash is recomputed whenever the\nrow is updated (e.g. when a verdict changes from *pending* to\n*allowed*).  ``verify_integrity`` uses this hash to detect\npost-hoc field tampering.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "timestamp",
+        "agent_id",
+        "tool_name",
+        "tool_args",
+        "policy_verdict",
+        "violation_reason",
+        "result",
+        "execution_time_ms"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_recompute_content_hash",
+      "line": 175,
+      "doc": "Recompute content hash using cached trace data.\n\nLooks up the immutable fields (timestamp, agent_id, etc.) from the\nin-memory ``_trace_data`` cache populated at ``start_trace`` time,\nthen delegates to ``_compute_content_hash`` with the updated\nmutable fields.  Returns ``None`` if the trace_id is not in the\ncache (e.g. recorder was re-instantiated between start and log).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "policy_verdict",
+        "violation_reason",
+        "result",
+        "execution_time_ms"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_flush_buffer",
+      "line": 206,
+      "doc": "Flush pending writes to database.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_maybe_flush",
+      "line": 228,
+      "doc": "Flush if batch size reached or interval exceeded.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_queue_write",
+      "line": 241,
+      "doc": "Queue a write operation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sql",
+        "params"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_flush_and_close",
+      "line": 247,
+      "doc": "Flush buffer and close connections on exit.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_init_database",
+      "line": 257,
+      "doc": "Initialize the SQLite database schema with WAL mode.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start_trace",
+      "line": 332,
+      "doc": "Start a new trace for an agent action.\n\nCreates a pending audit log entry and links it into the Merkle\nhash chain for tamper detection. The returned ``trace_id`` must be\npassed to one of the outcome methods (``log_success``,\n``log_violation``, ``log_error``, ``log_shadow_exec``) to finalize\nthe entry.\n\nArgs:\n    agent_id: Unique identifier of the agent performing the action.\n    tool_name: Name of the tool being called (e.g. ``\"web_search\"``).\n    tool_args: Keyword arguments passed to the tool. Serialized as\n        JSON in the audit log. Defaults to ``None``.\n    input_prompt: The original user or agent prompt that triggered\n        this tool call. Defaults to ``None``.\n\nReturns:\n    A UUID string uniquely identifying this trace. Use this value\n    with the ``log_*`` methods to record the outcome.\n\nExample:\n    >>> trace_id = recorder.start_trace(\n    ...     agent_id=\"agent-001\",\n    ...     tool_name=\"file_write\",\n    ...     tool_args={\"path\": \"/tmp/out.txt\", \"data\": \"hello\"},\n    ... )\n    >>> recorder.log_success(trace_id, result=\"wrote 5 bytes\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name",
+        "tool_args",
+        "input_prompt"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "log_violation",
+      "line": 402,
+      "doc": "Log a policy violation for a trace.\n\nUpdates the audit entry identified by ``trace_id`` to ``blocked``\nstatus and records the reason. A warning is emitted to the logger.\n\nArgs:\n    trace_id: The trace ID returned by ``start_trace``.\n    violation_reason: Human-readable explanation of why the action\n        was blocked (e.g. ``\"Tool 'rm_rf' not in allowed_tools\"``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "violation_reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_shadow_exec",
+      "line": 430,
+      "doc": "Log a shadow mode execution (simulated, not real).\n\nShadow mode allows the governance layer to return a plausible\nsimulated result to the agent without actually executing the tool.\nThis is useful for testing policy enforcement in production\nwithout impacting real systems.\n\nArgs:\n    trace_id: The trace ID returned by ``start_trace``.\n    simulated_result: The simulated result string returned to the\n        agent. Defaults to ``\"Simulated success\"`` when ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "simulated_result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_success",
+      "line": 461,
+      "doc": "Log a successful execution.\n\nUpdates the audit entry to ``allowed`` status and records the\nresult and timing information.\n\nArgs:\n    trace_id: The trace ID returned by ``start_trace``.\n    result: The return value of the tool execution. Non-string\n        values are JSON-serialized before storage. Defaults to\n        ``None``.\n    execution_time_ms: Wall-clock execution time in milliseconds.\n        Defaults to ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "result",
+        "execution_time_ms"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_error",
+      "line": 502,
+      "doc": "Log an execution error.\n\nUpdates the audit entry to ``error`` status. Unlike violations,\nerrors indicate that the tool was *allowed* by policy but failed\nduring execution (e.g. network timeout, invalid arguments).\n\nArgs:\n    trace_id: The trace ID returned by ``start_trace``.\n    error: Error message describing the failure.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query_logs",
+      "line": 530,
+      "doc": "Query the audit logs with filters.\n\nOpens a new read-only connection (safe for concurrent access under\nWAL mode) and returns matching entries ordered by timestamp\ndescending.\n\nArgs:\n    agent_id: Filter by agent identifier. When ``None``, all\n        agents are included.\n    policy_verdict: Filter by verdict string. Valid values are\n        ``\"allowed\"``, ``\"blocked\"``, ``\"shadow\"``, ``\"error\"``,\n        and ``\"pending\"``. When ``None``, all verdicts are included.\n    start_time: Include only entries at or after this timestamp.\n    end_time: Include only entries at or before this timestamp.\n    limit: Maximum number of results to return. Defaults to ``100``.\n\nReturns:\n    A list of dictionaries, each representing one audit log entry\n    with keys: ``trace_id``, ``timestamp``, ``agent_id``,\n    ``tool_name``, ``tool_args``, ``input_prompt``,\n    ``policy_verdict``, ``violation_reason``, ``result``,\n    ``execution_time_ms``, ``metadata``, ``entry_hash``,\n    ``previous_hash``.\n\nExample:\n    >>> blocked = recorder.query_logs(\n    ...     agent_id=\"agent-001\",\n    ...     policy_verdict=\"blocked\",\n    ...     limit=50,\n    ... )\n    >>> for entry in blocked:\n    ...     print(entry[\"violation_reason\"])",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "policy_verdict",
+        "start_time",
+        "end_time",
+        "limit"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "get_statistics",
+      "line": 604,
+      "doc": "Get aggregate statistics about the audit log.\n\nReturns:\n    A dictionary containing:\n\n    - ``total_actions`` (int): Total number of recorded actions.\n    - ``by_verdict`` (Dict[str, int]): Action counts grouped by\n      policy verdict (e.g. ``{\"allowed\": 42, \"blocked\": 3}``).\n    - ``top_agents`` (List[Dict]): Up to 10 most active agents,\n      each with ``agent_id`` and ``count`` keys.\n    - ``avg_execution_time_ms`` (Optional[float]): Mean execution\n      time across all successful actions, or ``None`` if no timing\n      data is available.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "close",
+      "line": 667,
+      "doc": "Clean up resources by flushing the write buffer and closing connections.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "flush",
+      "line": 671,
+      "doc": "Manually flush the write buffer to disk.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_integrity",
+      "line": 677,
+      "doc": "Verify the integrity of the audit log.\n\nFlushes any buffered writes, then walks the entire audit log in\ninsertion order performing two checks for every entry:\n\n1. **Chain integrity** \u2013 each entry's ``previous_hash`` must match\n   the ``entry_hash`` of its predecessor.\n2. **Content integrity** \u2013 the stored ``content_hash`` must match\n   a freshly computed hash over all substantive row fields\n   (including the current ``policy_verdict``).  This detects\n   post-hoc tampering with the verdict or any other field.\n\nReturns:\n    A dictionary with the following keys:\n\n    - ``valid`` (bool): ``True`` if both checks pass for every\n      entry.\n    - ``total_entries`` (int): Number of entries checked.\n    - ``message`` (str): Human-readable summary (when valid).\n    - ``first_tampered_id`` (int): Row ID of the first entry\n      where a check fails (only present when invalid).\n    - ``error`` (str): Description of the integrity failure\n      (only present when invalid).\n\nExample:\n    >>> result = recorder.verify_integrity()\n    >>> if not result[\"valid\"]:\n    ...     print(f\"Tampered at entry {result['first_tampered_id']}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_log",
+      "line": 773,
+      "doc": "Get the complete audit log for time-travel debugging.\n\nReturns all entries ordered by timestamp ascending, enabling\nchronological replay of agent actions.\n\nReturns:\n    A list of dictionaries representing every audit log entry,\n    ordered oldest-first.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "get_events_in_time_range",
+      "line": 801,
+      "doc": "Get events within a specific time range for time-travel replay.\n\nUseful for replaying agent behaviour during a specific incident\nwindow or for generating compliance reports.\n\nArgs:\n    start_time: Inclusive start of the time range.\n    end_time: Inclusive end of the time range.\n    agent_id: When provided, only entries for this agent are\n        returned. Defaults to ``None`` (all agents).\n\nReturns:\n    A list of audit log entry dictionaries within the given time\n    range, ordered oldest-first.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "start_time",
+        "end_time",
+        "agent_id"
+      ],
+      "returns": "list"
+    }
+  ],
+  "classes": [
+    {
+      "name": "FlightRecorder",
+      "line": 33,
+      "doc": "The Black Box Recorder for AI Agents.\n\nLogs every action attempt with full context for forensic analysis.\nSimilar to an aircraft's flight data recorder, this captures:\n\n- **Timestamp**: When the action was attempted\n- **AgentID**: Which agent attempted it\n- **InputPrompt**: The original user/agent intent\n- **IntendedAction**: What the agent tried to do\n- **PolicyVerdict**: Whether it was allowed or blocked\n- **Result**: What actually happened\n\nPerformance features:\n    - WAL mode for better concurrent performance\n    - Batched writes (configurable ``batch_size`` and ``flush_interval``)\n    - Connection reuse within threads via thread-local storage\n\nSecurity features:\n    - Merkle chain: Each entry includes SHA-256 hash of previous entry\n    - Tamper detection: ``verify_integrity()`` checks the full hash chain\n\nExample:\n    Basic recording workflow::\n\n        recorder = FlightRecorder(db_path=\"audit.db\")\n\n        # Start a trace before executing a tool\n        trace_id = recorder.start_trace(\n            agent_id=\"agent-001\",\n            tool_name=\"web_search\",\n            tool_args={\"query\": \"latest news\"},\n            input_prompt=\"Find me today's headlines\",\n        )\n\n        # Log the outcome\n        recorder.log_success(trace_id, result=\"Found 10 articles\", execution_time_ms=152.3)\n\n        # Query the audit log\n        violations = recorder.query_logs(policy_verdict=\"blocked\")\n\n        # Verify tamper-proof integrity\n        integrity = recorder.verify_integrity()\n        assert integrity[\"valid\"]\n\n        recorder.close()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 80,
+  "responsibility": {
+    "single_responsibility_score": 0.7,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_session_auth.py",
+  "extension": ".py",
+  "size_bytes": 8364,
+  "line_count": 231,
+  "documentation": {
+    "file_docstring": "Cryptographic session authentication for MCP agents.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPSession: An authenticated MCP session bound to an agent identity.",
+      "MCPSessionAuthenticator: Authenticate MCP sessions with cryptographic tokens and expiry checks.\n\nThe auth",
+      "__init__: Initialize the session authenticator.\n\nArgs:\n    session_ttl: Lifetime applied t",
+      "create_session: Create a session token bound to an agent and optional user context.\n\nArgs:\n    a",
+      "validate_session: Validate a session token for a specific agent.\n\nArgs:\n    agent_id: Agent identi",
+      "revoke_session: Revoke a single session token.\n\nArgs:\n    session_token: Session token to revoke",
+      "revoke_all_sessions: Revoke every session belonging to an agent.\n\nArgs:\n    agent_id: Agent identifie",
+      "cleanup_expired_sessions: Remove expired sessions and return the number removed.\n\nReturns:\n    The number ",
+      "active_session_count: Return the number of active sessions.\n\nReturns:\n    The number of currently acti"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "MCPSessionAuthenticator",
+    "is_expired",
+    "create_session",
+    "active_session_count",
+    "validate_session",
+    "MCPSession",
+    "cleanup_expired_sessions",
+    "revoke_all_sessions",
+    "revoke_session"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "logging",
+      "secrets",
+      "threading",
+      "dataclasses",
+      "datetime",
+      "agent_os.mcp_protocols"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_utcnow",
+      "line": 35,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "datetime"
+    },
+    {
+      "name": "is_expired",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 47,
+      "doc": "Initialize the session authenticator.\n\nArgs:\n    session_ttl: Lifetime applied to newly issued session tokens.\n    max_concurrent_sessions: Maximum number of live sessions allowed\n        per agent.\n    session_store: Optional persistence backend for storing sessions.\n        Defaults to the in-memory session store.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_session",
+      "line": 75,
+      "doc": "Create a session token bound to an agent and optional user context.\n\nArgs:\n    agent_id: Agent identifier that will own the session.\n    user_id: Optional user or tenant identifier associated with the\n        session.\n\nReturns:\n    A newly generated opaque session token.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "user_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_session",
+      "line": 120,
+      "doc": "Validate a session token for a specific agent.\n\nArgs:\n    agent_id: Agent identifier expected to own the session.\n    session_token: Opaque session token previously issued by this\n        authenticator.\n\nReturns:\n    The active ``MCPSession`` when the token is valid for the supplied\n    agent, otherwise ``None``. Errors fail closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "session_token"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revoke_session",
+      "line": 152,
+      "doc": "Revoke a single session token.\n\nArgs:\n    session_token: Session token to revoke.\n\nReturns:\n    ``True`` when the session existed and was removed, otherwise\n    ``False``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_token"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "revoke_all_sessions",
+      "line": 165,
+      "doc": "Revoke every session belonging to an agent.\n\nArgs:\n    agent_id: Agent identifier whose sessions should be revoked.\n\nReturns:\n    The number of sessions removed for the agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "cleanup_expired_sessions",
+      "line": 182,
+      "doc": "Remove expired sessions and return the number removed.\n\nReturns:\n    The number of expired sessions removed from the store and internal\n    indices.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "active_session_count",
+      "line": 193,
+      "doc": "Return the number of active sessions.\n\nReturns:\n    The number of currently active, non-expired sessions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_cleanup_expired_locked",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "now"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_store_session_locked",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_delete_session_locked",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_token",
+        "session"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPSession",
+      "line": 20,
+      "doc": "An authenticated MCP session bound to an agent identity.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "MCPSessionAuthenticator",
+      "line": 39,
+      "doc": "Authenticate MCP sessions with cryptographic tokens and expiry checks.\n\nThe authenticator creates short-lived session tokens, validates that a\ntoken belongs to a specific agent, and keeps internal indices synchronized\nwith the injected session store under a thread-safe lock.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

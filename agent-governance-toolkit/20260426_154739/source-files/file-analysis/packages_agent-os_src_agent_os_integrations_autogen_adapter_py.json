@@ -1,0 +1,382 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/autogen_adapter.py",
+  "extension": ".py",
+  "size_bytes": 23936,
+  "line_count": 620,
+  "documentation": {
+    "file_docstring": "AutoGen Integration\n\nWraps Microsoft AutoGen agents with Agent OS governance.\n\nUsage:\n    from agent_os.integrations import AutoGenKernel\n\n    kernel = AutoGenKernel()\n    kernel.govern(agent1, agent2, agent3)\n\n    # Now all conversations are governed\n    agent1.initiate_chat(agent2, message=\"...\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Now all conversations are governed",
+      "Patterns used to detect potential PII / secrets in state changes",
+      "Store reference",
+      "Store original methods before wrapping",
+      "Wrap key methods",
+      "Apply deep hooks",
+      "\u2500\u2500 Deep Integration Hooks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Check allowed tools",
+      "Check blocked patterns on function name + arguments",
+      "Record the call",
+      "Wrap select_speaker",
+      "Validate speaker selection against blocked patterns",
+      "Wrap message sending/routing if available",
+      "Wrap update_system_message",
+      "PII check",
+      "Blocked patterns check",
+      "Wrap reset",
+      "Convenience function"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AutoGenKernel: AutoGen adapter for Agent OS.\n\nSupports:\n- AssistantAgent\n- UserProxyAgent\n- Gro",
+      "govern: Convenience function to add governance to AutoGen agents.\n\nArgs:\n    *agents: Au",
+      "__init__: Initialise the AutoGen governance kernel.\n\nArgs:\n    policy: Governance policy t",
+      "wrap: Wrap a single AutoGen agent with governance.\n\nConvenience method that delegates ",
+      "govern: Add governance to one or more AutoGen agents.\n\nMonkey-patches ``initiate_chat``,",
+      "_wrap_initiate_chat: Wrap ``initiate_chat`` with pre-/post-execution governance.\n\nArgs:\n    agent: Th",
+      "_wrap_generate_reply: Wrap ``generate_reply`` with message interception and governance.\n\nUnlike ``init",
+      "_wrap_receive: Wrap ``receive`` with inbound message governance.\n\nIntercepts messages arriving ",
+      "_intercept_function_calls: Wrap the function_map on an AutoGen AssistantAgent.\n\nAutoGen agents store callab",
+      "_intercept_groupchat: Hook into GroupChat's select_speaker and message routing.\n\nIf the agent is a Gro"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "governed_function",
+    "governed_reset",
+    "governed_select_speaker",
+    "signal",
+    "health_check",
+    "governed_receive",
+    "governed_update",
+    "wrap",
+    "governed_initiate_chat",
+    "governed_generate_reply",
+    "governed_route",
+    "AutoGenKernel",
+    "unwrap",
+    "govern"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "functools",
+      "logging",
+      "re",
+      "time",
+      "datetime",
+      "typing",
+      "base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "govern",
+      "line": 597,
+      "doc": "Convenience function to add governance to AutoGen agents.\n\nArgs:\n    *agents: AutoGen agents to govern.\n    policy: Optional governance policy (uses defaults when ``None``).\n    timeout_seconds: Default timeout in seconds (default 300).\n    on_error: Optional error callback ``(exception, agent_id)``.\n\nReturns:\n    The governed agents as a list.\n\nExample:\n    >>> from agent_os.integrations.autogen_adapter import govern\n    >>> governed_agents = govern(assistant, user_proxy)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 50,
+      "doc": "Initialise the AutoGen governance kernel.\n\nArgs:\n    policy: Governance policy to enforce. When ``None`` the default\n        ``GovernancePolicy`` is used.\n    timeout_seconds: Default timeout in seconds (default 300).\n    on_error: Optional callback invoked on errors with ``(exception,\n        agent_id)`` arguments.  When ``None``, errors propagate\n        normally.\n    deep_hooks_enabled: When ``True`` (default), apply deep\n        integration hooks \u2014 function call pipeline interception,\n        GroupChat message routing, and state change tracking.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "timeout_seconds",
+        "on_error",
+        "deep_hooks_enabled"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 83,
+      "doc": "Wrap a single AutoGen agent with governance.\n\nConvenience method that delegates to :meth:`govern` for a single\nagent.\n\nArgs:\n    agent: An AutoGen agent (``AssistantAgent``, ``UserProxyAgent``,\n        etc.).\n\nReturns:\n    The same agent object with its key methods monkey-patched for\n    governance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "govern",
+      "line": 99,
+      "doc": "Add governance to one or more AutoGen agents.\n\nMonkey-patches ``initiate_chat``, ``generate_reply``, and\n``receive`` on each agent so that every message exchange is\nvalidated against the active policy.\n\nThe original methods are stored internally so they can be restored\nlater via :meth:`unwrap`.\n\nArgs:\n    *agents: AutoGen agents to govern.\n\nReturns:\n    The same agent objects (in-place patched) as a list.\n\nExample:\n    >>> kernel = AutoGenKernel(policy=GovernancePolicy(\n    ...     blocked_patterns=[\"password\"]\n    ... ))\n    >>> kernel.govern(assistant, user_proxy)\n    >>> assistant.initiate_chat(user_proxy, message=\"hello\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_initiate_chat",
+      "line": 162,
+      "doc": "Wrap ``initiate_chat`` with pre-/post-execution governance.\n\nArgs:\n    agent: The AutoGen agent to patch.\n    ctx: Execution context for this agent.\n    agent_id: Unique identifier for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_generate_reply",
+      "line": 210,
+      "doc": "Wrap ``generate_reply`` with message interception and governance.\n\nUnlike ``initiate_chat``, violations in ``generate_reply`` return a\n``[BLOCKED: ...]`` string rather than raising an exception, so that\nmulti-agent conversations can continue with the violation visible\nin the message stream.\n\nArgs:\n    agent: The AutoGen agent to patch.\n    ctx: Execution context for this agent.\n    agent_id: Unique identifier for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_receive",
+      "line": 262,
+      "doc": "Wrap ``receive`` with inbound message governance.\n\nIntercepts messages arriving at this agent and validates them\nagainst the active policy before forwarding to the original\n``receive`` implementation.\n\nArgs:\n    agent: The AutoGen agent to patch.\n    ctx: Execution context for this agent.\n    agent_id: Unique identifier for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_intercept_function_calls",
+      "line": 316,
+      "doc": "Wrap the function_map on an AutoGen AssistantAgent.\n\nAutoGen agents store callable functions in a ``function_map`` dict.\nThis method wraps each function so that every invocation is\nvalidated against the governance policy before execution.\n\nBlocked functions are prevented from running and a\n``PolicyViolationError`` is raised.\n\nArgs:\n    agent: The AutoGen agent to instrument.\n    ctx: Execution context for governance checks.\n    agent_id: Unique identifier for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_intercept_groupchat",
+      "line": 380,
+      "doc": "Hook into GroupChat's select_speaker and message routing.\n\nIf the agent is a GroupChat manager (has a ``groupchat`` attribute),\nthis method wraps ``select_speaker`` and ``_process_message`` to\nvalidate each speaker selection and track conversation patterns.\n\nArgs:\n    agent: The AutoGen agent (potentially a GroupChatManager).\n    ctx: Execution context for governance checks.\n    agent_id: Unique identifier for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_intercept_state_changes",
+      "line": 460,
+      "doc": "Track agent state changes for governance audit.\n\nWraps ``update_system_message`` and ``reset`` (if present) to\nmonitor and validate state mutations.  State changes that contain\nPII or blocked patterns are rejected.\n\nArgs:\n    agent: The AutoGen agent to instrument.\n    ctx: Execution context for governance checks.\n    agent_id: Unique identifier for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent",
+        "ctx",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unwrap",
+      "line": 528,
+      "doc": "Restore original methods on a governed AutoGen agent.\n\nRemoves all monkey-patches applied by :meth:`govern` and clears\nthe agent from internal tracking.\n\nArgs:\n    governed_agent: A previously governed AutoGen agent.\n\nReturns:\n    The agent with its original, un-governed methods restored.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "signal",
+      "line": 552,
+      "doc": "Send a POSIX-style signal to a governed agent.\n\nSupported signals:\n\n* ``SIGSTOP`` \u2014 pause the agent; all intercepted methods will\n  raise ``PolicyViolationError`` or return a blocked message.\n* ``SIGCONT`` \u2014 resume a previously stopped agent.\n* ``SIGKILL`` \u2014 permanently remove governance (calls\n  :meth:`unwrap`).\n\nArgs:\n    agent_id: Identifier of the target agent.\n    signal: One of ``\"SIGSTOP\"``, ``\"SIGCONT\"``, or ``\"SIGKILL\"``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 578,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_initiate_chat",
+      "line": 176,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "recipient",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_generate_reply",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "messages",
+        "sender"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_receive",
+      "line": 280,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "message",
+        "sender"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_function",
+      "line": 344,
+      "doc": "Governed wrapper around an AutoGen function_map entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_select_speaker",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_update",
+      "line": 481,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_reset",
+      "line": 516,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "governed_route",
+      "line": 439,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "AutoGenKernel",
+      "line": 37,
+      "doc": "AutoGen adapter for Agent OS.\n\nSupports:\n- AssistantAgent\n- UserProxyAgent\n- GroupChat\n- Conversation flows\n- Deep hooks: function call pipeline interception, GroupChat message\n  routing, and agent state tracking (when ``deep_hooks_enabled`` is True).",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 87,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

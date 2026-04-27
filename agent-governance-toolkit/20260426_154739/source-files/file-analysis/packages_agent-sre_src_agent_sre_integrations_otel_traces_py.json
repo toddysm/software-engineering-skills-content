@@ -1,0 +1,158 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/integrations/otel/traces.py",
+  "extension": ".py",
+  "size_bytes": 7669,
+  "line_count": 242,
+  "documentation": {
+    "file_docstring": "OpenTelemetry trace exporter for Agent SRE.\n\nConverts Agent SRE replay traces (TraceCapture spans) into native\nOpenTelemetry spans, preserving parent-child relationships, timing,\ncost, and I/O data as span attributes.\n\nUsage:\n    from agent_sre.integrations.otel.traces import TraceExporter\n\n    exporter = TraceExporter(service_name=\"my-agent\")\n    exporter.export_trace(captured_trace)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Map agent SRE span kinds to OTEL span kinds",
+      "Map agent SRE span status to OTEL status",
+      "Sort spans by start_time to ensure parents are created before children",
+      "Determine OTEL span kind",
+      "Build attributes",
+      "Copy span-level custom attributes",
+      "Determine parent context",
+      "Create the OTEL span",
+      "Set status",
+      "End the span"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_safe_json: Serialize data to JSON string, truncating if too large.",
+      "TraceExporter: Exports Agent SRE traces as native OpenTelemetry spans.\n\nEach SRE Span becomes a",
+      "export_trace: Export an entire Agent SRE trace as OTEL spans.\n\nPreserves span hierarchy by bui",
+      "_export_span: Export a single SRE span as an OTEL span.\n\nArgs:\n    sre_span: The Agent SRE spa",
+      "export_span_simple: Export a single span without a full trace context.\n\nConvenience method for ad-ho"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "TraceExporter",
+    "export_span_simple",
+    "export_trace"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "typing",
+      "opentelemetry",
+      "opentelemetry.trace",
+      "opentelemetry.trace",
+      "agent_sre.integrations.otel.conventions",
+      "agent_sre.replay.capture",
+      "agent_sre.replay.capture"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_safe_json",
+      "line": 54,
+      "doc": "Serialize data to JSON string, truncating if too large.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data",
+        "max_length"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "service_name",
+        "tracer_provider"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_trace",
+      "line": 89,
+      "doc": "Export an entire Agent SRE trace as OTEL spans.\n\nPreserves span hierarchy by building parent-child links.\n\nArgs:\n    sre_trace: A captured Agent SRE trace\n\nReturns:\n    List of created OTEL spans (for testing/inspection)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sre_trace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_export_span",
+      "line": 121,
+      "doc": "Export a single SRE span as an OTEL span.\n\nArgs:\n    sre_span: The Agent SRE span to export\n    sre_trace: The parent trace (for agent context)\n    span_context_map: Map of span_id -> OTEL span for parent linking\n\nReturns:\n    The created OTEL span, or None on error",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sre_span",
+        "sre_trace",
+        "span_context_map"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export_span_simple",
+      "line": 193,
+      "doc": "Export a single span without a full trace context.\n\nConvenience method for ad-hoc span creation.\n\nArgs:\n    name: Span name\n    kind: Agent SRE span kind\n    agent_id: Agent identifier\n    start_time: Start time as Unix timestamp\n    end_time: End time as Unix timestamp\n    cost_usd: Cost in USD\n    status: Span status\n    attributes: Additional attributes\n\nReturns:\n    The created OTEL span",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "kind",
+        "agent_id",
+        "start_time",
+        "end_time",
+        "cost_usd",
+        "status",
+        "attributes"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TraceExporter",
+      "line": 65,
+      "doc": "Exports Agent SRE traces as native OpenTelemetry spans.\n\nEach SRE Span becomes an OTEL span with:\n- Correct parent-child relationships\n- Agent-specific attributes (cost, kind, I/O)\n- Proper status mapping",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

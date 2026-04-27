@@ -1,0 +1,301 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/memory_broker.py",
+  "extension": ".py",
+  "size_bytes": 14889,
+  "line_count": 410,
+  "documentation": {
+    "file_docstring": "In-memory broker adapter for testing and simple use cases.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Priority mapping for heapq (lower number = higher priority)",
+      "Priority queue: List of tuples (priority_value, counter, message)",
+      "Backpressure configuration",
+      "Statistics for monitoring",
+      "Background processing tasks for priority delivery",
+      "Cancel all delivery tasks",
+      "Cancel all running tasks",
+      "Check if there are messages to deliver",
+      "Get highest priority message",
+      "Check if this is a response message",
+      "Deliver to handlers (unless it's a response message)",
+      "Handle response messages",
+      "Worker cancelled during shutdown",
+      "Apply backpressure if queue is getting full (reactive streams flow control)",
+      "Check if queue is at max capacity",
+      "Drop oldest BACKGROUND message, or raise error if no BACKGROUND messages",
+      "Add message to priority queue",
+      "Start priority delivery worker if not already running",
+      "Check if this is a response message for request-response pattern",
+      "For non-priority mode or when waiting for confirmation, deliver immediately",
+      "Deliver to subscribers (skip if this is a response message)",
+      "Wait for all handlers to complete",
+      "Fire and forget - schedule handlers without waiting",
+      "Handle request-response pattern",
+      "Capture response messages in the response queue",
+      "Find index of oldest BACKGROUND message (largest counter value for background priority)",
+      "Remove the item and re-heapify",
+      "Generate correlation ID if not present",
+      "Set up reply queue",
+      "Mark this message ID as a request to avoid self-capture",
+      "Publish the request",
+      "Wait for response",
+      "Clean up",
+      "Sort by priority and return top N messages"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "InMemoryBroker: In-memory broker implementation for testing and simple use cases.\n\nThis broker s",
+      "__init__: Initialize the in-memory broker.\n\nArgs:\n    max_queue_size: Maximum messages per",
+      "connect: Establish connection (no-op for in-memory broker).",
+      "disconnect: Close connection and cancel all tasks.",
+      "_check_backpressure: Check if backpressure should be applied for a topic.\n\nArgs:\n    topic: The topic",
+      "_apply_backpressure: Apply backpressure delay to slow down the producer.\n\nArgs:\n    topic: The topic ",
+      "_priority_delivery_worker: Background worker that delivers messages in priority order.\n\nArgs:\n    topic: Th",
+      "publish: Publish a message to all subscribers of the topic.\n\nImplements backpressure: If ",
+      "_drop_background_message: Drop the oldest BACKGROUND priority message from the queue.\n\nArgs:\n    topic: Th",
+      "subscribe: Subscribe to a topic.\n\nArgs:\n    topic: Topic to subscribe to\n    handler: Messa"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_backpressure_stats",
+    "InMemoryBroker",
+    "get_queue_size"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "heapq",
+      "uuid",
+      "collections",
+      "typing",
+      "amb_core.broker",
+      "amb_core.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 37,
+      "doc": "Initialize the in-memory broker.\n\nArgs:\n    max_queue_size: Maximum messages per topic before backpressure kicks in\n    backpressure_threshold: Queue fill percentage (0.0-1.0) that triggers backpressure\n    backpressure_delay: Delay in seconds when backpressure is active\n    use_priority_delivery: If True, deliver messages in priority order (slower but respects priority lanes)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_queue_size",
+        "backpressure_threshold",
+        "backpressure_delay",
+        "use_priority_delivery"
+      ],
+      "returns": null
+    },
+    {
+      "name": "connect",
+      "line": 76,
+      "doc": "Establish connection (no-op for in-memory broker).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disconnect",
+      "line": 80,
+      "doc": "Close connection and cancel all tasks.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_backpressure",
+      "line": 108,
+      "doc": "Check if backpressure should be applied for a topic.\n\nArgs:\n    topic: The topic to check\n    \nReturns:\n    True if backpressure should be applied",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_apply_backpressure",
+      "line": 122,
+      "doc": "Apply backpressure delay to slow down the producer.\n\nArgs:\n    topic: The topic experiencing backpressure",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_priority_delivery_worker",
+      "line": 132,
+      "doc": "Background worker that delivers messages in priority order.\n\nArgs:\n    topic: The topic to process",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish",
+      "line": 172,
+      "doc": "Publish a message to all subscribers of the topic.\n\nImplements backpressure: If the queue is near capacity, the publisher\nis automatically slowed down to prevent overwhelming consumers.\n\nImplements priority lanes: CRITICAL messages are processed before\nBACKGROUND messages, allowing urgent tasks to jump the queue.\n\nArgs:\n    message: The message to publish\n    wait_for_confirmation: If True, wait for handlers to process\n\nReturns:\n    Message ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "wait_for_confirmation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_drop_background_message",
+      "line": 256,
+      "doc": "Drop the oldest BACKGROUND priority message from the queue.\n\nArgs:\n    topic: The topic to drop from\n    \nReturns:\n    True if a message was dropped, False if no BACKGROUND messages found",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "subscribe",
+      "line": 288,
+      "doc": "Subscribe to a topic.\n\nArgs:\n    topic: Topic to subscribe to\n    handler: Message handler function\n\nReturns:\n    Subscription ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "handler"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "unsubscribe",
+      "line": 306,
+      "doc": "Unsubscribe from a topic.\n\nArgs:\n    subscription_id: The subscription ID",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "subscription_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request",
+      "line": 318,
+      "doc": "Send a request and wait for response.\n\nArgs:\n    message: Request message\n    timeout: Timeout in seconds\n\nReturns:\n    Response message\n\nRaises:\n    TimeoutError: If timeout exceeded",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "timeout"
+      ],
+      "returns": "Message"
+    },
+    {
+      "name": "get_pending_messages",
+      "line": 364,
+      "doc": "Get pending messages from a topic (in priority order).\n\nArgs:\n    topic: Topic to get messages from\n    limit: Maximum number of messages\n\nReturns:\n    List of messages (highest priority first)",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_backpressure_stats",
+      "line": 386,
+      "doc": "Get backpressure statistics.\n\nArgs:\n    topic: Optional topic to get stats for. If None, returns all topics.\n    \nReturns:\n    Dictionary mapping topics to backpressure event counts",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_queue_size",
+      "line": 400,
+      "doc": "Get current queue size for a topic.\n\nArgs:\n    topic: The topic to check\n    \nReturns:\n    Number of messages in the queue",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "InMemoryBroker",
+      "line": 25,
+      "doc": "In-memory broker implementation for testing and simple use cases.\n\nThis broker stores messages in memory and uses anyio for async handling.\nIt's suitable for testing, development, and single-process applications.\n\nFeatures:\n- Backpressure: Automatically slows down producers when consumers are overwhelmed\n- Priority lanes: CRITICAL messages jump ahead of BACKGROUND messages",
+      "is_public": true,
+      "bases": [
+        "BrokerAdapter"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 77,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

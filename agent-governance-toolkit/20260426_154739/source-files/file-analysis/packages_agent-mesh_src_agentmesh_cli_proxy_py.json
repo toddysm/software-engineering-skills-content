@@ -1,0 +1,281 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/cli/proxy.py",
+  "extension": ".py",
+  "size_bytes": 15479,
+  "line_count": 485,
+  "documentation": {
+    "file_docstring": "AgentMesh MCP Proxy\n\nA transparent proxy for MCP (Model Context Protocol) servers that adds:\n- Policy enforcement on tool calls\n- Trust score tracking\n- Audit logging\n- Verification footers\n\nUsage:\n    agentmesh proxy --target npx -y @modelcontextprotocol/server-filesystem /path",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Allowlist of binaries the proxy may spawn as MCP targets.",
+      "Extend via AGENTMESH_PROXY_ALLOWED_TARGETS env var (comma-separated).",
+      "V11: Validate target command against allowlist",
+      "Create proxy identity",
+      "Initialize governance components",
+      "Process handle",
+      "Start target MCP server as subprocess",
+      "Start message handling loops",
+      "Read a line from stdin",
+      "Parse JSON-RPC message",
+      "V14: Drop non-JSON messages \u2014 never forward unvalidated content",
+      "Intercept tool calls",
+      "V15: Don't forward blocked tool calls to target",
+      "Forward to target",
+      "Read from target stdout",
+      "Parse JSON-RPC response",
+      "Add verification footer if enabled",
+      "Not JSON, pass through",
+      "Build policy context",
+      "Check policy",
+      "Log the decision",
+      "Return error response",
+      "Don't forward to target, return error directly",
+      "Return a marker to skip forwarding",
+      "Update trust score",
+      "Check if result has content we can append to",
+      "Get DID as string",
+      "Add footer as a new content item",
+      "V13: Actually persist to audit log",
+      "Small increase for allowed actions",
+      "Larger decrease for blocked actions",
+      "Proxy a filesystem server",
+      "Moderate policy with no footers",
+      "Convert tuple to list",
+      "Create and start proxy"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MCPProxy: MCP Proxy that intercepts tool calls and enforces governance.\n\nSits between an M",
+      "proxy: Start an AgentMesh MCP proxy.\n\nWraps an existing MCP server with governance, pol",
+      "__init__: Initialize the MCP proxy.\n\nArgs:\n    target_command: Command to spawn the target",
+      "_validate_target_command: Validate target command binary against the allowlist (V11).",
+      "_load_default_policies: Load default policies based on policy level.",
+      "start: Start the proxy server.",
+      "_read_from_client: Read JSON-RPC messages from stdin (MCP client).",
+      "_read_from_target: Read responses from target MCP server.",
+      "_write_to_target: Write data to target server stdin.",
+      "_handle_tool_call: Handle a tools/call request - enforce policy.\n\nArgs:\n    message: The JSON-RPC m"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "proxy",
+    "MCPProxy"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "json",
+      "os",
+      "sys",
+      "datetime",
+      "typing",
+      "subprocess",
+      "logging",
+      "click",
+      "agentmesh",
+      "agentmesh.identity"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "proxy",
+      "line": 449,
+      "doc": "Start an AgentMesh MCP proxy.\n\nWraps an existing MCP server with governance, policy enforcement,\nand trust scoring.\n\nExamples:\n\n    # Proxy a filesystem server\n    agentmesh proxy --target npx --target -y \\\n        --target @modelcontextprotocol/server-filesystem --target /Users/me\n\n    # Moderate policy with no footers\n    agentmesh proxy --policy moderate --no-footer \\\n        --target python --target my_mcp_server.py",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "target",
+        "policy",
+        "no_footer",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 50,
+      "doc": "Initialize the MCP proxy.\n\nArgs:\n    target_command: Command to spawn the target MCP server\n    policy: Policy level (strict, moderate, permissive)\n    identity_name: Name for the proxy agent identity\n    enable_footer: Whether to add verification footers to outputs",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "target_command",
+        "policy",
+        "identity_name",
+        "enable_footer"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_target_command",
+      "line": 96,
+      "doc": "Validate target command binary against the allowlist (V11).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target_command"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_load_default_policies",
+      "line": 112,
+      "doc": "Load default policies based on policy level.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start",
+      "line": 180,
+      "doc": "Start the proxy server.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_read_from_client",
+      "line": 212,
+      "doc": "Read JSON-RPC messages from stdin (MCP client).",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_read_from_target",
+      "line": 246,
+      "doc": "Read responses from target MCP server.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_write_to_target",
+      "line": 280,
+      "doc": "Write data to target server stdin.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_tool_call",
+      "line": 288,
+      "doc": "Handle a tools/call request - enforce policy.\n\nArgs:\n    message: The JSON-RPC message\n\nReturns:\n    Modified message (allowed) or error response (blocked)",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_add_verification_footer",
+      "line": 354,
+      "doc": "Add AgentMesh verification footer to tool output.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_audit_log_tool_call",
+      "line": 383,
+      "doc": "Log tool call to audit trail.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "arguments",
+        "decision"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_update_trust_score",
+      "line": 413,
+      "doc": "Update trust score based on tool usage.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "allowed"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MCPProxy",
+      "line": 42,
+      "doc": "MCP Proxy that intercepts tool calls and enforces governance.\n\nSits between an MCP client (like Claude Desktop) and an MCP server,\nintercepting JSON-RPC messages and enforcing policies.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 45,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

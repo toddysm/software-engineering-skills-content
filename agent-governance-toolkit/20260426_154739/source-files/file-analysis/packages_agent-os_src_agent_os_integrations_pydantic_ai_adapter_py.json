@@ -1,0 +1,390 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/pydantic_ai_adapter.py",
+  "extension": ".py",
+  "size_bytes": 14345,
+  "line_count": 420,
+  "documentation": {
+    "file_docstring": "PydanticAI Integration for Agent-OS\n====================================\n\nProvides kernel-level governance for PydanticAI agent workflows.\n\nFeatures:\n- Policy enforcement for agent tool calls\n- Tool call interception via PydanticAI's tool system\n- Human approval workflows for sensitive operations\n- Call budget enforcement (max_tool_calls)\n- Audit logging for all tool executions\n- Blocked pattern detection in tool arguments\n- Graceful degradation when pydantic-ai is not installed\n\nExample:\n    >>> from agent_os.integrations.pydantic_ai_adapter import PydanticAIKernel\n    >>> from agent_os.integrations.base import GovernancePolicy\n    >>> from pydantic_ai import Agent\n    >>>\n    >>> policy = GovernancePolicy(\n    ...     max_tool_calls=10,\n    ...     allowed_tools=[\"search\", \"read_file\"],\n    ...     blocked_patterns=[\"rm -rf\", \"DROP TABLE\"],\n    ... )\n    >>> kernel = PydanticAIKernel(policy=policy)\n    >>>\n    >>> agent = Agent(\"openai:gpt-4o\", system_prompt=\"You are helpful.\")\n    >>> governed = kernel.wrap(agent)\n    >>>\n    >>> result = await governed.run(\"Analyze this data\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Graceful import handling for pydantic-ai",
+      "Handle human approval callback before the interceptor",
+      "Approved \u2014 skip the interceptor's require_human_approval check",
+      "by using a policy copy without the flag",
+      "\u2500\u2500 Helper functions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "PydanticAI stores tools in _function_tools (list of Tool objects)",
+      "Fallback for mocks or alternative structures",
+      "Determine the tool name and callable",
+      "Build arguments dict for policy check",
+      "Patch the tool entry",
+      "Convenience function"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HumanApprovalRequired: Raised when a tool call requires human approval.",
+      "PydanticAIKernel: PydanticAI adapter for Agent OS.\n\nSupports:\n- Agent wrapping with governance (ru",
+      "_get_agent_tools: Extract the list of tool entries from a PydanticAI agent.",
+      "_wrap_single_tool: Wrap a single tool's function with governance interception.",
+      "wrap: Quick wrapper for PydanticAI agents.",
+      "audit_log: Return the full audit log.",
+      "_record_audit: Record an audit entry and return it.",
+      "wrap: Wrap a PydanticAI Agent with governance.\n\nIntercepts:\n- agent.run() / agent.run_",
+      "unwrap: Remove governance wrapper and return original agent.",
+      "intercept_tool_call: Evaluate a tool call against the governance policy.\n\nReturns a ToolCallResult in"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "governed_fn",
+    "health_check",
+    "original",
+    "audit_log",
+    "wrap",
+    "intercept_tool_call",
+    "context",
+    "PydanticAIKernel",
+    "HumanApprovalRequired",
+    "run_sync",
+    "GovernedPydanticAIAgent",
+    "unwrap",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "datetime",
+      "functools",
+      "typing",
+      "base",
+      "pydantic_ai",
+      "dataclasses"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_get_agent_tools",
+      "line": 335,
+      "doc": "Extract the list of tool entries from a PydanticAI agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "_wrap_single_tool",
+      "line": 347,
+      "doc": "Wrap a single tool's function with governance interception.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "tool_entry",
+        "governed",
+        "kernel",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 410,
+      "doc": "Quick wrapper for PydanticAI agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent",
+        "policy"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "arguments"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "approval_callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "audit_log",
+      "line": 101,
+      "doc": "Return the full audit log.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record_audit",
+      "line": 105,
+      "doc": "Record an audit entry and return it.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "tool_name",
+        "allowed",
+        "reason",
+        "arguments",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 128,
+      "doc": "Wrap a PydanticAI Agent with governance.\n\nIntercepts:\n- agent.run() / agent.run_sync()\n- All registered tool calls\n- Result validation\n\nArgs:\n    agent: A pydantic_ai.Agent instance (or mock).\n\nReturns:\n    A governed wrapper around the agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 253,
+      "doc": "Remove governance wrapper and return original agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "intercept_tool_call",
+      "line": 259,
+      "doc": "Evaluate a tool call against the governance policy.\n\nReturns a ToolCallResult indicating whether the call is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctx",
+        "tool_name",
+        "arguments"
+      ],
+      "returns": "ToolCallResult"
+    },
+    {
+      "name": "get_stats",
+      "line": 299,
+      "doc": "Get governance statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 318,
+      "doc": "Return adapter health status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "governed_fn",
+      "line": 368,
+      "doc": "Governed wrapper that validates and delegates PydanticAI tool calls.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "Any"
+    },
+    {
+      "name": "__init__",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self_inner"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_wrap_tools",
+      "line": 164,
+      "doc": "Intercept all tools registered on the agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self_inner"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run",
+      "line": 170,
+      "doc": "Governed async run.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self_inner",
+        "prompt"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "run_sync",
+      "line": 204,
+      "doc": "Governed sync run.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self_inner",
+        "prompt"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "original",
+      "line": 239,
+      "doc": "Return the original unwrapped agent before governance wrapping.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self_inner"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "context",
+      "line": 244,
+      "doc": "Return the ExecutionContext tracking call counts and session state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self_inner"
+      ],
+      "returns": "ExecutionContext"
+    },
+    {
+      "name": "__getattr__",
+      "line": 248,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self_inner",
+        "name"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "HumanApprovalRequired",
+      "line": 64,
+      "doc": "Raised when a tool call requires human approval.",
+      "is_public": true,
+      "bases": [
+        "PolicyViolationError"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PydanticAIKernel",
+      "line": 75,
+      "doc": "PydanticAI adapter for Agent OS.\n\nSupports:\n- Agent wrapping with governance (run / run_sync)\n- Individual tool call interception (allowed_tools, blocked_patterns)\n- Human approval workflows for sensitive tools\n- Call budget enforcement (max_tool_calls)\n- Audit logging of all tool executions",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedPydanticAIAgent",
+      "line": 154,
+      "doc": "PydanticAI agent wrapped with Agent OS governance.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 40,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

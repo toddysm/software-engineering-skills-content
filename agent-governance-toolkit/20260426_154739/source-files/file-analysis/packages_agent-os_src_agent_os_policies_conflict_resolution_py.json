@@ -1,0 +1,246 @@
+{
+  "path": "packages/agent-os/src/agent_os/policies/conflict_resolution.py",
+  "extension": ".py",
+  "size_bytes": 9985,
+  "line_count": 270,
+  "documentation": {
+    "file_docstring": "Policy Conflict Resolution.\n\nWhen multiple policies apply to the same agent action, the conflict\nresolution strategy determines which decision wins.\n\nStrategies\n----------\n- **DENY_OVERRIDES** (safest): If ANY matching rule denies, the action\n  is denied regardless of what other rules say. Standard in XACML and\n  most enterprise policy systems.\n- **ALLOW_OVERRIDES**: If ANY matching rule allows, the action is\n  allowed. Useful for exception-based governance where you want\n  explicit allow-rules to punch through default-deny policies.\n- **PRIORITY_FIRST_MATCH** (current default): Rules are sorted by\n  priority (highest first), and the first matching rule wins. This\n  preserves backward compatibility with the existing PolicyEngine.\n- **MOST_SPECIFIC_WINS**: Agent-scoped rules override tenant-scoped,\n  which override global-scoped. Within the same scope, priority breaks\n  ties. Models the intuition that \"closer policies override distant ones.\"\n\nScopes\n------\nEach ``Policy`` can declare a ``scope`` that indicates its breadth:\n\n- ``global``: Organization-wide default policies\n- ``tenant``: Applied to a specific tenant or team\n- ``agent``: Applied to a specific agent instance\n\nWhen ``MOST_SPECIFIC_WINS`` is active, scope determines precedence.\nWhen other strategies are active, scope is informational metadata.\n\nUsage::\n\n    from agentmesh.governance.conflict_resolution import (\n        ConflictResolutionStrategy,\n        PolicyScope,\n        PolicyConflictResolver,\n    )\n\n    resolver = PolicyConflictResolver(ConflictResolutionStrategy.DENY_OVERRIDES)\n    final = resolver.resolve(candidate_decisions)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Specificity rank: higher = more specific",
+      "Detect genuine conflict (mix of allow and deny)",
+      "\u2500\u2500 Strategy implementations \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "No denies \u2014 pick highest-priority allow",
+      "No allows \u2014 pick highest-priority deny"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ConflictResolutionStrategy: Strategy for resolving conflicts between competing policy decisions.",
+      "PolicyScope: Breadth of a policy's applicability.\n\nSpecificity order (most \u2192 least): AGENT > ",
+      "CandidateDecision: A single policy decision candidate awaiting conflict resolution.\n\nGroups a decis",
+      "ResolutionResult: Outcome of conflict resolution.\n\nAttributes:\n    winning_decision: The decision ",
+      "PolicyConflictResolver: Resolves conflicts between competing policy decisions.\n\nArgs:\n    strategy: The ",
+      "resolve: Resolve a list of candidate decisions into a single winner.\n\nArgs:\n    candidate",
+      "_deny_overrides: DENY_OVERRIDES: any deny wins. Among denies, highest priority wins.",
+      "_allow_overrides: ALLOW_OVERRIDES: any allow wins. Among allows, highest priority wins.",
+      "_priority_first_match: PRIORITY_FIRST_MATCH: highest priority wins regardless of action.",
+      "_most_specific_wins: MOST_SPECIFIC_WINS: agent > tenant > global. Priority breaks ties."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "is_allow",
+    "PolicyConflictResolver",
+    "resolve",
+    "CandidateDecision",
+    "specificity",
+    "is_deny",
+    "PolicyScope",
+    "ConflictResolutionStrategy",
+    "ResolutionResult"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "enum",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "is_deny",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_allow",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "specificity",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__init__",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "strategy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve",
+      "line": 155,
+      "doc": "Resolve a list of candidate decisions into a single winner.\n\nArgs:\n    candidates: One or more candidate decisions from matching rules.\n\nReturns:\n    A ``ResolutionResult`` containing the winning decision and\n    a trace of the resolution logic.\n\nRaises:\n    ValueError: If ``candidates`` is empty.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "candidates"
+      ],
+      "returns": "ResolutionResult"
+    },
+    {
+      "name": "_deny_overrides",
+      "line": 203,
+      "doc": "DENY_OVERRIDES: any deny wins. Among denies, highest priority wins.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "candidates"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_allow_overrides",
+      "line": 223,
+      "doc": "ALLOW_OVERRIDES: any allow wins. Among allows, highest priority wins.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "candidates"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_priority_first_match",
+      "line": 243,
+      "doc": "PRIORITY_FIRST_MATCH: highest priority wins regardless of action.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "candidates"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_most_specific_wins",
+      "line": 255,
+      "doc": "MOST_SPECIFIC_WINS: agent > tenant > global. Priority breaks ties.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "candidates"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConflictResolutionStrategy",
+      "line": 57,
+      "doc": "Strategy for resolving conflicts between competing policy decisions.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyScope",
+      "line": 66,
+      "doc": "Breadth of a policy's applicability.\n\nSpecificity order (most \u2192 least): AGENT > ORGANIZATION > TENANT > GLOBAL.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CandidateDecision",
+      "line": 87,
+      "doc": "A single policy decision candidate awaiting conflict resolution.\n\nGroups a decision with its originating policy metadata so the\nresolver can apply scope- and priority-aware strategies.\n\nAttributes:\n    action: The action the rule dictates (allow, deny, warn, etc.).\n    priority: Numeric priority from the matched rule.\n    scope: Scope of the policy that produced this decision.\n    policy_name: Name of the originating policy.\n    rule_name: Name of the matched rule.\n    reason: Human-readable explanation.\n    approvers: Required approvers for ``require_approval`` actions.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ResolutionResult",
+      "line": 124,
+      "doc": "Outcome of conflict resolution.\n\nAttributes:\n    winning_decision: The decision that prevailed.\n    strategy_used: Which strategy resolved the conflict.\n    candidates_evaluated: How many candidates were considered.\n    conflict_detected: Whether genuinely conflicting decisions existed.\n    resolution_trace: Human-readable trace of the resolution logic.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyConflictResolver",
+      "line": 142,
+      "doc": "Resolves conflicts between competing policy decisions.\n\nArgs:\n    strategy: The conflict resolution strategy to apply.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

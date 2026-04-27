@@ -1,0 +1,82 @@
+{
+  "path": "packages/agent-os/src/agent_os/policies/merge.py",
+  "extension": ".py",
+  "size_bytes": 3325,
+  "line_count": 96,
+  "documentation": {
+    "file_docstring": "Folder-level governance policy merge.\n\nMerges a chain of PolicyDocuments (root-first order) into a single\nflat rule list, respecting override semantics and the security\ninvariant that parent deny rules cannot be overridden.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Single policy \u2014 fast path",
+      "Track rules by name for override detection",
+      "Security invariant: parent deny cannot be overridden",
+      "Replace parent rule"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "merge_policies: Merge a chain of PolicyDocuments into a flat, priority-sorted rule list.\n\nRules ",
+      "get_effective_defaults: Get the effective defaults from the most specific policy in the chain.\n\nThe most"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_effective_defaults",
+    "merge_policies"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "agent_os.policies.schema"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "merge_policies",
+      "line": 20,
+      "doc": "Merge a chain of PolicyDocuments into a flat, priority-sorted rule list.\n\nRules from all levels are collected. A child rule with\n``override=True`` and the same ``name`` as a parent rule replaces\nthe parent rule \u2014 **unless** the parent rule is a ``deny``, which\nis immutable (security invariant matching Azure Policy semantics).\n\nArgs:\n    policy_chain: PolicyDocuments in root-first order\n        (root at index 0, most specific last).\n\nReturns:\n    Flat list of PolicyRules sorted by priority descending.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "policy_chain"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_effective_defaults",
+      "line": 82,
+      "doc": "Get the effective defaults from the most specific policy in the chain.\n\nThe most specific (last) policy's defaults take precedence. If it\ndoesn't define custom defaults, the parent's defaults are used.\n\nArgs:\n    policy_chain: PolicyDocuments in root-first order.\n\nReturns:\n    The PolicyDocument whose defaults should be used.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "policy_chain"
+      ],
+      "returns": "PolicyDocument"
+    }
+  ],
+  "classes": [],
+  "complexity_score": 14,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

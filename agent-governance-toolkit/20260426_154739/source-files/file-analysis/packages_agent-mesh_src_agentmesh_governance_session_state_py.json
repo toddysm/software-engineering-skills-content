@@ -1,0 +1,205 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/session_state.py",
+  "extension": ".py",
+  "size_bytes": 5913,
+  "line_count": 182,
+  "documentation": {
+    "file_docstring": "Session state with monotonic (ratchet) attributes.\n\nTracks runtime attributes across tool calls within a session.\nAttributes declared as ``monotonic`` can only move forward in their\nordering \u2014 once an agent touches confidential data, sensitivity\ncannot be reset to public.\n\nUsage::\n\n    from agentmesh.governance.session_state import SessionState, SessionAttribute\n\n    state = SessionState([\n        SessionAttribute(\n            name=\"data_sensitivity\",\n            ordering=[\"public\", \"internal\", \"confidential\", \"restricted\"],\n            monotonic=True,\n        ),\n    ])\n\n    state.set(\"data_sensitivity\", \"confidential\")  # OK\n    state.set(\"data_sensitivity\", \"public\")         # ignored (monotonic)\n    assert state.get(\"data_sensitivity\") == \"confidential\"",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SessionAttribute: Definition of a session-scoped attribute.\n\nAttributes:\n    name: Attribute name ",
+      "SessionState: Tracks runtime session attributes with optional monotonic enforcement.\n\nIntegrat",
+      "define: Register a new session attribute.",
+      "set: Set a session attribute value.\n\nFor monotonic attributes, the value can only mov",
+      "get: Get current value of a session attribute.",
+      "get_all: Get all current attribute values.",
+      "inject_context: Inject session state into a policy evaluation context.\n\nAdds ``session.*`` keys ",
+      "reset: Reset all attributes to their initial values.",
+      "from_policy_yaml: Parse session_attributes from a policy YAML string.\n\nExample YAML::\n\n    session"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "from_policy_yaml",
+    "define",
+    "SessionState",
+    "get_all",
+    "SessionAttribute",
+    "get",
+    "reset",
+    "inject_context",
+    "set"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 53,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attributes"
+      ],
+      "returns": null
+    },
+    {
+      "name": "define",
+      "line": 74,
+      "doc": "Register a new session attribute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "attr"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set",
+      "line": 80,
+      "doc": "Set a session attribute value.\n\nFor monotonic attributes, the value can only move forward in\nthe ordering. Attempts to move backward are silently ignored\nand return False.\n\nArgs:\n    name: Attribute name.\n    value: New value.\n\nReturns:\n    True if the value was updated, False if rejected (monotonic).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "value"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get",
+      "line": 121,
+      "doc": "Get current value of a session attribute.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_all",
+      "line": 125,
+      "doc": "Get all current attribute values.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "inject_context",
+      "line": 129,
+      "doc": "Inject session state into a policy evaluation context.\n\nAdds ``session.*`` keys so policy conditions can reference them:\n``session.data_sensitivity == 'confidential'``\n\nArgs:\n    context: Existing policy context dict.\n\nReturns:\n    The context dict with ``session`` key added (mutated in place).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "reset",
+      "line": 144,
+      "doc": "Reset all attributes to their initial values.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_policy_yaml",
+      "line": 153,
+      "doc": "Parse session_attributes from a policy YAML string.\n\nExample YAML::\n\n    session_attributes:\n      - name: data_sensitivity\n        ordering: [public, internal, confidential, restricted]\n        monotonic: true\n        initial: public\n\nArgs:\n    yaml_content: Raw YAML string.\n\nReturns:\n    A configured SessionState instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "yaml_content"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SessionAttribute",
+      "line": 38,
+      "doc": "Definition of a session-scoped attribute.\n\nAttributes:\n    name: Attribute name (used in policy conditions as ``session.<name>``).\n    ordering: Ordered list of allowed values (low \u2192 high).\n    monotonic: If True, value can only move forward in ordering.\n    initial: Starting value. Defaults to first item in ordering.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SessionState",
+      "line": 58,
+      "doc": "Tracks runtime session attributes with optional monotonic enforcement.\n\nIntegrates with PolicyEngine by injecting ``session.*`` keys into\nthe evaluation context.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [
+      "Single concern detected"
+    ],
+    "concerns": [],
+    "detected_concerns": [
+      "logging"
+    ]
+  }
+}

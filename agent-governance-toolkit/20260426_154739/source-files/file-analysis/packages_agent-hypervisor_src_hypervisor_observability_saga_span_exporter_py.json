@@ -1,0 +1,297 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/observability/saga_span_exporter.py",
+  "extension": ".py",
+  "size_bytes": 11754,
+  "line_count": 341,
+  "documentation": {
+    "file_docstring": "OpenTelemetry-compatible span exporter for Saga orchestration steps.\n\nSubscribes to the HypervisorEventBus for saga lifecycle events and\nproduces span records that can be forwarded to any tracing backend\nvia the ``SpanSink`` protocol.\n\nNo external dependencies \u2014 the hypervisor stays standalone.  A concrete\n``OTelSpanSink`` adapter lives in ``agent-sre`` and bridges into the\nexisting ``TraceExporter``.\n\nUsage::\n\n    from hypervisor.observability import SagaSpanExporter, HypervisorEventBus\n\n    bus = HypervisorEventBus()\n    exporter = SagaSpanExporter(bus)\n\n    # Optionally attach a sink (e.g. OTelSpanSink from agent-sre)\n    exporter.attach_sink(my_sink)\n\n    # ... saga events flow through the bus ...\n\n    # Or inspect buffered spans directly\n    spans = exporter.completed_spans",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Optionally attach a sink (e.g. OTelSpanSink from agent-sre)",
+      "... saga events flow through the bus ...",
+      "Or inspect buffered spans directly",
+      "Saga event types we subscribe to",
+      "---------------------------------------------------------------------------",
+      "SpanSink protocol \u2014 no hard OTel dependency in hypervisor",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Span record dataclass",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SagaSpanExporter",
+      "---------------------------------------------------------------------------",
+      "In-flight tracking: (saga_id, step_id) -> start timestamp",
+      "Saga-level tracking: saga_id -> creation timestamp",
+      "Completed span buffer",
+      "Total events processed",
+      "Subscribe to all saga lifecycle events",
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Event handling",
+      "------------------------------------------------------------------",
+      "Compensation is a span in its own right",
+      "Record a saga-level span from creation to completion",
+      "Step started before we subscribed, use end_time as fallback",
+      "Include select payload fields as span attributes",
+      "Forward to sink if attached"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SpanSink: Protocol for receiving completed span records.\n\nAny object implementing this int",
+      "SagaSpanRecord: An immutable record of a completed saga span.",
+      "SagaSpanExporter: Exports OpenTelemetry-compatible spans for saga orchestration steps.\n\nSubscribes",
+      "attach_sink: Attach a SpanSink to receive completed spans in real time.",
+      "detach_sink: Detach the current SpanSink.",
+      "completed_spans: Return a copy of all completed span records.",
+      "events_processed: Total saga events processed.",
+      "reset: Reset all internal state (for testing).",
+      "_handle_event: Process a saga lifecycle event from the bus.",
+      "_complete_step: Complete an in-flight step span."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "events_processed",
+    "SpanSink",
+    "record_span",
+    "SagaSpanExporter",
+    "detach_sink",
+    "SagaSpanRecord",
+    "reset",
+    "completed_spans",
+    "attach_sink",
+    "duration_seconds"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "dataclasses",
+      "typing",
+      "hypervisor.observability.event_bus"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "record_span",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "start_time",
+        "end_time",
+        "attributes",
+        "status"
+      ],
+      "returns": null
+    },
+    {
+      "name": "duration_seconds",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bus",
+        "sink"
+      ],
+      "returns": null
+    },
+    {
+      "name": "attach_sink",
+      "line": 144,
+      "doc": "Attach a SpanSink to receive completed spans in real time.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sink"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detach_sink",
+      "line": 148,
+      "doc": "Detach the current SpanSink.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "completed_spans",
+      "line": 153,
+      "doc": "Return a copy of all completed span records.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "events_processed",
+      "line": 158,
+      "doc": "Total saga events processed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "reset",
+      "line": 162,
+      "doc": "Reset all internal state (for testing).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_handle_event",
+      "line": 173,
+      "doc": "Process a saga lifecycle event from the bus.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_complete_step",
+      "line": 260,
+      "doc": "Complete an in-flight step span.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "saga_id",
+        "step_id",
+        "step_action",
+        "end_time",
+        "status",
+        "extra_attrs",
+        "agent_did",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record_span",
+      "line": 291,
+      "doc": "Create a span record, buffer it, and forward to sink if attached.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "saga_id",
+        "step_id",
+        "step_action",
+        "start_time",
+        "end_time",
+        "status",
+        "extra_attrs",
+        "agent_did",
+        "session_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SpanSink",
+      "line": 55,
+      "doc": "Protocol for receiving completed span records.\n\nAny object implementing this interface can receive spans from the\n``SagaSpanExporter``.  The ``agent-sre`` package ships an\n``OTelSpanSink`` adapter that bridges into the native OTel SDK.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "SagaSpanRecord",
+      "line": 79,
+      "doc": "An immutable record of a completed saga span.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SagaSpanExporter",
+      "line": 101,
+      "doc": "Exports OpenTelemetry-compatible spans for saga orchestration steps.\n\nSubscribes to the ``HypervisorEventBus`` for saga lifecycle events.\nOn each step completion (committed, failed, escalated), records a span\nwith timing, saga context, and status information.\n\nCompleted spans are:\n1. Buffered internally in ``completed_spans``\n2. Forwarded to an attached ``SpanSink`` (if any)\n\nAttributes:\n    _bus: The event bus this exporter is subscribed to.\n    _sink: Optional SpanSink for forwarding completed spans.\n    _step_starts: Tracks step start times: ``(saga_id, step_id) -> timestamp``.\n    _saga_starts: Tracks saga creation times: ``saga_id -> timestamp``.\n    _completed_spans: Buffer of completed span records.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

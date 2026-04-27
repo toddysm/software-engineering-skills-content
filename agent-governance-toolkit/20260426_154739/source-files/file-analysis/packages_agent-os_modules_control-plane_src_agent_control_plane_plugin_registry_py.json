@@ -1,0 +1,618 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/plugin_registry.py",
+  "extension": ".py",
+  "size_bytes": 27012,
+  "line_count": 750,
+  "documentation": {
+    "file_docstring": "Plugin Registry - Runtime Registration and Dependency Injection\n\nThis module provides a central registry for managing pluggable components:\n- Kernels (e.g., SCAK, default kernel)\n- Validators (e.g., capability validators, risk validators)\n- Executors (e.g., sandboxed, remote, distributed)\n- Context routers (e.g., CAAS integration)\n- Policy providers (e.g., file-based, database, remote)\n- Protocol integrations (iatp, cmvk, caas)\n\nLayer 3: The Framework\n- Components are registered at runtime via config or dependency injection\n- No hard imports of specific implementations (scak, mute-agent are forbidden)\n- Allowed dependencies: iatp, cmvk, caas (optional)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Allow lazy loading of plugins",
+      "Plugin discovery paths",
+      "Auto-register built-in plugins",
+      "Forbidden dependencies (will raise error if detected)",
+      "Allowed protocol dependencies",
+      "Register a custom kernel",
+      "Register a validator",
+      "Get the active kernel",
+      "Get validators for an action type",
+      "=========================================================================",
+      "Kernel Registration",
+      "=========================================================================",
+      "=========================================================================",
+      "Validator Registration",
+      "=========================================================================",
+      "Map to action types",
+      "=========================================================================",
+      "Executor Registration",
+      "=========================================================================",
+      "Map to action types",
+      "=========================================================================",
+      "Context Router Registration",
+      "=========================================================================",
+      "Get plugin ID - prefer metadata if available",
+      "Get metadata if available",
+      "Return first available router",
+      "=========================================================================",
+      "Policy Provider Registration",
+      "=========================================================================",
+      "=========================================================================",
+      "Supervisor Registration",
+      "=========================================================================",
+      "=========================================================================",
+      "Protocol Integration (iatp, cmvk, caas)",
+      "=========================================================================",
+      "=========================================================================",
+      "Plugin Discovery and Loading",
+      "=========================================================================",
+      "Import module and look for plugin classes",
+      "Look for classes implementing our interfaces",
+      "Check for forbidden dependencies",
+      "=========================================================================",
+      "Plugin Lifecycle",
+      "=========================================================================",
+      "=========================================================================",
+      "Utility Methods",
+      "=========================================================================",
+      "Shutdown if possible",
+      "Remove from mappings",
+      "Clear active kernel if needed",
+      "Convenience function to get the global registry"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PluginType: Types of plugins that can be registered",
+      "PluginRegistration: Registration record for a plugin",
+      "RegistryConfiguration: Configuration for the plugin registry",
+      "PluginRegistry: Central registry for pluggable components.\n\nThe registry manages:\n- Registration",
+      "get_registry: Get the global plugin registry instance",
+      "__new__: Singleton pattern - ensure single registry instance",
+      "reset: Reset the singleton instance (mainly for testing)",
+      "register_kernel: Register a kernel implementation.\n\nArgs:\n    kernel: The kernel instance to regi",
+      "get_kernel: Get a kernel by ID or the active kernel.\n\nArgs:\n    plugin_id: Optional specific",
+      "set_active_kernel: Set the active kernel by ID"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_context_router",
+    "list_plugins",
+    "get_supervisors",
+    "reset",
+    "get_validators_for_action",
+    "get_message_security",
+    "initialize_all",
+    "set_active_kernel",
+    "get_policy_providers",
+    "register_validator",
+    "PluginRegistry",
+    "register_supervisor",
+    "RegistryConfiguration",
+    "health_check_all",
+    "register_verifier",
+    "PluginRegistration",
+    "get_kernel",
+    "get_statistics",
+    "register_context_router",
+    "PluginType",
+    "load_plugin_from_path",
+    "unregister_plugin",
+    "get_executor_for_action",
+    "discover_plugins",
+    "register_policy_provider",
+    "get_registry",
+    "register_kernel",
+    "get_verifier",
+    "get_plugin",
+    "register_message_security",
+    "register_executor",
+    "get_all_validators",
+    "shutdown_all"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "logging",
+      "importlib",
+      "interfaces.kernel_interface",
+      "interfaces.plugin_interface",
+      "interfaces.protocol_interfaces"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_registry",
+      "line": 748,
+      "doc": "Get the global plugin registry instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "PluginRegistry"
+    },
+    {
+      "name": "__new__",
+      "line": 121,
+      "doc": "Singleton pattern - ensure single registry instance",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "cls"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 142,
+      "doc": "Reset the singleton instance (mainly for testing)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_kernel",
+      "line": 150,
+      "doc": "Register a kernel implementation.\n\nArgs:\n    kernel: The kernel instance to register\n    plugin_id: Optional ID (defaults to kernel name)\n    config: Optional configuration for the kernel\n    set_active: Whether to set this as the active kernel\n    \nReturns:\n    The plugin ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel",
+        "plugin_id",
+        "config",
+        "set_active"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_kernel",
+      "line": 195,
+      "doc": "Get a kernel by ID or the active kernel.\n\nArgs:\n    plugin_id: Optional specific kernel ID\n    \nReturns:\n    The kernel instance or None",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_active_kernel",
+      "line": 215,
+      "doc": "Set the active kernel by ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "register_validator",
+      "line": 229,
+      "doc": "Register a validator.\n\nArgs:\n    validator: The validator instance\n    plugin_id: Optional ID (defaults to validator name)\n    action_types: List of action types this validator handles\n    config: Optional configuration\n    \nReturns:\n    The plugin ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "validator",
+        "plugin_id",
+        "action_types",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_validators_for_action",
+      "line": 278,
+      "doc": "Get all validators for an action type",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_all_validators",
+      "line": 287,
+      "doc": "Get all registered validators",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_executor",
+      "line": 298,
+      "doc": "Register an executor.\n\nArgs:\n    executor: The executor instance\n    plugin_id: Optional ID\n    action_types: List of action types this executor handles\n    config: Optional configuration\n    \nReturns:\n    The plugin ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "executor",
+        "plugin_id",
+        "action_types",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_executor_for_action",
+      "line": 345,
+      "doc": "Get the executor for an action type",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_context_router",
+      "line": 356,
+      "doc": "Register a context router (for caas integration)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "router",
+        "plugin_id",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_context_router",
+      "line": 399,
+      "doc": "Get a context router by ID or the first available",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_policy_provider",
+      "line": 416,
+      "doc": "Register a policy provider",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "provider",
+        "plugin_id",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_policy_providers",
+      "line": 442,
+      "doc": "Get all registered policy providers",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_supervisor",
+      "line": 453,
+      "doc": "Register a supervisor agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "supervisor",
+        "plugin_id",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_supervisors",
+      "line": 479,
+      "doc": "Get all registered supervisors",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_message_security",
+      "line": 490,
+      "doc": "Register a message security provider (for iatp integration)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "security",
+        "plugin_id",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_message_security",
+      "line": 516,
+      "doc": "Get the message security provider",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_verifier",
+      "line": 523,
+      "doc": "Register a verifier (for cmvk integration)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verifier",
+        "plugin_id",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_verifier",
+      "line": 549,
+      "doc": "Get the verification provider",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "discover_plugins",
+      "line": 560,
+      "doc": "Discover plugins from a path.\n\nArgs:\n    path: Path to search for plugins (or use config paths)\n    \nReturns:\n    List of discovered plugin IDs",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_plugin_from_path",
+      "line": 592,
+      "doc": "Load and register a plugin from a module path.\n\nArgs:\n    module_path: Python module path\n    class_name: Name of the plugin class\n    config: Optional configuration\n    \nReturns:\n    The plugin ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "module_path",
+        "class_name",
+        "config"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "initialize_all",
+      "line": 640,
+      "doc": "Initialize all registered plugins",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "shutdown_all",
+      "line": 647,
+      "doc": "Shutdown all registered plugins",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check_all",
+      "line": 654,
+      "doc": "Run health check on all plugins",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_forbidden_dependencies",
+      "line": 668,
+      "doc": "Check if an instance comes from a forbidden dependency",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "instance"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_plugin",
+      "line": 679,
+      "doc": "Get any plugin by ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_plugin",
+      "line": 685,
+      "doc": "Unregister a plugin",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_plugins",
+      "line": 713,
+      "doc": "List all registered plugins",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_statistics",
+      "line": 731,
+      "doc": "Get registry statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "PluginType",
+      "line": 48,
+      "doc": "Types of plugins that can be registered",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PluginRegistration",
+      "line": 61,
+      "doc": "Registration record for a plugin",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RegistryConfiguration",
+      "line": 73,
+      "doc": "Configuration for the plugin registry",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PluginRegistry",
+      "line": 91,
+      "doc": "Central registry for pluggable components.\n\nThe registry manages:\n- Registration and lookup of plugins\n- Dependency injection configuration\n- Plugin lifecycle (initialize, configure, shutdown)\n- Plugin discovery from paths\n\nExample Usage:\n    ```python\n    registry = PluginRegistry()\n    \n    # Register a custom kernel\n    registry.register_kernel(my_kernel, config={\"timeout\": 30})\n    \n    # Register a validator\n    registry.register_validator(my_validator, action_types=[\"code_execution\"])\n    \n    # Get the active kernel\n    kernel = registry.get_kernel()\n    \n    # Get validators for an action type\n    validators = registry.get_validators_for_action(\"code_execution\")\n    ```",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 107,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

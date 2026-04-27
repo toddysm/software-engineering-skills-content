@@ -1,0 +1,369 @@
+{
+  "path": "packages/agent-os/modules/atr/atr/registry.py",
+  "extension": ".py",
+  "size_bytes": 14755,
+  "line_count": 452,
+  "documentation": {
+    "file_docstring": "Registry for storing and retrieving tool specifications.\n\nThe registry is a lightweight lookup mechanism that stores tool specs\nbut does NOT execute them. Execution is the responsibility of the\nAgent Runtime (Control Plane).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Handle comparison operators",
+      "Caret: compatible with major version",
+      "Tilde: compatible with major.minor",
+      "Exact match",
+      "Key: tool_name, Value: dict of version -> ToolSpec",
+      "Initialize version dict if needed",
+      "Store the callable but NEVER execute it",
+      "Filter out deprecated if needed",
+      "Return latest version",
+      "Find matching versions",
+      "Return the highest matching version",
+      "Warn if deprecated",
+      "Get latest version",
+      "Filter deprecated",
+      "Apply filters",
+      "Check name",
+      "Check description",
+      "Check tags",
+      "Remove all versions",
+      "Clean up if no versions left"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RegistryError: Base exception for registry errors.",
+      "ToolNotFoundError: Raised when a tool is not found in the registry.",
+      "ToolAlreadyExistsError: Raised when attempting to register a tool that already exists.",
+      "VersionConstraintError: Raised when no tool version matches the constraint.",
+      "parse_version: Parse a semantic version string into a tuple.\n\nArgs:\n    version: Version string",
+      "version_matches: Check if a version matches a constraint.\n\nSupports constraints like:\n- \"1.0.0\" -",
+      "Registry: Lightweight tool registry using a local dictionary store.\n\nThis registry stores ",
+      "__init__: Initialize an empty registry.\n\nArgs:\n    container: Optional dependency containe",
+      "register_tool: Register a tool in the registry.\n\nArgs:\n    spec: The tool specification\n    cal",
+      "get_tool: Retrieve a tool specification by name and optional version constraint.\n\nArgs:\n  "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "list_tools",
+    "ToolNotFoundError",
+    "unregister_tool",
+    "deprecate_tool",
+    "parse_version",
+    "clear",
+    "register_tool",
+    "get_tool_handle",
+    "get_callable",
+    "search_tools",
+    "total_versions",
+    "RegistryError",
+    "version_matches",
+    "Registry",
+    "ToolAlreadyExistsError",
+    "VersionConstraintError",
+    "get_all_versions",
+    "get_tool"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "re",
+      "warnings",
+      "typing",
+      "schema"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "parse_version",
+      "line": 47,
+      "doc": "Parse a semantic version string into a tuple.\n\nArgs:\n    version: Version string (e.g., \"1.2.3\").\n\nReturns:\n    Tuple of (major, minor, patch).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "version_matches",
+      "line": 62,
+      "doc": "Check if a version matches a constraint.\n\nSupports constraints like:\n- \"1.0.0\" - exact match\n- \">=1.0.0\" - greater than or equal\n- \">1.0.0\" - greater than\n- \"<=1.0.0\" - less than or equal\n- \"<1.0.0\" - less than\n- \"^1.0.0\" - compatible with (same major version)\n- \"~1.0.0\" - approximately (same major.minor)\n- \"*\" - any version\n\nArgs:\n    version: The version to check.\n    constraint: The version constraint.\n\nReturns:\n    True if version matches constraint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "version",
+        "constraint"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 125,
+      "doc": "Initialize an empty registry.\n\nArgs:\n    container: Optional dependency container for injection.\n    metrics_collector: Optional metrics collector.\n    access_manager: Optional access control manager.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "container",
+        "metrics_collector",
+        "access_manager"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_tool",
+      "line": 144,
+      "doc": "Register a tool in the registry.\n\nArgs:\n    spec: The tool specification\n    callable_func: The actual callable function (stored but not executed)\n    replace: Whether to replace if tool version already exists\n\nRaises:\n    ToolAlreadyExistsError: If tool version exists and replace=False",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "spec",
+        "callable_func",
+        "replace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_tool",
+      "line": 176,
+      "doc": "Retrieve a tool specification by name and optional version constraint.\n\nArgs:\n    name: The tool name\n    version: Version constraint (e.g., \">=1.0.0\", \"^1.0.0\", \"1.2.3\")\n            If None, returns the latest version.\n    include_deprecated: Whether to include deprecated versions\n\nReturns:\n    The tool specification (includes the callable but doesn't execute it)\n\nRaises:\n    ToolNotFoundError: If tool is not found\n    VersionConstraintError: If no version matches constraint",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version",
+        "include_deprecated"
+      ],
+      "returns": "ToolSpec"
+    },
+    {
+      "name": "get_tool_handle",
+      "line": 233,
+      "doc": "Get a ToolHandle for executing a tool with all policies applied.\n\nArgs:\n    name: The tool name\n    version: Version constraint\n    include_deprecated: Whether to include deprecated versions\n\nReturns:\n    ToolHandle ready for execution",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version",
+        "include_deprecated"
+      ],
+      "returns": "ToolHandle"
+    },
+    {
+      "name": "get_all_versions",
+      "line": 262,
+      "doc": "Get all registered versions of a tool.\n\nArgs:\n    name: The tool name\n\nReturns:\n    List of version strings, sorted newest first\n\nRaises:\n    ToolNotFoundError: If tool is not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_callable",
+      "line": 280,
+      "doc": "Get the callable function for a tool.\n\nThis returns the function object but does NOT execute it.\nThe caller (Agent Runtime) is responsible for execution.\n\nArgs:\n    name: The tool name\n    version: Optional version constraint\n\nReturns:\n    The callable function object\n\nRaises:\n    ToolNotFoundError: If tool is not found\n    ValueError: If tool has no callable",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "list_tools",
+      "line": 304,
+      "doc": "List all registered tools with optional filtering.\n\nArgs:\n    tag: Filter by tag\n    cost: Filter by cost level\n    side_effect: Filter by side effect\n    include_all_versions: If True, return all versions. If False, only latest.\n    include_deprecated: Whether to include deprecated tools\n\nReturns:\n    List of matching tool specifications",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tag",
+        "cost",
+        "side_effect",
+        "include_all_versions",
+        "include_deprecated"
+      ],
+      "returns": null
+    },
+    {
+      "name": "search_tools",
+      "line": 354,
+      "doc": "Search tools by name, description, or tags.\n\nArgs:\n    query: Search query string\n    include_all_versions: Whether to search all versions\n\nReturns:\n    List of matching tool specifications",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query",
+        "include_all_versions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_tool",
+      "line": 395,
+      "doc": "Remove a tool from the registry.\n\nArgs:\n    name: The tool name\n    version: Specific version to remove, or None to remove all versions\n\nRaises:\n    ToolNotFoundError: If tool is not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version"
+      ],
+      "returns": null
+    },
+    {
+      "name": "deprecate_tool",
+      "line": 420,
+      "doc": "Mark a tool version as deprecated.\n\nArgs:\n    name: Tool name\n    version: Version to deprecate\n    message: Optional deprecation message/migration guide\n\nRaises:\n    ToolNotFoundError: If tool/version not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "version",
+        "message"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear",
+      "line": 438,
+      "doc": "Remove all tools from the registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__len__",
+      "line": 442,
+      "doc": "Return the number of registered tools (unique names).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "total_versions",
+      "line": 446,
+      "doc": "Return the total number of registered tool versions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__contains__",
+      "line": 450,
+      "doc": "Check if a tool is registered.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RegistryError",
+      "line": 23,
+      "doc": "Base exception for registry errors.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolNotFoundError",
+      "line": 29,
+      "doc": "Raised when a tool is not found in the registry.",
+      "is_public": true,
+      "bases": [
+        "RegistryError"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ToolAlreadyExistsError",
+      "line": 35,
+      "doc": "Raised when attempting to register a tool that already exists.",
+      "is_public": true,
+      "bases": [
+        "RegistryError"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "VersionConstraintError",
+      "line": 41,
+      "doc": "Raised when no tool version matches the constraint.",
+      "is_public": true,
+      "bases": [
+        "RegistryError"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Registry",
+      "line": 114,
+      "doc": "Lightweight tool registry using a local dictionary store.\n\nThis registry stores tool specifications and their callables but does NOT\nexecute them. It's purely a lookup and discovery mechanism.\n\nThe actual execution is handled by the Agent Runtime (Control Plane).\n\nSupports versioning: multiple versions of the same tool can be registered.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 84,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "path": "packages/agent-os/modules/iatp/iatp/models/__init__.py",
+  "extension": ".py",
+  "size_bytes": 13460,
+  "line_count": 447,
+  "documentation": {
+    "file_docstring": "Core data models for the Inter-Agent Trust Protocol (IATP).\n\nThis module defines the Pydantic models used for capability manifests,\ntrust negotiation, and policy enforcement. These models form the\nfoundation of the IATP protocol.\n\nClasses:\n    TrustLevel: Enumeration of agent trust levels.\n    ReversibilityLevel: Enumeration of transaction reversibility support.\n    RetentionPolicy: Enumeration of data retention policies.\n    PrivacyContract: Privacy and data handling policies.\n    AgentCapabilities: Capabilities advertised by an agent.\n    CapabilityManifest: The complete manifest exchanged during handshake.\n    QuarantineSession: Session info for quarantined requests.\n    TracingContext: Distributed tracing context.\n\nExample:\n    Creating a capability manifest::\n\n        from iatp.models import (\n            CapabilityManifest,\n            AgentCapabilities,\n            PrivacyContract,\n            TrustLevel,\n            ReversibilityLevel,\n            RetentionPolicy,\n        )\n\n        manifest = CapabilityManifest(\n            agent_id=\"my-agent\",\n            trust_level=TrustLevel.TRUSTED,\n            capabilities=AgentCapabilities(\n                reversibility=ReversibilityLevel.FULL,\n                idempotency=True,\n            ),\n            privacy_contract=PrivacyContract(\n                retention=RetentionPolicy.EPHEMERAL,\n            ),\n        )\n\n        print(f\"Trust Score: {manifest.calculate_trust_score()}/10\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Trust level adjustments",
+      "Capability bonuses",
+      "Privacy bonuses",
+      "Clamp to 0-10 range",
+      "Update score with clamping",
+      "Update counters",
+      "Add to recent events (keep last 100)",
+      "Update timestamp"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustLevel: Trust levels for agents.",
+      "ReversibilityLevel: Reversibility support levels.",
+      "RetentionPolicy: Data retention policies.",
+      "PrivacyContract: Privacy contract specifying data handling policies.",
+      "AgentCapabilities: Capabilities advertised by an agent.",
+      "CapabilityManifest: Capability manifest exchanged during handshake.\nThis is the core metadata that a",
+      "QuarantineSession: Session information for quarantined/untrusted requests.",
+      "TracingContext: Distributed tracing context.",
+      "AttestationRecord: Attestation record for agent codebase verification.\n\nThis provides verifiable pr",
+      "ReputationEvent: Event that affects an agent's reputation score.\n\nThis tracks individual events t"
+    ]
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ReputationScore",
+    "is_expired",
+    "AgentCapabilities",
+    "ReputationEvent",
+    "calculate_trust_score",
+    "TracingContext",
+    "AttestationRecord",
+    "PrivacyContract",
+    "ReversibilityLevel",
+    "TrustLevel",
+    "RetentionPolicy",
+    "get_trust_level",
+    "CapabilityManifest",
+    "QuarantineSession",
+    "apply_event"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "enum",
+      "typing",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "calculate_trust_score",
+      "line": 171,
+      "doc": "Calculate a trust score (0-10) based on capabilities and privacy.\n\nThe trust score helps clients make informed decisions about agent reliability.\nHigher scores indicate more trustworthy agents with better security practices.\n\nScoring Criteria:\n----------------\nBase Score: 5 (neutral)\n\nTrust Level Adjustments:\n- VERIFIED_PARTNER: +3 (well-known, vetted partner)\n- TRUSTED: +2 (established trust relationship)\n- STANDARD: 0 (no prior relationship)\n- UNKNOWN: -2 (minimal information)\n- UNTRUSTED: -5 (known issues or red flags)\n\nCapability Bonuses:\n- Idempotency support: +1 (safe retry behavior)\n- Reversibility (full or partial): +1 (can undo actions)\n\nPrivacy Adjustments:\n- Ephemeral retention: +2 (best privacy, data deleted after session)\n- Permanent/forever retention: -2 (worst privacy, data kept indefinitely)\n- No human review: +1 (automated processing only)\n\nScore Ranges:\n- 8-10: Highly trustworthy (verified partners with strong privacy)\n- 5-7: Moderately trustworthy (standard agents with decent practices)\n- 3-4: Low trust (some concerns, user should be cautious)\n- 0-2: Very low trust (significant concerns, strong warnings needed)\n\nReturns:\n    int: Trust score clamped to range [0, 10]",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "is_expired",
+      "line": 304,
+      "doc": "Check if the attestation has expired.\n\nArgs:\n    current_time: Current time in ISO 8601 format\n\nReturns:\n    True if expired, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "current_time"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "apply_event",
+      "line": 406,
+      "doc": "Apply a reputation event to update the score.\n\nArgs:\n    event: The reputation event to apply",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_level",
+      "line": 431,
+      "doc": "Convert reputation score to trust level.\n\nReturns:\n    Appropriate TrustLevel based on current score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "TrustLevel"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustLevel",
+      "line": 69,
+      "doc": "Trust levels for agents.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReversibilityLevel",
+      "line": 78,
+      "doc": "Reversibility support levels.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RetentionPolicy",
+      "line": 85,
+      "doc": "Data retention policies.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PrivacyContract",
+      "line": 93,
+      "doc": "Privacy contract specifying data handling policies.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentCapabilities",
+      "line": 117,
+      "doc": "Capabilities advertised by an agent.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityManifest",
+      "line": 141,
+      "doc": "Capability manifest exchanged during handshake.\nThis is the core metadata that agents exchange.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "QuarantineSession",
+      "line": 238,
+      "doc": "Session information for quarantined/untrusted requests.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TracingContext",
+      "line": 248,
+      "doc": "Distributed tracing context.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AttestationRecord",
+      "line": 268,
+      "doc": "Attestation record for agent codebase verification.\n\nThis provides verifiable proof that an agent is running the expected\ncodebase and configuration, signed by a trusted Control Plane.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReputationEvent",
+      "line": 319,
+      "doc": "Event that affects an agent's reputation score.\n\nThis tracks individual events that caused reputation changes,\nsuch as hallucinations detected by cmvk or successful transactions.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ReputationScore",
+      "line": 364,
+      "doc": "Network-wide reputation score for an agent.\n\nThis tracks an agent's reputation based on its behavior across\nthe network. Reputation can be slashed when misbehavior is detected.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 38,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

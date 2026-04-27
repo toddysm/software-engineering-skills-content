@@ -1,0 +1,156 @@
+{
+  "path": "docs/workshop/labs/lab2_multi_agent_trust.py",
+  "extension": ".py",
+  "size_bytes": 5409,
+  "line_count": 160,
+  "documentation": {
+    "file_docstring": "Lab 2 \u2014 Multi-Agent Trust\n=========================\nIntroduction to AI Agent Governance Workshop\n\nGoal: Create two agents, run a trust handshake, build trust through positive\nbehaviour, revoke credentials, and observe how the trust layer responds at\neach stage.\n\nInstructions:\n1. Read through this file completely before making changes.\n2. Fill in each section marked with TODO.\n3. Run the script:   python lab2_multi_agent_trust.py\n4. Compare your output to the expected flow in lab-guide.md.\n\nPrerequisites:\n    pip install agentmesh-platform",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Step 1 \u2014 Create two agents",
+      "---------------------------------------------------------------------------",
+      "Replace these stubs with real AgentIdentity.create() calls.",
+      "---------------------------------------------------------------------------",
+      "Step 2 \u2014 Attempt a trust handshake (expected: fail)",
+      "---------------------------------------------------------------------------",
+      "result = TrustHandshake(",
+      "initiator=initiator,",
+      "responder_did=str(responder.did),",
+      "required_capabilities=[\"read:data\"],",
+      "min_trust_score=min_trust_score,",
+      ").execute()",
+      "---------------------------------------------------------------------------",
+      "Step 3 \u2014 Build trust through positive behaviour",
+      "---------------------------------------------------------------------------",
+      "scorer.record_event(",
+      "agent_did=str(agent.did),",
+      "event_type=\"policy_compliant_action\",",
+      "details=f\"Completed task {i + 1}\",",
+      ")",
+      "---------------------------------------------------------------------------",
+      "Step 4 \u2014 Revoke credentials and confirm block",
+      "---------------------------------------------------------------------------",
+      "initiator.revoke()",
+      "attempt_handshake(initiator, responder, min_trust_score=400)",
+      "---------------------------------------------------------------------------",
+      "Main flow",
+      "---------------------------------------------------------------------------",
+      "Step 1",
+      "Step 2 \u2014 first handshake (should fail: score 500 < 700)",
+      "Step 3 \u2014 build trust",
+      "Step 4a \u2014 retry handshake with lower threshold",
+      "Step 4b \u2014 revoke and confirm block"
+    ],
+    "todo_comments": [
+      "TODO: print result and return result.trusted",
+      "TODO: loop and call scorer.record_event() for each event"
+    ],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "create_agents: TODO: Create two AgentIdentity objects.\n\n- orchestrator: capabilities [\"orchestr",
+      "attempt_handshake: TODO: Create a TrustHandshake from initiator \u2192 responder and execute it.\n\nPrint:",
+      "build_trust: TODO: Use RiskScorer to record `num_events` \"policy_compliant_action\"\nevents for",
+      "revoke_and_verify: TODO: Revoke the initiator's credentials and then attempt a handshake.\nConfirm t"
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "run_lab",
+    "revoke_and_verify",
+    "attempt_handshake",
+    "create_agents",
+    "build_trust"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "agentmesh",
+      "agentmesh.trust"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_agents",
+      "line": 29,
+      "doc": "TODO: Create two AgentIdentity objects.\n\n- orchestrator: capabilities [\"orchestrate:agents\", \"read:data\"]\n                sponsor \"alice@example.com\"\n- worker:       capabilities [\"read:data\", \"write:reports\"]\n                sponsor \"bob@example.com\"\n\nReturn (orchestrator, worker).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "tuple"
+    },
+    {
+      "name": "attempt_handshake",
+      "line": 50,
+      "doc": "TODO: Create a TrustHandshake from initiator \u2192 responder and execute it.\n\nPrint:\n    [OK]   Handshake succeeded \u2014 session_token: <token>\n  or\n    [FAIL] Handshake failed \u2014 <reason>\n\nReturn True if the handshake succeeded, False otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "initiator",
+        "responder",
+        "min_trust_score"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "build_trust",
+      "line": 76,
+      "doc": "TODO: Use RiskScorer to record `num_events` \"policy_compliant_action\"\nevents for the given agent.\n\nAfter recording, fetch the updated score and print it.\nReturn the total_score integer.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent",
+        "num_events"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "revoke_and_verify",
+      "line": 102,
+      "doc": "TODO: Revoke the initiator's credentials and then attempt a handshake.\nConfirm that the handshake fails with a \"credentials revoked\" reason.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "initiator",
+        "responder"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_lab",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [],
+  "complexity_score": 7,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

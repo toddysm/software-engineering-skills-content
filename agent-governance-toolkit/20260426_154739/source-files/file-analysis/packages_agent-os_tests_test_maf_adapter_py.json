@@ -1,0 +1,639 @@
+{
+  "path": "packages/agent-os/tests/test_maf_adapter.py",
+  "extension": ".py",
+  "size_bytes": 17650,
+  "line_count": 504,
+  "documentation": {
+    "file_docstring": "Tests for Microsoft Agent Framework (MAF) governance adapter.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Build realistic Message mocks.",
+      "\u2500\u2500 GovernancePolicyMiddleware \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Result should be set to an AgentResponse with the violation message.",
+      "\u2500\u2500 CapabilityGuardMiddleware \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 AuditTrailMiddleware \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 RogueDetectionMiddleware \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "The profile should be registered on the detector's capability checker.",
+      "Force the detector to recommend quarantine.",
+      "\u2500\u2500 create_governance_middleware factory \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "All middleware that has audit_log should share the same instance."
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_agent_context: Create a mock AgentContext.",
+      "_make_message: Create a mock MAF Message with a .text property.",
+      "_make_function_context: Create a mock FunctionInvocationContext.",
+      "allow_evaluator: An evaluator with no loaded policies \u2192 allows everything.",
+      "deny_evaluator: An evaluator that always denies."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_shares_audit_log_across_layers",
+    "test_disables_rogue_detection",
+    "allow_evaluator",
+    "detector",
+    "test_includes_capability_guard_when_tools_specified",
+    "deny_evaluator",
+    "test_includes_rogue_detection_by_default",
+    "TestAuditTrailMiddleware",
+    "test_returns_list",
+    "test_creates_default_audit_log_when_none",
+    "TestGovernancePolicyMiddleware",
+    "test_includes_audit_trail",
+    "TestRogueDetectionMiddleware",
+    "TestCreateGovernanceMiddleware",
+    "TestCapabilityGuardMiddleware"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "unittest.mock",
+      "pytest",
+      "agentmesh.governance",
+      "agent_os.policies",
+      "agent_sre.anomaly",
+      "agent_os.integrations.maf_adapter",
+      "agent_sre.anomaly.rogue_detector",
+      "agent_sre.anomaly.rogue_detector"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_agent_context",
+      "line": 32,
+      "doc": "Create a mock AgentContext.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_name",
+        "messages",
+        "metadata"
+      ],
+      "returns": "MagicMock"
+    },
+    {
+      "name": "_make_message",
+      "line": 49,
+      "doc": "Create a mock MAF Message with a .text property.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "role",
+        "text"
+      ],
+      "returns": "MagicMock"
+    },
+    {
+      "name": "_make_function_context",
+      "line": 57,
+      "doc": "Create a mock FunctionInvocationContext.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func_name",
+        "arguments",
+        "metadata"
+      ],
+      "returns": "MagicMock"
+    },
+    {
+      "name": "allow_evaluator",
+      "line": 77,
+      "doc": "An evaluator with no loaded policies \u2192 allows everything.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "PolicyEvaluator"
+    },
+    {
+      "name": "deny_evaluator",
+      "line": 82,
+      "doc": "An evaluator that always denies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self",
+        "monkeypatch"
+      ],
+      "returns": "PolicyEvaluator"
+    },
+    {
+      "name": "test_allows_when_policy_passes",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "allow_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_denies_when_policy_fails",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "deny_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_logs_denial_to_audit",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "deny_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_logs_allow_to_audit",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "allow_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handles_empty_messages",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "allow_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_works_without_audit_log",
+      "line": 163,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "deny_evaluator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allows_tool_in_allowed_list",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocks_tool_not_in_allowed_list",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocks_tool_in_denied_list",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_denied_list_takes_precedence_over_allowed",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allows_all_when_no_lists",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_logs_tool_invocation_to_audit",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_logs_denied_tool_to_audit",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_records_start_and_complete",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stores_entry_id_in_metadata",
+      "line": 280,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_records_timing",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_records_error_outcome_on_exception",
+      "line": 306,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_uses_agent_name_when_no_did",
+      "line": 321,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detector",
+      "line": 338,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "RogueAgentDetector"
+    },
+    {
+      "name": "test_allows_low_risk_invocations",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "detector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_registers_capability_profile",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "detector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocks_quarantined_agent",
+      "line": 366,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "detector",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_warns_on_medium_risk",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "detector",
+        "monkeypatch"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_works_without_audit_log",
+      "line": 440,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "detector"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_returns_list",
+      "line": 455,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_includes_rogue_detection_by_default",
+      "line": 460,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_disables_rogue_detection",
+      "line": 465,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_includes_capability_guard_when_tools_specified",
+      "line": 470,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_includes_audit_trail",
+      "line": 478,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shares_audit_log_across_layers",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_creates_default_audit_log_when_none",
+      "line": 497,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestGovernancePolicyMiddleware",
+      "line": 75,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCapabilityGuardMiddleware",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditTrailMiddleware",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRogueDetectionMiddleware",
+      "line": 336,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCreateGovernanceMiddleware",
+      "line": 454,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 11,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

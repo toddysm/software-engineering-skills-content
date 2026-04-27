@@ -1,0 +1,253 @@
+{
+  "path": "packages/agent-os/src/agent_os/semantic_policy.py",
+  "extension": ".py",
+  "size_bytes": 16343,
+  "line_count": 422,
+  "documentation": {
+    "file_docstring": "Semantic Policy Engine \u2014 Intent-based policy enforcement.\n\nClassifies action+params into semantic intent categories and enforces\npolicies based on intent rather than brittle string patterns.\n\nThis is a heuristic classifier (no ML dependency). It can be upgraded\nto a fine-tuned model later while keeping the same API.\n\nExample:\n    >>> from agent_os.semantic_policy import SemanticPolicyEngine, IntentCategory\n    >>>\n    >>> engine = SemanticPolicyEngine()\n    >>> result = engine.classify(\"database_query\", {\"query\": \"DROP TABLE users\"})\n    >>> result.category  # IntentCategory.DESTRUCTIVE_DATA\n    >>> result.confidence  # 0.95\n    >>>\n    >>> engine.check(\"database_query\", {\"query\": \"DROP TABLE users\"}, deny=[IntentCategory.DESTRUCTIVE_DATA])\n    >>> # raises PolicyDenied",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "Disclaimer",
+      "=============================================================================",
+      "=============================================================================",
+      "Intent Categories",
+      "=============================================================================",
+      "=============================================================================",
+      "Classification Result",
+      "=============================================================================",
+      "=============================================================================",
+      "Policy Denied Exception",
+      "=============================================================================",
+      "=============================================================================",
+      "Signal Definitions",
+      "=============================================================================",
+      "Each signal: (pattern_regex, weight, explanation)",
+      "=============================================================================",
+      "Externalised configuration dataclass",
+      "=============================================================================",
+      "=============================================================================",
+      "Semantic Policy Engine",
+      "=============================================================================",
+      "Build signals from config or defaults",
+      "Pre-compile regexes for performance",
+      "Build the text corpus to scan",
+      "=============================================================================",
+      "Public API",
+      "============================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "IntentCategory: Semantic intent categories for agent actions.",
+      "IntentClassification: Result of semantic intent classification.",
+      "PolicyDenied: Raised when an action is denied by semantic policy.",
+      "SemanticPolicyConfig: Structured configuration for semantic policy signals, loadable from YAML.\n\nAttri",
+      "load_semantic_policy_config: Load semantic policy configuration from a YAML file.\n\nArgs:\n    path: Path to a ",
+      "SemanticPolicyEngine: Intent-based policy enforcement engine.\n\nClassifies action+params into semantic ",
+      "is_dangerous: True if intent is in a dangerous category with high confidence.",
+      "__init__: Args:\n    deny: Intent categories to deny (default: all dangerous categories)\n  ",
+      "classify: Classify the semantic intent of an action+params.\n\nArgs:\n    action: Action name",
+      "check: Classify and enforce \u2014 raises PolicyDenied if intent is denied.\n\nArgs:\n    actio"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "load_semantic_policy_config",
+    "classify",
+    "check",
+    "SemanticPolicyEngine",
+    "is_dangerous",
+    "IntentClassification",
+    "SemanticPolicyConfig",
+    "PolicyDenied",
+    "IntentCategory"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "os",
+      "re",
+      "warnings",
+      "dataclasses",
+      "enum",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_semantic_policy_config",
+      "line": 205,
+      "doc": "Load semantic policy configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML file with a ``signals`` section.\n\nReturns:\n    SemanticPolicyConfig populated from the YAML data.\n\nRaises:\n    FileNotFoundError: If the config file does not exist.\n    ValueError: If the YAML is missing the ``signals`` section.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "SemanticPolicyConfig"
+    },
+    {
+      "name": "is_dangerous",
+      "line": 75,
+      "doc": "True if intent is in a dangerous category with high confidence.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "classification",
+        "policy_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 259,
+      "doc": "Args:\n    deny: Intent categories to deny (default: all dangerous categories)\n    confidence_threshold: Minimum confidence to trigger deny (0.0-1.0)\n    custom_signals: Additional signal patterns to merge with defaults\n    config: Optional externalized configuration loaded via\n        ``load_semantic_policy_config()``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "deny",
+        "confidence_threshold",
+        "custom_signals",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "classify",
+      "line": 314,
+      "doc": "Classify the semantic intent of an action+params.\n\nArgs:\n    action: Action name (e.g. \"database_query\")\n    params: Action parameters (e.g. {\"query\": \"DROP TABLE users\"})\n\nReturns:\n    IntentClassification with category, confidence, and matched signals",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "params"
+      ],
+      "returns": "IntentClassification"
+    },
+    {
+      "name": "check",
+      "line": 361,
+      "doc": "Classify and enforce \u2014 raises PolicyDenied if intent is denied.\n\nArgs:\n    action: Action name\n    params: Action parameters\n    deny: Override deny categories (uses engine defaults if None)\n    policy_name: Name for error messages\n\nReturns:\n    IntentClassification if allowed\n\nRaises:\n    PolicyDenied: If classified intent is in deny set above threshold",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "params"
+      ],
+      "returns": "IntentClassification"
+    },
+    {
+      "name": "_build_text",
+      "line": 396,
+      "doc": "Flatten action + params into a single searchable string.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "action",
+        "params"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "IntentCategory",
+      "line": 48,
+      "doc": "Semantic intent categories for agent actions.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "IntentClassification",
+      "line": 67,
+      "doc": "Result of semantic intent classification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyDenied",
+      "line": 95,
+      "doc": "Raised when an action is denied by semantic policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SemanticPolicyConfig",
+      "line": 187,
+      "doc": "Structured configuration for semantic policy signals, loadable from YAML.\n\nAttributes:\n    signals: Mapping of IntentCategory names to lists of\n        ``(pattern, weight, explanation)`` tuples.\n    disclaimer: Disclaimer text shown in logs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SemanticPolicyEngine",
+      "line": 248,
+      "doc": "Intent-based policy enforcement engine.\n\nClassifies action+params into semantic intent categories using\nweighted keyword signals, then enforces deny/allow policies.\n\nThis is a zero-dependency heuristic classifier designed to run in <1ms.\nThe API is stable \u2014 swap in an ML classifier later without changing callers.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 49,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

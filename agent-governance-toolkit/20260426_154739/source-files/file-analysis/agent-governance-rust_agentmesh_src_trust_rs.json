@@ -1,0 +1,366 @@
+{
+  "path": "agent-governance-rust/agentmesh/src/trust.rs",
+  "extension": ".rs",
+  "size_bytes": 18679,
+  "line_count": 572,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "! Trust scoring engine \u2014 tracks per-agent trust scores on a 0\u20131000 scale",
+      "! across five tiers, with optional JSON persistence.",
+      "Configuration for the trust manager.",
+      "Score assigned to unknown agents (default: 500).",
+      "Minimum score required to be considered trusted.",
+      "Points added on a successful interaction (default: 10).",
+      "Points removed on a failed interaction (default: 50).",
+      "Optional path for JSON persistence.",
+      "Per-hour decay multiplier applied to trust scores (default: 0.95).",
+      "Internal per-agent state.",
+      "Manages trust scores for a set of agents.",
+      "",
+      "Thread-safe \u2014 can be shared across threads via `Arc<TrustManager>`.",
+      "Create a new trust manager with the given configuration.",
+      "Create a trust manager with default configuration.",
+      "Get the current trust score for an agent.",
+      "",
+      "Returns the default score if the agent is unknown.",
+      "Decay is applied based on time elapsed since the last update.",
+      "Check whether an agent meets the trust threshold.",
+      "Record a successful interaction (increases trust score).",
+      "Record a failed or suspicious interaction (decreases trust score).",
+      "Set the trust score directly for an agent.",
+      "Return trust scores for all tracked agents.",
+      "Verify a peer agent's identity via challenge-response.",
+      "",
+      "Generates a random 32-byte challenge, asks the peer to sign it,",
+      "then verifies the signature against the peer's public key.",
+      "Apply time-based decay to a raw score.",
+      "Best-effort load from persistence file.",
+      "Best-effort save to persistence file.",
+      "Write",
+      "Read back",
+      "Immediately reading \u2014 negligible time elapsed \u2192 score should",
+      "remain essentially unchanged.",
+      "Manually insert an agent with a known score and an old timestamp.",
+      "After 1 hour with decay_rate 0.95: 1000 * 0.95 = 950",
+      "1000 * 0.95^2 = 902.5 \u2192 903 (rounded)",
+      "Initial score 500 < threshold 700"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "new",
+    "TrustConfig",
+    "record_success",
+    "all_agents",
+    "with_defaults",
+    "TrustManager",
+    "is_trusted",
+    "record_failure",
+    "verify_peer",
+    "get_trust_score",
+    "set_trust"
+  ],
+  "imports": {
+    "internal": [
+      "crate::identity::AgentIdentity",
+      "crate::types::{TrustScore, TrustTier}",
+      "super::*"
+    ],
+    "external": [
+      "serde::{Deserialize, Serialize}"
+    ],
+    "standard": [
+      "std::collections::HashMap",
+      "std::sync::RwLock",
+      "std::time::{SystemTime, UNIX_EPOCH}"
+    ]
+  },
+  "functions": [
+    {
+      "name": "default",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "new",
+      "line": 64,
+      "doc": "Create a new trust manager with the given configuration.",
+      "is_public": true
+    },
+    {
+      "name": "with_defaults",
+      "line": 74,
+      "doc": "Create a trust manager with default configuration.",
+      "is_public": true
+    },
+    {
+      "name": "get_trust_score",
+      "line": 82,
+      "doc": "Decay is applied based on time elapsed since the last update.",
+      "is_public": true
+    },
+    {
+      "name": "is_trusted",
+      "line": 104,
+      "doc": "Check whether an agent meets the trust threshold.",
+      "is_public": true
+    },
+    {
+      "name": "record_success",
+      "line": 109,
+      "doc": "Record a successful interaction (increases trust score).",
+      "is_public": true
+    },
+    {
+      "name": "record_failure",
+      "line": 129,
+      "doc": "Record a failed or suspicious interaction (decreases trust score).",
+      "is_public": true
+    },
+    {
+      "name": "set_trust",
+      "line": 149,
+      "doc": "Set the trust score directly for an agent.",
+      "is_public": true
+    },
+    {
+      "name": "all_agents",
+      "line": 167,
+      "doc": "Return trust scores for all tracked agents.",
+      "is_public": true
+    },
+    {
+      "name": "verify_peer",
+      "line": 188,
+      "doc": "then verifies the signature against the peer's public key.",
+      "is_public": true
+    },
+    {
+      "name": "apply_decay",
+      "line": 196,
+      "doc": "Apply time-based decay to a raw score.",
+      "is_public": false
+    },
+    {
+      "name": "load_from_disk",
+      "line": 207,
+      "doc": "Best-effort load from persistence file.",
+      "is_public": false
+    },
+    {
+      "name": "save_to_disk",
+      "line": 221,
+      "doc": "Best-effort save to persistence file.",
+      "is_public": false
+    },
+    {
+      "name": "epoch_now",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_default_score",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_record_success_increases_score",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_record_failure_decreases_score",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_score_capped_at_1000",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_score_floor_at_zero",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_trust_tiers",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_is_trusted",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_persistence",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_decay_rate_default",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_decay_no_elapsed_time",
+      "line": 352,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_decay_applied_over_time",
+      "line": 362,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_decay_multiple_hours",
+      "line": 383,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_decay_disabled_when_rate_is_one",
+      "line": 403,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_verify_peer_valid_identity",
+      "line": 425,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_multiple_agents_tracked_independently",
+      "line": 433,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_many_successes_never_exceed_1000",
+      "line": 444,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_many_failures_never_go_below_0",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_set_trust_to_specific_value",
+      "line": 472,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_set_trust_above_1000_is_clamped",
+      "line": 480,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_all_agents_returns_correct_count",
+      "line": 487,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_all_agents_empty",
+      "line": 496,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_custom_config_high_reward",
+      "line": 502,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_custom_config_high_penalty",
+      "line": 514,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_persistence_multiple_agents",
+      "line": 526,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_is_trusted_custom_threshold",
+      "line": 553,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_default_initial_trust_tier_is_standard",
+      "line": 567,
+      "doc": "No documentation",
+      "is_public": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustConfig",
+      "line": 16,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "AgentState",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "TrustManager",
+      "line": 57,
+      "doc": "Thread-safe \u2014 can be shared across threads via `Arc<TrustManager>`.",
+      "is_public": true
+    }
+  ],
+  "complexity_score": 17,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

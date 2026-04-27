@@ -1,0 +1,424 @@
+{
+  "path": "packages/agent-os/src/agent_os/sandbox.py",
+  "extension": ".py",
+  "size_bytes": 14602,
+  "line_count": 432,
+  "documentation": {
+    "file_docstring": "Execution Sandbox for Agent OS\n\nPrevents agents from bypassing the kernel via direct stdlib calls\n(subprocess, os, eval, etc.) using import hooks and AST-based static analysis.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Externalised configuration dataclass",
+      "---------------------------------------------------------------------------",
+      "Detect calls to blocked builtins: eval(...), exec(...)",
+      "Detect os.system(...) style calls",
+      "Detect importlib.import_module('blocked_mod') bypass",
+      "Resolve symlinks and '..' to prevent path traversal attacks",
+      "Use is_relative_to for safe containment check"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SandboxSecurityConfig: Structured configuration for sandbox security rules, loadable from YAML.\n\nAttrib",
+      "load_sandbox_config: Load sandbox security configuration from a YAML file.\n\nArgs:\n    path: Path to a",
+      "SandboxConfig: Configuration for the execution sandbox.",
+      "SecurityViolation: Represents a security violation found during static analysis.",
+      "SandboxImportHook: Import hook that blocks imports of dangerous modules.\n\nIntercepts import attempt",
+      "_ASTSecurityVisitor: AST visitor that detects security violations in code.",
+      "ExecutionSandbox: Restricted execution environment that prevents stdlib bypass.\n\nUses import hooks",
+      "_make_blocked_builtin: Create a function that raises SecurityError when called.",
+      "find_module: Check if this module should be blocked (legacy API).",
+      "load_module: Block the import by raising SecurityError (legacy API)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "find_spec",
+    "ExecutionSandbox",
+    "SandboxSecurityConfig",
+    "check_file_access",
+    "visit_ImportFrom",
+    "install",
+    "visit_Import",
+    "SecurityViolation",
+    "load_module",
+    "SandboxImportHook",
+    "load_sandbox_config",
+    "SandboxConfig",
+    "validate_code",
+    "execute_sandboxed",
+    "uninstall",
+    "check_import",
+    "check_builtin",
+    "create_restricted_globals",
+    "visit_Call",
+    "find_module"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "ast",
+      "importlib.abc",
+      "importlib.machinery",
+      "os",
+      "pathlib",
+      "sys",
+      "warnings",
+      "dataclasses",
+      "typing",
+      "pydantic",
+      "agent_os.exceptions",
+      "yaml",
+      "builtins"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_sandbox_config",
+      "line": 68,
+      "doc": "Load sandbox security configuration from a YAML file.\n\nArgs:\n    path: Path to a YAML file with a ``sandbox`` section.\n\nReturns:\n    SandboxSecurityConfig populated from the YAML data.\n\nRaises:\n    FileNotFoundError: If the config file does not exist.\n    ValueError: If the YAML is missing the ``sandbox`` section.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "SandboxSecurityConfig"
+    },
+    {
+      "name": "_make_blocked_builtin",
+      "line": 421,
+      "doc": "Create a function that raises SecurityError when called.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "blocked_modules"
+      ],
+      "returns": null
+    },
+    {
+      "name": "find_module",
+      "line": 131,
+      "doc": "Check if this module should be blocked (legacy API).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fullname",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_module",
+      "line": 142,
+      "doc": "Block the import by raising SecurityError (legacy API).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fullname"
+      ],
+      "returns": null
+    },
+    {
+      "name": "find_spec",
+      "line": 150,
+      "doc": "Intercept import via the modern finder protocol.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fullname",
+        "path",
+        "target"
+      ],
+      "returns": null
+    },
+    {
+      "name": "install",
+      "line": 166,
+      "doc": "Install this hook into sys.meta_path.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "uninstall",
+      "line": 171,
+      "doc": "Remove this hook from sys.meta_path.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "blocked_modules",
+        "blocked_builtins"
+      ],
+      "returns": null
+    },
+    {
+      "name": "visit_Import",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node"
+      ],
+      "returns": null
+    },
+    {
+      "name": "visit_ImportFrom",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node"
+      ],
+      "returns": null
+    },
+    {
+      "name": "visit_Call",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 275,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_import",
+      "line": 292,
+      "doc": "Check if a module import is allowed.\n\nArgs:\n    module_name: The module name to check.\n\nReturns:\n    True if the import is allowed, False if blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "module_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_builtin",
+      "line": 304,
+      "doc": "Check if a builtin call is allowed.\n\nArgs:\n    name: The builtin name to check.\n\nReturns:\n    True if the builtin is allowed, False if blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check_file_access",
+      "line": 315,
+      "doc": "Check if file access is allowed based on allowed_paths.\n\nArgs:\n    path: The file path to check.\n    mode: The access mode (e.g., 'r', 'w').\n\nReturns:\n    True if the access is allowed, False if blocked.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "mode"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "create_restricted_globals",
+      "line": 346,
+      "doc": "Create a restricted globals dict that blocks dangerous builtins.\n\nArgs:\n    user_globals: Optional dict of user-provided globals to merge in.\n\nReturns:\n    A globals dict with blocked builtins replaced by raising functions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "user_globals"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_code",
+      "line": 374,
+      "doc": "Validate code via AST static analysis for blocked calls.\n\nArgs:\n    code: Python source code to analyze.\n\nReturns:\n    A list of SecurityViolation instances found in the code.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "code"
+      ],
+      "returns": null
+    },
+    {
+      "name": "execute_sandboxed",
+      "line": 403,
+      "doc": "Run a function with import hooks that enforce the sandbox.\n\nArgs:\n    func: The function to execute.\n    *args: Positional arguments passed to the function.\n    **kwargs: Keyword arguments passed to the function.\n\nReturns:\n    The return value of the function.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "func"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_blocked",
+      "line": 424,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SandboxSecurityConfig",
+      "line": 54,
+      "doc": "Structured configuration for sandbox security rules, loadable from YAML.\n\nAttributes:\n    blocked_modules: Python modules to deny inside the sandbox.\n    blocked_builtins: Built-in functions to block.\n    disclaimer: Disclaimer text shown in logs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SandboxConfig",
+      "line": 100,
+      "doc": "Configuration for the execution sandbox.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SecurityViolation",
+      "line": 111,
+      "doc": "Represents a security violation found during static analysis.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SandboxImportHook",
+      "line": 121,
+      "doc": "Import hook that blocks imports of dangerous modules.\n\nIntercepts import attempts for blocked modules and raises SecurityError.\nCan be installed/uninstalled dynamically via install()/uninstall().",
+      "is_public": true,
+      "bases": [
+        "MetaPathFinder"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "_ASTSecurityVisitor",
+      "line": 177,
+      "doc": "AST visitor that detects security violations in code.",
+      "is_public": false,
+      "bases": [
+        "ast.NodeVisitor"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionSandbox",
+      "line": 268,
+      "doc": "Restricted execution environment that prevents stdlib bypass.\n\nUses import hooks and AST-based static analysis to enforce security\npolicies on agent code execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,328 @@
+{
+  "path": "packages/agent-os/modules/nexus/registry.py",
+  "extension": ".py",
+  "size_bytes": 13324,
+  "line_count": 393,
+  "documentation": {
+    "file_docstring": "Agent Registry\n\nManages agent registration, discovery, and manifest storage for the Nexus network.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Nexus attestation",
+      "Errors (if any)",
+      "Manifest summary",
+      "Attestation",
+      "Rejection reason (if not verified)",
+      "In-memory storage (would be database in production)",
+      "Check if already registered",
+      "Validate manifest",
+      "For now, trust the signature",
+      "Set registration timestamp",
+      "Calculate manifest hash",
+      "Initialize reputation",
+      "Store manifest",
+      "Generate Nexus attestation",
+      "Validate ownership (DID must match)",
+      "Preserve registration time",
+      "Recalculate trust score",
+      "Update storage",
+      "Check if registered",
+      "Update last seen",
+      "Get trust score",
+      "Check capabilities if required",
+      "Filter by trust score",
+      "Filter by capabilities",
+      "Filter by privacy policy",
+      "Sort by trust score descending",
+      "Validate DID format",
+      "Validate verification key",
+      "Validate owner ID",
+      "Exclude timestamps for deterministic hashing",
+      "In production, this would use Nexus's private key",
+      "For now, generate a placeholder"
+    ],
+    "todo_comments": [
+      "TODO: Verify signature against verification key",
+      "TODO: Verify signature"
+    ],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RegistrationResult: Result of agent registration.",
+      "PeerVerification: Result of peer verification.",
+      "AgentRegistry: Central registry for agent manifests on the Nexus network.\n\nHandles:\n- Agent reg",
+      "register: Register a new agent on Nexus.\n\nArgs:\n    manifest: Complete agent manifest\n    ",
+      "update: Update an existing agent's manifest.",
+      "deregister: Remove an agent from the registry.",
+      "get_manifest: Get an agent's manifest by DID.",
+      "verify_peer: Verify a peer agent before IATP handshake.\n\nThis is the core viral mechanism - u",
+      "discover_agents: Discover agents matching criteria.\n\nArgs:\n    capabilities: Required capability ",
+      "get_reputation_sync: Get reputation scores for syncing to local cache.\n\nUsed by NexusClient.sync_repu"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_agent_count",
+    "AgentRegistry",
+    "RegistrationResult",
+    "PeerVerification",
+    "is_registered"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "dataclasses",
+      "hashlib",
+      "json",
+      "asyncio",
+      "schemas.manifest",
+      "reputation",
+      "exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reputation_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 84,
+      "doc": "Register a new agent on Nexus.\n\nArgs:\n    manifest: Complete agent manifest\n    signature: Ed25519 signature from agent's verification key\n    \nReturns:\n    RegistrationResult with status and initial trust score",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest",
+        "signature"
+      ],
+      "returns": "RegistrationResult"
+    },
+    {
+      "name": "update",
+      "line": 152,
+      "doc": "Update an existing agent's manifest.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "manifest",
+        "signature"
+      ],
+      "returns": "RegistrationResult"
+    },
+    {
+      "name": "deregister",
+      "line": 194,
+      "doc": "Remove an agent from the registry.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "signature"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_manifest",
+      "line": 207,
+      "doc": "Get an agent's manifest by DID.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "AgentManifest"
+    },
+    {
+      "name": "verify_peer",
+      "line": 214,
+      "doc": "Verify a peer agent before IATP handshake.\n\nThis is the core viral mechanism - unverified peers get directed\nto register on Nexus.\n\nArgs:\n    peer_did: DID of the peer to verify\n    min_score: Minimum required trust score\n    required_capabilities: Capabilities the peer must have\n    \nReturns:\n    PeerVerification result\n    \nRaises:\n    IATPUnverifiedPeerException: If peer is not registered\n    IATPInsufficientTrustException: If peer's score is below threshold",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "min_score",
+        "required_capabilities"
+      ],
+      "returns": "PeerVerification"
+    },
+    {
+      "name": "discover_agents",
+      "line": 283,
+      "doc": "Discover agents matching criteria.\n\nArgs:\n    capabilities: Required capability domains\n    min_score: Minimum trust score\n    privacy_policy: Required privacy policy (e.g., \"ephemeral\")\n    limit: Maximum results\n    \nReturns:\n    List of matching agent manifests",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "capabilities",
+        "min_score",
+        "privacy_policy",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_reputation_sync",
+      "line": 329,
+      "doc": "Get reputation scores for syncing to local cache.\n\nUsed by NexusClient.sync_reputation()",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_dids"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_registered",
+      "line": 347,
+      "doc": "Check if an agent is registered.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_agent_count",
+      "line": 351,
+      "doc": "Get total number of registered agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "list_by_owner",
+      "line": 355,
+      "doc": "List all agents owned by an organization.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "owner_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_validate_manifest",
+      "line": 363,
+      "doc": "Validate a manifest and return list of errors.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_compute_manifest_hash",
+      "line": 381,
+      "doc": "Compute deterministic hash of manifest.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_sign_registration",
+      "line": 388,
+      "doc": "Generate Nexus signature for registration.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "manifest_hash"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RegistrationResult",
+      "line": 28,
+      "doc": "Result of agent registration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PeerVerification",
+      "line": 45,
+      "doc": "Result of peer verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentRegistry",
+      "line": 65,
+      "doc": "Central registry for agent manifests on the Nexus network.\n\nHandles:\n- Agent registration and deregistration\n- Manifest storage and retrieval\n- Peer discovery and verification\n- Integration with reputation engine",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 43,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

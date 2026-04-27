@@ -1,0 +1,963 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/vfs.py",
+  "extension": ".py",
+  "size_bytes": 22789,
+  "line_count": 697,
+  "documentation": {
+    "file_docstring": "Agent Virtual File System (VFS) - POSIX-style memory abstraction for agents.\n\nThis module provides a virtual file system interface for agent memory,\ninspired by POSIX VFS but designed for AI agent state management.\n\nInstead of high-level \"Semantic Memory\" or \"Vector Store\" abstractions,\nthis provides a standard POSIX-like interface that can mount ANY backend.\n\nMount Points:\n    /mem/working    - Working memory (current context, scratchpad)\n    /mem/episodic   - Episodic memory (past interactions, experiences)\n    /mem/semantic   - Semantic memory (facts, knowledge)\n    /mem/procedural - Procedural memory (learned skills, patterns)\n    /state          - Agent state (checkpoints, snapshots)\n    /tools          - Tool interfaces (mounted dynamically)\n    /policy         - Policy files (read-only from user-space)\n\nDesign Philosophy:\n    - Everything is a file (UNIX philosophy)\n    - Backends are drivers (Pinecone, Weaviate, Redis = mount points)\n    - Kernel controls mount permissions\n    - User-space agents see unified interface",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Common combinations",
+      "Extended attributes (agent-specific)",
+      "Update access time",
+      "Ensure parent directory exists - auto-create if needed",
+      "Auto-create parent directories (like mkdir -p)",
+      "Update or create inode",
+      "Find all entries under this directory",
+      "Get the immediate child",
+      "Mount backends",
+      "Use like a filesystem",
+      "Read back",
+      "Standard mount points for agents",
+      "Create standard mount points with default memory backend",
+      "Create the directory",
+      "Ensure mount point directory exists",
+      "Find the longest matching mount point",
+      "========== File Operations ==========",
+      "========== File Descriptor Operations (POSIX-style) ==========",
+      "========== Memory-Specific Operations ==========",
+      "========== Backend Implementations ==========",
+      "For vector stores, reading returns the stored document",
+      "For vector stores, this would upsert to the index",
+      "Actual implementation would embed and store",
+      "Vector-specific methods",
+      "========== Convenience Functions =========="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FileMode: File permission modes (POSIX-style).",
+      "FileType: File types in the VFS.",
+      "INode: Index node - metadata for a VFS entry.\n\nInspired by UNIX inodes but adapted for ",
+      "FileDescriptor: Open file descriptor.",
+      "VFSBackend: Abstract backend driver for VFS mount points.\n\nImplement this to add support for",
+      "MemoryBackend: In-memory VFS backend.\n\nSimple implementation for working memory and testing.\nDa",
+      "MountPoint: A mounted filesystem.",
+      "AgentVFS: Agent Virtual File System.\n\nProvides a unified POSIX-like interface for agent me",
+      "VectorBackend: Vector database backend stub.\n\nThis is a placeholder for vector store integratio",
+      "create_agent_vfs: Create an AgentVFS with optional custom backends.\n\nArgs:\n    agent_id: Unique ag"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "write",
+    "read_json",
+    "stat",
+    "fd_write",
+    "search",
+    "to_dict",
+    "read_text",
+    "get_mount_info",
+    "exists",
+    "read",
+    "open",
+    "clear_working_memory",
+    "MountPoint",
+    "write_json",
+    "MemoryBackend",
+    "VFSBackend",
+    "create_agent_vfs",
+    "list_dir",
+    "delete",
+    "mkdir",
+    "AgentVFS",
+    "log_episodic",
+    "VectorBackend",
+    "close",
+    "get_working_memory",
+    "embed_and_store",
+    "ls",
+    "FileMode",
+    "mount",
+    "load_checkpoint",
+    "INode",
+    "append",
+    "FileDescriptor",
+    "FileType",
+    "unmount",
+    "save_checkpoint",
+    "fd_read"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "pathlib",
+      "typing",
+      "io",
+      "json",
+      "logging",
+      "hashlib"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_agent_vfs",
+      "line": 668,
+      "doc": "Create an AgentVFS with optional custom backends.\n\nArgs:\n    agent_id: Unique agent identifier\n    working_backend: Backend for /mem/working (default: MemoryBackend)\n    episodic_backend: Backend for /mem/episodic (default: MemoryBackend)\n    semantic_backend: Backend for /mem/semantic (default: MemoryBackend)\n\nReturns:\n    Configured AgentVFS instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "agent_id",
+        "working_backend",
+        "episodic_backend",
+        "semantic_backend"
+      ],
+      "returns": "AgentVFS"
+    },
+    {
+      "name": "to_dict",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "read",
+      "line": 127,
+      "doc": "Read file contents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "write",
+      "line": 132,
+      "doc": "Write data to file. Returns bytes written.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path",
+        "data",
+        "mode"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "delete",
+      "line": 137,
+      "doc": "Delete a file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "exists",
+      "line": 142,
+      "doc": "Check if path exists.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_dir",
+      "line": 147,
+      "doc": "List directory contents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stat",
+      "line": 152,
+      "doc": "Get file metadata.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mkdir",
+      "line": 157,
+      "doc": "Create directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "read",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "write",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "data",
+        "mode"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "delete",
+      "line": 214,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "exists",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_dir",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stat",
+      "line": 243,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mkdir",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_mkdir_p",
+      "line": 260,
+      "doc": "Create directory and all parent directories (like mkdir -p).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_init_standard_mounts",
+      "line": 324,
+      "doc": "Initialize standard mount points with memory backend.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mount",
+      "line": 340,
+      "doc": "Mount a backend at the specified path.\n\nArgs:\n    path: Mount point (e.g., \"/mem/semantic\")\n    backend: VFS backend implementation\n    mode: Access mode\n    read_only: If True, writes are rejected",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "backend",
+        "mode",
+        "read_only"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unmount",
+      "line": 368,
+      "doc": "Unmount a filesystem.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_resolve_mount",
+      "line": 376,
+      "doc": "Resolve a path to its mount point and relative path.\n\nReturns (mount_point, relative_path)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "read",
+      "line": 399,
+      "doc": "Read file contents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "read_text",
+      "line": 404,
+      "doc": "Read file as text.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "encoding"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "read_json",
+      "line": 408,
+      "doc": "Read and parse JSON file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "write",
+      "line": 412,
+      "doc": "Write data to file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "data",
+        "mode"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "write_json",
+      "line": 424,
+      "doc": "Write data as JSON.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "data",
+        "indent"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "append",
+      "line": 428,
+      "doc": "Append data to file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "data"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "delete",
+      "line": 432,
+      "doc": "Delete a file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "exists",
+      "line": 441,
+      "doc": "Check if path exists.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "stat",
+      "line": 449,
+      "doc": "Get file metadata.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "ls",
+      "line": 454,
+      "doc": "List directory contents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mkdir",
+      "line": 459,
+      "doc": "Create directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "open",
+      "line": 470,
+      "doc": "Open a file and return a file descriptor.\n\nThis provides a more traditional POSIX-style interface.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "mode"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "close",
+      "line": 495,
+      "doc": "Close a file descriptor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "fd_read",
+      "line": 500,
+      "doc": "Read from file descriptor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fd",
+        "size"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "fd_write",
+      "line": 515,
+      "doc": "Write to file descriptor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fd",
+        "data"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "save_checkpoint",
+      "line": 528,
+      "doc": "Save agent state checkpoint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "checkpoint_id",
+        "state"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "load_checkpoint",
+      "line": 540,
+      "doc": "Load agent state from checkpoint.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "checkpoint_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "log_episodic",
+      "line": 547,
+      "doc": "Log an episodic memory event.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event",
+        "event_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_working_memory",
+      "line": 560,
+      "doc": "Get all working memory contents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_working_memory",
+      "line": 574,
+      "doc": "Clear working memory. Returns number of files deleted.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "get_mount_info",
+      "line": 582,
+      "doc": "Get information about all mount points.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 606,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client",
+        "namespace"
+      ],
+      "returns": null
+    },
+    {
+      "name": "read",
+      "line": 612,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "write",
+      "line": 616,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "data",
+        "mode"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "delete",
+      "line": 621,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "exists",
+      "line": 624,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "list_dir",
+      "line": 627,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stat",
+      "line": 630,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "mkdir",
+      "line": 633,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "search",
+      "line": 637,
+      "doc": "Search for similar vectors.\n\nOverride with actual vector search implementation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "query_vector",
+        "top_k",
+        "filter_dict"
+      ],
+      "returns": null
+    },
+    {
+      "name": "embed_and_store",
+      "line": 651,
+      "doc": "Embed text and store in vector database.\n\nOverride with actual embedding implementation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "text",
+        "metadata"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "FileMode",
+      "line": 44,
+      "doc": "File permission modes (POSIX-style).",
+      "is_public": true,
+      "bases": [
+        "IntFlag"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FileType",
+      "line": 58,
+      "doc": "File types in the VFS.",
+      "is_public": true,
+      "bases": [
+        "IntFlag"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "INode",
+      "line": 69,
+      "doc": "Index node - metadata for a VFS entry.\n\nInspired by UNIX inodes but adapted for agent memory.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FileDescriptor",
+      "line": 106,
+      "doc": "Open file descriptor.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "VFSBackend",
+      "line": 115,
+      "doc": "Abstract backend driver for VFS mount points.\n\nImplement this to add support for different storage backends:\n- MemoryBackend: In-memory storage (default)\n- RedisBackend: Redis-based persistent storage\n- VectorBackend: Vector database (Pinecone, Weaviate, etc.)\n- SQLBackend: SQL database storage",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MemoryBackend",
+      "line": 162,
+      "doc": "In-memory VFS backend.\n\nSimple implementation for working memory and testing.\nData is lost on agent restart (ephemeral by design).",
+      "is_public": true,
+      "bases": [
+        "VFSBackend"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "MountPoint",
+      "line": 271,
+      "doc": "A mounted filesystem.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentVFS",
+      "line": 280,
+      "doc": "Agent Virtual File System.\n\nProvides a unified POSIX-like interface for agent memory,\nwith support for multiple backends mounted at different paths.\n\nExample:\n    vfs = AgentVFS(agent_id=\"agent-001\")\n    \n    # Mount backends\n    vfs.mount(\"/mem/working\", MemoryBackend())\n    vfs.mount(\"/mem/episodic\", RedisBackend(host=\"localhost\"))\n    vfs.mount(\"/mem/semantic\", VectorBackend(client=pinecone_client))\n    \n    # Use like a filesystem\n    vfs.write(\"/mem/working/scratchpad.txt\", b\"Current task: ...\")\n    vfs.write(\"/mem/episodic/2024-01-26/interaction-001.json\", data)\n    \n    # Read back\n    data = vfs.read(\"/mem/working/scratchpad.txt\")",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "VectorBackend",
+      "line": 598,
+      "doc": "Vector database backend stub.\n\nThis is a placeholder for vector store integration.\nImplement with actual Pinecone/Weaviate/Qdrant client.",
+      "is_public": true,
+      "bases": [
+        "VFSBackend"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 75,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/integrations/crewai/agent.py",
+  "extension": ".py",
+  "size_bytes": 8518,
+  "line_count": 240,
+  "documentation": {
+    "file_docstring": "CrewAI trust-aware agent wrapper.\n\nProvides a wrapper/mixin pattern for CrewAI agents that enforces\nAgentMesh trust verification before inter-agent delegation.\nCrewAI is an optional dependency.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Copyright (c) Agent-Mesh Contributors. All rights reserved.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "V33: Rate-limit trust updates to prevent inflation via rapid success spam",
+      "V33: Enforce rate limit on score updates"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "TrustStore: Protocol for trust score storage backends.",
+      "InteractionRecord: Record of a delegation or task execution for audit purposes.",
+      "InMemoryTrustStore: Simple in-memory trust store for testing and development.",
+      "TrustAwareAgent: Wrapper that adds AgentMesh trust verification to CrewAI agents.\n\nUses a wrapper",
+      "get_trust_score: Return current trust score (0\u20131000) for an agent.",
+      "record_interaction: Record an interaction outcome for trust updates.",
+      "verify_peer: Check if a peer agent meets the trust threshold.\n\nArgs:\n    peer_did: DID of the",
+      "execute_with_trust: Execute a task with trust verification for any delegation.\n\nVerifies this agent'",
+      "delegate_with_trust: Delegate a task to a peer only if the peer is trusted.\n\nArgs:\n    task: The task",
+      "get_trust_report: Get trust status summary for this agent.\n\nReturns:\n    Dictionary with agent DID"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "execute_with_trust",
+    "TrustStore",
+    "TrustAwareAgent",
+    "delegate_with_trust",
+    "set_trust_score",
+    "verify_peer",
+    "record_interaction",
+    "get_trust_report",
+    "get_trust_score",
+    "InMemoryTrustStore",
+    "InteractionRecord"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "datetime",
+      "dataclasses",
+      "typing",
+      "agentmesh.exceptions",
+      "datetime",
+      "crewai"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_trust_score",
+      "line": 28,
+      "doc": "Return current trust score (0\u20131000) for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "record_interaction",
+      "line": 32,
+      "doc": "Record an interaction outcome for trust updates.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 55,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "default_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trust_score",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "set_trust_score",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_interaction",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 107,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "min_trust_score",
+        "trust_store"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_peer",
+      "line": 128,
+      "doc": "Check if a peer agent meets the trust threshold.\n\nArgs:\n    peer_did: DID of the peer agent to verify.\n\nReturns:\n    True if the peer's trust score meets the minimum threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "execute_with_trust",
+      "line": 140,
+      "doc": "Execute a task with trust verification for any delegation.\n\nVerifies this agent's own trust score before execution and\nrecords the interaction outcome.\n\nArgs:\n    task: The task to execute (CrewAI Task or plain description).\n    context: Optional context for task execution.\n\nReturns:\n    Task execution result.\n\nRaises:\n    TrustViolationError: If this agent's trust score is below threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task",
+        "context"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "delegate_with_trust",
+      "line": 175,
+      "doc": "Delegate a task to a peer only if the peer is trusted.\n\nArgs:\n    task: The task to delegate.\n    peer_did: DID of the peer agent to delegate to.\n\nReturns:\n    Delegation result.\n\nRaises:\n    TrustViolationError: If the peer's trust score is below threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "task",
+        "peer_did"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_trust_report",
+      "line": 199,
+      "doc": "Get trust status summary for this agent.\n\nReturns:\n    Dictionary with agent DID, current score, threshold,\n    interaction counts, and full interaction history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_record",
+      "line": 227,
+      "doc": "Record an interaction and update the trust store.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "from_did",
+        "to_did",
+        "event"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustStore",
+      "line": 25,
+      "doc": "Protocol for trust score storage backends.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "InteractionRecord",
+      "line": 38,
+      "doc": "Record of a delegation or task execution for audit purposes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "InMemoryTrustStore",
+      "line": 49,
+      "doc": "Simple in-memory trust store for testing and development.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TrustAwareAgent",
+      "line": 82,
+      "doc": "Wrapper that adds AgentMesh trust verification to CrewAI agents.\n\nUses a wrapper/mixin pattern so CrewAI does not need to be installed.\nWhen CrewAI is available, the inner ``crewai_agent`` is used for\nactual task execution; otherwise only trust operations are available.\n\nArgs:\n    agent_did: The DID of this agent (e.g. ``did:mesh:abc123``).\n    min_trust_score: Minimum trust score (0\u20131000) required for delegation.\n    trust_store: Optional trust store backend. Uses InMemoryTrustStore if None.\n    **kwargs: Forwarded to CrewAI Agent constructor when crewai is installed.\n\nExample::\n\n    from agentmesh.integrations.crewai import TrustAwareAgent\n\n    agent = TrustAwareAgent(\n        agent_did=\"did:mesh:abc123\",\n        min_trust_score=600,\n        role=\"Researcher\",\n        goal=\"Find relevant papers\",\n    )",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

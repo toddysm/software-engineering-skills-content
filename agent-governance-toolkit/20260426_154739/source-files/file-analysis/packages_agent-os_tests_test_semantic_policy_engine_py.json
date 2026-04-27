@@ -1,0 +1,1508 @@
+{
+  "path": "packages/agent-os/tests/test_semantic_policy_engine.py",
+  "extension": ".py",
+  "size_bytes": 33026,
+  "line_count": 775,
+  "documentation": {
+    "file_docstring": "Comprehensive tests for the Semantic Policy Engine.\n\nCovers policy loading/parsing, evaluation against varied inputs,\ncomposition (multiple engines), conflict/priority resolution,\ndynamic updates, edge cases, and performance under load.\n\nCloses #272",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 fixtures \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "1. Policy loading and parsing",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "[] is falsy in Python \u2192 defaults kick in",
+      "BENIGN may or may not win depending on other signals, but it should compile",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "2. Policy evaluation against different inputs",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "-- destructive data --",
+      "-- data exfiltration --",
+      "-- privilege escalation --",
+      "The regex \\bsu\\s+-\\b needs a word char after the dash for boundary.",
+      "Test via passwd signal instead which reliably matches.",
+      "-- system modification --",
+      "The regex \\bformat\\s+[A-Z]:\\b requires a word char after the colon.",
+      "-- code execution --",
+      "-- network access --",
+      "-- data read --",
+      "-- data write --",
+      "-- benign --",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "3. Policy composition (multiple engines)",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Broad allows writes",
+      "Narrow denies writes",
+      "'foo' signal should only exist in engine a",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "4. Policy conflicts and priority resolution",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "'rm -rf' (0.95 system_modification) vs 'sudo' (0.7 privilege_escalation)",
+      "'shutdown' has weight 0.8, below 0.95 threshold",
+      "Not denied because confidence < threshold",
+      "Engine denies destructive_data by default",
+      "But per-check deny only includes NETWORK_ACCESS",
+      "Not denied because per-check deny doesn't include DESTRUCTIVE_DATA",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "5. Dynamic policy updates",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Should not raise",
+      "Default threshold 0.5; 'shutdown' has weight 0.8 \u2014 should be denied",
+      "Destructive data should now pass",
+      "Network access should be denied",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "6. Edge cases",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "The nested dict values are str()-ified, so \"DROP TABLE x\" should be found",
+      "Check that confidence has at most 3 decimal places",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "7. Performance: policy evaluation under load",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Warm up",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Enum coverage",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "Public API / module exports",
+      "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "engine: Default engine with all dangerous categories denied.",
+      "permissive_engine: Engine that denies nothing.",
+      "strict_engine: Engine that denies ALL categories, including reads/writes.",
+      "TestPolicyLoadingAndParsing: Verify engine initialisation and signal compilation.",
+      "TestPolicyEvaluation: Classification accuracy across all intent categories.",
+      "TestBuildText: Verify _build_text flattens action + params correctly.",
+      "TestPolicyComposition: Test using multiple engines with different configs for layered enforcement.",
+      "TestConflictsAndPriority: Signal weight determines which category wins on ambiguous input.",
+      "TestDynamicPolicyUpdates: Test modifying engine configuration at runtime.",
+      "TestEdgeCases: Empty policies, invalid inputs, boundary conditions."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_systemctl_stop",
+    "test_layered_engines_broad_then_narrow",
+    "test_format_c_drive",
+    "test_exception_inherits_from_exception",
+    "test_unicode_input",
+    "test_drop_table_vs_select",
+    "test_escalate_privilege_language",
+    "test_case_insensitivity",
+    "test_non_string_params",
+    "test_empty_params",
+    "test_add_deny_category_at_runtime",
+    "test_module_all_exports",
+    "test_special_regex_characters_in_params",
+    "test_upload_to_s3",
+    "test_default_deny_categories",
+    "test_exception_has_classification",
+    "test_replace_deny_set_entirely",
+    "test_change_confidence_threshold_at_runtime",
+    "test_enum_membership",
+    "test_custom_confidence_threshold",
+    "test_very_long_input",
+    "permissive_engine",
+    "strict_engine",
+    "test_mysqldump",
+    "test_1000_classifications",
+    "test_boolean_and_numeric_params",
+    "test_exception_has_policy_name",
+    "test_newlines_in_input",
+    "test_non_dangerous_categories",
+    "test_empty_string_params",
+    "test_dangerous_categories_high_confidence",
+    "TestIntentCategoryEnum",
+    "test_deny_overrides_threshold",
+    "TestBuildText",
+    "test_independent_engines_no_state_leak",
+    "TestPolicyComposition",
+    "test_all_signal_categories_compiled",
+    "test_empty_deny_list",
+    "test_default_confidence_threshold",
+    "test_socket_connect",
+    "test_chain_multiple_checks",
+    "test_all_categories_are_strings",
+    "test_empty_action_and_params",
+    "test_alter_user_superuser",
+    "test_update",
+    "test_string_enum",
+    "test_boundary_confidence_049",
+    "test_dynamic_import",
+    "test_select_query",
+    "TestPolicyDeniedException",
+    "test_custom_signals_merged",
+    "test_highest_weight_wins",
+    "TestConflictsAndPriority",
+    "TestPerformance",
+    "test_confidence_is_rounded",
+    "test_insert",
+    "test_format_disk",
+    "test_exception_default_policy_name",
+    "test_smtplib",
+    "test_tuple_params",
+    "test_add_custom_signal_at_runtime",
+    "test_expected_category_count",
+    "test_iptables_drop",
+    "test_remove_deny_category_at_runtime",
+    "test_nuke_verb",
+    "test_none_values_in_params",
+    "test_composed_deny_sets_union",
+    "test_pickle_loads",
+    "test_requests_get",
+    "test_list_params",
+    "test_alter_table_drop_column",
+    "test_reboot",
+    "test_benign_has_no_matched_signals",
+    "test_dict_params",
+    "test_copy_to_stdout",
+    "test_deeply_nested_params",
+    "test_drop_database",
+    "test_importable_from_agent_os",
+    "TestIntentClassificationProperties",
+    "test_subprocess",
+    "test_benign_explanation",
+    "test_custom_deny_categories",
+    "test_boundary_confidence_050",
+    "test_multiple_signals_same_category",
+    "test_large_params_performance",
+    "test_classification_immutability",
+    "TestDynamicPolicyUpdates",
+    "TestPolicyEvaluation",
+    "test_per_check_deny_overrides_engine_deny",
+    "test_custom_signals_new_category",
+    "test_string_params",
+    "TestPublicAPI",
+    "test_eval_vs_subprocess",
+    "test_compiled_regex_objects",
+    "test_exception_message_format",
+    "test_single_classify_under_1ms",
+    "engine",
+    "test_dangerous_categories_low_confidence",
+    "TestEdgeCases",
+    "TestPolicyLoadingAndParsing",
+    "test_su_root",
+    "test_check_with_denial_performance",
+    "test_totally_benign",
+    "test_custom_signals_extend_not_replace",
+    "test_matched_signals_is_tuple"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "time",
+      "pytest",
+      "agent_os.semantic_policy",
+      "re",
+      "re",
+      "agent_os",
+      "agent_os"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "engine",
+      "line": 29,
+      "doc": "Default engine with all dangerous categories denied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "permissive_engine",
+      "line": 35,
+      "doc": "Engine that denies nothing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "strict_engine",
+      "line": 41,
+      "doc": "Engine that denies ALL categories, including reads/writes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_default_deny_categories",
+      "line": 57,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_deny_categories",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_deny_list",
+      "line": 71,
+      "doc": "Empty list is falsy, so constructor falls back to defaults.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_signal_categories_compiled",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compiled_regex_objects",
+      "line": 88,
+      "doc": "Each compiled signal should be (compiled_regex, weight, explanation).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_signals_merged",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_signals_extend_not_replace",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_signals_new_category",
+      "line": 119,
+      "doc": "Custom signals can introduce patterns for categories with no defaults.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_confidence_threshold",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_confidence_threshold",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drop_database",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_alter_table_drop_column",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nuke_verb",
+      "line": 157,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_disk",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mysqldump",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_upload_to_s3",
+      "line": 171,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_copy_to_stdout",
+      "line": 175,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_alter_user_superuser",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_su_root",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escalate_privilege_language",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reboot",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_systemctl_stop",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_iptables_drop",
+      "line": 205,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_c_drive",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pickle_loads",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dynamic_import",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_subprocess",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_requests_get",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_socket_connect",
+      "line": 234,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_smtplib",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_select_query",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insert",
+      "line": 250,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_update",
+      "line": 254,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_totally_benign",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_benign_explanation",
+      "line": 266,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_string_params",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_params",
+      "line": 280,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dict_params",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_string_params",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_params",
+      "line": 293,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tuple_params",
+      "line": 297,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_layered_engines_broad_then_narrow",
+      "line": 310,
+      "doc": "Broad engine allows, narrow engine denies \u2014 combined should deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_composed_deny_sets_union",
+      "line": 326,
+      "doc": "Union of deny sets from two engines should cover both.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_independent_engines_no_state_leak",
+      "line": 338,
+      "doc": "Two engines should not share mutable state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_multiple_checks",
+      "line": 353,
+      "doc": "Running check through multiple engines in sequence.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_highest_weight_wins",
+      "line": 375,
+      "doc": "When input matches multiple categories, highest weight wins.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drop_table_vs_select",
+      "line": 382,
+      "doc": "DROP TABLE (0.9) should beat SELECT (0.6) when both present.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_eval_vs_subprocess",
+      "line": 387,
+      "doc": "eval (0.8) should beat subprocess (0.5).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_overrides_threshold",
+      "line": 393,
+      "doc": "Actions below confidence threshold should pass even if in deny list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_per_check_deny_overrides_engine_deny",
+      "line": 401,
+      "doc": "check() deny param should override engine-level deny.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_signals_same_category",
+      "line": 413,
+      "doc": "Multiple matches in same category \u2014 max weight is used.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_deny_category_at_runtime",
+      "line": 429,
+      "doc": "Adding a category to deny set at runtime.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_remove_deny_category_at_runtime",
+      "line": 436,
+      "doc": "Removing a category from deny set at runtime.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_change_confidence_threshold_at_runtime",
+      "line": 443,
+      "doc": "Changing threshold dynamically.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_custom_signal_at_runtime",
+      "line": 453,
+      "doc": "Adding a compiled signal to the engine after construction.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replace_deny_set_entirely",
+      "line": 464,
+      "doc": "Replacing the entire deny set.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_action_and_params",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_none_values_in_params",
+      "line": 488,
+      "doc": "Non-string param values should be str()-ified, not crash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_long_input",
+      "line": 493,
+      "doc": "Engine should handle very long input strings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unicode_input",
+      "line": 501,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_case_insensitivity",
+      "line": 505,
+      "doc": "Signals should match regardless of case.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_newlines_in_input",
+      "line": 513,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_special_regex_characters_in_params",
+      "line": 517,
+      "doc": "Input with regex meta-characters should not crash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deeply_nested_params",
+      "line": 522,
+      "doc": "Nested dicts are flattened to values only (one level).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_string_params",
+      "line": 530,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_boolean_and_numeric_params",
+      "line": 534,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_classification_immutability",
+      "line": 538,
+      "doc": "IntentClassification is frozen \u2014 fields cannot be reassigned.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_confidence_is_rounded",
+      "line": 546,
+      "doc": "Confidence should be rounded to 3 decimal places.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_matched_signals_is_tuple",
+      "line": 552,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_benign_has_no_matched_signals",
+      "line": 556,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exception_has_classification",
+      "line": 565,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exception_has_policy_name",
+      "line": 572,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exception_default_policy_name",
+      "line": 579,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exception_message_format",
+      "line": 585,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exception_inherits_from_exception",
+      "line": 594,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dangerous_categories_high_confidence",
+      "line": 608,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "category"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dangerous_categories_low_confidence",
+      "line": 621,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "category"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_dangerous_categories",
+      "line": 633,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "category"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_boundary_confidence_050",
+      "line": 639,
+      "doc": "Exactly 0.5 confidence is considered dangerous.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_boundary_confidence_049",
+      "line": 648,
+      "doc": "Just below 0.5 is NOT dangerous.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_classify_under_1ms",
+      "line": 666,
+      "doc": "A single classify call should complete in well under 1ms.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_1000_classifications",
+      "line": 678,
+      "doc": "1000 classifications should complete in under 2 seconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_with_denial_performance",
+      "line": 696,
+      "doc": "check() with denial should not add significant overhead.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_large_params_performance",
+      "line": 708,
+      "doc": "Engine should handle large parameter payloads efficiently.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_categories_are_strings",
+      "line": 727,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expected_category_count",
+      "line": 731,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_enum_membership",
+      "line": 734,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_string_enum",
+      "line": 748,
+      "doc": "IntentCategory inherits from str, so it can be used as a string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_importable_from_agent_os",
+      "line": 761,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_module_all_exports",
+      "line": 770,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestPolicyLoadingAndParsing",
+      "line": 54,
+      "doc": "Verify engine initialisation and signal compilation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyEvaluation",
+      "line": 144,
+      "doc": "Classification accuracy across all intent categories.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBuildText",
+      "line": 271,
+      "doc": "Verify _build_text flattens action + params correctly.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyComposition",
+      "line": 307,
+      "doc": "Test using multiple engines with different configs for layered enforcement.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestConflictsAndPriority",
+      "line": 372,
+      "doc": "Signal weight determines which category wins on ambiguous input.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDynamicPolicyUpdates",
+      "line": 426,
+      "doc": "Test modifying engine configuration at runtime.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 481,
+      "doc": "Empty policies, invalid inputs, boundary conditions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPolicyDeniedException",
+      "line": 562,
+      "doc": "Verify PolicyDenied exception attributes.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIntentClassificationProperties",
+      "line": 598,
+      "doc": "Test the is_dangerous property across all categories.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPerformance",
+      "line": 663,
+      "doc": "Ensure the engine is fast enough for real-time use.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIntentCategoryEnum",
+      "line": 724,
+      "doc": "Verify IntentCategory enum properties.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPublicAPI",
+      "line": 758,
+      "doc": "Verify the module exports the expected symbols.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

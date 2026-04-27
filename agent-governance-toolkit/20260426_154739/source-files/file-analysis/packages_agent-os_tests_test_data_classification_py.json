@@ -1,0 +1,601 @@
+{
+  "path": "packages/agent-os/tests/test_data_classification.py",
+  "extension": ".py",
+  "size_bytes": 11540,
+  "line_count": 334,
+  "documentation": {
+    "file_docstring": "Tests for data-layer ABAC policies and detection helpers.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Classification hierarchy enforcement",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Category allow / deny lists",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Geography restrictions",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Default deny for unregistered agents",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Multiple policies - most restrictive wins",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "PII detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "PHI detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "PCI detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Auto-classification",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Decision model",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": []
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestDefaultDeny",
+    "test_plain_text_is_public",
+    "confidential_pii_label",
+    "restricted_phi_label",
+    "test_credit_card_detected",
+    "test_most_restrictive_wins",
+    "test_ssn_detected",
+    "TestCategoryLists",
+    "test_unlisted_category_denied_when_allowlist_set",
+    "test_email_detected",
+    "test_all_policies_allow",
+    "test_icd_code_detected",
+    "test_allowed_category_passes",
+    "test_phone_detected",
+    "test_within_max_classification_allowed",
+    "test_mismatched_geography_denied",
+    "public_label",
+    "test_matching_geography_allowed",
+    "test_no_pci",
+    "TestDetectPCI",
+    "test_pii_classified_confidential",
+    "test_mixed_pii_and_pci",
+    "test_phi_classified_restricted",
+    "test_ordering",
+    "test_empty_allowlist_permits_all_categories",
+    "TestClassifyText",
+    "test_exceeds_max_classification_denied",
+    "test_denied_category_blocks_access",
+    "test_public_less_than_top_secret",
+    "permissive_policy",
+    "TestDetectPHI",
+    "test_unregistered_agent_denied",
+    "TestClassificationHierarchy",
+    "test_no_phi",
+    "test_no_geography_requirement_allows_any",
+    "restrictive_policy",
+    "test_no_pii",
+    "test_mrn_detected",
+    "TestGeography",
+    "TestDetectPII",
+    "test_evaluated_at_populated",
+    "TestMultiplePolicies",
+    "TestDataAccessDecision"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "pytest",
+      "agent_os.policies.data_classification"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "public_label",
+      "line": 28,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "DataLabel"
+    },
+    {
+      "name": "confidential_pii_label",
+      "line": 33,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "DataLabel"
+    },
+    {
+      "name": "restricted_phi_label",
+      "line": 42,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "DataLabel"
+    },
+    {
+      "name": "permissive_policy",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "ABACPolicy"
+    },
+    {
+      "name": "restrictive_policy",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "ABACPolicy"
+    },
+    {
+      "name": "test_public_less_than_top_secret",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ordering",
+      "line": 85,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exceeds_max_classification_denied",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "permissive_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_within_max_classification_allowed",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "permissive_policy",
+        "public_label"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_denied_category_blocks_access",
+      "line": 117,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed_category_passes",
+      "line": 130,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "permissive_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unlisted_category_denied_when_allowlist_set",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_allowlist_permits_all_categories",
+      "line": 151,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_matching_geography_allowed",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mismatched_geography_denied",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_geography_requirement_allows_any",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unregistered_agent_denied",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "public_label"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_most_restrictive_wins",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_policies_allow",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_ssn_detected",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_email_detected",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_phone_detected",
+      "line": 258,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_pii",
+      "line": 261,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mrn_detected",
+      "line": 271,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_icd_code_detected",
+      "line": 274,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_phi",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credit_card_detected",
+      "line": 287,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_pci",
+      "line": 290,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_plain_text_is_public",
+      "line": 300,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_pii_classified_confidential",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_phi_classified_restricted",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_mixed_pii_and_pci",
+      "line": 315,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluated_at_populated",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestClassificationHierarchy",
+      "line": 81,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCategoryLists",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGeography",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDefaultDeny",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMultiplePolicies",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDetectPII",
+      "line": 251,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDetectPHI",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDetectPCI",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestClassifyText",
+      "line": 299,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDataAccessDecision",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 2,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [
+      "Minimal mixed concerns"
+    ],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": []
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "path": "packages/agent-hypervisor/src/hypervisor/security/kill_switch.py",
+  "extension": ".py",
+  "size_bytes": 6520,
+  "line_count": 200,
+  "documentation": {
+    "file_docstring": "Kill Switch \u2014 agent termination with optional handoff.\n\nTerminates agent processes via registered callbacks and hands off\nin-flight saga steps to a substitute agent when one is available.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Agent process registry \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Substitute management \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Kill \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Attempt to find a substitute for handoff",
+      "Terminate the agent process"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "KillReason: Why an agent was killed.",
+      "HandoffStatus: Status of a saga step handoff.",
+      "StepHandoff: A saga step being handed off to a substitute or compensated.",
+      "KillResult: Result of a kill switch operation.",
+      "KillSwitch: Kill switch with agent process registry and handoff support.\n\nAgents register te",
+      "register_agent: Register an agent with its termination callback.",
+      "unregister_agent: Remove an agent from the process registry.",
+      "register_substitute: Register a substitute agent for a session.",
+      "kill: Kill an agent, handing off in-flight steps to a substitute if available.",
+      "_find_substitute: Find a registered substitute for the session, excluding the given agent."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "StepHandoff",
+    "kill_history",
+    "register_substitute",
+    "KillReason",
+    "HandoffStatus",
+    "register_agent",
+    "KillSwitch",
+    "unregister_agent",
+    "KillResult",
+    "unregister_substitute",
+    "total_kills",
+    "kill",
+    "total_handoffs"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "uuid",
+      "collections.abc",
+      "dataclasses",
+      "datetime",
+      "enum"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 79,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_agent",
+      "line": 86,
+      "doc": "Register an agent with its termination callback.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "process_handle"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_agent",
+      "line": 92,
+      "doc": "Remove an agent from the process registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_substitute",
+      "line": 98,
+      "doc": "Register a substitute agent for a session.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unregister_substitute",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "kill",
+      "line": 113,
+      "doc": "Kill an agent, handing off in-flight steps to a substitute if available.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "session_id",
+        "reason",
+        "in_flight_steps",
+        "details"
+      ],
+      "returns": "KillResult"
+    },
+    {
+      "name": "_find_substitute",
+      "line": 180,
+      "doc": "Find a registered substitute for the session, excluding the given agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id",
+        "exclude_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "kill_history",
+      "line": 191,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "total_kills",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "total_handoffs",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "KillReason",
+      "line": 22,
+      "doc": "Why an agent was killed.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HandoffStatus",
+      "line": 33,
+      "doc": "Status of a saga step handoff.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "StepHandoff",
+      "line": 43,
+      "doc": "A saga step being handed off to a substitute or compensated.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KillResult",
+      "line": 54,
+      "doc": "Result of a kill switch operation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "KillSwitch",
+      "line": 69,
+      "doc": "Kill switch with agent process registry and handoff support.\n\nAgents register termination callbacks via ``register_agent``.  When\n``kill`` is called the switch hands in-flight saga steps to a\nregistered substitute (if any) and then invokes the termination\ncallback to stop the agent process.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

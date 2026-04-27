@@ -1,0 +1,637 @@
+{
+  "path": "packages/agent-marketplace/tests/test_schema_adapters.py",
+  "extension": ".py",
+  "size_bytes": 12235,
+  "line_count": 336,
+  "documentation": {
+    "file_docstring": "Tests for Copilot / Claude plugin manifest schema adapters.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 fixtures \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 detect_manifest_format \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Pydantic models \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 adapt_to_canonical \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 extract_capabilities \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 extract_mcp_servers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Top-level import smoke test \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 CLI verify integration (file-based) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "copilot_data: Minimal valid Copilot plugin manifest dict.",
+      "claude_data: Minimal valid Claude plugin manifest dict.",
+      "generic_data: A plain canonical plugin manifest dict.",
+      "test_schema_adapter_imports: New public symbols are importable from the top-level package.",
+      "TestVerifyCLIIntegration: Verify the CLI can handle Copilot/Claude plugin.json files.",
+      "test_claude_takes_precedence_over_copilot: When both Claude and Copilot signals exist, Claude wins."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_copilot_detected_by_skills",
+    "test_claude_to_canonical",
+    "test_verify_claude_plugin_json",
+    "test_neither_url_nor_command_raises",
+    "test_verify_with_explicit_format",
+    "TestAdaptToCanonical",
+    "TestDetectManifestFormat",
+    "TestClaudePluginManifest",
+    "test_claude_detected_by_permissions",
+    "generic_data",
+    "test_claude_wins_with_allowed_tools",
+    "test_valid_manifest",
+    "test_extracts_server_names",
+    "test_claude_takes_precedence_over_copilot",
+    "test_generic_fallback",
+    "test_claude_includes_allowed_tools",
+    "test_defaults",
+    "test_deduplication",
+    "test_missing_name_raises",
+    "test_generic_returns_capabilities_field",
+    "test_url_server",
+    "claude_data",
+    "TestMCPServerDef",
+    "test_multiple_servers",
+    "test_command_server",
+    "test_invalid_copilot_raises",
+    "TestExtractMCPServers",
+    "test_schema_adapter_imports",
+    "test_copilot_detected_by_mcps_only",
+    "test_generic_passthrough",
+    "test_author_defaults_to_unknown",
+    "test_sorted_output",
+    "copilot_data",
+    "test_empty_when_no_mcps",
+    "TestCopilotPluginManifest",
+    "test_verify_dir_with_plugin_json",
+    "test_copilot_skills_and_mcp_tools",
+    "test_verify_copilot_plugin_json",
+    "TestVerifyCLIIntegration",
+    "test_copilot_to_canonical",
+    "test_unknown_format_raises",
+    "TestExtractCapabilities"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "pathlib",
+      "pytest",
+      "agent_marketplace.exceptions",
+      "agent_marketplace.manifest",
+      "agent_marketplace.schema_adapters",
+      "agent_marketplace",
+      "click.testing",
+      "agent_marketplace.cli_commands",
+      "click.testing",
+      "agent_marketplace.cli_commands",
+      "click.testing",
+      "agent_marketplace.cli_commands",
+      "click.testing",
+      "agent_marketplace.cli_commands"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "copilot_data",
+      "line": 31,
+      "doc": "Minimal valid Copilot plugin manifest dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "claude_data",
+      "line": 51,
+      "doc": "Minimal valid Claude plugin manifest dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "generic_data",
+      "line": 73,
+      "doc": "A plain canonical plugin manifest dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "dict"
+    },
+    {
+      "name": "test_schema_adapter_imports",
+      "line": 257,
+      "doc": "New public symbols are importable from the top-level package.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_copilot_detected_by_skills",
+      "line": 88,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_copilot_detected_by_mcps_only",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_claude_detected_by_permissions",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "claude_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_claude_wins_with_allowed_tools",
+      "line": 98,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_generic_fallback",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "generic_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_claude_takes_precedence_over_copilot",
+      "line": 105,
+      "doc": "When both Claude and Copilot signals exist, Claude wins.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_manifest",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_missing_name_raises",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_manifest",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "claude_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 141,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_url_server",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_command_server",
+      "line": 152,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_neither_url_nor_command_raises",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_copilot_to_canonical",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_claude_to_canonical",
+      "line": 173,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "claude_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_generic_passthrough",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "generic_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_format_raises",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_copilot_raises",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_author_defaults_to_unknown",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_copilot_skills_and_mcp_tools",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_claude_includes_allowed_tools",
+      "line": 209,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "claude_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_generic_returns_capabilities_field",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "generic_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deduplication",
+      "line": 220,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sorted_output",
+      "line": 228,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_extracts_server_names",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_when_no_mcps",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "generic_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_servers",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_copilot_plugin_json",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_claude_plugin_json",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "claude_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_with_explicit_format",
+      "line": 310,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "copilot_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_dir_with_plugin_json",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path",
+        "copilot_data"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestDetectManifestFormat",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCopilotPluginManifest",
+      "line": 114,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestClaudePluginManifest",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPServerDef",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAdaptToCanonical",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestExtractCapabilities",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestExtractMCPServers",
+      "line": 237,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVerifyCLIIntegration",
+      "line": 279,
+      "doc": "Verify the CLI can handle Copilot/Claude plugin.json files.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 1,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,1019 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/base.py",
+  "extension": ".py",
+  "size_bytes": 45396,
+  "line_count": 1137,
+  "documentation": {
+    "file_docstring": "Base Integration Interface\n\nAll framework adapters inherit from this base class.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Safety thresholds",
+      "Audit settings",
+      "Concurrency limits",
+      "Version tracking",
+      "Validate positive integers (must be > 0)",
+      "Validate non-negative integers (>= 0 allowed)",
+      "Validate float thresholds are in [0.0, 1.0]",
+      "Validate allowed_tools entries are strings",
+      "Validate blocked_patterns entries and precompile regex/glob patterns",
+      "Validate version is a non-empty string",
+      "Backpressure will never trigger if threshold is >= max_concurrent",
+      "Tools are allowed but max_tool_calls blocks any tool calls",
+      "Confidence checks effectively disabled",
+      "timeout_seconds is too low for reasonable execution (< 5s warning)",
+      "Convert blocked_patterns back to tuples where needed",
+      "Convert blocked_patterns back to tuples where needed",
+      "Remove unknown keys",
+      "allowed_tools: fewer allowed tools is stricter (unless both empty)",
+      "Must be at least one actual difference to be considered stricter",
+      "Validate agent_id is a non-empty string matching allowed pattern",
+      "Validate session_id is a non-empty string",
+      "Validate policy is a GovernancePolicy instance",
+      "Validate non-negative integers",
+      "Validate checkpoints is a list of strings",
+      "\u2500\u2500 Abstract Tool Call Interceptor \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Check human approval requirement",
+      "Check allowed tools",
+      "Check blocked patterns",
+      "Check call count",
+      "Verify the hash carried in request metadata (set by the framework adapter)",
+      "\u2500\u2500 Bounded Concurrency \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Check call count",
+      "Check timeout",
+      "Check blocked patterns",
+      "Check human approval requirement",
+      "Check confidence threshold",
+      "Drift detection: compare output against baseline",
+      "Checkpoint if needed",
+      "SequenceMatcher ratio: 1.0 = identical, 0.0 = nothing in common",
+      "Pre-execution check",
+      "Execute the wrapped callable",
+      "Post-execution validation",
+      "Backward compatibility: import from the centralized exception hierarchy"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PatternType: Type of pattern matching for blocked_patterns.",
+      "GovernanceEventType: Event types emitted by the governance layer.",
+      "DriftResult: Result of a drift detection comparison.\n\nAttributes:\n    score: Drift score in [",
+      "GovernancePolicy: Policy configuration for governed AI agents.\n\nDefines the complete set of constr",
+      "ExecutionContext: Context passed through the governance layer",
+      "ToolCallRequest: Vendor-neutral representation of a tool/function call.",
+      "ToolCallResult: Result of intercepting a tool call.",
+      "ToolCallInterceptor: Abstract protocol for intercepting tool/function calls.\n\nImplement this to add c",
+      "PolicyInterceptor: Default interceptor that enforces GovernancePolicy rules.\n\nChecks:\n- Human appro",
+      "ContentHashInterceptor: Interceptor that verifies tool identity via content hashing.\n\nInstead of relying"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "ToolCallRequest",
+    "detect_conflicts",
+    "post_execute",
+    "emit",
+    "signal",
+    "DriftResult",
+    "AsyncGovernedWrapper",
+    "format_diff",
+    "to_dict",
+    "ExecutionContext",
+    "release",
+    "ToolCallInterceptor",
+    "pre_execute",
+    "register_hash",
+    "CompositeInterceptor",
+    "wrap",
+    "BaseIntegration",
+    "diff",
+    "PolicyInterceptor",
+    "GovernancePolicy",
+    "BoundedSemaphore",
+    "from_dict",
+    "ToolCallResult",
+    "unwrap",
+    "is_under_pressure",
+    "ContentHashInterceptor",
+    "is_stricter_than",
+    "compute_drift",
+    "add",
+    "PatternType",
+    "active",
+    "compare_versions",
+    "intercept",
+    "to_yaml",
+    "create_context",
+    "save",
+    "validate",
+    "matches_pattern",
+    "GovernanceEventType",
+    "stats",
+    "load",
+    "on",
+    "available",
+    "try_acquire",
+    "context",
+    "from_yaml",
+    "on_signal"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "copy",
+      "difflib",
+      "fnmatch",
+      "hashlib",
+      "logging",
+      "re",
+      "abc",
+      "dataclasses",
+      "datetime",
+      "enum",
+      "typing",
+      "agent_os.exceptions",
+      "yaml",
+      "yaml",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__repr__",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__repr__",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__hash__",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__post_init__",
+      "line": 199,
+      "doc": "Validate policy fields on construction.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 203,
+      "doc": "Validate all policy fields and raise ValueError for invalid inputs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "detect_conflicts",
+      "line": 290,
+      "doc": "Detect conflicting or contradictory policy settings.\n\nReturns:\n    A list of human-readable warning strings describing each conflict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "matches_pattern",
+      "line": 328,
+      "doc": "Return all blocked patterns that match the given text.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 339,
+      "doc": "Serialize policy to a dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 363,
+      "doc": "Deserialize policy from a dictionary.\n\nArgs:\n    data: Dictionary as produced by ``to_dict()``.\n\nReturns:\n    Reconstructed GovernancePolicy instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": "GovernancePolicy"
+    },
+    {
+      "name": "compare_versions",
+      "line": 399,
+      "doc": "Compare this policy with another, including version info.\n\nReturns a dict with version details and field-level changes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_yaml",
+      "line": 411,
+      "doc": "Serialize policy to YAML string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "from_yaml",
+      "line": 437,
+      "doc": "Deserialize policy from YAML string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "yaml_str"
+      ],
+      "returns": "GovernancePolicy"
+    },
+    {
+      "name": "save",
+      "line": 471,
+      "doc": "Save policy to a YAML file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "filepath"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load",
+      "line": 477,
+      "doc": "Load policy from a YAML file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "filepath"
+      ],
+      "returns": "GovernancePolicy"
+    },
+    {
+      "name": "diff",
+      "line": 482,
+      "doc": "Compare this policy with another, returning changed fields.\n\nReturns a dict mapping field names to (self_value, other_value) tuples\nfor fields that differ between the two policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_stricter_than",
+      "line": 502,
+      "doc": "Return True if this policy is more restrictive than other.\n\nStricter means: lower limits, higher thresholds, more blocked patterns,\nfewer allowed tools, and human approval required.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "format_diff",
+      "line": 537,
+      "doc": "Return a human-readable diff between this policy and other.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__repr__",
+      "line": 567,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__post_init__",
+      "line": 570,
+      "doc": "Validate context fields on construction.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 574,
+      "doc": "Validate all context fields and raise ValueError for invalid inputs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__repr__",
+      "line": 629,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__repr__",
+      "line": 641,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "intercept",
+      "line": 660,
+      "doc": "Intercept a tool call and return allow/deny decision.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ToolCallResult"
+    },
+    {
+      "name": "__init__",
+      "line": 676,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "intercept",
+      "line": 680,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ToolCallResult"
+    },
+    {
+      "name": "__init__",
+      "line": 732,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_hashes",
+        "strict"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_hash",
+      "line": 740,
+      "doc": "Record the expected content hash for a tool.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "content_hash"
+      ],
+      "returns": null
+    },
+    {
+      "name": "intercept",
+      "line": 744,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ToolCallResult"
+    },
+    {
+      "name": "__init__",
+      "line": 788,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "interceptors"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add",
+      "line": 791,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "interceptor"
+      ],
+      "returns": "CompositeInterceptor"
+    },
+    {
+      "name": "intercept",
+      "line": 795,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ToolCallResult"
+    },
+    {
+      "name": "__init__",
+      "line": 813,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_concurrent",
+        "backpressure_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "try_acquire",
+      "line": 820,
+      "doc": "Try to acquire a slot.\n\nReturns (acquired, reason).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "release",
+      "line": 833,
+      "doc": "Release a slot.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_under_pressure",
+      "line": 839,
+      "doc": "Check if backpressure threshold is reached.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "active",
+      "line": 844,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "available",
+      "line": 848,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "stats",
+      "line": 851,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 873,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 880,
+      "doc": "Wrap an agent with governance.\n\nReturns a governed version of the agent that:\n- Enforces policy on all operations\n- Records execution to flight recorder\n- Responds to signals (SIGSTOP, SIGKILL, etc.)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 892,
+      "doc": "Remove governance wrapper and return original agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "create_context",
+      "line": 896,
+      "doc": "Create execution context for an agent.\n\nThe policy is **deep-copied** so that the session is pinned to\nthe policy that was active when the context was created. This\nprevents mid-session mutations from leaking into running sessions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ExecutionContext"
+    },
+    {
+      "name": "on",
+      "line": 912,
+      "doc": "Register a callback for a governance event type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "emit",
+      "line": 916,
+      "doc": "Fire all registered callbacks for an event type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "pre_execute",
+      "line": 927,
+      "doc": "Pre-execution policy check.\n\nReturns (allowed, reason) tuple.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctx",
+        "input_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "post_execute",
+      "line": 977,
+      "doc": "Post-execution validation including drift detection.\n\nComputes a similarity score between the serialized output and the\nbaseline (first output) using ``SequenceMatcher``.  The drift score\nis ``1.0 - similarity`` (0.0 = identical, 1.0 = completely different).\n\nWhen the score exceeds ``policy.drift_threshold`` a\n``DRIFT_DETECTED`` governance event is emitted and a warning is\nlogged.  Callers can register listeners for this event to enforce\nblocking behaviour if desired.\n\nReturns (valid, reason) tuple.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctx",
+        "output_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "compute_drift",
+      "line": 1041,
+      "doc": "Compute drift between *output_data* and the baseline stored in *ctx*.\n\nOn the first call the output is recorded as the baseline and ``None``\nis returned (no comparison possible).  Subsequent calls use\n``SequenceMatcher`` to compute a similarity ratio between the\nserialised baseline and the current output.  The drift score is\n``1.0 - similarity`` (0.0 = identical, 1.0 = completely different).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "ctx",
+        "output_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "async_pre_execute",
+      "line": 1072,
+      "doc": "Async pre-execution policy check.\n\nDefaults to calling the sync version. Override in subclasses\nto add async-specific logic (e.g., async database lookups).",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctx",
+        "input_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "async_post_execute",
+      "line": 1081,
+      "doc": "Async post-execution validation.\n\nDefaults to calling the sync version. Override in subclasses\nto add async-specific logic.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "ctx",
+        "output_data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_signal",
+      "line": 1090,
+      "doc": "Register a signal handler.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal",
+        "handler"
+      ],
+      "returns": null
+    },
+    {
+      "name": "signal",
+      "line": 1094,
+      "doc": "Send signal to agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 1108,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "integration",
+        "fn",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "context",
+      "line": 1115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "ExecutionContext"
+    },
+    {
+      "name": "__call__",
+      "line": 1118,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PatternType",
+      "line": 27,
+      "doc": "Type of pattern matching for blocked_patterns.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernanceEventType",
+      "line": 34,
+      "doc": "Event types emitted by the governance layer.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DriftResult",
+      "line": 44,
+      "doc": "Result of a drift detection comparison.\n\nAttributes:\n    score: Drift score in [0.0, 1.0]. 0 = identical, 1 = completely different.\n    exceeded: Whether the score exceeded the configured threshold.\n    threshold: The threshold that was checked against.\n    baseline_hash: Hash of the baseline output.\n    current_hash: Hash of the current output.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "GovernancePolicy",
+      "line": 66,
+      "doc": "Policy configuration for governed AI agents.\n\nDefines the complete set of constraints, thresholds, and audit settings\nthat the governance layer enforces on agent behaviour. Policies are\nvalidated on construction via ``__post_init__`` and can be serialized\nto/from YAML for version-controlled configuration.\n\nPolicies are **composable**: create a base policy with sensible defaults\nand derive stricter variants for sensitive environments.  Use\n``is_stricter_than()`` to verify that a derived policy never *loosens*\nconstraints relative to the base.\n\nAttributes:\n    name: Human-readable policy name used in audit logs and error\n        messages.  Defaults to ``\"default\"``.\n    max_tokens: Maximum number of tokens an agent may consume per\n        request.  Must be a positive integer.  Defaults to ``4096``.\n    max_tool_calls: Maximum number of tool invocations allowed per\n        request.  ``0`` disables tool calls entirely.  Must be a\n        non-negative integer.  Defaults to ``10``.\n    allowed_tools: Explicit allowlist of tool names the agent may call.\n        An empty list means *all* tools are permitted (subject to other\n        constraints).  Defaults to ``[]``.\n    blocked_patterns: Patterns that must not appear in tool arguments.\n        Each entry is either a plain substring string or a\n        ``(pattern, PatternType)`` tuple for regex/glob matching.\n        Defaults to ``[]``.\n    require_human_approval: When ``True``, tool calls require explicit\n        human approval before execution.  Defaults to ``False``.\n    timeout_seconds: Maximum wall-clock time (in seconds) allowed for\n        a single request.  Must be a positive integer.  Defaults to\n        ``300``.\n    confidence_threshold: Minimum confidence score (0.0\u20131.0) for an\n        agent's action to be accepted without review.  ``0.0``\n        effectively disables confidence checking.  Defaults to ``0.8``.\n    drift_threshold: Maximum acceptable semantic drift score (0.0\u20131.0)\n        between an agent's stated intent and actual output before a\n        ``DRIFT_DETECTED`` event is emitted.  Defaults to ``0.15``.\n    log_all_calls: When ``True``, every tool call is recorded in the\n        audit log regardless of outcome.  Defaults to ``True``.\n    checkpoint_frequency: Create a governance checkpoint every *N* tool\n        calls.  Must be a positive integer.  Defaults to ``5``.\n    max_concurrent: Maximum number of concurrent agent executions\n        allowed under this policy.  Must be a positive integer.\n        Defaults to ``10``.\n    backpressure_threshold: Number of concurrent executions at which\n        the system begins applying backpressure (e.g. throttling new\n        requests).  Should be less than ``max_concurrent`` to be\n        effective.  Defaults to ``8``.\n    version: Semantic version string for the policy, enabling auditable\n        policy evolution.  Defaults to ``\"1.0.0\"``.\n\nExample:\n    Creating a strict read-only policy::\n\n        policy = GovernancePolicy(\n            name=\"read_only_strict\",\n            max_tokens=2048,\n            max_tool_calls=5,\n            allowed_tools=[\"read_file\", \"web_search\"],\n            blocked_patterns=[\n                \"password\",\n                (\"rm\\s+-rf\", PatternType.REGEX),\n                (\"*.exe\", PatternType.GLOB),\n            ],\n            require_human_approval=True,\n            confidence_threshold=0.9,\n            drift_threshold=0.10,\n            version=\"2.0.0\",\n        )\n\n    Comparing policies::\n\n        base = GovernancePolicy()\n        strict = GovernancePolicy(max_tokens=1024, max_tool_calls=3)\n        assert strict.is_stricter_than(base)\n\n    Serialization round-trip::\n\n        yaml_str = policy.to_yaml()\n        restored = GovernancePolicy.from_yaml(yaml_str)",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExecutionContext",
+      "line": 553,
+      "doc": "Context passed through the governance layer",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolCallRequest",
+      "line": 621,
+      "doc": "Vendor-neutral representation of a tool/function call.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolCallResult",
+      "line": 634,
+      "doc": "Result of intercepting a tool call.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolCallInterceptor",
+      "line": 645,
+      "doc": "Abstract protocol for intercepting tool/function calls.\n\nImplement this to add custom governance logic across any framework.\nThe same interceptor works with OpenAI, LangChain, CrewAI, etc.\n\nExample:\n    class PIIInterceptor:\n        def intercept(self, request: ToolCallRequest) -> ToolCallResult:\n            if any(p in str(request.arguments) for p in [\"ssn\", \"password\"]):\n                return ToolCallResult(allowed=False, reason=\"PII detected\")\n            return ToolCallResult(allowed=True)",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyInterceptor",
+      "line": 665,
+      "doc": "Default interceptor that enforces GovernancePolicy rules.\n\nChecks:\n- Human approval requirement (require_human_approval)\n- Tool is in allowed_tools (if specified)\n- Arguments don't contain blocked patterns\n- Call count within limits",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ContentHashInterceptor",
+      "line": 714,
+      "doc": "Interceptor that verifies tool identity via content hashing.\n\nInstead of relying solely on tool *names* (which can be aliased),\nthis interceptor checks that the callable behind a tool name has the\nsame SHA-256 source hash that was recorded when the tool was\nregistered.  This defeats tool-wrapping and aliasing attacks\ndescribed in the Ona/Veto agent sandbox escape research.\n\nRequires a ``tool_registry`` that stores content hashes (see\n:class:`~agent_control_plane.tool_registry.ToolRegistry`).\n\nArgs:\n    tool_hashes: Mapping of tool name \u2192 expected SHA-256 hex digest.\n    strict: If ``True`` (default), block tools with no registered\n        hash.  If ``False``, allow unknown tools with a warning.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CompositeInterceptor",
+      "line": 785,
+      "doc": "Chain multiple interceptors. All must allow for the call to proceed.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "BoundedSemaphore",
+      "line": 805,
+      "doc": "Async-compatible bounded semaphore with backpressure.\n\nWhen concurrency exceeds backpressure_threshold, callers must wait.\nWhen it exceeds max_concurrent, requests are rejected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "BaseIntegration",
+      "line": 862,
+      "doc": "Base class for framework integrations.\n\nWraps any agent framework with Agent OS governance:\n- Pre-execution policy checks\n- Post-execution validation\n- Flight recording\n- Signal handling",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AsyncGovernedWrapper",
+      "line": 1100,
+      "doc": "Async wrapper that applies governance around an async callable.\n\nUses asyncio.Lock for concurrent access control instead of threading.\nCalls async_pre_execute before and async_post_execute after the wrapped callable.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 135,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

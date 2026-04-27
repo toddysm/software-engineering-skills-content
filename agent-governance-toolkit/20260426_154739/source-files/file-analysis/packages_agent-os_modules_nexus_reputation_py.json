@@ -1,0 +1,368 @@
+{
+  "path": "packages/agent-os/modules/nexus/reputation.py",
+  "extension": ".py",
+  "size_bytes": 13902,
+  "line_count": 425,
+  "documentation": {
+    "file_docstring": "Reputation Engine\n\nCalculates and manages trust scores for agents on the Nexus network.\nImplements the viral trust mechanism that drives network adoption.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Score components",
+      "History",
+      "Timestamps",
+      "Task history",
+      "Dispute history",
+      "Activity",
+      "Slashing history",
+      "Evidence",
+      "Timestamps",
+      "Broadcasting",
+      "Base scores by verification level",
+      "Severity penalties for slashing",
+      "Default threshold for communication",
+      "Base score from verification tier",
+      "Behavioral modifiers",
+      "Cap behavioral modifier",
+      "Capability modifiers",
+      "Calculate total",
+      "Get current score",
+      "Calculate reduction",
+      "Update history",
+      "Create slash event",
+      "Invalidate score cache",
+      "Get or calculate score",
+      "In production, this would use pub/sub or webhooks",
+      "For now, just mark as broadcast"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TrustTier: Trust tier classification based on score.",
+      "TrustScore: Represents an agent's trust score with breakdown.",
+      "ReputationHistory: Historical reputation data for an agent.",
+      "SlashEvent: Record of a reputation slash event.",
+      "ReputationEngine: Calculates and manages trust scores for the Nexus network.\n\nThe core engine that",
+      "get_tier: Get tier from score.",
+      "meets_threshold: Check if score meets a required threshold.",
+      "success_rate: Calculate task success rate.",
+      "dispute_win_rate: Calculate dispute win rate.",
+      "calculate_trust_score: Calculate trust score from 0-1000.\n\nBase score from verification level + modifie"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "slash_reputation",
+    "TrustScore",
+    "get_network_reputation",
+    "record_dispute_outcome",
+    "get_leaderboard",
+    "get_tier",
+    "dispute_win_rate",
+    "meets_threshold",
+    "TrustTier",
+    "get_slash_history",
+    "SlashEvent",
+    "ReputationHistory",
+    "ReputationEngine",
+    "record_task_outcome",
+    "check_trust_threshold",
+    "calculate_trust_score",
+    "success_rate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "dataclasses",
+      "enum",
+      "asyncio"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "get_tier",
+      "line": 51,
+      "doc": "Get tier from score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "score"
+      ],
+      "returns": "TrustTier"
+    },
+    {
+      "name": "meets_threshold",
+      "line": 64,
+      "doc": "Check if score meets a required threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "required_score"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "success_rate",
+      "line": 96,
+      "doc": "Calculate task success rate.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "dispute_win_rate",
+      "line": 103,
+      "doc": "Calculate dispute win rate.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trust_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate_trust_score",
+      "line": 170,
+      "doc": "Calculate trust score from 0-1000.\n\nBase score from verification level + modifiers from behavior and capabilities.\n\nArgs:\n    verification_level: Agent's verification tier\n    history: Agent's reputation history\n    capabilities: Agent's capability manifest\n    privacy: Agent's privacy settings\n    \nReturns:\n    TrustScore with full breakdown",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verification_level",
+        "history",
+        "capabilities",
+        "privacy"
+      ],
+      "returns": "TrustScore"
+    },
+    {
+      "name": "record_task_outcome",
+      "line": 248,
+      "doc": "Record a task outcome and update history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "outcome"
+      ],
+      "returns": "ReputationHistory"
+    },
+    {
+      "name": "record_dispute_outcome",
+      "line": 269,
+      "doc": "Record a dispute outcome and update history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "outcome"
+      ],
+      "returns": "ReputationHistory"
+    },
+    {
+      "name": "slash_reputation",
+      "line": 287,
+      "doc": "Slash an agent's reputation for misbehavior.\n\nWhen triggered, broadcasts to the network so all agents\nimmediately block the offending agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "reason",
+        "severity",
+        "evidence_hash",
+        "trace_id",
+        "broadcast"
+      ],
+      "returns": "SlashEvent"
+    },
+    {
+      "name": "check_trust_threshold",
+      "line": 340,
+      "doc": "Check if an agent meets the trust threshold.\n\nReturns:\n    Tuple of (meets_threshold, trust_score)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "required_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_network_reputation",
+      "line": 362,
+      "doc": "Get reputation scores for multiple agents.\n\nUsed for syncing local known_peers cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_dids"
+      ],
+      "returns": null
+    },
+    {
+      "name": "broadcast_slash_event",
+      "line": 385,
+      "doc": "Broadcast a slash event to all connected agents.\n\nReturns number of agents notified.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "slash_event"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_get_or_create_history",
+      "line": 396,
+      "doc": "Get or create reputation history for an agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "ReputationHistory"
+    },
+    {
+      "name": "get_leaderboard",
+      "line": 405,
+      "doc": "Get top agents by trust score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_slash_history",
+      "line": 411,
+      "doc": "Get slash event history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "since"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustTier",
+      "line": 17,
+      "doc": "Trust tier classification based on score.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustScore",
+      "line": 27,
+      "doc": "Represents an agent's trust score with breakdown.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReputationHistory",
+      "line": 70,
+      "doc": "Historical reputation data for an agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SlashEvent",
+      "line": 112,
+      "doc": "Record of a reputation slash event.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReputationEngine",
+      "line": 137,
+      "doc": "Calculates and manages trust scores for the Nexus network.\n\nThe core engine that determines which agents can communicate\nand drives the viral adoption loop.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 55,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, business_logic"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic"
+    ]
+  }
+}

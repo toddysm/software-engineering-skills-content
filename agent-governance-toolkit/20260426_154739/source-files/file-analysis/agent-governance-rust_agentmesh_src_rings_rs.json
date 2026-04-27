@@ -1,0 +1,228 @@
+{
+  "path": "agent-governance-rust/agentmesh/src/rings.rs",
+  "extension": ".rs",
+  "size_bytes": 8218,
+  "line_count": 232,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "! Execution privilege rings \u2014 a four-level access-control model inspired by",
+      "! hardware protection rings.",
+      "!",
+      "! | Ring | Level | Description |",
+      "! |------|-------|-------------|",
+      "! | `Admin` | 0 | Full tool access |",
+      "! | `Standard` | 1 | Scoped tool access (configurable) |",
+      "! | `Restricted` | 2 | Read-only + approved writes (configurable) |",
+      "! | `Sandboxed` | 3 | No external access |",
+      "Execution privilege ring.",
+      "",
+      "Lower numeric values imply higher privilege \u2014 matching the classic",
+      "ring-0 / ring-3 convention used in OS kernels.",
+      "Ring 0 \u2014 full tool access.",
+      "Ring 1 \u2014 scoped tool access (actions are configurable).",
+      "Ring 2 \u2014 read-only plus approved writes (actions are configurable).",
+      "Ring 3 \u2014 no external access.",
+      "Manages per-agent ring assignments and per-ring action permissions.",
+      "",
+      "# Access semantics",
+      "",
+      "* **Ring 0 (`Admin`)** \u2014 every action is implicitly allowed.",
+      "* **Ring 3 (`Sandboxed`)** \u2014 every action is implicitly denied.",
+      "* **Ring 1 / Ring 2** \u2014 allowed only if the action appears in the",
+      "ring's configured permission set.",
+      "* Unknown agents (not yet assigned) are denied by default.",
+      "Create a new enforcer with no assignments and no custom permissions.",
+      "Assign an agent to a specific ring.",
+      "Return the ring currently assigned to the agent, if any.",
+      "Check whether `agent_id` is allowed to perform `action`.",
+      "",
+      "Returns `false` for unknown agents.",
+      "Configure the set of allowed actions for a given ring.",
+      "",
+      "Only meaningful for `Standard` and `Restricted` rings \u2014 `Admin`",
+      "always allows and `Sandboxed` always denies regardless of this",
+      "setting.",
+      "No permissions configured for Standard \u2192 deny"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "Ring",
+    "assign",
+    "check_access",
+    "new",
+    "get_ring",
+    "set_ring_permissions",
+    "RingEnforcer"
+  ],
+  "imports": {
+    "internal": [
+      "super::*"
+    ],
+    "external": [
+      "serde::{Deserialize, Serialize}"
+    ],
+    "standard": [
+      "std::collections::HashMap"
+    ]
+  },
+  "functions": [
+    {
+      "name": "new",
+      "line": 49,
+      "doc": "Create a new enforcer with no assignments and no custom permissions.",
+      "is_public": true
+    },
+    {
+      "name": "assign",
+      "line": 57,
+      "doc": "Assign an agent to a specific ring.",
+      "is_public": true
+    },
+    {
+      "name": "get_ring",
+      "line": 62,
+      "doc": "Return the ring currently assigned to the agent, if any.",
+      "is_public": true
+    },
+    {
+      "name": "check_access",
+      "line": 69,
+      "doc": "Returns `false` for unknown agents.",
+      "is_public": true
+    },
+    {
+      "name": "set_ring_permissions",
+      "line": 86,
+      "doc": "setting.",
+      "is_public": true
+    },
+    {
+      "name": "default",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_admin_ring_allows_everything",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_sandboxed_ring_denies_everything",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_standard_ring_with_permissions",
+      "line": 119,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_restricted_ring_with_permissions",
+      "line": 133,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_unknown_agent_denied",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_get_ring_returns_none_for_unknown",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_get_ring_returns_assigned",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_reassign_ring_overrides",
+      "line": 164,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_standard_ring_no_permissions_denies",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_ring_ordering",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_ring_serde_roundtrip",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_multiple_agents_different_rings",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_set_ring_permissions_replaces_previous",
+      "line": 216,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_default_impl",
+      "line": 228,
+      "doc": "No documentation",
+      "is_public": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "Ring",
+      "line": 22,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "RingEnforcer",
+      "line": 42,
+      "doc": "* Unknown agents (not yet assigned) are denied by default.",
+      "is_public": true
+    }
+  ],
+  "complexity_score": 7,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

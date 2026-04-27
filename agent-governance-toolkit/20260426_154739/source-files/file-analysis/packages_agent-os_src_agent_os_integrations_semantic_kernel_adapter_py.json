@@ -1,0 +1,611 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/semantic_kernel_adapter.py",
+  "extension": ".py",
+  "size_bytes": 25034,
+  "line_count": 769,
+  "documentation": {
+    "file_docstring": "Microsoft Semantic Kernel Integration\n\nWraps Semantic Kernel with Agent OS governance.\n\nUsage:\n    from agent_os.integrations import SemanticKernelWrapper\n    from semantic_kernel import Kernel\n\n    sk = Kernel()\n    governed_sk = SemanticKernelWrapper(sk, policy=\"strict\")\n\n    # All invocations are now governed\n    result = await governed_sk.invoke(function, input=\"...\")\n\nFeatures:\n- Function invocation governance\n- Plugin/skill validation\n- Memory access control\n- Token limit enforcement\n- Full audit trail\n- POSIX-style signals",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "All invocations are now governed",
+      "Token tracking",
+      "All executions are now governed",
+      "=========================================================================",
+      "Function Invocation (Core Governance)",
+      "=========================================================================",
+      "Check signals",
+      "Build function identifier",
+      "Record invocation",
+      "Pre-execution check",
+      "Check allowed functions",
+      "Check if plugin is allowed (wildcard)",
+      "Execute",
+      "Post-execution check",
+      "=========================================================================",
+      "Plugin Management",
+      "=========================================================================",
+      "Record plugin",
+      "Add to kernel",
+      "=========================================================================",
+      "Memory Operations (Governed)",
+      "=========================================================================",
+      "Check signals",
+      "Pre-check content",
+      "Record operation",
+      "Execute",
+      "Check signals",
+      "Record operation",
+      "Execute",
+      "=========================================================================",
+      "Chat Completion (Governed)",
+      "=========================================================================",
+      "Check signals",
+      "Pre-check prompt",
+      "Record",
+      "Get chat service and invoke",
+      "This works with SK's chat completion service pattern",
+      "Post-check result",
+      "=========================================================================",
+      "Planner (Governed)",
+      "=========================================================================",
+      "Check signals",
+      "Pre-check goal",
+      "Create plan",
+      "Use default sequential planner if available",
+      "=========================================================================",
+      "Signal Handling",
+      "=========================================================================",
+      "=========================================================================",
+      "Utility",
+      "=========================================================================",
+      "Check signals before starting",
+      "Validate plan steps against policy",
+      "Execute with signal checks",
+      "============================================================================",
+      "Exceptions",
+      "============================================================================",
+      "============================================================================",
+      "Convenience Functions",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SKContext: Extended execution context for Semantic Kernel.\n\nTracks kernel-specific state in",
+      "SemanticKernelWrapper: Microsoft Semantic Kernel adapter for Agent OS.\n\nProvides governance for:\n- Func",
+      "GovernedSemanticKernel: Semantic Kernel wrapped with Agent OS governance.\n\nIntercepts all function calls",
+      "GovernedPlan: A Semantic Kernel plan wrapped with step-level governance.\n\nEach step in the pla",
+      "PolicyViolationError: Raised when a Semantic Kernel function violates governance policy.",
+      "ExecutionStoppedError: Raised when execution is blocked by SIGSTOP.",
+      "ExecutionKilledError: Raised when execution is terminated by SIGKILL.",
+      "wrap_kernel: Quick wrapper for Semantic Kernel.\n\nExample:\n    from agent_os.integrations.sema",
+      "__init__: Initialise the Semantic Kernel governance wrapper.\n\nArgs:\n    kernel: Optional S",
+      "wrap: Wrap a Semantic Kernel with governance.\n\nArgs:\n    kernel: Semantic Kernel insta"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "GovernedPlan",
+    "ExecutionKilledError",
+    "import_plugin_from_openai",
+    "is_stopped",
+    "SKContext",
+    "signal_continue",
+    "sigcont",
+    "get_context",
+    "sigstop",
+    "GovernedSemanticKernel",
+    "wrap",
+    "signal_stop",
+    "PolicyViolationError",
+    "unwrap",
+    "signal_kill",
+    "ExecutionStoppedError",
+    "get_audit_log",
+    "invoke_sync",
+    "plugins",
+    "is_killed",
+    "sigkill",
+    "health_check",
+    "wrap_kernel",
+    "SemanticKernelWrapper",
+    "add_plugin"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "time",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "base",
+      "semantic_kernel.planners"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "wrap_kernel",
+      "line": 753,
+      "doc": "Quick wrapper for Semantic Kernel.\n\nExample:\n    from agent_os.integrations.semantic_kernel_adapter import wrap_kernel\n\n    governed = wrap_kernel(my_kernel)\n    result = await governed.invoke(\"plugin\", \"function\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "kernel",
+        "policy",
+        "timeout_seconds"
+      ],
+      "returns": "GovernedSemanticKernel"
+    },
+    {
+      "name": "__init__",
+      "line": 89,
+      "doc": "Initialise the Semantic Kernel governance wrapper.\n\nArgs:\n    kernel: Optional Semantic Kernel instance.  Can also be\n        provided later via :meth:`wrap`.\n    policy: Governance policy to enforce. When ``None`` the default\n        ``GovernancePolicy`` is used.\n    timeout_seconds: Default timeout in seconds (default 300).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel",
+        "policy",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 113,
+      "doc": "Wrap a Semantic Kernel with governance.\n\nArgs:\n    kernel: Semantic Kernel instance\n\nReturns:\n    GovernedSemanticKernel with full governance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unwrap",
+      "line": 138,
+      "doc": "Retrieve the original unwrapped Semantic Kernel instance.\n\nArgs:\n    governed_kernel: A ``GovernedSemanticKernel`` or any object.\n\nReturns:\n    The original ``Kernel`` if *governed_kernel* is a\n    ``GovernedSemanticKernel``; otherwise returns the input as-is.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_kernel"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "signal_stop",
+      "line": 152,
+      "doc": "SIGSTOP \u2014 pause all function invocations.\n\nWhile stopped, calls to :meth:`GovernedSemanticKernel.invoke`\nwill block (``await asyncio.sleep``) until :meth:`signal_continue`\nis called.\n\nArgs:\n    kernel_id: Identifier of the kernel to pause.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "signal_continue",
+      "line": 164,
+      "doc": "SIGCONT \u2014 resume execution after a previous SIGSTOP.\n\nArgs:\n    kernel_id: Identifier of the kernel to resume.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "signal_kill",
+      "line": 172,
+      "doc": "SIGKILL \u2014 terminate all kernel operations immediately.\n\nOnce killed, any in-flight or future invocations will raise\n``ExecutionKilledError``.\n\nArgs:\n    kernel_id: Identifier of the kernel to kill.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_stopped",
+      "line": 183,
+      "doc": "Return whether the wrapper is in a stopped (SIGSTOP) state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_killed",
+      "line": 187,
+      "doc": "Return whether the wrapper has received SIGKILL.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "health_check",
+      "line": 191,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel",
+        "wrapper",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "invoke",
+      "line": 235,
+      "doc": "Governed function invocation.\n\nArgs:\n    plugin_name: Name of the plugin\n    function_name: Name of the function\n    function: Direct function reference (alternative)\n    **kwargs: Arguments to pass to function\n\nReturns:\n    Function result\n\nRaises:\n    PolicyViolationError: If policy is violated\n    ExecutionStoppedError: If SIGSTOP received\n    ExecutionKilledError: If SIGKILL received",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "function_name",
+        "function"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "invoke_sync",
+      "line": 321,
+      "doc": "Synchronous wrapper around :meth:`invoke`.\n\nRuns the async ``invoke`` in a new event loop via\n``asyncio.run()``.  Useful for scripts or environments that are\nnot already running an async loop.\n\nArgs:\n    plugin_name: Name of the plugin containing the function.\n    function_name: Name of the function within the plugin.\n    function: Direct function reference (alternative to\n        *plugin_name* + *function_name*).\n    **kwargs: Arguments forwarded to the kernel function.\n\nReturns:\n    The function result.\n\nRaises:\n    PolicyViolationError: If the invocation violates policy.\n    ExecutionKilledError: If SIGKILL has been received.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "function_name",
+        "function"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "add_plugin",
+      "line": 359,
+      "doc": "Register a plugin with the kernel, tracking it for governance.\n\nThe plugin name is recorded in the execution context for audit\npurposes.  Plugin functions remain subject to\n``allowed_tools`` policy checks when invoked.\n\nArgs:\n    plugin: The plugin object to register.\n    plugin_name: Human-readable name for the plugin.\n    **kwargs: Extra arguments forwarded to the kernel's\n        ``add_plugin`` method.\n\nReturns:\n    The result from the underlying ``kernel.add_plugin()`` call.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin",
+        "plugin_name"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "import_plugin_from_openai",
+      "line": 386,
+      "doc": "Import an OpenAI function definition as a Semantic Kernel plugin.\n\nArgs:\n    plugin_name: Name to register the plugin under.\n    openai_function: OpenAI-format function definition dict.\n    **kwargs: Extra arguments forwarded to the kernel.\n\nReturns:\n    The result from the underlying import call.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "openai_function"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "plugins",
+      "line": 410,
+      "doc": "Access loaded plugins",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "memory_save",
+      "line": 418,
+      "doc": "Save information to kernel memory with governance checks.\n\nThe text content is validated against ``blocked_patterns`` before\nbeing persisted.  The operation is recorded in the audit trail.\n\nArgs:\n    collection: Memory collection name.\n    text: Text content to save.\n    id: Optional identifier for the memory entry.\n    **kwargs: Extra arguments forwarded to the memory backend.\n\nReturns:\n    The result from the memory backend, or ``None`` if no memory\n    backend is configured.\n\nRaises:\n    PolicyViolationError: If the text violates a blocked pattern.\n    ExecutionKilledError: If SIGKILL has been received.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "collection",
+        "text",
+        "id"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "memory_search",
+      "line": 471,
+      "doc": "Search kernel memory with governance logging.\n\nThe search operation is recorded in the audit trail (query text\nis truncated to 100 characters in the log).\n\nArgs:\n    collection: Memory collection to search.\n    query: Search query string.\n    limit: Maximum number of results to return (default 5).\n    **kwargs: Extra arguments forwarded to the memory backend.\n\nReturns:\n    A list of search results, or an empty list if no memory\n    backend is configured.\n\nRaises:\n    ExecutionKilledError: If SIGKILL has been received.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "collection",
+        "query",
+        "limit"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "invoke_prompt",
+      "line": 522,
+      "doc": "Invoke a prompt with governance.\n\nThis is for direct chat/completion calls.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "prompt"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "create_plan",
+      "line": 563,
+      "doc": "Create a governed execution plan.\n\nEach step in the generated plan is validated against\n``allowed_tools`` before execution is permitted.\n\nArgs:\n    goal: Natural language description of the goal.\n    planner: Optional planner instance; defaults to\n        ``SequentialPlanner`` if not provided.\n    **kwargs: Extra arguments forwarded to the planner.\n\nReturns:\n    A ``GovernedPlan`` that validates steps on invocation.\n\nRaises:\n    PolicyViolationError: If the goal text violates policy.\n    ExecutionKilledError: If SIGKILL has been received.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "goal",
+        "planner"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "sigkill",
+      "line": 617,
+      "doc": "Send SIGKILL \u2014 terminate all kernel operations immediately.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sigstop",
+      "line": 621,
+      "doc": "Send SIGSTOP \u2014 pause all kernel operations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sigcont",
+      "line": 625,
+      "doc": "Send SIGCONT \u2014 resume kernel operations after SIGSTOP.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_context",
+      "line": 633,
+      "doc": "Return the execution context containing the full audit trail.\n\nReturns:\n    The ``SKContext`` for this governed kernel.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "SKContext"
+    },
+    {
+      "name": "get_audit_log",
+      "line": 641,
+      "doc": "Return a structured audit log of all kernel activity.\n\nReturns:\n    A dict with keys ``kernel_id``, ``session_id``,\n    ``plugins_loaded``, ``functions_invoked``,\n    ``memory_operations``, ``call_count``, and ``checkpoints``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__getattr__",
+      "line": 659,
+      "doc": "Proxy attribute access to the underlying Semantic Kernel instance.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 671,
+      "doc": "Initialise a governed plan wrapper.\n\nArgs:\n    plan: The original Semantic Kernel plan object.\n    wrapper: Parent governance wrapper for signal/policy access.\n    ctx: Execution context for audit logging.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plan",
+        "wrapper",
+        "ctx"
+      ],
+      "returns": null
+    },
+    {
+      "name": "invoke",
+      "line": 688,
+      "doc": "Execute the plan with step-by-step governance validation.\n\nBefore execution, each step is checked against ``allowed_tools``.\nExecution is aborted if SIGKILL has been received.\n\nArgs:\n    **kwargs: Arguments forwarded to the plan's ``invoke`` method.\n\nReturns:\n    The plan execution result.\n\nRaises:\n    PolicyViolationError: If a plan step is not in ``allowed_tools``.\n    ExecutionKilledError: If SIGKILL has been received.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__getattr__",
+      "line": 723,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SKContext",
+      "line": 37,
+      "doc": "Extended execution context for Semantic Kernel.\n\nTracks kernel-specific state including loaded plugins, function\ninvocation history, memory operations, and cumulative token usage.\n\nAttributes:\n    kernel_id: Unique identifier for this kernel instance.\n    plugins_loaded: Names of plugins added through the governed wrapper.\n    functions_invoked: Audit log of every function invocation.\n    memory_operations: Audit log of memory save/search operations.\n    prompt_tokens: Cumulative prompt tokens consumed.\n    completion_tokens: Cumulative completion tokens consumed.",
+      "is_public": true,
+      "bases": [
+        "ExecutionContext"
+      ],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SemanticKernelWrapper",
+      "line": 62,
+      "doc": "Microsoft Semantic Kernel adapter for Agent OS.\n\nProvides governance for:\n- Function invocations\n- Plugin loading\n- Memory operations\n- Chat/text completions\n- Planner execution\n\nExample:\n    from semantic_kernel import Kernel\n    from agent_os.integrations import SemanticKernelWrapper\n\n    sk = Kernel()\n    sk.add_plugin(MyPlugin(), \"my_plugin\")\n\n    governed = SemanticKernelWrapper(sk, policy=GovernancePolicy(\n        allowed_tools=[\"my_plugin.safe_function\"],\n        blocked_patterns=[\"password\", \"secret\"]\n    ))\n\n    # All executions are now governed\n    result = await governed.invoke(\"my_plugin\", \"safe_function\", input=\"...\")",
+      "is_public": true,
+      "bases": [
+        "BaseIntegration"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernedSemanticKernel",
+      "line": 214,
+      "doc": "Semantic Kernel wrapped with Agent OS governance.\n\nIntercepts all function calls, plugin operations, and memory access.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GovernedPlan",
+      "line": 664,
+      "doc": "A Semantic Kernel plan wrapped with step-level governance.\n\nEach step in the plan is validated against the ``allowed_tools``\npolicy constraint before execution begins.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 731,
+      "doc": "Raised when a Semantic Kernel function violates governance policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionStoppedError",
+      "line": 737,
+      "doc": "Raised when execution is blocked by SIGSTOP.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionKilledError",
+      "line": 743,
+      "doc": "Raised when execution is terminated by SIGKILL.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 77,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/services/rate_limit_middleware.py",
+  "extension": ".py",
+  "size_bytes": 4250,
+  "line_count": 126,
+  "documentation": {
+    "file_docstring": "HTTP-layer rate limiting middleware for Agent Mesh.\n\nThis module integrates the service-level token bucket limiter with request handling,\nextracts agent DIDs from headers, and returns standard rate-limit headers.\n\nSee also:\n    - hypervisor.security.rate_limiter: runtime-layer per-agent/per-ring limits.\n    - agent_os.integrations.rate_limiter: tool-call policy limits in Agent OS.\n    - agentmesh.services.rate_limiter: service/proxy-level limits in Agent Mesh.\n    - agent_os.policies.rate_limiting: shared token-bucket primitives.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Header constants"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SimpleRequest: Minimal request abstraction for the middleware.",
+      "SimpleResponse: Minimal response abstraction for the middleware.",
+      "RateLimitMiddleware: Middleware that enforces rate limits on HTTP handlers.\n\nExtracts the agent DID f",
+      "_extract_agent_did: Extract agent DID from request headers.",
+      "_add_rate_limit_headers: Attach rate limit headers to the response.",
+      "handle: Process a request through rate limiting then delegate to *handler*.\n\nArgs:\n    r"
+    ]
+  },
+  "purpose": {
+    "primary_role": "service",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "service path"
+    ]
+  },
+  "exports": [
+    "handle",
+    "SimpleResponse",
+    "SimpleRequest",
+    "RateLimitMiddleware"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "math",
+      "dataclasses",
+      "typing",
+      "agentmesh.services.rate_limiter"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rate_limiter",
+        "default_agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_extract_agent_did",
+      "line": 68,
+      "doc": "Extract agent DID from request headers.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_add_rate_limit_headers",
+      "line": 72,
+      "doc": "Attach rate limit headers to the response.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "response",
+        "remaining",
+        "retry_after",
+        "backpressure"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handle",
+      "line": 86,
+      "doc": "Process a request through rate limiting then delegate to *handler*.\n\nArgs:\n    request: The incoming request.\n    handler: The next handler in the chain.\n\nReturns:\n    A :class:`SimpleResponse` \u2014 either a 429 rejection or the handler's response\n    decorated with rate limit headers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request",
+        "handler"
+      ],
+      "returns": "SimpleResponse"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SimpleRequest",
+      "line": 31,
+      "doc": "Minimal request abstraction for the middleware.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SimpleResponse",
+      "line": 40,
+      "doc": "Minimal response abstraction for the middleware.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RateLimitMiddleware",
+      "line": 48,
+      "doc": "Middleware that enforces rate limits on HTTP handlers.\n\nExtracts the agent DID from the ``X-Agent-DID`` request header, checks both\nper-agent and global rate limits, and decorates responses with standard rate\nlimit headers.\n\nArgs:\n    rate_limiter: The :class:`RateLimiter` instance to use.\n    default_agent_did: Fallback DID when the header is absent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 6,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

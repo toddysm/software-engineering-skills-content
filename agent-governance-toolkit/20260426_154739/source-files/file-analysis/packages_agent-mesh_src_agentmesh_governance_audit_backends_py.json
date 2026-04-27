@@ -1,0 +1,414 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/audit_backends.py",
+  "extension": ".py",
+  "size_bytes": 13685,
+  "line_count": 401,
+  "documentation": {
+    "file_docstring": "External append-only audit trail backends with cryptographic integrity.\n\nProvides pluggable audit sinks that write signed, hash-chained entries\nto external storage (files, databases, etc.).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "AuditSink Protocol",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "SignedAuditEntry",
+      "---------------------------------------------------------------------------",
+      "Integrity fields",
+      "------------------------------------------------------------------",
+      "Construction helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Hashing & signing",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Verification",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Serialisation",
+      "------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "FileAuditSink",
+      "---------------------------------------------------------------------------",
+      "Resume chain if the file already has entries.",
+      "------------------------------------------------------------------",
+      "AuditSink interface",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Helpers",
+      "------------------------------------------------------------------",
+      "Reset chain for the new file",
+      "---------------------------------------------------------------------------",
+      "HashChainVerifier",
+      "---------------------------------------------------------------------------",
+      "Chain link",
+      "Content hash",
+      "HMAC signature"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AuditSink: Abstract interface for external audit sinks.",
+      "SignedAuditEntry: Wrapper that adds cryptographic integrity to an :class:`AuditEntry`.\n\nEach signe",
+      "FileAuditSink: Append-only, file-based audit sink writing JSON-lines.\n\nEach line in the output ",
+      "HashChainVerifier: Standalone tool to verify the integrity of a JSON-lines audit file.\n\nChecks:\n* H",
+      "write: Write a single audit entry to the sink.",
+      "write_batch: Write a batch of audit entries to the sink.",
+      "verify_integrity: Verify the integrity of the audit chain in this sink.\n\nReturns:\n    Tuple of (is",
+      "close: Release resources held by the sink.",
+      "from_entry: Build a :class:`SignedAuditEntry` from an :class:`AuditEntry`.\n\nArgs:\n    entry:",
+      "_canonical_payload: Deterministic JSON payload used for hashing.\n\nExcludes ``content_hash`` and ``si"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "write",
+    "write_batch",
+    "read_entries",
+    "AuditSink",
+    "HashChainVerifier",
+    "verify_integrity",
+    "to_dict",
+    "close",
+    "verify_file",
+    "verify",
+    "FileAuditSink",
+    "from_entry",
+    "SignedAuditEntry"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "hmac",
+      "json",
+      "os",
+      "threading",
+      "datetime",
+      "pathlib",
+      "typing",
+      "pydantic",
+      "audit"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "write",
+      "line": 35,
+      "doc": "Write a single audit entry to the sink.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "write_batch",
+      "line": 39,
+      "doc": "Write a batch of audit entries to the sink.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entries"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_integrity",
+      "line": 43,
+      "doc": "Verify the integrity of the audit chain in this sink.\n\nReturns:\n    Tuple of (is_valid, error_message_or_none).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "close",
+      "line": 51,
+      "doc": "Release resources held by the sink.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_entry",
+      "line": 94,
+      "doc": "Build a :class:`SignedAuditEntry` from an :class:`AuditEntry`.\n\nArgs:\n    entry: The raw audit entry.\n    previous_hash: Hash of the previous signed entry (or ``\"\"``\n        for the genesis entry).\n    secret_key: HMAC secret used to sign the entry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "entry",
+        "previous_hash",
+        "secret_key"
+      ],
+      "returns": "SignedAuditEntry"
+    },
+    {
+      "name": "_canonical_payload",
+      "line": 133,
+      "doc": "Deterministic JSON payload used for hashing.\n\nExcludes ``content_hash`` and ``signature`` so they can be\nrecomputed during verification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_compute_content_hash",
+      "line": 157,
+      "doc": "SHA-256 hex digest of the canonical payload.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_compute_signature",
+      "line": 161,
+      "doc": "HMAC-SHA256 hex digest of ``content_hash`` using *secret_key*.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "secret_key"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "verify",
+      "line": 173,
+      "doc": "Check that the content hash and HMAC signature are valid.\n\nArgs:\n    secret_key: The HMAC secret used when the entry was signed.\n\nReturns:\n    ``True`` if both the hash and signature match, ``False``\n    otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "secret_key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 194,
+      "doc": "Serialise to a plain ``dict`` suitable for JSON output.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 218,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "secret_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "write",
+      "line": 240,
+      "doc": "Write a single entry, rotating the file if necessary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "write_batch",
+      "line": 252,
+      "doc": "Write a batch of entries atomically (under lock).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entries"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_integrity",
+      "line": 265,
+      "doc": "Read back the file and verify hash chain + HMAC signatures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "close",
+      "line": 273,
+      "doc": "Mark the sink as closed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_append_line",
+      "line": 281,
+      "doc": "Append a single JSON line to the file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signed"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_maybe_rotate",
+      "line": 287,
+      "doc": "Rotate the file if it exceeds *max_file_size*.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_read_last_hash",
+      "line": 301,
+      "doc": "Read the content_hash of the last entry in the file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "read_entries",
+      "line": 314,
+      "doc": "Read all signed entries from the file (for testing/querying).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_file",
+      "line": 342,
+      "doc": "Verify a JSON-lines audit file.\n\nArgs:\n    path: Path to the audit file.\n    secret_key: HMAC secret used when entries were written.\n\nReturns:\n    Tuple of ``(is_valid, list_of_error_strings)``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "secret_key"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AuditSink",
+      "line": 32,
+      "doc": "Abstract interface for external audit sinks.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "SignedAuditEntry",
+      "line": 61,
+      "doc": "Wrapper that adds cryptographic integrity to an :class:`AuditEntry`.\n\nEach signed entry contains:\n* A SHA-256 content hash covering all entry fields.\n* A ``previous_hash`` chain link to the preceding entry.\n* An HMAC-SHA256 signature computed with a caller-supplied secret key.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FileAuditSink",
+      "line": 204,
+      "doc": "Append-only, file-based audit sink writing JSON-lines.\n\nEach line in the output file is a JSON-serialised\n:class:`SignedAuditEntry`.  The sink maintains a hash-chain across\nentries and signs every entry with an HMAC key.\n\nArgs:\n    path: Destination file path.\n    secret_key: HMAC secret for signing entries.\n    max_file_size: Maximum file size in bytes before rotation.\n        ``0`` disables rotation (default).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "HashChainVerifier",
+      "line": 332,
+      "doc": "Standalone tool to verify the integrity of a JSON-lines audit file.\n\nChecks:\n* Hash chain continuity (each ``previous_hash`` matches the prior\n  entry's ``content_hash``).\n* Content hash correctness (recomputed vs stored).\n* HMAC signature validity.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

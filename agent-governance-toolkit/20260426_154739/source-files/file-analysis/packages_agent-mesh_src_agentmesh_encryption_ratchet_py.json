@@ -1,0 +1,385 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/encryption/ratchet.py",
+  "extension": ".py",
+  "size_bytes": 13197,
+  "line_count": 366,
+  "documentation": {
+    "file_docstring": "Double Ratchet algorithm for per-message forward secrecy.\n\nImplements the Signal Double Ratchet specification for encrypting\nagent-to-agent messages with forward secrecy and post-compromise\nsecurity. Initialized from an X3DH shared secret.\n\nReference: https://signal.org/docs/specifications/doubleratchet/",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check skipped keys first (out-of-order messages)",
+      "DH ratchet step if the sender's DH key changed",
+      "\u2500\u2500 Primitives \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MessageHeader: Header sent with each encrypted message.",
+      "EncryptedMessage: An encrypted Double Ratchet message.",
+      "RatchetState: Serializable state of a Double Ratchet session.",
+      "DoubleRatchet: Double Ratchet session for E2E encrypted messaging.\n\nProvides per-message forwar",
+      "_generate_dh_pair: Generate a random X25519 key pair. Returns (private, public).",
+      "_kdf_root: Root KDF: derive new root key + chain key from DH output.",
+      "_kdf_chain: Chain KDF: derive message key + next chain key.",
+      "_encrypt: Encrypt with ChaCha20-Poly1305.",
+      "_decrypt: Decrypt with ChaCha20-Poly1305.",
+      "serialize: Serialize to bytes for authenticated encryption."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "state",
+    "DoubleRatchet",
+    "RatchetState",
+    "deserialize",
+    "decrypt",
+    "EncryptedMessage",
+    "to_dict",
+    "encrypt",
+    "from_dict",
+    "MessageHeader",
+    "init_sender",
+    "serialize",
+    "init_receiver"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "struct",
+      "dataclasses",
+      "typing",
+      "cryptography.hazmat.primitives.ciphers.aead",
+      "cryptography.hazmat.primitives.hashes",
+      "cryptography.hazmat.primitives.kdf.hkdf",
+      "nacl.bindings",
+      "secrets",
+      "hmac",
+      "hashlib",
+      "secrets"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_generate_dh_pair",
+      "line": 319,
+      "doc": "Generate a random X25519 key pair. Returns (private, public).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_kdf_root",
+      "line": 328,
+      "doc": "Root KDF: derive new root key + chain key from DH output.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "root_key",
+        "dh_output"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_kdf_chain",
+      "line": 339,
+      "doc": "Chain KDF: derive message key + next chain key.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "chain_key"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_encrypt",
+      "line": 349,
+      "doc": "Encrypt with ChaCha20-Poly1305.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "key",
+        "plaintext",
+        "aad"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_decrypt",
+      "line": 359,
+      "doc": "Decrypt with ChaCha20-Poly1305.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "key",
+        "data",
+        "aad"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "serialize",
+      "line": 41,
+      "doc": "Serialize to bytes for authenticated encryption.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "deserialize",
+      "line": 49,
+      "doc": "Deserialize from bytes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": "MessageHeader"
+    },
+    {
+      "name": "serialize",
+      "line": 69,
+      "doc": "Serialize the full message (header + ciphertext).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "deserialize",
+      "line": 79,
+      "doc": "Deserialize from bytes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": "EncryptedMessage"
+    },
+    {
+      "name": "to_dict",
+      "line": 106,
+      "doc": "Serialize state to a JSON-safe dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 126,
+      "doc": "Deserialize state from a dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "d"
+      ],
+      "returns": "RatchetState"
+    },
+    {
+      "name": "__init__",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state",
+        "max_skip"
+      ],
+      "returns": null
+    },
+    {
+      "name": "init_sender",
+      "line": 159,
+      "doc": "Initialize as the sender (X3DH initiator).\n\nArgs:\n    shared_secret: 32-byte shared secret from X3DH.\n    remote_dh_public: Responder's signed pre-key (X25519 public).\n    max_skip: Maximum skipped message keys to cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "shared_secret",
+        "remote_dh_public",
+        "max_skip"
+      ],
+      "returns": "DoubleRatchet"
+    },
+    {
+      "name": "init_receiver",
+      "line": 190,
+      "doc": "Initialize as the receiver (X3DH responder).\n\nArgs:\n    shared_secret: 32-byte shared secret from X3DH.\n    dh_key_pair: (private, public) X25519 key pair (the signed pre-key).\n    max_skip: Maximum skipped message keys to cache.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "shared_secret",
+        "dh_key_pair",
+        "max_skip"
+      ],
+      "returns": "DoubleRatchet"
+    },
+    {
+      "name": "state",
+      "line": 217,
+      "doc": "Return the current ratchet state (for persistence).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "RatchetState"
+    },
+    {
+      "name": "encrypt",
+      "line": 221,
+      "doc": "Encrypt a message with the current sending chain.\n\nArgs:\n    plaintext: Message bytes to encrypt.\n    associated_data: Additional authenticated data (e.g., sender DID).\n\nReturns:\n    An EncryptedMessage with header and ciphertext.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plaintext",
+        "associated_data"
+      ],
+      "returns": "EncryptedMessage"
+    },
+    {
+      "name": "decrypt",
+      "line": 248,
+      "doc": "Decrypt a received message.\n\nHandles DH ratchet steps and out-of-order message delivery\nvia cached skipped message keys.\n\nArgs:\n    message: The encrypted message to decrypt.\n    associated_data: Additional authenticated data.\n\nReturns:\n    Decrypted plaintext bytes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "message",
+        "associated_data"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_dh_ratchet_step",
+      "line": 282,
+      "doc": "Perform a DH ratchet step with a new remote public key.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "remote_dh_public"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_skip_messages",
+      "line": 300,
+      "doc": "Cache skipped message keys for out-of-order delivery.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "until"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MessageHeader",
+      "line": 34,
+      "doc": "Header sent with each encrypted message.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "EncryptedMessage",
+      "line": 63,
+      "doc": "An encrypted Double Ratchet message.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RatchetState",
+      "line": 92,
+      "doc": "Serializable state of a Double Ratchet session.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "DoubleRatchet",
+      "line": 146,
+      "doc": "Double Ratchet session for E2E encrypted messaging.\n\nProvides per-message forward secrecy via a symmetric-key ratchet\n(HKDF chain) combined with a DH ratchet (X25519) that advances\non each turn change.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 25,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

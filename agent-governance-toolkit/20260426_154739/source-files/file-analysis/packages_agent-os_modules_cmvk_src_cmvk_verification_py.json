@@ -1,0 +1,456 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/verification.py",
+  "extension": ".py",
+  "size_bytes": 31230,
+  "line_count": 956,
+  "documentation": {
+    "file_docstring": "CMVK Verification Module - Pure Mathematical Functions\n\nThis module provides pure functions for calculating drift/hallucination scores\nbetween two outputs. These functions have no side effects and use only\nnumpy/scipy for mathematical operations.\n\nLayer 1: The Primitive - Mathematical and adversarial verification.\n\nEnhanced Features (v0.2.0):\n    - Configurable distance metrics (cosine, euclidean, manhattan, etc.)\n    - Dimensional weighting for importance-based drift calculation\n    - Threshold profiles for domain-specific verification\n    - Explainable drift with per-dimension contributions\n    - Batch verification for efficiency\n    - Audit trail integration",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Calculate multiple drift components",
+      "Weighted combination",
+      "Determine primary drift type",
+      "Calculate confidence based on agreement between methods",
+      "Load threshold profile if specified",
+      "Use profile's default metric if none specified",
+      "Shape validation",
+      "Calculate distance with appropriate function",
+      "Build drift score from normalized distance",
+      "Calculate confidence based on vector properties",
+      "Build explanation if requested",
+      "Build details",
+      "Add profile info if used",
+      "Log to audit trail if provided",
+      "Calculate pass/fail if profile available",
+      "============================================================================",
+      "Explainability Functions (CMVK-010)",
+      "============================================================================",
+      "Apply weights if provided",
+      "Calculate per-dimension contributions",
+      "Map contributions to names or indices",
+      "Top contributors (up to 5)",
+      "Generate interpretation",
+      "Get primary dimension index",
+      "Base confidence",
+      "Reduce confidence for very small vectors (less reliable)",
+      "Reduce confidence if vectors have very different magnitudes",
+      "Reduce confidence for near-zero vectors",
+      "Normalize to valid probability distributions",
+      "Add small epsilon to avoid log(0)",
+      "KL divergence",
+      "Jensen-Shannon divergence (symmetric, bounded [0, 1])",
+      "Fallback implementations",
+      "Total variation distance",
+      "Combined drift (JS divergence is bounded [0, ln(2)])",
+      "Levenshtein distance",
+      "Jaccard similarity (set-based)",
+      "Order-aware similarity (longest common subsequence)",
+      "Combined",
+      "============================================================================",
+      "Internal pure functions",
+      "============================================================================",
+      "Character-level comparison",
+      "Word-level comparison",
+      "Length ratio",
+      "Combined score (lower similarity = higher drift)",
+      "Line count difference",
+      "Indentation pattern",
+      "Code pattern markers (for code comparison)",
+      "Combined",
+      "Extract numbers from both texts",
+      "Compare statistics",
+      "Relative difference in means",
+      "Relative difference in stds",
+      "Count difference",
+      "Combined",
+      "Use numpy for efficiency",
+      "============================================================================",
+      "Batch verification functions",
+      "============================================================================"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "DriftType: Types of drift/divergence detected between outputs.",
+      "VerificationScore: Immutable result of verification between two outputs.\n\nAttributes:\n    drift_sco",
+      "DriftExplanation: Detailed explanation of drift between two vectors (CMVK-010).\n\nAttributes:\n    p",
+      "verify: Calculate drift/hallucination score between two outputs.\n\nThis is the primary ve",
+      "verify_embeddings: Calculate drift score between two embedding vectors.\n\nEnhanced verification func",
+      "verify_embeddings_batch: Verify multiple embedding pairs efficiently (CMVK-004).\n\nProcesses all pairs wit",
+      "aggregate_embedding_scores: Aggregate multiple embedding verification scores with profile context.\n\nArgs:\n  ",
+      "_build_drift_explanation: Build detailed drift explanation.",
+      "_generate_interpretation: Generate human-readable interpretation of drift.",
+      "_calculate_embedding_confidence: Calculate confidence score for embedding verification."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "verify_embeddings",
+    "verify_distributions",
+    "aggregate_embedding_scores",
+    "verify_batch",
+    "to_dict",
+    "verify_sequences",
+    "VerificationScore",
+    "DriftExplanation",
+    "verify_embeddings_batch",
+    "verify",
+    "aggregate_scores",
+    "passed",
+    "DriftType"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "collections.abc",
+      "dataclasses",
+      "enum",
+      "typing",
+      "numpy",
+      "numpy.typing",
+      "scipy",
+      "audit",
+      "metrics",
+      "re",
+      "profiles",
+      "profiles"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "verify",
+      "line": 115,
+      "doc": "Calculate drift/hallucination score between two outputs.\n\nThis is the primary verification function - a pure function with no side effects.\nTakes two outputs and returns a score indicating their divergence.\n\nArgs:\n    output_a: First output (typically from model A / generator)\n    output_b: Second output (typically from model B / verifier)\n\nReturns:\n    VerificationScore with drift score, confidence, and details\n\nExample:\n    >>> score = verify(\"def add(a, b): return a + b\", \"def add(x, y): return x + y\")\n    >>> score.drift_score  # Low score - semantically similar\n    0.15",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "output_a",
+        "output_b"
+      ],
+      "returns": "VerificationScore"
+    },
+    {
+      "name": "verify_embeddings",
+      "line": 189,
+      "doc": "Calculate drift score between two embedding vectors.\n\nEnhanced verification function with configurable metrics, weighting,\nthreshold profiles, and explainability (CMVK-001 through CMVK-010).\n\nArgs:\n    embedding_a: Embedding vector for output A (e.g., claimed values)\n    embedding_b: Embedding vector for output B (e.g., observed values)\n    metric: Distance metric to use. Options:\n        - \"cosine\": Cosine distance (default, normalizes vectors)\n        - \"euclidean\": Euclidean distance (preserves magnitude - CMVK-001)\n        - \"manhattan\": Manhattan/L1 distance\n        - \"chebyshev\": Maximum absolute difference\n        - \"mahalanobis\": Mahalanobis distance\n    weights: Optional weights for each dimension (CMVK-008).\n            Higher weights increase that dimension's contribution to drift.\n    threshold_profile: Name of threshold profile to use (CMVK-005).\n                     Options: \"carbon\", \"financial\", \"medical\", \"general\", \"strict\"\n    explain: If True, include detailed drift explanation (CMVK-010)\n    dimension_names: Optional names for dimensions (for explainability)\n    audit_trail: Optional AuditTrail instance for logging (CMVK-006)\n\nReturns:\n    VerificationScore with drift score, confidence, and optional explanation\n\nExample:\n    >>> # Basic usage\n    >>> score = verify_embeddings(claim_vec, obs_vec)\n\n    >>> # With Euclidean distance for magnitude-sensitive comparison\n    >>> score = verify_embeddings(\n    ...     claim_vec, obs_vec,\n    ...     metric=\"euclidean\",\n    ...     threshold_profile=\"carbon\",\n    ...     explain=True\n    ... )\n\n    >>> # With dimensional weighting\n    >>> score = verify_embeddings(\n    ...     claim_vec, obs_vec,\n    ...     metric=\"euclidean\",\n    ...     weights=[0.6, 0.4],  # NDVI more important than carbon\n    ...     explain=True,\n    ...     dimension_names=[\"ndvi\", \"carbon_stock\"]\n    ... )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "embedding_a",
+        "embedding_b",
+        "metric",
+        "weights",
+        "threshold_profile",
+        "explain",
+        "dimension_names",
+        "audit_trail"
+      ],
+      "returns": "VerificationScore"
+    },
+    {
+      "name": "verify_embeddings_batch",
+      "line": 327,
+      "doc": "Verify multiple embedding pairs efficiently (CMVK-004).\n\nProcesses all pairs with consistent settings and optional audit logging.\n\nArgs:\n    embeddings_a: Sequence of embedding vectors from source A\n    embeddings_b: Sequence of embedding vectors from source B\n    metric: Distance metric (applied to all pairs)\n    weights: Dimensional weights (applied to all pairs)\n    threshold_profile: Threshold profile name\n    explain: Whether to include explanations\n    dimension_names: Optional dimension names for explainability\n    audit_trail: Optional AuditTrail for logging\n\nReturns:\n    List of VerificationScore for each pair\n\nRaises:\n    ValueError: If sequence lengths don't match",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "embeddings_a",
+        "embeddings_b",
+        "metric",
+        "weights",
+        "threshold_profile",
+        "explain",
+        "dimension_names",
+        "audit_trail"
+      ],
+      "returns": null
+    },
+    {
+      "name": "aggregate_embedding_scores",
+      "line": 381,
+      "doc": "Aggregate multiple embedding verification scores with profile context.\n\nArgs:\n    scores: Sequence of VerificationScore objects\n    threshold_profile: Optional profile for pass/fail classification\n\nReturns:\n    Dictionary with aggregate statistics and pass rates",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "scores",
+        "threshold_profile"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_build_drift_explanation",
+      "line": 451,
+      "doc": "Build detailed drift explanation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "metric_result",
+        "weights",
+        "dimension_names"
+      ],
+      "returns": "DriftExplanation"
+    },
+    {
+      "name": "_generate_interpretation",
+      "line": 505,
+      "doc": "Generate human-readable interpretation of drift.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b",
+        "primary_dim",
+        "top_contributors",
+        "dimension_names"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_calculate_embedding_confidence",
+      "line": 542,
+      "doc": "Calculate confidence score for embedding verification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "vec_a",
+        "vec_b"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_log_to_audit",
+      "line": 569,
+      "doc": "Log verification to audit trail.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "audit_trail",
+        "vec_a",
+        "vec_b",
+        "result",
+        "metric",
+        "profile_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_distributions",
+      "line": 600,
+      "doc": "Calculate drift between two probability distributions.\n\nUses KL divergence and other statistical measures to compare distributions.\n\nArgs:\n    dist_a: First probability distribution\n    dist_b: Second probability distribution\n\nReturns:\n    VerificationScore with distribution-based drift score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "dist_a",
+        "dist_b"
+      ],
+      "returns": "VerificationScore"
+    },
+    {
+      "name": "verify_sequences",
+      "line": 655,
+      "doc": "Calculate drift between two sequences of tokens/items.\n\nUses edit distance and sequence alignment metrics.\n\nArgs:\n    seq_a: First sequence\n    seq_b: Second sequence\n\nReturns:\n    VerificationScore with sequence-based drift score",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "seq_a",
+        "seq_b"
+      ],
+      "returns": "VerificationScore"
+    },
+    {
+      "name": "_lexical_drift",
+      "line": 715,
+      "doc": "Calculate lexical drift between two texts.\n\nPure function - no side effects.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text_a",
+        "text_b"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_structural_drift",
+      "line": 747,
+      "doc": "Calculate structural drift between two texts.\n\nAnalyzes structure like line count, indentation, code patterns.\nPure function - no side effects.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text_a",
+        "text_b"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_numerical_drift",
+      "line": 797,
+      "doc": "Calculate numerical drift by extracting and comparing numbers.\n\nPure function - no side effects.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text_a",
+        "text_b"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "_levenshtein_distance",
+      "line": 845,
+      "doc": "Calculate Levenshtein edit distance between two sequences.\n\nPure function using dynamic programming.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "seq_a",
+        "seq_b"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_lcs_length",
+      "line": 875,
+      "doc": "Calculate length of Longest Common Subsequence.\n\nPure function using dynamic programming.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "seq_a",
+        "seq_b"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "verify_batch",
+      "line": 903,
+      "doc": "Verify multiple output pairs.\n\nPure function that processes pairs in sequence.\n\nArgs:\n    outputs_a: Sequence of outputs from source A\n    outputs_b: Sequence of outputs from source B (same length as outputs_a)\n\nReturns:\n    List of VerificationScore for each pair",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "outputs_a",
+        "outputs_b"
+      ],
+      "returns": null
+    },
+    {
+      "name": "aggregate_scores",
+      "line": 925,
+      "doc": "Aggregate multiple verification scores into summary statistics.\n\nPure function.\n\nArgs:\n    scores: Sequence of VerificationScore objects\n\nReturns:\n    Dictionary with aggregate statistics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "scores"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "passed",
+      "line": 70,
+      "doc": "Check if drift is within acceptable threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 74,
+      "doc": "Convert to dictionary for serialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "to_dict",
+      "line": 104,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "DriftType",
+      "line": 42,
+      "doc": "Types of drift/divergence detected between outputs.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "VerificationScore",
+      "line": 52,
+      "doc": "Immutable result of verification between two outputs.\n\nAttributes:\n    drift_score: Overall drift score between 0.0 (identical) and 1.0 (completely different)\n    confidence: Confidence in the score (0.0 to 1.0)\n    drift_type: Primary type of drift detected\n    details: Dictionary with component scores\n    explanation: Optional drift explanation with dimension contributions (CMVK-010)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DriftExplanation",
+      "line": 86,
+      "doc": "Detailed explanation of drift between two vectors (CMVK-010).\n\nAttributes:\n    primary_drift_dimension: Index or name of dimension with highest contribution\n    dimension_contributions: Mapping of dimension to its contribution percentage\n    top_contributors: List of top N contributing dimensions\n    metric_used: The distance metric used\n    interpretation: Human-readable interpretation of the drift",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 129,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

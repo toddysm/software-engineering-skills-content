@@ -1,0 +1,188 @@
+{
+  "path": "packages/agent-os/src/agent_os/mcp_auth_enforcement.py",
+  "extension": ".py",
+  "size_bytes": 7936,
+  "line_count": 227,
+  "documentation": {
+    "file_docstring": "MCP auth method enforcement \u2014 validates that MCP server connections\nuse approved authentication methods per the allowlist.\n\nSupports: oauth2, mtls, api_key, bearer, none.\nDefault policy: deny connections with auth_method=none.\n\nUsage::\n\n    from agent_os.mcp_auth_enforcement import McpAuthPolicy, McpServerEntry\n\n    policy = McpAuthPolicy(\n        default_allowed_methods=[\"oauth2\", \"mtls\", \"bearer\"],\n        servers=[\n            McpServerEntry(\n                name=\"finance-tools\",\n                url=\"https://mcp.internal/finance\",\n                allowed_auth_methods=[\"mtls\"],\n            ),\n            McpServerEntry(\n                name=\"public-search\",\n                url=\"https://mcp.external/search\",\n                allowed_auth_methods=[\"oauth2\", \"api_key\"],\n            ),\n        ],\n    )\n\n    # Check before connecting to MCP server\n    result = policy.check(\"finance-tools\", auth_method=\"api_key\")\n    assert not result.allowed  # api_key not in finance-tools allowlist",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Check before connecting to MCP server",
+      "Supported auth methods (aligns with 2026 MCP roadmap)",
+      "Deny none by default",
+      "Check per-server allowlist",
+      "TLS check",
+      "Fall back to default policy"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "McpServerEntry: MCP server entry in the auth enforcement allowlist.\n\nAttributes:\n    name: Serve",
+      "AuthCheckResult: Result of an MCP auth method enforcement check.",
+      "McpAuthPolicy: Enforce authentication method requirements for MCP server connections.\n\nArgs:\n  ",
+      "add_server: Add or update a server in the allowlist.",
+      "remove_server: Remove a server from the allowlist.",
+      "check: Check if an auth method is allowed for the given MCP server.\n\nArgs:\n    server_n",
+      "from_yaml: Load auth policy from YAML.\n\nExample::\n\n    mcp_auth_policy:\n      deny_none: tr"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AuthCheckResult",
+    "check",
+    "remove_server",
+    "McpServerEntry",
+    "add_server",
+    "from_yaml",
+    "McpAuthPolicy"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "dataclasses",
+      "typing",
+      "yaml"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "default_allowed_methods",
+        "deny_none",
+        "servers"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_server",
+      "line": 107,
+      "doc": "Add or update a server in the allowlist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "entry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_server",
+      "line": 111,
+      "doc": "Remove a server from the allowlist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check",
+      "line": 115,
+      "doc": "Check if an auth method is allowed for the given MCP server.\n\nArgs:\n    server_name: Name of the MCP server.\n    auth_method: Authentication method being used.\n    url: Server URL (for logging/audit).\n\nReturns:\n    AuthCheckResult indicating whether the connection is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_name",
+        "auth_method",
+        "url"
+      ],
+      "returns": "AuthCheckResult"
+    },
+    {
+      "name": "from_yaml",
+      "line": 194,
+      "doc": "Load auth policy from YAML.\n\nExample::\n\n    mcp_auth_policy:\n      deny_none: true\n      default_allowed_methods: [oauth2, mtls, bearer]\n      servers:\n        - name: finance-tools\n          url: https://mcp.internal/finance\n          allowed_auth_methods: [mtls]\n          require_tls: true",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "yaml_content"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "McpServerEntry",
+      "line": 48,
+      "doc": "MCP server entry in the auth enforcement allowlist.\n\nAttributes:\n    name: Server name (matches MCP server registration).\n    url: Server URL pattern (exact match or glob).\n    allowed_auth_methods: Auth methods permitted for this server.\n    require_tls: Whether TLS is required. Default True.\n    min_tls_version: Minimum TLS version. Default \"1.2\".",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuthCheckResult",
+      "line": 75,
+      "doc": "Result of an MCP auth method enforcement check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "McpAuthPolicy",
+      "line": 84,
+      "doc": "Enforce authentication method requirements for MCP server connections.\n\nArgs:\n    default_allowed_methods: Default allowed auth methods for servers\n        not in the explicit allowlist. Default: [\"oauth2\", \"mtls\", \"bearer\"].\n    deny_none: Whether to deny connections with auth_method=\"none\".\n        Default True (fail-closed).\n    servers: Explicit per-server auth method allowlist.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 22,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

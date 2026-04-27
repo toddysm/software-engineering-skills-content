@@ -1,0 +1,492 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/openai_agents_sdk.py",
+  "extension": ".py",
+  "size_bytes": 13531,
+  "line_count": 406,
+  "documentation": {
+    "file_docstring": "OpenAI Agents SDK Integration for Agent-OS\n============================================\n\nProvides kernel-level governance for OpenAI Agents SDK workflows.\n\nFeatures:\n- Policy enforcement for agent tool calls\n- Guardrails integration with Agent-OS policies\n- Handoff monitoring and approval\n- Streaming response governance\n\nExample:\n    >>> from agent_os.integrations.openai_agents import OpenAIAgentsKernel\n    >>> from agent_os.policies import GovernancePolicy\n    >>> from agents import Agent, Runner\n    >>>\n    >>> # Create governed kernel\n    >>> policy = GovernancePolicy(\n    ...     max_tool_calls=10,\n    ...     allowed_tools=[\"file_search\", \"code_interpreter\"],\n    ...     blocked_patterns=[\"rm -rf\", \"DROP TABLE\"],\n    ... )\n    >>> kernel = OpenAIAgentsKernel(policy=policy)\n    >>>\n    >>> # Wrap agent\n    >>> agent = Agent(name=\"assistant\", model=\"gpt-4o\")\n    >>> governed_agent = kernel.wrap(agent)\n    >>>\n    >>> # Run with governance\n    >>> result = await Runner.run(governed_agent, \"Analyze this data\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Tool limits",
+      "Tool filtering",
+      "Content filtering",
+      "Approval flows",
+      "Audit",
+      "Counters",
+      "Timing",
+      "Audit trail",
+      "Check blocked list",
+      "Check allowed list (if specified)",
+      "Create wrapper class",
+      "Copy attributes",
+      "Get context",
+      "Pre-execution checks",
+      "Check content",
+      "Get original agent",
+      "Run with monitoring",
+      "Check if tool is allowed",
+      "Check content in arguments",
+      "Execute",
+      "Check content patterns",
+      "Check tool calls if in context",
+      "Convenience exports"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernancePolicy: Policy configuration for OpenAI Agents.",
+      "ExecutionContext: Runtime context for governed execution.",
+      "PolicyViolationError: Raised when a policy violation is detected.",
+      "OpenAIAgentsKernel: Governance kernel for OpenAI Agents SDK.\n\nWraps Agent and Runner to enforce poli",
+      "_create_context: Create execution context for an agent.",
+      "_check_tool_allowed: Check if tool is allowed by policy.",
+      "_check_content: Check content against blocked patterns.",
+      "wrap: Wrap an OpenAI Agent with governance.\n\nArgs:\n    agent: OpenAI Agents SDK Agent ",
+      "unwrap: Remove governance wrapper.",
+      "wrap_runner: Wrap the Runner class to intercept executions.\n\nArgs:\n    runner_class: OpenAI A"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "wrap_runner",
+    "guard",
+    "ExecutionContext",
+    "run_sync",
+    "PolicyGuardrail",
+    "GovernedAgent",
+    "get_context",
+    "wrap",
+    "PolicyViolationError",
+    "GovernancePolicy",
+    "unwrap",
+    "get_stats",
+    "create_guardrail",
+    "GovernedRunner",
+    "create_tool_guard",
+    "original",
+    "get_audit_log",
+    "OpenAIAgentsKernel",
+    "record_event",
+    "health_check"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "asyncio",
+      "logging",
+      "time",
+      "dataclasses",
+      "datetime",
+      "functools",
+      "typing",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "record_event",
+      "line": 91,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_name",
+        "description",
+        "severity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy",
+        "on_violation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_default_violation_handler",
+      "line": 129,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_create_context",
+      "line": 132,
+      "doc": "Create execution context for an agent.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "ExecutionContext"
+    },
+    {
+      "name": "_check_tool_allowed",
+      "line": 144,
+      "doc": "Check if tool is allowed by policy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_content",
+      "line": 157,
+      "doc": "Check content against blocked patterns.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wrap",
+      "line": 165,
+      "doc": "Wrap an OpenAI Agent with governance.\n\nArgs:\n    agent: OpenAI Agents SDK Agent instance\n\nReturns:\n    Governed agent wrapper",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "unwrap",
+      "line": 201,
+      "doc": "Remove governance wrapper.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "governed_agent"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "wrap_runner",
+      "line": 207,
+      "doc": "Wrap the Runner class to intercept executions.\n\nArgs:\n    runner_class: OpenAI Agents SDK Runner class\n\nReturns:\n    Governed Runner class",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "runner_class"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "create_tool_guard",
+      "line": 268,
+      "doc": "Create a tool execution guard.\n\nUse as a decorator or wrapper for tool functions.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "create_guardrail",
+      "line": 313,
+      "doc": "Create an OpenAI Agents SDK compatible guardrail.\n\nReturns a guardrail that can be added to an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "get_context",
+      "line": 354,
+      "doc": "Get execution context by session ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 358,
+      "doc": "Get audit log for a session.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 365,
+      "doc": "Get governance statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "health_check",
+      "line": 382,
+      "doc": "Return adapter health status.\n\nReturns:\n    A dict with ``status``, ``backend``, ``last_error``, and\n    ``uptime_seconds`` keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "guard",
+      "line": 276,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func"
+      ],
+      "returns": "Callable"
+    },
+    {
+      "name": "__init__",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "wrapper_self",
+        "original",
+        "kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "original",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "wrapper_self"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "__getattr__",
+      "line": 193,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "wrapper_self",
+        "name"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "run",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "agent",
+        "input_text"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "run_sync",
+      "line": 263,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "agent",
+        "input_text"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "wrapper",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 324,
+      "doc": "Check input against policies.\n\nReturns None if allowed, or a rejection message if blocked.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "context",
+        "agent",
+        "input_text"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernancePolicy",
+      "line": 50,
+      "doc": "Policy configuration for OpenAI Agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExecutionContext",
+      "line": 75,
+      "doc": "Runtime context for governed execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyViolationError",
+      "line": 99,
+      "doc": "Raised when a policy violation is detected.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OpenAIAgentsKernel",
+      "line": 108,
+      "doc": "Governance kernel for OpenAI Agents SDK.\n\nWraps Agent and Runner to enforce policies during execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GovernedAgent",
+      "line": 178,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GovernedRunner",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyGuardrail",
+      "line": 321,
+      "doc": "Agent-OS policy guardrail for OpenAI Agents SDK.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 47,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

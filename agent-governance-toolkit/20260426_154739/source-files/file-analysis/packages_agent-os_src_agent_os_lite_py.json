@@ -1,0 +1,259 @@
+{
+  "path": "packages/agent-os/src/agent_os/lite.py",
+  "extension": ".py",
+  "size_bytes": 7482,
+  "line_count": 208,
+  "documentation": {
+    "file_docstring": "AGT Lite \u2014 Zero-config governance in 3 lines.\n\nThe full Agent OS is powerful but heavy (530 files, 42s import).\nAGT Lite is the lightweight alternative: single import, inline rules,\nno YAML, no external deps beyond pydantic. Designed for the developer\nwho just wants to add basic governance without learning the full stack.\n\nUsage:\n    from agent_os.lite import govern\n\n    # One line to create a governance function\n    check = govern(allow=[\"read_file\", \"web_search\"], deny=[\"execute_code\", \"delete_file\"])\n\n    # One line to check any action\n    check(\"read_file\")      # returns True\n    check(\"execute_code\")   # raises GovernanceViolation\n\n    # Or use the non-raising version\n    check.is_allowed(\"execute_code\")  # returns False\n\nThat's it. No YAML, no PolicyEvaluator, no 42-second import.\nUpgrade to the full stack when you need trust mesh, SRE, or compliance.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "One line to create a governance function",
+      "One line to check any action",
+      "Or use the non-raising version",
+      "Rate limit check",
+      "Deny list (highest priority)",
+      "Deny patterns",
+      "Content check",
+      "Allow list (if set, only listed actions are allowed)",
+      "Minimal \u2014 block dangerous, allow everything else",
+      "Allowlist \u2014 only permit specific actions",
+      "With content filtering"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "GovernanceViolation: Raised when an action is blocked by governance policy.",
+      "GovernanceDecision: Result of a governance check.",
+      "LiteGovernor: Lightweight, zero-config governance gate.\n\nRules:\n1. If action is in `deny` list",
+      "govern: Create a lightweight governance gate.\n\nArgs:\n    allow: Actions to allow (allowl",
+      "__call__: Check if action is allowed. Raises GovernanceViolation if not.",
+      "is_allowed: Check if action is allowed. Returns bool (non-raising).",
+      "evaluate: Evaluate an action against policy. Returns GovernanceDecision.",
+      "audit_trail: Get all governance decisions made.",
+      "stats: Get governance statistics."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "stats",
+    "GovernanceViolation",
+    "evaluate",
+    "GovernanceDecision",
+    "is_allowed",
+    "audit_trail",
+    "LiteGovernor",
+    "govern"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "re",
+      "time",
+      "datetime",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "govern",
+      "line": 164,
+      "doc": "Create a lightweight governance gate.\n\nArgs:\n    allow: Actions to allow (allowlist). If set, only these actions pass.\n    deny: Actions to explicitly deny (takes priority over allow).\n    deny_patterns: Regex patterns to deny.\n    blocked_content: Regex patterns to block in content.\n    escalate: Actions that require human approval (logged as denied).\n    max_calls: Max total calls before rate limiting (0 = unlimited).\n    log: Whether to keep audit trail.\n\nReturns:\n    A LiteGovernor callable. Use as: `check(\"action_name\")`\n\nExamples:\n    # Minimal \u2014 block dangerous, allow everything else\n    check = govern(deny=[\"execute_code\", \"delete_file\", \"ssh_connect\"])\n\n    # Allowlist \u2014 only permit specific actions\n    check = govern(allow=[\"read_file\", \"web_search\", \"api_call\"])\n\n    # With content filtering\n    check = govern(\n        allow=[\"read_file\", \"web_search\"],\n        blocked_content=[r'\\b\\d{3}-\\d{2}-\\d{4}\\b'],  # SSN\n    )",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "allow",
+        "deny",
+        "deny_patterns",
+        "blocked_content",
+        "escalate",
+        "max_calls",
+        "log"
+      ],
+      "returns": "LiteGovernor"
+    },
+    {
+      "name": "__init__",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 49,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "allowed",
+        "reason",
+        "latency_ms"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 70,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "allow",
+        "deny",
+        "deny_patterns",
+        "blocked_content",
+        "escalate",
+        "max_calls",
+        "log"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__call__",
+      "line": 90,
+      "doc": "Check if action is allowed. Raises GovernanceViolation if not.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "content"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "is_allowed",
+      "line": 97,
+      "doc": "Check if action is allowed. Returns bool (non-raising).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "content"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "evaluate",
+      "line": 101,
+      "doc": "Evaluate an action against policy. Returns GovernanceDecision.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "content"
+      ],
+      "returns": "GovernanceDecision"
+    },
+    {
+      "name": "audit_trail",
+      "line": 133,
+      "doc": "Get all governance decisions made.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "stats",
+      "line": 138,
+      "doc": "Get governance statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_decide",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "allowed",
+        "reason",
+        "start"
+      ],
+      "returns": "GovernanceDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "GovernanceViolation",
+      "line": 35,
+      "doc": "Raised when an action is blocked by governance policy.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "GovernanceDecision",
+      "line": 44,
+      "doc": "Result of a governance check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LiteGovernor",
+      "line": 57,
+      "doc": "Lightweight, zero-config governance gate.\n\nRules:\n1. If action is in `deny` list \u2192 BLOCKED\n2. If action matches a `deny_patterns` regex \u2192 BLOCKED\n3. If `allow` list is set and action is NOT in it \u2192 BLOCKED\n4. If content matches `blocked_content` patterns \u2192 BLOCKED\n5. Otherwise \u2192 ALLOWED\n\nDeny takes priority over allow (fail-secure).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 28,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

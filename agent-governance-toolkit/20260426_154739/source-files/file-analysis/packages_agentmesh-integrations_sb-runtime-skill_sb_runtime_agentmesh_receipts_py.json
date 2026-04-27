@@ -1,0 +1,286 @@
+{
+  "path": "packages/agentmesh-integrations/sb-runtime-skill/sb_runtime_agentmesh/receipts.py",
+  "extension": ".py",
+  "size_bytes": 10769,
+  "line_count": 330,
+  "documentation": {
+    "file_docstring": "Ed25519 signing + JCS canonical JSON for sb-runtime decision receipts.\n\nProduces receipts in the format specified by\ndraft-farley-acta-signed-receipts (Veritas Acta). The output is\nbit-compatible with receipts emitted by the sb-runtime Rust binary and\nverifies with the @veritasacta/verify reference CLI.",
+    "header_comments": [
+      "Copyright (c) 2026 Tom Farley (ScopeBlind).",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "------------------------------------------------------------------ #",
+      "Bilateral receipt extension (pre-execution + post-execution)         #",
+      "Reference: docs/proposals/verifiable-compliance-receipts.md          #",
+      "------------------------------------------------------------------ #"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_canonicalize: Produce a JCS-conformant canonical byte string.\n\nConforms to RFC 8785 for the pa",
+      "Signer: Thin wrapper around an Ed25519 private key.\n\nUse ``Signer.generate()`` for ephem",
+      "sign_receipt: Sign a receipt payload and return the full signed envelope.\n\nThe envelope matche",
+      "verify_receipt: Verify a signed receipt envelope against the provided public key.\n\nReturns True ",
+      "receipt_hash: Compute the chain-linkage hash of a signed receipt.\n\nMatches the definition used",
+      "sign_authorization: Sign a pre-execution authorization receipt.\n\nLike sign_receipt() but marks the e",
+      "seal_result: Seal a bilateral receipt with post-execution result data.\n\nBinds the actual outc",
+      "verify_bilateral_receipt: Verify both authorization and result signatures.\n\nReturns {valid, authorization_"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "Signer",
+    "verify_bilateral_receipt",
+    "private_pem",
+    "verify_receipt",
+    "public_pem",
+    "receipt_hash",
+    "generate",
+    "seal_result",
+    "from_pem",
+    "sign_authorization",
+    "sign_receipt"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "base64",
+      "hashlib",
+      "json",
+      "dataclasses",
+      "datetime",
+      "typing",
+      "cryptography.exceptions",
+      "cryptography.hazmat.primitives",
+      "cryptography.hazmat.primitives.asymmetric.ed25519"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_canonicalize",
+      "line": 28,
+      "doc": "Produce a JCS-conformant canonical byte string.\n\nConforms to RFC 8785 for the payload shapes used by Veritas Acta\nreceipts (string keys, string/int/float/bool/null values, nested\nobjects and arrays). ASCII-only key enforcement per AIP-0001 is\napplied at the object level.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "obj"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_assert_ascii_keys",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "obj",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_b64url",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_b64url_decode",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "s"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "_jwk_thumbprint",
+      "line": 74,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "public_key"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "sign_receipt",
+      "line": 123,
+      "doc": "Sign a receipt payload and return the full signed envelope.\n\nThe envelope matches draft-farley-acta-signed-receipts section 2:\n``{payload: {...}, signature: {alg, kid, sig}}``. If\n``previous_receipt_hash`` is provided it is inserted into the\npayload before signing, establishing chain linkage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "payload",
+        "signer",
+        "previous_receipt_hash"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "verify_receipt",
+      "line": 155,
+      "doc": "Verify a signed receipt envelope against the provided public key.\n\nReturns True on success; False on any signature or structural\nfailure. Raises ValueError for malformed envelopes (missing fields).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "envelope",
+        "public_key"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "receipt_hash",
+      "line": 182,
+      "doc": "Compute the chain-linkage hash of a signed receipt.\n\nMatches the definition used by @veritasacta/verify: SHA-256 of the\ncanonical form of the full envelope, base64url-encoded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "envelope"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "sign_authorization",
+      "line": 199,
+      "doc": "Sign a pre-execution authorization receipt.\n\nLike sign_receipt() but marks the envelope as phase='authorization'.\nThe authorization proves the policy was evaluated BEFORE the action ran.\nSeal with seal_result() after the tool call completes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "payload",
+        "signer",
+        "previous_receipt_hash"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "seal_result",
+      "line": 241,
+      "doc": "Seal a bilateral receipt with post-execution result data.\n\nBinds the actual outcome to the authorization. The result_signature\ncovers both authorization_hash and result_hash, proving:\n  1. The authorization existed before execution\n  2. The result was produced after execution\n  3. Both were signed by the same key",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "envelope",
+        "signer",
+        "result_data"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "verify_bilateral_receipt",
+      "line": 281,
+      "doc": "Verify both authorization and result signatures.\n\nReturns {valid, authorization_valid, result_valid, bilateral}.\nFalls back to verify_receipt() for non-bilateral envelopes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "envelope",
+        "public_key"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "generate",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "kid"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_pem",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "pem",
+        "kid"
+      ],
+      "returns": null
+    },
+    {
+      "name": "public_pem",
+      "line": 109,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "private_pem",
+      "line": 115,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bytes"
+    }
+  ],
+  "classes": [
+    {
+      "name": "Signer",
+      "line": 85,
+      "doc": "Thin wrapper around an Ed25519 private key.\n\nUse ``Signer.generate()`` for ephemeral keys in tests or\n``Signer.from_pem(pem_bytes)`` to load an operator key.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    }
+  ],
+  "complexity_score": 28,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

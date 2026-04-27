@@ -1,0 +1,271 @@
+{
+  "path": "packages/agent-sre/examples/canary-model-upgrade/demo.py",
+  "extension": ".py",
+  "size_bytes": 15547,
+  "line_count": 417,
+  "documentation": {
+    "file_docstring": "Canary Rollout Demo \u2014 Safely upgrade an AI model (GPT-3.5 \u2192 GPT-4).\n\nSimulates a progressive delivery pipeline that:\n  1. Establishes a baseline with GPT-3.5 (100 % traffic)\n  2. Shifts 5 % of traffic to GPT-4 (canary)\n  3. Monitors SLOs (latency, cost, quality) at each stage\n  4. Promotes GPT-4 through 25 % \u2192 50 % \u2192 100 % if SLOs hold\n  5. Automatically rolls back to GPT-3.5 if SLOs are breached\n\nNo API keys required \u2014 all model behaviour is simulated.\n\nRun:\n    cd examples/canary-model-upgrade\n    python demo.py",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 ANSI helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Simulated model behaviour \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Model profiles \u2014 realistic but simulated",
+      "Two GPT-4 variants: one \"good\" upgrade and one that regresses on cost/latency",
+      "\u2500\u2500 SLO setup \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Traffic simulation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Canary rollout engine \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "CanaryRollout.start/advance/rollback are Enterprise-only.  This demo",
+      "drives the rollout loop directly using the data-classes that *are*",
+      "available in Public Preview (RolloutStep, RollbackCondition, etc.).",
+      "\u2500\u2500 Phase 1: Baseline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Phase 2: Canary (5 %) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Phase 3: SLO monitoring & progressive promotion \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Phase 4/5: Result \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Main \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Scenario A: Successful upgrade \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Scenario B: Failed upgrade (automatic rollback) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Summary \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SimulatedModel: Mimics an LLM endpoint with controllable quality characteristics.",
+      "run_traffic: Send *n* simulated requests and record against SLIs.",
+      "collect_canary_metrics: Quick metric collection for rollback condition checks.",
+      "check_rollback: Return list of breached condition descriptions (empty = pass).",
+      "run_canary_scenario: Execute a full canary rollout scenario (promote or rollback)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "data_model",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "model/schema path",
+      "main/entry-point function detected"
+    ]
+  },
+  "exports": [
+    "build_slo",
+    "run_canary_scenario",
+    "SimulatedModel",
+    "section",
+    "print_metrics",
+    "run_traffic",
+    "main",
+    "call",
+    "check_rollback",
+    "collect_canary_metrics",
+    "progress_bar",
+    "banner",
+    "slo_status_line"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "random",
+      "agent_sre",
+      "agent_sre.delivery.rollout",
+      "agent_sre.slo.indicators"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "banner",
+      "line": 56,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "section",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "progress_bar",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "pct",
+        "width"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "build_slo",
+      "line": 135,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_traffic",
+      "line": 153,
+      "doc": "Send *n* simulated requests and record against SLIs.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "model",
+        "slo",
+        "success_sli",
+        "latency_sli",
+        "cost_sli",
+        "hallucination_sli",
+        "n"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "print_metrics",
+      "line": 195,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "stats",
+        "model_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "slo_status_line",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "collect_canary_metrics",
+      "line": 227,
+      "doc": "Quick metric collection for rollback condition checks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "model",
+        "n"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_rollback",
+      "line": 251,
+      "doc": "Return list of breached condition descriptions (empty = pass).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "conditions",
+        "metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_canary_scenario",
+      "line": 264,
+      "doc": "Execute a full canary rollout scenario (promote or rollback).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "label",
+        "canary_model",
+        "baseline_model"
+      ],
+      "returns": null
+    },
+    {
+      "name": "main",
+      "line": 370,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 78,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "latency_ms",
+        "latency_jitter_ms",
+        "error_rate",
+        "hallucination_rate",
+        "cost_per_call"
+      ],
+      "returns": null
+    },
+    {
+      "name": "call",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "SimulatedModel",
+      "line": 75,
+      "doc": "Mimics an LLM endpoint with controllable quality characteristics.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "api",
+      "logging"
+    ]
+  }
+}

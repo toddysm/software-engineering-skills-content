@@ -1,0 +1,962 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/adapters/__init__.py",
+  "extension": ".py",
+  "size_bytes": 16374,
+  "line_count": 489,
+  "documentation": {
+    "file_docstring": "Framework Adapters for Agent-SRE.\n\nLightweight wrappers that instrument popular agent frameworks\nwith SLO monitoring, cost tracking, and evaluation.\n\nAdapters:\n- LangGraphAdapter: Instrument LangGraph graph executions\n- CrewAIAdapter: Instrument CrewAI crew runs\n- AutoGenAdapter: Instrument AutoGen agent conversations\n- OpenAIAgentsAdapter: Instrument OpenAI Agents SDK runs\n- SemanticKernelAdapter: Instrument Microsoft Semantic Kernel\n- DifyAdapter: Instrument Dify workflow engine\n\nAll adapters are duck-typed \u2014 no framework imports required.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Before graph execution",
+      "During execution (hook into node callbacks)",
+      "After execution",
+      "Before crew kickoff",
+      "During execution",
+      "After crew completes",
+      "Before conversation",
+      "During conversation",
+      "After conversation",
+      "Before agent run",
+      "During run",
+      "After run"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TaskRecord: Record of a single agent task execution.",
+      "BaseAdapter: Base class for framework adapters.",
+      "LangGraphAdapter: Adapter for LangGraph graph executions.\n\nUsage with LangGraph:\n    adapter = Lan",
+      "CrewAIAdapter: Adapter for CrewAI crew runs.\n\nUsage with CrewAI:\n    adapter = CrewAIAdapter()\n",
+      "AutoGenAdapter: Adapter for AutoGen conversations.\n\nUsage with AutoGen:\n    adapter = AutoGenAda",
+      "OpenAIAgentsAdapter: Adapter for OpenAI Agents SDK.\n\nUsage with OpenAI Agents:\n    adapter = OpenAIAg",
+      "SemanticKernelAdapter: Adapter for Microsoft Semantic Kernel.\n\nUsage:\n    adapter = SemanticKernelAdapt",
+      "DifyAdapter: Adapter for Dify workflow engine.\n\nUsage:\n    adapter = DifyAdapter()\n    adapte",
+      "get_sli_snapshot: Get current SLI values for integration with SLO engine."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "tasks",
+    "on_function_result",
+    "on_crew_end",
+    "on_llm_call",
+    "on_agent_task",
+    "DifyAdapter",
+    "on_graph_end",
+    "on_conversation_start",
+    "TaskRecord",
+    "on_workflow_end",
+    "on_node_end",
+    "on_tool_call",
+    "on_kernel_start",
+    "get_sli_snapshot",
+    "on_conversation_end",
+    "on_workflow_start",
+    "BaseAdapter",
+    "on_plan_step",
+    "on_guardrail_check",
+    "task_success_rate",
+    "on_run_start",
+    "on_http_request",
+    "on_handoff",
+    "SemanticKernelAdapter",
+    "tool_accuracy",
+    "on_message",
+    "LangGraphAdapter",
+    "on_function_call",
+    "on_node_start",
+    "on_run_end",
+    "on_plugin_call",
+    "on_kernel_end",
+    "CrewAIAdapter",
+    "on_graph_start",
+    "AutoGenAdapter",
+    "clear",
+    "on_crew_start",
+    "on_tool_use",
+    "avg_duration_ms",
+    "on_agent_complete",
+    "finish",
+    "OpenAIAgentsAdapter",
+    "total_cost_usd",
+    "duration_ms"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "duration_ms",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "finish",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 60,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "framework"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_start_task",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metadata"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "_finish_task",
+      "line": 76,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "tasks",
+      "line": 86,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "task_success_rate",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "total_cost_usd",
+      "line": 96,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "avg_duration_ms",
+      "line": 100,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "tool_accuracy",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_sli_snapshot",
+      "line": 112,
+      "doc": "Get current SLI values for integration with SLO engine.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear",
+      "line": 123,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 150,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_graph_start",
+      "line": 154,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "graph_name"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "on_node_start",
+      "line": 158,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_node_end",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_call",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_tool_call",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_graph_end",
+      "line": 183,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "__init__",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_crew_start",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "crew_name",
+        "num_agents"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "on_agent_task",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "task_description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_agent_complete",
+      "line": 224,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_role",
+        "success",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_tool_use",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_crew_end",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "__init__",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_conversation_start",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "initiator"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "on_message",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sender",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_function_call",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "function_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_call",
+      "line": 284,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_conversation_end",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "__init__",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_run_start",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_name"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "on_tool_call",
+      "line": 328,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_handoff",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "from_agent",
+        "to_agent"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_guardrail_check",
+      "line": 339,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "guardrail_name",
+        "passed"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_call",
+      "line": 344,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_run_end",
+      "line": 355,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "get_sli_snapshot",
+      "line": 358,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 383,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_kernel_start",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel_name"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "on_plugin_call",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "function_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_function_result",
+      "line": 402,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "plugin_name",
+        "function_name",
+        "success",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_plan_step",
+      "line": 409,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "step_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_call",
+      "line": 413,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_kernel_end",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "get_sli_snapshot",
+      "line": 423,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 445,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_workflow_start",
+      "line": 449,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "workflow_name"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "on_node_start",
+      "line": 453,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node_id",
+        "node_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_node_end",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node_id",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_tool_call",
+      "line": 462,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_llm_call",
+      "line": 468,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_http_request",
+      "line": 475,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "url",
+        "status_code",
+        "error"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_workflow_end",
+      "line": 481,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "success",
+        "error"
+      ],
+      "returns": "TaskRecord"
+    },
+    {
+      "name": "get_sli_snapshot",
+      "line": 484,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TaskRecord",
+      "line": 28,
+      "doc": "Record of a single agent task execution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "BaseAdapter",
+      "line": 57,
+      "doc": "Base class for framework adapters.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LangGraphAdapter",
+      "line": 129,
+      "doc": "Adapter for LangGraph graph executions.\n\nUsage with LangGraph:\n    adapter = LangGraphAdapter()\n\n    # Before graph execution\n    adapter.on_graph_start(graph_name=\"my_rag_graph\")\n\n    # During execution (hook into node callbacks)\n    adapter.on_node_start(\"retrieve\")\n    adapter.on_node_end(\"retrieve\")\n    adapter.on_node_start(\"generate\")\n    adapter.on_llm_call(input_tokens=100, output_tokens=50, cost_usd=0.003)\n    adapter.on_node_end(\"generate\")\n\n    # After execution\n    adapter.on_graph_end(success=True)",
+      "is_public": true,
+      "bases": [
+        "BaseAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "CrewAIAdapter",
+      "line": 187,
+      "doc": "Adapter for CrewAI crew runs.\n\nUsage with CrewAI:\n    adapter = CrewAIAdapter()\n\n    # Before crew kickoff\n    adapter.on_crew_start(crew_name=\"research_crew\", num_agents=3)\n\n    # During execution\n    adapter.on_agent_task(\"researcher\", \"Find latest papers\")\n    adapter.on_agent_complete(\"researcher\", success=True)\n    adapter.on_agent_task(\"writer\", \"Write summary\")\n    adapter.on_agent_complete(\"writer\", success=True)\n\n    # After crew completes\n    adapter.on_crew_end(success=True)",
+      "is_public": true,
+      "bases": [
+        "BaseAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AutoGenAdapter",
+      "line": 246,
+      "doc": "Adapter for AutoGen conversations.\n\nUsage with AutoGen:\n    adapter = AutoGenAdapter()\n\n    # Before conversation\n    adapter.on_conversation_start(initiator=\"user_proxy\")\n\n    # During conversation\n    adapter.on_message(\"assistant\", \"Let me help you...\")\n    adapter.on_message(\"user_proxy\", \"Thanks!\")\n    adapter.on_function_call(\"search\", error=\"\")\n\n    # After conversation\n    adapter.on_conversation_end(success=True)",
+      "is_public": true,
+      "bases": [
+        "BaseAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "OpenAIAgentsAdapter",
+      "line": 299,
+      "doc": "Adapter for OpenAI Agents SDK.\n\nUsage with OpenAI Agents:\n    adapter = OpenAIAgentsAdapter()\n\n    # Before agent run\n    adapter.on_run_start(agent_name=\"research_agent\")\n\n    # During run\n    adapter.on_tool_call(\"web_search\")\n    adapter.on_handoff(\"research_agent\", \"writing_agent\")\n    adapter.on_guardrail_check(\"content_filter\", passed=True)\n\n    # After run\n    adapter.on_run_end(success=True)",
+      "is_public": true,
+      "bases": [
+        "BaseAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "SemanticKernelAdapter",
+      "line": 369,
+      "doc": "Adapter for Microsoft Semantic Kernel.\n\nUsage:\n    adapter = SemanticKernelAdapter()\n    adapter.on_kernel_start(kernel_name=\"my_kernel\")\n    adapter.on_plugin_call(\"search_plugin\", \"search\", error=\"\")\n    adapter.on_function_result(\"search_plugin\", \"search\", success=True, cost_usd=0.01)\n    adapter.on_plan_step(\"step_1\")\n    adapter.on_llm_call(input_tokens=100, output_tokens=50, cost_usd=0.005)\n    adapter.on_kernel_end(success=True)",
+      "is_public": true,
+      "bases": [
+        "BaseAdapter"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DifyAdapter",
+      "line": 429,
+      "doc": "Adapter for Dify workflow engine.\n\nUsage:\n    adapter = DifyAdapter()\n    adapter.on_workflow_start(workflow_name=\"customer_support\")\n    adapter.on_node_start(\"llm_1\", node_type=\"llm\")\n    adapter.on_llm_call(input_tokens=200, output_tokens=100, cost_usd=0.005)\n    adapter.on_node_end(\"llm_1\")\n    adapter.on_node_start(\"tool_1\", node_type=\"tool\")\n    adapter.on_tool_call(\"web_search\")\n    adapter.on_node_end(\"tool_1\")\n    adapter.on_workflow_end(success=True)",
+      "is_public": true,
+      "bases": [
+        "BaseAdapter"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 55,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

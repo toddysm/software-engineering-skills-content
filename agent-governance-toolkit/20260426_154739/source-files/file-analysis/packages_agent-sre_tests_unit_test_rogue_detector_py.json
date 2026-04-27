@@ -1,0 +1,678 @@
+{
+  "path": "packages/agent-sre/tests/unit/test_rogue_detector.py",
+  "extension": ".py",
+  "size_bytes": 22964,
+  "line_count": 561,
+  "documentation": {
+    "file_docstring": "Tests for rogue-agent detection (OWASP ASI-10).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 ToolCallFrequencyAnalyzer \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Only record inside a single window \u2014 no history yet",
+      "Simulate 6 completed windows, each with 5 calls",
+      "Advance past window boundary to flush",
+      "Current window also has ~5 calls \u2192 z-score \u2248 0",
+      "6 baseline windows with varying call counts (4-6) for non-zero std_dev",
+      "Current window: massive spike \u2014 50 calls",
+      "\u2500\u2500 ActionEntropyScorer \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "log2(20) \u2248 4.32",
+      "Score should reflect anomaly (below low_threshold)",
+      "~3 actions in balanced mix \u2192 entropy \u2248 1.58",
+      "\u2500\u2500 CapabilityProfileDeviation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "4 calls: 2 valid, 2 violations \u2192 score = 0.5",
+      "\u2500\u2500 RogueAssessment \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 RogueAgentDetector (integration) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Entropy scorer should have 2 entries",
+      "Capability checker should have 2 calls, 0 violations",
+      "All calls are violations",
+      "100% violations \u00d7 weight 5.0 \u2192 composite \u2248 5.0 \u2192 CRITICAL",
+      "Single repeated action \u2192 entropy = 0",
+      "Drive violations to push composite above 1.0 (MEDIUM threshold)",
+      "Good agent \u2014 all within profile",
+      "Bad agent \u2014 all violations",
+      "\u2500\u2500 RogueDetectorConfig \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Assessment hash chain (tamper evidence) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Tamper with the first assessment's composite_score",
+      "Overwrite the first assessment's entry_hash",
+      "Remove the middle assessment",
+      "Insert a forged assessment in the middle"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestAssessmentHashChain: Tests for the SHA-256 tamper-evident audit chain on assessments.",
+      "test_insufficient_windows_returns_zero: Score is 0 when fewer than min_windows buckets exist.",
+      "test_stable_frequency_low_score: When call counts are stable across windows the z-score is low.",
+      "test_spike_produces_high_score: A sudden spike in call frequency should yield a high z-score.",
+      "test_unknown_agent_returns_zero: Scoring an agent with no data should return 0.",
+      "test_insufficient_actions_returns_none: Entropy is None when too few actions have been recorded.",
+      "test_uniform_distribution_high_entropy: Uniform distribution over many distinct actions \u2192 high entropy.",
+      "test_single_action_zero_entropy: All identical actions \u2192 entropy = 0 \u2192 anomaly (stuck in loop).",
+      "test_normal_entropy_zero_score: Entropy within [low_threshold, high_threshold] \u2192 score 0.",
+      "test_erratic_behavior_high_score: Very high entropy (many distinct actions) \u2192 positive score."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_insufficient_actions_returns_none",
+    "test_uniform_distribution_high_entropy",
+    "test_violation_score",
+    "test_multiple_agents_independent",
+    "test_tamper_entry_hash_breaks_chain",
+    "test_insert_assessment_breaks_chain",
+    "TestRogueDetectorConfig",
+    "test_verify_chain_empty_is_valid",
+    "test_tamper_score_breaks_chain",
+    "test_verify_chain_passes_on_intact_chain",
+    "TestActionEntropyScorer",
+    "test_tamper_previous_hash_breaks_chain",
+    "test_defaults",
+    "test_unknown_agent_zero_score",
+    "test_low_risk_assessment",
+    "test_single_assessment_has_hash",
+    "test_single_action_zero_entropy",
+    "TestRogueAssessment",
+    "test_spike_produces_high_score",
+    "test_normal_entropy_zero_score",
+    "test_violation_weight_scaling",
+    "test_custom_config",
+    "TestRogueAgentDetector",
+    "test_delete_middle_assessment_breaks_chain",
+    "test_erratic_behavior_high_score",
+    "test_quarantine_recommended_when_threshold_met",
+    "test_quarantine_not_recommended_below_threshold",
+    "test_record_action_feeds_all_analyzers",
+    "test_tamper_agent_id_breaks_chain",
+    "test_unknown_agent_returns_zero",
+    "test_risk_classification_boundaries",
+    "test_to_dict_includes_hash_fields",
+    "test_hash_deterministic",
+    "TestToolCallFrequencyAnalyzer",
+    "TestAssessmentHashChain",
+    "test_capability_violation_raises_risk",
+    "TestCapabilityProfileDeviation",
+    "test_no_profile_no_violations",
+    "test_within_profile_zero_score",
+    "test_entropy_loop_raises_risk",
+    "test_assessment_history_tracked",
+    "test_chain_links_across_assessments",
+    "test_violation_detected",
+    "test_stable_frequency_low_score",
+    "test_to_dict_roundtrip",
+    "test_insufficient_windows_returns_zero"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "hashlib",
+      "json",
+      "math",
+      "agent_sre.anomaly.rogue_detector"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_insufficient_windows_returns_zero",
+      "line": 25,
+      "doc": "Score is 0 when fewer than min_windows buckets exist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stable_frequency_low_score",
+      "line": 37,
+      "doc": "When call counts are stable across windows the z-score is low.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_spike_produces_high_score",
+      "line": 61,
+      "doc": "A sudden spike in call frequency should yield a high z-score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_agent_returns_zero",
+      "line": 85,
+      "doc": "Scoring an agent with no data should return 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insufficient_actions_returns_none",
+      "line": 95,
+      "doc": "Entropy is None when too few actions have been recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_uniform_distribution_high_entropy",
+      "line": 103,
+      "doc": "Uniform distribution over many distinct actions \u2192 high entropy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_single_action_zero_entropy",
+      "line": 115,
+      "doc": "All identical actions \u2192 entropy = 0 \u2192 anomaly (stuck in loop).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_normal_entropy_zero_score",
+      "line": 130,
+      "doc": "Entropy within [low_threshold, high_threshold] \u2192 score 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_erratic_behavior_high_score",
+      "line": 147,
+      "doc": "Very high entropy (many distinct actions) \u2192 positive score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_profile_no_violations",
+      "line": 163,
+      "doc": "When no profile is registered, nothing is a violation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_within_profile_zero_score",
+      "line": 169,
+      "doc": "All calls within declared profile \u2192 score 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_detected",
+      "line": 177,
+      "doc": "A call outside the declared profile is flagged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_score",
+      "line": 184,
+      "doc": "Score reflects fraction of violations.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_weight_scaling",
+      "line": 195,
+      "doc": "Score is scaled by violation_weight.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_agent_zero_score",
+      "line": 202,
+      "doc": "Agent with no recorded calls \u2192 score 0.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_roundtrip",
+      "line": 212,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_low_risk_assessment",
+      "line": 233,
+      "doc": "Agent with minimal data should be assessed as LOW risk.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_action_feeds_all_analyzers",
+      "line": 240,
+      "doc": "record_action should populate data in all three sub-analyzers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_violation_raises_risk",
+      "line": 254,
+      "doc": "Heavy capability violations should push risk level up.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_entropy_loop_raises_risk",
+      "line": 273,
+      "doc": "An agent stuck in a loop (zero entropy) should have elevated risk.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_quarantine_recommended_when_threshold_met",
+      "line": 291,
+      "doc": "Quarantine is recommended when risk >= configured quarantine_risk_level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_quarantine_not_recommended_below_threshold",
+      "line": 309,
+      "doc": "No quarantine when risk is below quarantine threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_assessment_history_tracked",
+      "line": 319,
+      "doc": "Each assess() call is recorded in the assessments list.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_risk_classification_boundaries",
+      "line": 328,
+      "doc": "Verify the composite-score \u2192 risk-level mapping.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_agents_independent",
+      "line": 339,
+      "doc": "Assessments for different agents do not interfere.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_config",
+      "line": 383,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_detector",
+      "line": 400,
+      "doc": "Return a detector with frequency/entropy disabled for determinism.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "RogueAgentDetector"
+    },
+    {
+      "name": "test_single_assessment_has_hash",
+      "line": 409,
+      "doc": "A single assess() call should populate entry_hash and previous_hash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_links_across_assessments",
+      "line": 417,
+      "doc": "Each assessment's previous_hash must equal the prior entry_hash.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_chain_passes_on_intact_chain",
+      "line": 428,
+      "doc": "verify_assessment_chain returns (True, None) for an untampered chain.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verify_chain_empty_is_valid",
+      "line": 439,
+      "doc": "An empty chain is trivially valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tamper_score_breaks_chain",
+      "line": 446,
+      "doc": "Modifying composite_score after assessment should be detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tamper_agent_id_breaks_chain",
+      "line": 460,
+      "doc": "Modifying agent_id after assessment should be detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tamper_entry_hash_breaks_chain",
+      "line": 470,
+      "doc": "Directly overwriting entry_hash should be detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tamper_previous_hash_breaks_chain",
+      "line": 482,
+      "doc": "Modifying previous_hash should be detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_delete_middle_assessment_breaks_chain",
+      "line": 493,
+      "doc": "Removing an assessment from the middle of the chain breaks linkage.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_insert_assessment_breaks_chain",
+      "line": 506,
+      "doc": "Inserting a rogue assessment should be detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_hash_deterministic",
+      "line": 530,
+      "doc": "Same inputs produce the same hash -- verify the algorithm manually.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_includes_hash_fields",
+      "line": 553,
+      "doc": "to_dict() should expose the hash chain fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestToolCallFrequencyAnalyzer",
+      "line": 24,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestActionEntropyScorer",
+      "line": 94,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCapabilityProfileDeviation",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRogueAssessment",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRogueAgentDetector",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRogueDetectorConfig",
+      "line": 371,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAssessmentHashChain",
+      "line": 397,
+      "doc": "Tests for the SHA-256 tamper-evident audit chain on assessments.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 28,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

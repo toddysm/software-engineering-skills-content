@@ -1,0 +1,353 @@
+{
+  "path": "packages/agent-os/examples/github-reviewer/main.py",
+  "extension": ".py",
+  "size_bytes": 17665,
+  "line_count": 522,
+  "documentation": {
+    "file_docstring": "GitHub Code Review Agent with Agent OS Governance\n==================================================\n\nProduction-grade code reviewer that catches:\n- Secrets and credentials before they leak\n- Security vulnerabilities (SQL injection, XSS, etc.)\n- Policy violations (blocked patterns, large files)\n- Code quality issues\n\nUses multi-model verification (CMVK) for high-confidence findings.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Agent OS imports",
+      "Secret patterns to detect",
+      "Security vulnerability patterns",
+      "Blocked patterns (immediate rejection)",
+      "Skip comments and obvious test data",
+      "Skip comments",
+      "Skip obvious test/example values",
+      "Check file size",
+      "Check for blocked patterns",
+      "Initialize Agent OS governance if available",
+      "If files provided directly, use those",
+      "Check for blocking findings",
+      "Run all scanners",
+      "Header",
+      "Group by severity",
+      "Critical first",
+      "Footer",
+      "Sample code with issues",
+      "Configuration",
+      "\u26a0\ufe0f INTENTIONALLY INSECURE \u2014 test fixtures for the policy scanner.",
+      "DO NOT copy these patterns into production code.",
+      "SQL Injection vulnerability!"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Finding: A code review finding.",
+      "ReviewResult: Complete review result.",
+      "SecretScanner: Scans code for leaked secrets and credentials.",
+      "SecurityScanner: Scans code for security vulnerabilities.",
+      "PolicyChecker: Checks code against organizational policies.",
+      "GitHubReviewAgent: Production GitHub Code Review Agent with Agent OS Governance.\n\nFeatures:\n- Secre",
+      "demo: Demonstrate the GitHub Review Agent.",
+      "scan: Scan content for secrets.",
+      "_is_safe_line: Check if line is safe to skip (comments, tests, etc.).",
+      "scan: Scan content for security issues."
+    ]
+  },
+  "purpose": {
+    "primary_role": "entry_point",
+    "secondary_roles": [],
+    "confidence": 0.95,
+    "indicators": [
+      "component/view path",
+      "test class/function patterns",
+      "special file: main.py"
+    ]
+  },
+  "exports": [
+    "ReviewResult",
+    "SecretScanner",
+    "GitHubReviewAgent",
+    "Finding",
+    "check",
+    "Severity",
+    "scan",
+    "demo",
+    "SecurityScanner",
+    "PolicyChecker",
+    "format_github_comment"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "re",
+      "hashlib",
+      "dataclasses",
+      "typing",
+      "datetime",
+      "enum",
+      "agent_os",
+      "asyncio"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "demo",
+      "line": 445,
+      "doc": "Demonstrate the GitHub Review Agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patterns"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan",
+      "line": 203,
+      "doc": "Scan content for secrets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_is_safe_line",
+      "line": 227,
+      "doc": "Check if line is safe to skip (comments, tests, etc.).",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "line"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 242,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patterns"
+      ],
+      "returns": null
+    },
+    {
+      "name": "scan",
+      "line": 249,
+      "doc": "Scan content for security issues.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 273,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_file_lines",
+        "max_function_lines"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check",
+      "line": 278,
+      "doc": "Check content against policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "content",
+        "filename"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_policy_yaml",
+      "line": 336,
+      "doc": "Get policy YAML based on strictness level.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "review_pr",
+      "line": 356,
+      "doc": "Review a pull request or diff.\n\nArgs:\n    pr_url: GitHub PR URL (will fetch diff)\n    diff_content: Raw diff content\n    files: Dict of filename -> content to review\n\nReturns:\n    ReviewResult with findings",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "pr_url",
+        "diff_content",
+        "files"
+      ],
+      "returns": "ReviewResult"
+    },
+    {
+      "name": "_review_file",
+      "line": 389,
+      "doc": "Review a single file.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "filename",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "format_github_comment",
+      "line": 400,
+      "doc": "Format findings as a GitHub PR comment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "run_review",
+      "line": 503,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "Severity",
+      "line": 31,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Finding",
+      "line": 40,
+      "doc": "A code review finding.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ReviewResult",
+      "line": 53,
+      "doc": "Complete review result.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SecretScanner",
+      "line": 193,
+      "doc": "Scans code for leaked secrets and credentials.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "SecurityScanner",
+      "line": 239,
+      "doc": "Scans code for security vulnerabilities.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "PolicyChecker",
+      "line": 270,
+      "doc": "Checks code against organizational policies.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GitHubReviewAgent",
+      "line": 312,
+      "doc": "Production GitHub Code Review Agent with Agent OS Governance.\n\nFeatures:\n- Secret detection (API keys, tokens, passwords)\n- Security vulnerability scanning\n- Policy enforcement\n- Multi-model verification (optional)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 50,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

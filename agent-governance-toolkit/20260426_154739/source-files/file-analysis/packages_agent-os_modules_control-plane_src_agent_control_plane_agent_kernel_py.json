@@ -1,0 +1,391 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/agent_kernel.py",
+  "extension": ".py",
+  "size_bytes": 16755,
+  "line_count": 470,
+  "documentation": {
+    "file_docstring": "Agent Control Plane - Core Kernel Module\n\nThe Agent Kernel is the central component that mediates all interactions\nbetween LLMs (raw compute) and the execution environment. It provides\ngovernance, safety, and observability for autonomous agents.\n\nResearch Foundations:\n    - Deterministic enforcement approach inspired by OS kernel security models\n    - Permission model based on capability-based security (principle of least privilege)\n    - Risk assessment informed by \"A Safety Framework for Real-World Agentic Systems\"\n      (arXiv:2511.21990, 2024)\n    - Multi-agent patterns from \"Multi-Agent Systems: A Survey\" (arXiv:2308.05391, 2023)\n    - Governance practices from \"Practices for Governing Agentic AI Systems\" (OpenAI, 2023)\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "1. TELEMETRY: Start the trace",
+      "2. POLICY CHECK: The \"Mute\" Protocol",
+      "We don't just check the tool name; we check the ARGS.",
+      "e.g., allow \"read_file\" but block path=\"/etc/passwd\"",
+      "THE MUTE AGENT:",
+      "We return a system error with actionable details.",
+      "3. SHADOW MODE: The Matrix",
+      "If the agent is in shadow mode, we return a \"Simulated Success\"",
+      "4. EXECUTE (Allow)",
+      "1. TELEMETRY: Start the trace",
+      "2. POLICY CHECK: The \"Mute\" Protocol",
+      "3. SHADOW MODE: The Matrix",
+      "4. EXECUTE",
+      "Check permissions",
+      "Validate against policies",
+      "Assess risk",
+      "Approve for execution",
+      "This is where actual execution would happen",
+      "In a real implementation, this would dispatch to appropriate executors",
+      "Simple risk assessment based on action type"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ActionType: Types of actions an agent can request",
+      "PermissionLevel: Permission levels for agent actions",
+      "ExecutionStatus: Status of an execution request",
+      "AgentContext: Context for an agent session",
+      "ExecutionRequest: Request from an agent to execute an action",
+      "ExecutionResult: Result of an execution request",
+      "PolicyRule: A governance policy rule",
+      "AgentKernel: The Agent Kernel - Core control plane component (The Hypervisor for AI Agents)\n\n",
+      "create_agent_session: Create a new agent session with specified permissions",
+      "intercept_tool_execution: The critical choke point. No tool executes without passing this gate.\n\nThis is t"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "add_policy_rule",
+    "submit_request",
+    "create_agent_session",
+    "PermissionLevel",
+    "ActionType",
+    "ExecutionResult",
+    "AgentContext",
+    "intercept_tool_execution",
+    "AgentKernel",
+    "ExecutionStatus",
+    "PolicyRule",
+    "get_audit_log",
+    "ExecutionRequest",
+    "execute"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "uuid",
+      "logging",
+      "asyncio",
+      "policy_engine"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 126,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_engine",
+        "shadow_mode",
+        "audit_logger"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_agent_session",
+      "line": 140,
+      "doc": "Create a new agent session with specified permissions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "permissions"
+      ],
+      "returns": "AgentContext"
+    },
+    {
+      "name": "intercept_tool_execution",
+      "line": 155,
+      "doc": "The critical choke point. No tool executes without passing this gate.\n\nThis is the \"Hypervisor\" pattern - intercepts tool calls BEFORE they execute.\nSynchronous version for backward compatibility. For async support, use intercept_tool_execution_async.\n\nArgs:\n    agent_id: The agent attempting the action\n    tool_name: The name of the tool being called\n    tool_args: Arguments passed to the tool\n    input_prompt: The original prompt/intent (optional, for audit trail)\n\nReturns:\n    None if execution should proceed, or a dict with blocking/shadow information",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name",
+        "tool_args",
+        "input_prompt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "intercept_tool_execution_async",
+      "line": 226,
+      "doc": "Async version of intercept_tool_execution for non-blocking operation.\n\nThis is the production-ready async implementation that supports\nconcurrent agent operations.\n\nArgs:\n    agent_id: The agent attempting the action\n    tool_name: The name of the tool being called\n    tool_args: Arguments passed to the tool\n    input_prompt: The original prompt/intent (optional, for audit trail)\n\nReturns:\n    Dict with:\n        - allowed: bool - Whether execution is allowed\n        - error: str - Error message (if blocked)\n        - mute: bool - True for blocked actions (NULL response)\n        - result: Any - Simulated result (for shadow mode)\n        - shadow: bool - True if shadow mode",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name",
+        "tool_args",
+        "input_prompt"
+      ],
+      "returns": null
+    },
+    {
+      "name": "submit_request",
+      "line": 297,
+      "doc": "Submit an execution request for validation and execution",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_context",
+        "action_type",
+        "parameters"
+      ],
+      "returns": "ExecutionRequest"
+    },
+    {
+      "name": "execute",
+      "line": 342,
+      "doc": "Execute an approved request",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "ExecutionResult"
+    },
+    {
+      "name": "add_policy_rule",
+      "line": 389,
+      "doc": "Add a policy rule to the kernel",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 395,
+      "doc": "Retrieve the audit log",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_permission",
+      "line": 399,
+      "doc": "Check if agent has permission for the requested action",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_validate_policies",
+      "line": 407,
+      "doc": "Validate request against all applicable policy rules",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_assess_risk",
+      "line": 415,
+      "doc": "Assess the risk level of a request (0.0 = no risk, 1.0 = maximum risk)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "_dispatch_execution",
+      "line": 429,
+      "doc": "Dispatch execution to appropriate handler\n\nNote: This returns simulated execution results for demonstration purposes.\nIn production, this should route to actual ExecutionEngine handlers.\nThe Control Plane's execute_action() method uses the ExecutionEngine\ndirectly for actual execution.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_get_required_permission_level",
+      "line": 444,
+      "doc": "Get the minimum permission level required for an action type",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action_type"
+      ],
+      "returns": "PermissionLevel"
+    },
+    {
+      "name": "_default_permissions",
+      "line": 458,
+      "doc": "Get default (minimal) permissions for an agent",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_audit",
+      "line": 466,
+      "doc": "Log an audit event",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "event_type",
+        "details"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ActionType",
+      "line": 33,
+      "doc": "Types of actions an agent can request",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PermissionLevel",
+      "line": 45,
+      "doc": "Permission levels for agent actions",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExecutionStatus",
+      "line": 54,
+      "doc": "Status of an execution request",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentContext",
+      "line": 67,
+      "doc": "Context for an agent session",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExecutionRequest",
+      "line": 78,
+      "doc": "Request from an agent to execute an action",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ExecutionResult",
+      "line": 91,
+      "doc": "Result of an execution request",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PolicyRule",
+      "line": 103,
+      "doc": "A governance policy rule",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentKernel",
+      "line": 114,
+      "doc": "The Agent Kernel - Core control plane component (The Hypervisor for AI Agents)\n\nMediates between LLM output and actual execution, providing:\n- Permission checking\n- Policy enforcement\n- Resource management\n- Audit logging\n- Tool interception at the API level",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 61,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

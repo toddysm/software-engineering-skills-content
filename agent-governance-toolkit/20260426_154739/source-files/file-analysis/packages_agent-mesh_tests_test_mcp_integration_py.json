@@ -1,0 +1,1475 @@
+{
+  "path": "packages/agent-mesh/tests/test_mcp_integration.py",
+  "extension": ".py",
+  "size_bytes": 41206,
+  "line_count": 1082,
+  "documentation": {
+    "file_docstring": "Tests for MCP (Model Context Protocol) trust-gated integration.\n\nCovers TrustGatedMCPServer (tool registration, trust verification,\ncapability checks, audit) and TrustGatedMCPClient (connect, invoke,\ncredentials).",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers & Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "MCPTool / MCPToolCall dataclass tests",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 register_tool",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 invoke_tool",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 _check_capability",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 verify_client",
+      "---------------------------------------------------------------------------",
+      "Should also populate the cache",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 list_tools",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 get_audit_summary",
+      "---------------------------------------------------------------------------",
+      "Successful call",
+      "Handler failure",
+      "Unknown tool",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPServer \u2014 _record_call (audit cap)",
+      "---------------------------------------------------------------------------",
+      "Oldest entries (0-49) should have been evicted",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPClient \u2014 connect",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPClient \u2014 invoke",
+      "---------------------------------------------------------------------------",
+      "Should have auto-connected",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPClient \u2014 get_credentials",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "TrustGatedMCPClient \u2014 _discover_server_did",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Integration: end-to-end server workflow",
+      "---------------------------------------------------------------------------",
+      "Verify client via card",
+      "Invoke",
+      "Audit",
+      "Caller with use:sql \u2192 accepted",
+      "Caller without use:sql \u2192 rejected",
+      "Caller with enough trust for echo (no capability required)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_identity: Create a test AgentIdentity via the real factory.",
+      "_echo_handler: Simple async handler that echoes its arguments.",
+      "_failing_handler: Handler that always raises.",
+      "_sql_handler: Simulated SQL tool handler.",
+      "TestMCPToolDataclass: Tests for the MCPTool dataclass defaults and overrides.",
+      "TestMCPToolCallDataclass: Tests for the MCPToolCall dataclass defaults.",
+      "TestRegisterTool: Tests for TrustGatedMCPServer.register_tool.",
+      "TestInvokeTool: Tests for TrustGatedMCPServer.invoke_tool \u2014 happy path, rejection, errors.",
+      "TestCheckCapability: Tests for wildcard and exact capability matching.",
+      "TestVerifyClient: Tests for client verification with caching, TrustBridge, and card-based."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_wildcard_match_different_suffix",
+    "test_record_call_respects_audit_flag",
+    "test_credentials_capabilities_from_identity",
+    "TestMCPClientConnect",
+    "TestMCPClientGetCredentials",
+    "test_register_overwrites_existing_tool",
+    "test_empty_server",
+    "test_record_call_1001_trims",
+    "TestVerifyClient",
+    "test_credentials_with_trust_score_attr",
+    "test_record_call_appends",
+    "test_multiple_tools_order",
+    "test_register_tool_with_schema",
+    "TestMCPToolDataclass",
+    "TestEndToEndServerWorkflow",
+    "server",
+    "TestRecordCall",
+    "test_empty_summary",
+    "TestListTools",
+    "test_defaults",
+    "test_wildcard_match",
+    "server_identity",
+    "test_tool_format",
+    "test_wildcard_different_prefix",
+    "test_register_tool_with_human_sponsor",
+    "test_exact_match",
+    "test_multiple_wildcards",
+    "test_register_multiple_tools",
+    "TestCheckCapability",
+    "test_register_basic_tool",
+    "client_identity",
+    "TestDiscoverServerDID",
+    "test_exact_no_match",
+    "test_multiple_capabilities_one_matches",
+    "TestMCPToolCallDataclass",
+    "test_empty_client_capabilities",
+    "test_record_call_caps_at_1000",
+    "test_credentials_trust_score_default",
+    "test_record_call_exactly_1000",
+    "test_no_required_capability_always_passes",
+    "TestAuditSummary",
+    "test_credentials_shape",
+    "test_wildcard_with_nested_path",
+    "test_credentials_did_is_string",
+    "TestRegisterTool",
+    "TestInvokeTool",
+    "test_custom_values",
+    "test_credentials_empty_capabilities",
+    "TestMCPClientInvoke",
+    "test_wildcard_exact_colon_star_literal",
+    "test_register_tool_with_custom_trust",
+    "test_register_tool_with_capability",
+    "test_register_tool_inherits_server_trust"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "datetime",
+      "typing",
+      "unittest.mock",
+      "pytest",
+      "agentmesh.identity",
+      "agentmesh.integrations.mcp",
+      "unittest.mock"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_identity",
+      "line": 32,
+      "doc": "Create a test AgentIdentity via the real factory.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name",
+        "sponsor",
+        "capabilities"
+      ],
+      "returns": "AgentIdentity"
+    },
+    {
+      "name": "_echo_handler",
+      "line": 45,
+      "doc": "Simple async handler that echoes its arguments.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_failing_handler",
+      "line": 50,
+      "doc": "Handler that always raises.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "_sql_handler",
+      "line": 55,
+      "doc": "Simulated SQL tool handler.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "query"
+      ],
+      "returns": null
+    },
+    {
+      "name": "server_identity",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "AgentIdentity"
+    },
+    {
+      "name": "server",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "server_identity"
+      ],
+      "returns": "TrustGatedMCPServer"
+    },
+    {
+      "name": "client_identity",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "AgentIdentity"
+    },
+    {
+      "name": "test_defaults",
+      "line": 83,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_values",
+      "line": 95,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 113,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_basic_tool",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_tool_with_capability",
+      "line": 145,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_tool_with_custom_trust",
+      "line": 155,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_tool_inherits_server_trust",
+      "line": 160,
+      "doc": "When min_trust_score is not given, tool inherits the server default (300).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_tool_with_schema",
+      "line": 166,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_tool_with_human_sponsor",
+      "line": 172,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_multiple_tools",
+      "line": 177,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_overwrites_existing_tool",
+      "line": 183,
+      "doc": "Re-registering a tool with the same name overwrites it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_successful_invocation",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reject_unknown_tool",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reject_insufficient_trust_score",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reject_zero_trust_score",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reject_missing_capability",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reject_empty_capabilities",
+      "line": 270,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reject_none_capabilities",
+      "line": 283,
+      "doc": "When caller_capabilities is None, it defaults to [] internally.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_capability_required_passes",
+      "line": 297,
+      "doc": "Tools with no required_capability accept any caller with sufficient trust.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handler_exception_recorded",
+      "line": 312,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_handler_exception_increments_failed_calls",
+      "line": 328,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_successful_call_increments_total_calls",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_rejection_increments_failed_calls",
+      "line": 358,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_capability_rejection_increments_failed_calls",
+      "line": 372,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_call_metadata_populated",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exact_boundary_trust_score",
+      "line": 404,
+      "doc": "Trust score exactly equal to minimum should pass.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_one_below_boundary_trust_score",
+      "line": 418,
+      "doc": "Trust score one below minimum should fail.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_last_called_updated",
+      "line": 433,
+      "doc": "Successful invocation updates the tool's last_called timestamp.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exact_match",
+      "line": 452,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exact_no_match",
+      "line": 455,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_match",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_match_different_suffix",
+      "line": 461,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_different_prefix",
+      "line": 466,
+      "doc": "Wildcard 'use:*' should NOT match 'read:sql'.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_with_nested_path",
+      "line": 470,
+      "doc": "Wildcard 'use:*' should match 'use:sql:advanced'.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_required_capability_always_passes",
+      "line": 474,
+      "doc": "Empty string required_capability returns True.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_client_capabilities",
+      "line": 480,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_capabilities_one_matches",
+      "line": 483,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_wildcards",
+      "line": 489,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_exact_colon_star_literal",
+      "line": 495,
+      "doc": "Capability 'use:*' itself as required \u2014 only exact match or broader wildcard.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cache_hit_within_ttl",
+      "line": 511,
+      "doc": "A recently verified client should be served from cache.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cache_miss_expired_ttl",
+      "line": 518,
+      "doc": "An expired cache entry should not pass without bridge or card.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_bridge_success",
+      "line": 526,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_bridge_failure",
+      "line": 540,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trust_bridge_exception",
+      "line": 552,
+      "doc": "If TrustBridge raises an exception, verification fails gracefully.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_card_based_verification_sufficient_score",
+      "line": 564,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_card_based_verification_insufficient_score",
+      "line": 574,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_card_without_trust_score_attr",
+      "line": 583,
+      "doc": "Card object without trust_score attribute should fail verification.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_bridge_no_card_fails",
+      "line": 592,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cache_preferred_over_bridge",
+      "line": 597,
+      "doc": "If client is in cache, TrustBridge should NOT be called.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_server",
+      "line": 619,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_format",
+      "line": 622,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_tools_order",
+      "line": 642,
+      "doc": "Tools should appear in insertion order (dict ordering).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_summary",
+      "line": 659,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_summary_after_mixed_calls",
+      "line": 670,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_verified_clients_count",
+      "line": 696,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_call_appends",
+      "line": 715,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_call_respects_audit_flag",
+      "line": 726,
+      "doc": "When audit_all_calls=False, nothing is recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_call_caps_at_1000",
+      "line": 740,
+      "doc": "History should never exceed 1000 entries; oldest entries are dropped.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_call_exactly_1000",
+      "line": 756,
+      "doc": "Exactly 1000 calls should all be retained.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_call_1001_trims",
+      "line": 770,
+      "doc": "The 1001st call triggers trimming to 1000.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_connect_without_bridge",
+      "line": 794,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_connect_with_bridge_no_server_did",
+      "line": 803,
+      "doc": "When _discover_server_did returns None, bridge is skipped.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_connect_with_bridge_server_did_verified",
+      "line": 815,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_connect_with_bridge_server_rejected",
+      "line": 830,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_connect_multiple_servers",
+      "line": 845,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_raises_not_implemented",
+      "line": 863,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_mentions_server_and_tool",
+      "line": 877,
+      "doc": "Error message should include the server URL and tool name.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_auto_connects_then_raises",
+      "line": 894,
+      "doc": "Invoking on an unconnected server auto-connects, then raises.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invoke_auto_connect_failure",
+      "line": 905,
+      "doc": "If auto-connect fails (bridge rejects), return error dict instead of raise.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credentials_shape",
+      "line": 928,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credentials_did_is_string",
+      "line": 936,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credentials_capabilities_from_identity",
+      "line": 942,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credentials_empty_capabilities",
+      "line": 948,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credentials_trust_score_default",
+      "line": 954,
+      "doc": "AgentIdentity has no trust_score attr \u2192 falls back to 500.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credentials_with_trust_score_attr",
+      "line": 962,
+      "doc": "If identity has a trust_score attribute, it should be used.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_returns_none",
+      "line": 984,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "client_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_happy_path",
+      "line": 999,
+      "doc": "Register tool, verify client, invoke tool \u2014 all succeed.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_tools_multiple_callers",
+      "line": 1034,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_wildcard_capability_e2e",
+      "line": 1067,
+      "doc": "Agent with 'use:*' wildcard can invoke any 'use:' tool.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "server"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestMCPToolDataclass",
+      "line": 80,
+      "doc": "Tests for the MCPTool dataclass defaults and overrides.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPToolCallDataclass",
+      "line": 110,
+      "doc": "Tests for the MCPToolCall dataclass defaults.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRegisterTool",
+      "line": 135,
+      "doc": "Tests for TrustGatedMCPServer.register_tool.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestInvokeTool",
+      "line": 197,
+      "doc": "Tests for TrustGatedMCPServer.invoke_tool \u2014 happy path, rejection, errors.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCheckCapability",
+      "line": 449,
+      "doc": "Tests for wildcard and exact capability matching.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVerifyClient",
+      "line": 507,
+      "doc": "Tests for client verification with caching, TrustBridge, and card-based.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestListTools",
+      "line": 616,
+      "doc": "Tests for list_tools MCP format output.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditSummary",
+      "line": 656,
+      "doc": "Tests for get_audit_summary and _record_call.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRecordCall",
+      "line": 712,
+      "doc": "Tests for _record_call and the 1000-call history cap.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPClientConnect",
+      "line": 790,
+      "doc": "Tests for TrustGatedMCPClient.connect.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPClientInvoke",
+      "line": 859,
+      "doc": "Tests for TrustGatedMCPClient.invoke \u2014 now raises NotImplementedError.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMCPClientGetCredentials",
+      "line": 925,
+      "doc": "Tests for TrustGatedMCPClient.get_credentials.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDiscoverServerDID",
+      "line": 980,
+      "doc": "Tests for the placeholder _discover_server_did.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEndToEndServerWorkflow",
+      "line": 995,
+      "doc": "Integration tests exercising a full register \u2192 verify \u2192 invoke flow.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 24,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

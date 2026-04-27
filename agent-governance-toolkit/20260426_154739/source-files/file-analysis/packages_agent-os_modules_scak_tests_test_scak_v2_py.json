@@ -1,0 +1,611 @@
+{
+  "path": "packages/agent-os/modules/scak/tests/test_scak_v2.py",
+  "extension": ".py",
+  "size_bytes": 21485,
+  "line_count": 653,
+  "documentation": {
+    "file_docstring": "Tests for SCAK v2 - Evolutionary Swarm Kernel.\n\nThis test suite validates:\n1. RewardShaper - Adaptive reward shaping\n2. EmergenceMonitor - Anomaly detection\n3. EvolvableOrchestrator - Hot-swapping\n\nTests follow the existing repository patterns.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import v2 components",
+      "Import schemas",
+      "Import base classes",
+      "========================================",
+      "RewardShaper Tests",
+      "========================================",
+      "Check weights changed",
+      "Check normalization (sum to 1.0)",
+      "Large negative correction",
+      "All weights should be non-negative",
+      "Large correction (should be clipped)",
+      "Change should be <= max_delta",
+      "After normalization, change may be different, but should be reasonable",
+      "Check update created",
+      "Apply multiple updates",
+      "Versions should increase or stay the same",
+      "Make changes (synchronous for simplicity)",
+      "Add to history manually for test",
+      "Rollback",
+      "========================================",
+      "EmergenceMonitor Tests",
+      "========================================",
+      "Should be less than 1.0 (different content)",
+      "Create cycle: A \u2192 B \u2192 A (with similar semantic content to avoid drift detection)",
+      "First step may not be safe if drift is detected, that's OK",
+      "May or may not detect yet",
+      "Should detect cycle or drift - either is acceptable",
+      "Step with very different content (drift)",
+      "Should detect drift (content is unrelated)",
+      "Note: With mock embeddings, this might not always trigger",
+      "In production with real embeddings, this would reliably detect drift",
+      "Repeat same content multiple times",
+      "Should eventually detect echo chamber",
+      "Last result should flag anomaly",
+      "Note: With 3+ identical messages, should trigger",
+      "Multiple deferrals",
+      "Should detect escalation spiral",
+      "With 5 deferrals, should trigger (threshold is 3 in last 5 messages)",
+      "========================================",
+      "EvolvableOrchestrator Tests",
+      "========================================",
+      "Update with success",
+      "Register agents with different tiers",
+      "Find replacement for basic",
+      "Check inferred tiers",
+      "Perform swap",
+      "========================================",
+      "Integration Tests",
+      "========================================",
+      "Setup",
+      "Shape reward with feedback that triggers change",
+      "Use updated rubric in orchestrator (mock)",
+      "Check rubric was created and has valid structure",
+      "The flow: RewardShaper \u2192 rubric update \u2192 EvolvableOrchestrator uses it",
+      "In production, orchestrator would use rubric to compute rewards",
+      "Create anomaly scenario",
+      "Triage the decision"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestFeedbackAnalyzer: Test feedback analysis and correction vector extraction.",
+      "TestRubricOptimizer: Test rubric weight optimization.",
+      "TestRewardShaper: Test the main RewardShaper orchestrator.",
+      "TestAuditorIntegration: Test integration with v1 Auditor.",
+      "TestVectorStore: Test vector embedding and similarity computation.",
+      "TestEmergenceMonitor: Test swarm anomaly detection.",
+      "TestTriageAnomalyIntegration: Test integration with v1 Triage.",
+      "TestAgentPool: Test agent pool management.",
+      "TestEvolvableOrchestrator: Test evolvable orchestrator.",
+      "TestV2Integration: Test integration between v2 components."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_register_agent",
+    "TestRubricOptimizer",
+    "TestTriageAnomalyIntegration",
+    "TestV2Integration",
+    "TestRewardShaper",
+    "test_max_delta_clipping",
+    "TestAuditorIntegration",
+    "test_initialization",
+    "test_cosine_similarity_identical",
+    "test_rollback",
+    "TestAgentPool",
+    "TestEvolvableOrchestrator",
+    "test_auditor_to_reward_signal_lazy",
+    "test_triage_safe",
+    "test_update_performance",
+    "test_non_negative_constraint",
+    "TestFeedbackAnalyzer",
+    "TestVectorStore",
+    "test_apply_gradient_basic",
+    "test_auditor_to_reward_signal_not_lazy",
+    "test_find_replacement",
+    "test_cosine_similarity_different",
+    "test_triage_critical_anomaly",
+    "test_tier_inference",
+    "test_get_evolution_stats",
+    "TestEmergenceMonitor",
+    "test_embed_deterministic"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "asyncio",
+      "datetime",
+      "src.kernel.evolution",
+      "src.kernel.governance_v2",
+      "src.agents.swarm",
+      "src.kernel.schemas",
+      "src.agents.orchestrator",
+      "src.kernel.schemas"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_verbose_feedback",
+      "line": 48,
+      "doc": "Test detection of verbosity feedback.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_thoroughness_feedback",
+      "line": 59,
+      "doc": "Test detection of thoroughness feedback.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_positive_feedback",
+      "line": 70,
+      "doc": "Test that positive feedback doesn't change weights.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_apply_gradient_basic",
+      "line": 83,
+      "doc": "Test basic gradient application.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_non_negative_constraint",
+      "line": 105,
+      "doc": "Test that weights stay non-negative.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_max_delta_clipping",
+      "line": 124,
+      "doc": "Test that changes are clipped to max_delta.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_shape_reward_basic",
+      "line": 149,
+      "doc": "Test basic reward shaping workflow.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evolution_history",
+      "line": 168,
+      "doc": "Test that evolution history is tracked.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rollback",
+      "line": 186,
+      "doc": "Test rubric rollback functionality.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_auditor_to_reward_signal_lazy",
+      "line": 218,
+      "doc": "Test conversion of laziness detection to reward signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_auditor_to_reward_signal_not_lazy",
+      "line": 225,
+      "doc": "Test conversion when no laziness detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_embed_deterministic",
+      "line": 239,
+      "doc": "Test that embeddings are deterministic.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cosine_similarity_identical",
+      "line": 250,
+      "doc": "Test similarity of identical vectors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cosine_similarity_different",
+      "line": 261,
+      "doc": "Test similarity of different vectors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cycle_detection",
+      "line": 278,
+      "doc": "Test detection of infinite loops.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_drift_detection",
+      "line": 305,
+      "doc": "Test detection of goal drift.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_echo_chamber_detection",
+      "line": 331,
+      "doc": "Test detection of repetitive content.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_escalation_spiral_detection",
+      "line": 360,
+      "doc": "Test detection of escalation spirals.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_triage_critical_anomaly",
+      "line": 397,
+      "doc": "Test triage of critical anomalies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_triage_safe",
+      "line": 411,
+      "doc": "Test triage of safe state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_agent",
+      "line": 431,
+      "doc": "Test agent registration.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_update_performance",
+      "line": 447,
+      "doc": "Test performance tracking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_find_replacement",
+      "line": 467,
+      "doc": "Test finding replacement agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_initialization",
+      "line": 496,
+      "doc": "Test orchestrator initialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tier_inference",
+      "line": 516,
+      "doc": "Test agent tier inference.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_force_swap",
+      "line": 532,
+      "doc": "Test manual agent swapping.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_evolution_stats",
+      "line": 563,
+      "doc": "Test evolution statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_reward_shaper_to_orchestrator",
+      "line": 592,
+      "doc": "Test flow from RewardShaper to EvolvableOrchestrator.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_emergence_monitor_to_triage",
+      "line": 626,
+      "doc": "Test flow from EmergenceMonitor to triage.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestFeedbackAnalyzer",
+      "line": 44,
+      "doc": "Test feedback analysis and correction vector extraction.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRubricOptimizer",
+      "line": 80,
+      "doc": "Test rubric weight optimization.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRewardShaper",
+      "line": 145,
+      "doc": "Test the main RewardShaper orchestrator.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditorIntegration",
+      "line": 215,
+      "doc": "Test integration with v1 Auditor.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVectorStore",
+      "line": 236,
+      "doc": "Test vector embedding and similarity computation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEmergenceMonitor",
+      "line": 274,
+      "doc": "Test swarm anomaly detection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTriageAnomalyIntegration",
+      "line": 394,
+      "doc": "Test integration with v1 Triage.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentPool",
+      "line": 428,
+      "doc": "Test agent pool management.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvolvableOrchestrator",
+      "line": 493,
+      "doc": "Test evolvable orchestrator.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestV2Integration",
+      "line": 588,
+      "doc": "Test integration between v2 components.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 15,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic"
+    ]
+  }
+}

@@ -1,0 +1,496 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/guardrails_adapter.py",
+  "extension": ".py",
+  "size_bytes": 13105,
+  "line_count": 394,
+  "documentation": {
+    "file_docstring": "Guardrails AI Bridge for Agent-OS\n===================================\n\nBridges Guardrails AI validators with Agent-OS policy enforcement.\n\nAgent-OS enforces your Guardrails AI validators at the kernel level \u2014\npolicy violations trigger Agent-OS signals (SIGKILL, SIGPOLICYVIOLATION).\n\nWorks without importing guardrails \u2014 uses a Protocol interface so you can\nplug in any validator that implements ``validate(value) -> ValidationOutcome``.\n\nExample:\n    >>> from agent_os.integrations.guardrails_adapter import GuardrailsKernel\n    >>>\n    >>> kernel = GuardrailsKernel(\n    ...     validators=[PIIValidator(), ToxicityValidator()],\n    ...     on_fail=\"block\",  # or \"warn\", \"fix\"\n    ... )\n    >>>\n    >>> result = kernel.validate_input(\"My SSN is 123-45-6789\")\n    >>> assert not result.passed  # PII detected\n    >>>\n    >>> result = kernel.validate_output(\"Safe response text\")\n    >>> assert result.passed",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "------------------------------------------------------------------",
+      "Validator Protocol (no guardrails import required)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Built-in simple validators (no guardrails dependency)",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Guardrails Kernel",
+      "------------------------------------------------------------------",
+      "Handle both our ValidationOutcome and Guardrails AI objects",
+      "Duck-type: expect .outcome / .validated_output / .error_message",
+      "Apply fixes from validators that provide them"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FailAction: What to do when a validator fails.",
+      "ValidatorProtocol: Protocol for Guardrails AI validators (or any compatible validator).\n\nA validato",
+      "ValidationOutcome: Result of a single validator check.",
+      "ValidationResult: Aggregated result across all validators.",
+      "RegexValidator: Block content matching regex patterns.",
+      "LengthValidator: Enforce content length limits.",
+      "KeywordValidator: Block content containing specific keywords.",
+      "GuardrailsKernel: Agent-OS governance kernel backed by Guardrails AI validators.\n\nValidates inputs",
+      "to_dict: Serialise this outcome to a plain dictionary.\n\nReturns:\n    A dict with validato",
+      "failed_validators: Return the names of all validators that did not pass.\n\nReturns:\n    List of vali"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ValidatorProtocol",
+    "ValidationResult",
+    "name",
+    "FailAction",
+    "LengthValidator",
+    "GuardrailsKernel",
+    "RegexValidator",
+    "failed_validators",
+    "to_dict",
+    "add_validator",
+    "validate_input",
+    "reset",
+    "KeywordValidator",
+    "ValidationOutcome",
+    "validate",
+    "get_history",
+    "validate_output",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing",
+      "re"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "name",
+      "line": 64,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value",
+        "metadata"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "to_dict",
+      "line": 79,
+      "doc": "Serialise this outcome to a plain dictionary.\n\nReturns:\n    A dict with validator, passed, and optionally error\n    and fixed_value keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "failed_validators",
+      "line": 109,
+      "doc": "Return the names of all validators that did not pass.\n\nReturns:\n    List of validator name strings where passed is False.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 117,
+      "doc": "Serialise this aggregated result to a plain dictionary.\n\nReturns:\n    A dict with passed, action, outcomes, and failed_validators keys.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "patterns",
+        "validator_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 146,
+      "doc": "Return the human-readable name of this regex validator.\n\nReturns:\n    The validator name string used in audit logs and outcomes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate",
+      "line": 154,
+      "doc": "Validate a string by checking it against blocked regex patterns.\n\nArgs:\n    value: The text to scan.\n    metadata: Optional dict of additional context (unused).\n\nReturns:\n    ValidationOutcome indicating pass or fail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value",
+        "metadata"
+      ],
+      "returns": "ValidationOutcome"
+    },
+    {
+      "name": "__init__",
+      "line": 179,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_length",
+        "validator_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 184,
+      "doc": "Return the human-readable name of this length validator.\n\nReturns:\n    The validator name string used in audit logs and outcomes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate",
+      "line": 192,
+      "doc": "Validate that a string does not exceed the configured max length.\n\nArgs:\n    value: The text to check.\n    metadata: Optional dict of additional context (unused).\n\nReturns:\n    ValidationOutcome with a fixed_value truncated to max_length on fail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value",
+        "metadata"
+      ],
+      "returns": "ValidationOutcome"
+    },
+    {
+      "name": "__init__",
+      "line": 215,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "blocked_keywords",
+        "validator_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "name",
+      "line": 220,
+      "doc": "Return the human-readable name of this keyword validator.\n\nReturns:\n    The validator name string used in audit logs and outcomes.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate",
+      "line": 228,
+      "doc": "Validate that a string contains none of the blocked keywords.\n\nArgs:\n    value: The text to scan (case-insensitive).\n    metadata: Optional dict of additional context (unused).\n\nReturns:\n    ValidationOutcome indicating pass or fail.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value",
+        "metadata"
+      ],
+      "returns": "ValidationOutcome"
+    },
+    {
+      "name": "__init__",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "validators",
+        "on_fail",
+        "on_violation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_default_violation_handler",
+      "line": 273,
+      "doc": "Default handler called when one or more validators fail.\n\nLogs a warning for each failed validator name. Override by\npassing a custom on_violation callable to GuardrailsKernel.\n\nArgs:\n    result: The aggregated ValidationResult.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_validator",
+      "line": 285,
+      "doc": "Add a validator to the chain.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "validator"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_run_validators",
+      "line": 289,
+      "doc": "Run all validators against a value.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate",
+      "line": 321,
+      "doc": "Validate a value against all validators.\n\nReturns a ValidationResult with aggregated outcomes and the action taken.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_input",
+      "line": 356,
+      "doc": "Validate agent input (user query, tool arguments, etc.).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "validate_output",
+      "line": 360,
+      "doc": "Validate agent output (response text, tool results, etc.).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "text"
+      ],
+      "returns": "ValidationResult"
+    },
+    {
+      "name": "get_history",
+      "line": 364,
+      "doc": "Return all validation results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 368,
+      "doc": "Return guardrails statistics.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reset",
+      "line": 380,
+      "doc": "Clear validation history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FailAction",
+      "line": 46,
+      "doc": "What to do when a validator fails.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ValidatorProtocol",
+      "line": 55,
+      "doc": "Protocol for Guardrails AI validators (or any compatible validator).\n\nA validator must implement ``validate(value, metadata)`` and return\na ``ValidationResult``-like object with ``outcome`` and ``error_message``.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": [
+        "runtime_checkable"
+      ]
+    },
+    {
+      "name": "ValidationOutcome",
+      "line": 70,
+      "doc": "Result of a single validator check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ValidationResult",
+      "line": 98,
+      "doc": "Aggregated result across all validators.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RegexValidator",
+      "line": 136,
+      "doc": "Block content matching regex patterns.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LengthValidator",
+      "line": 176,
+      "doc": "Enforce content length limits.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "KeywordValidator",
+      "line": 212,
+      "doc": "Block content containing specific keywords.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "GuardrailsKernel",
+      "line": 254,
+      "doc": "Agent-OS governance kernel backed by Guardrails AI validators.\n\nValidates inputs and outputs against a chain of validators.\nFailed validations are recorded and trigger configurable actions.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

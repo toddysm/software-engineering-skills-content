@@ -1,0 +1,630 @@
+{
+  "path": "packages/agent-os/examples/self-evaluating/src/universal_signal_bus.py",
+  "extension": ".py",
+  "size_bytes": 22580,
+  "line_count": 612,
+  "documentation": {
+    "file_docstring": "Universal Signal Bus - Omni-Channel Ingestion\n\nThis module implements an \"Input Agnostic\" architecture where the agent\ncan accept signals from ANY source - not just text queries.\n\nThe Interface Layer sits above the Agent and normalizes wild, unstructured\nsignals into a standard Context Object.\n\nSources can include:\n- File Change Events (VS Code, IDE)\n- Log Streams (System errors, 500 errors)\n- Audio Streams (Voice, Meetings)\n- Traditional Text Input (backward compatibility)\n- API Events, DOM Events, Clickstream, etc.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Core fields",
+      "Primary content (what the user/system wants)",
+      "Context fields",
+      "Source tracking",
+      "Priority and urgency",
+      "Extract intent from the file change",
+      "Create a query that describes the change",
+      "Determine priority based on file type and change",
+      "For modifications, create a diff-like description",
+      "Critical files",
+      "Deletions are potentially dangerous",
+      "Large changes might need review",
+      "Extract intent from log",
+      "Create query",
+      "Assess urgency based on log level and content",
+      "Critical errors need immediate attention",
+      "Server errors (500s) are high priority",
+      "Regular errors",
+      "Warnings",
+      "Extract intent from transcript",
+      "Use transcript as query",
+      "Assess urgency",
+      "Common voice commands",
+      "Urgent keywords",
+      "Help requests",
+      "Auto-detect signal type if not provided",
+      "Get appropriate normalizer",
+      "Validate signal",
+      "Normalize the signal",
+      "Store in history",
+      "Check for explicit signal_type field",
+      "Heuristic detection based on field names",
+      "Default to TEXT if we have any string content",
+      "Filter by type if specified",
+      "Limit if specified"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "SignalType: Types of signals that can be ingested.",
+      "ContextObject: Standard Context Object that all signals are normalized into.\n\nThis is the \"Inte",
+      "SignalNormalizer: Protocol (interface) for signal normalizers.\n\nEach signal type implements this p",
+      "TextSignalNormalizer: Normalizer for traditional text input (backward compatibility).",
+      "FileChangeSignalNormalizer: Normalizer for file change events from IDEs like VS Code.\n\nThe \"Passive\" Input: ",
+      "LogStreamSignalNormalizer: Normalizer for system log streams.\n\nThe \"System\" Input: The server is throwing 5",
+      "AudioStreamSignalNormalizer: Normalizer for audio/voice streams.\n\nThe \"Audio\" Input: The user is in a meeting",
+      "UniversalSignalBus: Central orchestrator for omni-channel signal ingestion.\n\nThis is the \"Universal ",
+      "create_signal_from_text: Helper: Create a text signal from a string.",
+      "create_signal_from_file_change: Helper: Create a file change signal."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "create_signal_from_log",
+    "normalize",
+    "to_dict",
+    "clear_history",
+    "to_json",
+    "UniversalSignalBus",
+    "ContextObject",
+    "create_signal_from_audio",
+    "LogStreamSignalNormalizer",
+    "batch_ingest",
+    "SignalNormalizer",
+    "create_signal_from_text",
+    "TextSignalNormalizer",
+    "validate",
+    "get_history",
+    "FileChangeSignalNormalizer",
+    "ingest",
+    "register_normalizer",
+    "create_signal_from_file_change",
+    "AudioStreamSignalNormalizer",
+    "SignalType"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "dataclasses",
+      "typing",
+      "datetime",
+      "enum",
+      "json"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_signal_from_text",
+      "line": 567,
+      "doc": "Helper: Create a text signal from a string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "text",
+        "user_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_signal_from_file_change",
+      "line": 576,
+      "doc": "Helper: Create a file change signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "file_path",
+        "change_type",
+        "content_before",
+        "content_after"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_signal_from_log",
+      "line": 591,
+      "doc": "Helper: Create a log stream signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "level",
+        "message",
+        "error_code"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_signal_from_audio",
+      "line": 604,
+      "doc": "Helper: Create an audio stream signal.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "transcript",
+        "speaker_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 67,
+      "doc": "Convert to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_json",
+      "line": 82,
+      "doc": "Convert to JSON string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "normalize",
+      "line": 95,
+      "doc": "Normalize a raw signal into a standard ContextObject.\n\nArgs:\n    raw_signal: Raw signal data from the source\n    \nReturns:\n    ContextObject: Normalized context object",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "ContextObject"
+    },
+    {
+      "name": "validate",
+      "line": 107,
+      "doc": "Validate if the raw signal has required fields.\n\nArgs:\n    raw_signal: Raw signal data to validate\n    \nReturns:\n    bool: True if valid, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "normalize",
+      "line": 123,
+      "doc": "Convert text input to ContextObject.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "ContextObject"
+    },
+    {
+      "name": "validate",
+      "line": 140,
+      "doc": "Validate text signal has required fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "normalize",
+      "line": 152,
+      "doc": "Convert file change event to ContextObject.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "ContextObject"
+    },
+    {
+      "name": "validate",
+      "line": 188,
+      "doc": "Validate file change signal has required fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_extract_intent",
+      "line": 192,
+      "doc": "Extract high-level intent from file change.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "change_type",
+        "file_path",
+        "content_before",
+        "content_after"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_create_query",
+      "line": 208,
+      "doc": "Create a natural language query describing the change.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "change_type",
+        "file_path",
+        "content_before",
+        "content_after"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_assess_urgency",
+      "line": 230,
+      "doc": "Assess priority and urgency of the file change.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path",
+        "change_type",
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "normalize",
+      "line": 255,
+      "doc": "Convert log stream event to ContextObject.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "ContextObject"
+    },
+    {
+      "name": "validate",
+      "line": 291,
+      "doc": "Validate log stream signal has required fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_extract_intent",
+      "line": 295,
+      "doc": "Extract intent from log entry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "log_level",
+        "message",
+        "error_code"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_create_query",
+      "line": 312,
+      "doc": "Create query from log entry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "log_level",
+        "message",
+        "error_code"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_assess_urgency",
+      "line": 320,
+      "doc": "Assess urgency of log entry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "log_level",
+        "message",
+        "error_code"
+      ],
+      "returns": null
+    },
+    {
+      "name": "normalize",
+      "line": 349,
+      "doc": "Convert audio stream event to ContextObject.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "ContextObject"
+    },
+    {
+      "name": "validate",
+      "line": 383,
+      "doc": "Validate audio signal has required fields.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_extract_intent",
+      "line": 387,
+      "doc": "Extract intent from audio transcript.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "transcript"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_assess_urgency",
+      "line": 401,
+      "doc": "Assess urgency of audio input.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "transcript",
+        "duration"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 427,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_register_default_normalizers",
+      "line": 432,
+      "doc": "Register default signal normalizers.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_normalizer",
+      "line": 439,
+      "doc": "Register a signal normalizer for a specific signal type.\n\nArgs:\n    signal_type: Type of signal this normalizer handles\n    normalizer: Normalizer instance",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signal_type",
+        "normalizer"
+      ],
+      "returns": null
+    },
+    {
+      "name": "ingest",
+      "line": 450,
+      "doc": "Ingest a raw signal and normalize it to a ContextObject.\n\nThis is the main entry point. ANY signal type can be ingested here.\n\nArgs:\n    raw_signal: Raw signal data from any source\n    signal_type: Optional signal type hint. If not provided, will auto-detect.\n    \nReturns:\n    ContextObject: Normalized context object ready for the agent\n    \nRaises:\n    ValueError: If signal type is not supported or cannot be detected",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal",
+        "signal_type"
+      ],
+      "returns": "ContextObject"
+    },
+    {
+      "name": "_detect_signal_type",
+      "line": 488,
+      "doc": "Auto-detect signal type from raw signal structure.\n\nArgs:\n    raw_signal: Raw signal data\n    \nReturns:\n    SignalType: Detected signal type\n    \nRaises:\n    ValueError: If signal type cannot be detected",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signal"
+      ],
+      "returns": "SignalType"
+    },
+    {
+      "name": "batch_ingest",
+      "line": 526,
+      "doc": "Ingest multiple signals in batch.\n\nArgs:\n    raw_signals: List of raw signal data\n    \nReturns:\n    List[ContextObject]: List of normalized context objects",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "raw_signals"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_history",
+      "line": 538,
+      "doc": "Get event history, optionally filtered.\n\nArgs:\n    limit: Maximum number of events to return (most recent first)\n    signal_type: Filter by signal type\n    \nReturns:\n    List[ContextObject]: Event history",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit",
+        "signal_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_history",
+      "line": 562,
+      "doc": "Clear event history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "SignalType",
+      "line": 27,
+      "doc": "Types of signals that can be ingested.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ContextObject",
+      "line": 40,
+      "doc": "Standard Context Object that all signals are normalized into.\n\nThis is the \"Intent Object\" that the Agent understands.\nAll signal types are converted into this standard format.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "SignalNormalizer",
+      "line": 87,
+      "doc": "Protocol (interface) for signal normalizers.\n\nEach signal type implements this protocol to convert\nits specific format into a standard ContextObject.",
+      "is_public": true,
+      "bases": [
+        "Protocol"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TextSignalNormalizer",
+      "line": 120,
+      "doc": "Normalizer for traditional text input (backward compatibility).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "FileChangeSignalNormalizer",
+      "line": 145,
+      "doc": "Normalizer for file change events from IDEs like VS Code.\n\nThe \"Passive\" Input: The user is coding in VS Code. The signal is the File Change Event.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "LogStreamSignalNormalizer",
+      "line": 248,
+      "doc": "Normalizer for system log streams.\n\nThe \"System\" Input: The server is throwing 500 errors. The signal is the Log Stream.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AudioStreamSignalNormalizer",
+      "line": 342,
+      "doc": "Normalizer for audio/voice streams.\n\nThe \"Audio\" Input: The user is in a meeting. The signal is the Voice Stream.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "UniversalSignalBus",
+      "line": 416,
+      "doc": "Central orchestrator for omni-channel signal ingestion.\n\nThis is the \"Universal Signal Bus\" - a managed service that accepts\nany stream (audio, logs, clickstream, DOM events) and normalizes them\ninto a standard Context Object for AI agents.\n\nThe entry point is not a UI component; it is a Signal Normalizer.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 98,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

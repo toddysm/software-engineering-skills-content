@@ -1,0 +1,766 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/control_plane.py",
+  "extension": ".py",
+  "size_bytes": 33215,
+  "line_count": 854,
+  "documentation": {
+    "file_docstring": "Agent Control Plane - Main Interface\n\nLayer 3: The Framework - The Governance Layer\n\nThe main control plane that integrates all components:\n- Agent Kernel (via KernelInterface for dependency injection)\n- Policy Engine\n- Execution Engine\n- Audit System\n- Shadow Mode (simulation)\n- Validators (via ValidatorInterface - MuteAgent pattern is now optional)\n- Constraint Graphs (multi-dimensional)\n- Supervisor Agents (via SupervisorInterface)\n\nAllowed Dependencies:\n- iatp (for message security)\n- cmvk (for verification)\n- caas (for context routing)\n\nForbidden Dependencies:\n- scak (should implement KernelInterface instead)\n- mute-agent as hard dependency (should use ValidatorInterface)\n\nPattern: Components are injected at runtime via PluginRegistry.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Import interfaces for dependency injection",
+      "Import plugin registry for dependency injection",
+      "Import mute_agent for backward compatibility (deprecated pattern)",
+      "New code should use PluginRegistry to register validators",
+      "Get the registry",
+      "Register custom kernel (e.g., SCAK)",
+      "Register validators",
+      "Create control plane (will use registered components)",
+      "Plugin registry integration",
+      "Use injected kernel or fall back to default AgentKernel",
+      "Wrap custom kernel in compatibility layer",
+      "Wire the policy engine into the kernel so intercept_tool_execution works",
+      "Shadow Mode for simulation",
+      "Validators (replaces hard-coded mute_validators)",
+      "Support both legacy MuteAgentValidator and new ValidatorInterface",
+      "Protocol integrations (iatp, cmvk, caas)",
+      "Constraint Graphs",
+      "Supervisor Network",
+      "Agent Hibernation (Serverless Agents)",
+      "Time-Travel Debugging",
+      "Pass FlightRecorder if kernel has audit_logger",
+      "Register default executors",
+      "Add default policies if requested",
+      "Create agent session in kernel",
+      "Set quota if provided",
+      "Create a temporary request for validation",
+      "1a. Validate against registered validators (new pattern)",
+      "1b. Validate against legacy Mute Agent capabilities (backward compatibility)",
+      "2. Submit request to kernel for permission check",
+      "3. Validate against Constraint Graphs (if enabled)",
+      "4. Validate with policy engine",
+      "5. Validate risk level",
+      "6. Execute in Shadow Mode or Real Mode",
+      "Shadow mode: simulate without executing",
+      "Real execution",
+      "Update kernel with execution result",
+      "===== New Methods for Advanced Features =====",
+      "===== Plugin Registry Integration Methods =====",
+      "Also register with plugin registry if available",
+      "Also register with plugin registry if available",
+      "Constraint Graph methods",
+      "===== Agent Hibernation Methods (Serverless Agents) =====",
+      "Get agent context from active sessions",
+      "Remove from active sessions",
+      "===== Time-Travel Debugging Methods =====",
+      "Convert agent context to serializable state",
+      "Convenience functions for common operations"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentControlPlane: Agent Control Plane - Main interface for governed agent execution\n\nLayer 3: The ",
+      "create_read_only_agent: Create an agent with read-only permissions",
+      "create_standard_agent: Create an agent with standard permissions",
+      "create_admin_agent: Create an agent with admin permissions",
+      "__init__: Initialize the Agent Control Plane.\n\nArgs:\n    enable_default_policies: Whether ",
+      "create_agent: Create a new agent with specified permissions and quotas\n\nArgs:\n    agent_id: Un",
+      "execute_action: Execute an action on behalf of an agent\n\nThis is the main entry point for agent ",
+      "add_policy_rule: Add a custom policy rule",
+      "set_agent_quota: Set resource quota for an agent",
+      "set_risk_policy: Set a risk policy"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "get_shadow_simulations",
+    "add_supervisor",
+    "create_agent",
+    "run_supervision",
+    "create_read_only_agent",
+    "add_data_path",
+    "capture_agent_state_snapshot",
+    "enable_mute_agent",
+    "set_risk_policy",
+    "get_agent_status",
+    "wake_agent",
+    "record_agent_activity",
+    "replay_agent_history",
+    "create_standard_agent",
+    "register_validator",
+    "get_shadow_statistics",
+    "get_execution_history",
+    "set_agent_quota",
+    "register_verifier",
+    "get_constraint_validation_log",
+    "get_registered_validators",
+    "execute_action",
+    "enable_shadow_mode",
+    "register_context_router",
+    "add_policy_constraint",
+    "get_hibernation_statistics",
+    "get_audit_log",
+    "get_plugin_registry",
+    "add_maintenance_window",
+    "get_supervisor_summary",
+    "is_agent_hibernated",
+    "create_admin_agent",
+    "hibernate_agent",
+    "get_replay_summary",
+    "add_policy_rule",
+    "register_kernel",
+    "hibernate_idle_agents",
+    "register_message_security",
+    "add_data_table",
+    "get_time_travel_statistics",
+    "AgentControlPlane"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "datetime",
+      "warnings",
+      "agent_kernel",
+      "policy_engine",
+      "execution_engine",
+      "example_executors",
+      "shadow_mode",
+      "constraint_graphs",
+      "supervisor_agents",
+      "agent_hibernation",
+      "time_travel_debugger",
+      "interfaces.kernel_interface",
+      "interfaces.plugin_interface",
+      "interfaces.protocol_interfaces",
+      "plugin_registry",
+      "mute_agent"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_read_only_agent",
+      "line": 797,
+      "doc": "Create an agent with read-only permissions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id"
+      ],
+      "returns": "AgentContext"
+    },
+    {
+      "name": "create_standard_agent",
+      "line": 814,
+      "doc": "Create an agent with standard permissions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id"
+      ],
+      "returns": "AgentContext"
+    },
+    {
+      "name": "create_admin_agent",
+      "line": 840,
+      "doc": "Create an agent with admin permissions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "control_plane",
+        "agent_id"
+      ],
+      "returns": "AgentContext"
+    },
+    {
+      "name": "__init__",
+      "line": 116,
+      "doc": "Initialize the Agent Control Plane.\n\nArgs:\n    enable_default_policies: Whether to load default security policies\n    enable_shadow_mode: Whether to enable shadow/simulation mode\n    enable_constraint_graphs: Whether to enable constraint graph validation\n    enable_hibernation: Whether to enable agent hibernation (serverless agents)\n    enable_time_travel: Whether to enable time-travel debugging\n    use_plugin_registry: If True, use components from PluginRegistry\n    kernel: Optional custom kernel implementing KernelInterface\n    validators: Optional list of validators implementing ValidatorInterface\n    context_router: Optional context router for caas integration\n    message_security: Optional message security provider for iatp integration\n    verifier: Optional verifier for cmvk integration\n    hibernation_config: Optional configuration for hibernation\n    time_travel_config: Optional configuration for time-travel debugging",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "enable_default_policies",
+        "enable_shadow_mode",
+        "enable_constraint_graphs",
+        "enable_hibernation",
+        "enable_time_travel",
+        "use_plugin_registry",
+        "kernel",
+        "validators",
+        "context_router",
+        "message_security",
+        "verifier",
+        "hibernation_config",
+        "time_travel_config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_agent",
+      "line": 246,
+      "doc": "Create a new agent with specified permissions and quotas\n\nArgs:\n    agent_id: Unique identifier for the agent\n    permissions: Dictionary of action types to permission levels\n    quota: Resource quota for the agent\n    \nReturns:\n    AgentContext for the created agent session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "permissions",
+        "quota"
+      ],
+      "returns": "AgentContext"
+    },
+    {
+      "name": "execute_action",
+      "line": 272,
+      "doc": "Execute an action on behalf of an agent\n\nThis is the main entry point for agent actions. It goes through\nthe complete governance pipeline:\n1. Validator validation (includes legacy Mute Agent support)\n2. Permission check (Kernel)\n3. Constraint Graph validation (if enabled)\n4. Policy validation (Policy Engine)\n5. Risk assessment (Kernel)\n6. Rate limiting (Policy Engine)\n7. Shadow Mode or Real Execution\n8. Audit logging (Kernel)\n\nArgs:\n    agent_context: Context for the agent making the request\n    action_type: Type of action to execute\n    parameters: Parameters for the action\n    execution_context: Optional execution context (sandboxing, timeouts, etc.)\n    reasoning_chain: Optional reasoning steps that led to this action\n    \nReturns:\n    Dictionary with execution results and metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_context",
+        "action_type",
+        "parameters",
+        "execution_context",
+        "reasoning_chain"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_policy_rule",
+      "line": 410,
+      "doc": "Add a custom policy rule",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_agent_quota",
+      "line": 415,
+      "doc": "Set resource quota for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "quota"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_risk_policy",
+      "line": 419,
+      "doc": "Set a risk policy",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy_id",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_agent_status",
+      "line": 423,
+      "doc": "Get comprehensive status for an agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_audit_log",
+      "line": 434,
+      "doc": "Get audit log entries",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_execution_history",
+      "line": 438,
+      "doc": "Get execution history",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_register_default_executors",
+      "line": 446,
+      "doc": "Register default executors for common action types",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_add_default_policies",
+      "line": 452,
+      "doc": "Add default security policies",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "enable_mute_agent",
+      "line": 459,
+      "doc": "Enable Mute Agent mode for an agent.\n\nThe agent will only execute actions that match its defined capabilities\nand return NULL for out-of-scope requests.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "enable_shadow_mode",
+      "line": 468,
+      "doc": "Enable or disable shadow mode for all executions.\n\nIn shadow mode, actions are simulated but not actually executed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "enabled"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_shadow_simulations",
+      "line": 477,
+      "doc": "Get shadow mode simulation log",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_shadow_statistics",
+      "line": 481,
+      "doc": "Get statistics about shadow mode executions",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_supervisor",
+      "line": 485,
+      "doc": "Add a supervisor agent to monitor worker agents",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "supervisor"
+      ],
+      "returns": null
+    },
+    {
+      "name": "run_supervision",
+      "line": 489,
+      "doc": "Run a supervision cycle to check for violations.\n\nReturns violations detected by all supervisors.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_supervisor_summary",
+      "line": 499,
+      "doc": "Get summary of supervisor network activity",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_validator",
+      "line": 505,
+      "doc": "Register a validator with the control plane.\n\nThis is the preferred method for adding validators instead of\nusing enable_mute_agent() directly.\n\nArgs:\n    validator: Validator implementing ValidatorInterface\n    action_types: Optional list of action types this validator handles",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "validator",
+        "action_types"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_kernel",
+      "line": 526,
+      "doc": "Register a custom kernel with the control plane.\n\nThis allows injecting custom kernels like SCAK without hard imports.\n\nArgs:\n    kernel: Kernel implementing KernelInterface",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_context_router",
+      "line": 541,
+      "doc": "Register a context router for caas integration.\n\nArgs:\n    router: Context router implementing ContextRouterInterface",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "router"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_message_security",
+      "line": 556,
+      "doc": "Register a message security provider for iatp integration.\n\nArgs:\n    security: Security provider implementing MessageSecurityInterface",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "security"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_verifier",
+      "line": 568,
+      "doc": "Register a verifier for cmvk integration.\n\nArgs:\n    verifier: Verifier implementing VerificationInterface",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "verifier"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_registered_validators",
+      "line": 580,
+      "doc": "Get all registered validators",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_plugin_registry",
+      "line": 584,
+      "doc": "Get the plugin registry if enabled",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_data_table",
+      "line": 590,
+      "doc": "Add a database table to the data graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "table_name",
+        "schema",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_data_path",
+      "line": 595,
+      "doc": "Add a file path to the data graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path",
+        "access_level",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_policy_constraint",
+      "line": 600,
+      "doc": "Add a policy constraint to the policy graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule_id",
+        "name",
+        "applies_to",
+        "rule_type"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_maintenance_window",
+      "line": 605,
+      "doc": "Add a maintenance window to the temporal graph",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "window_id",
+        "start_time",
+        "end_time",
+        "blocked_actions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_constraint_validation_log",
+      "line": 610,
+      "doc": "Get log of constraint graph validations",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "hibernate_agent",
+      "line": 618,
+      "doc": "Hibernate an agent by serializing its state to disk.\n\nThis implements the \"Serverless Agents\" pattern - agents sitting idle\nin memory are hibernated to disk, removing the need for \"always-on\" servers.\n\nArgs:\n    agent_id: Agent identifier\n    agent_context: Agent context to hibernate\n    caas_pointer: Optional pointer to context in caas (Context-as-a-Service)\n    additional_state: Optional additional state to serialize\n    \nReturns:\n    Metadata about the hibernated agent",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "agent_context",
+        "caas_pointer",
+        "additional_state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "wake_agent",
+      "line": 647,
+      "doc": "Wake up a hibernated agent and restore its state.\n\nArgs:\n    agent_id: Agent identifier to wake\n    \nReturns:\n    Restored agent state",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_agent_hibernated",
+      "line": 662,
+      "doc": "Check if an agent is currently hibernated",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_agent_activity",
+      "line": 669,
+      "doc": "Record activity for an agent (resets idle timer)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "hibernate_idle_agents",
+      "line": 674,
+      "doc": "Automatically hibernate agents that have been idle.\n\nArgs:\n    min_idle_seconds: Minimum idle time (uses config default if None)\n    \nReturns:\n    List of agent IDs that were hibernated",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_idle_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_hibernation_statistics",
+      "line": 711,
+      "doc": "Get statistics about agent hibernation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "replay_agent_history",
+      "line": 720,
+      "doc": "Replay the last N minutes of an agent's life exactly as it happened.\n\nThis implements \"Time-Travel Debugging\" - re-run agent actions from history\nfor debugging and analysis.\n\nArgs:\n    agent_id: Agent identifier\n    minutes: Number of minutes to replay\n    callback: Optional callback for each replayed event\n    \nReturns:\n    ReplaySession for the replay",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "minutes",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "capture_agent_state_snapshot",
+      "line": 752,
+      "doc": "Capture a point-in-time snapshot of agent state for time-travel debugging.\n\nArgs:\n    agent_id: Agent identifier\n    agent_context: Agent context to snapshot\n    metadata: Optional metadata",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "agent_context",
+        "metadata"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_replay_summary",
+      "line": 779,
+      "doc": "Get summary of a replay session",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "session_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_time_travel_statistics",
+      "line": 786,
+      "doc": "Get statistics about time-travel debugging",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentControlPlane",
+      "line": 77,
+      "doc": "Agent Control Plane - Main interface for governed agent execution\n\nLayer 3: The Framework - The Governance Layer\n\nThis is the primary interface for applications to interact with\nthe control plane. It integrates all governance, safety, and\nexecution components including:\n- Shadow Mode for simulation\n- Validators (via ValidatorInterface - replaces hard-coded Mute Agent)\n- Constraint Graphs for multi-dimensional context\n- Supervisor Agents (via SupervisorInterface)\n\nDependency Injection:\n    Components can be injected via the PluginRegistry:\n    \n    ```python\n    from agent_control_plane import AgentControlPlane, PluginRegistry\n    \n    # Get the registry\n    registry = PluginRegistry()\n    \n    # Register custom kernel (e.g., SCAK)\n    registry.register_kernel(my_custom_kernel)\n    \n    # Register validators\n    registry.register_validator(my_validator, action_types=[\"code_execution\"])\n    \n    # Create control plane (will use registered components)\n    control_plane = AgentControlPlane(use_plugin_registry=True)\n    ```\n\nAllowed Protocol Dependencies:\n    - iatp: Inter-Agent Transport Protocol (message security)\n    - cmvk: Cryptographic Message Verification Kit\n    - caas: Context-as-a-Service (context routing)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 131,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

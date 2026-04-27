@@ -1,0 +1,380 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/trust/handshake.py",
+  "extension": ".py",
+  "size_bytes": 18265,
+  "line_count": 511,
+  "documentation": {
+    "file_docstring": "Trust Handshake\n\nEd25519 challenge/response handshake with registry-backed identity verification.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Agent attestation",
+      "Ed25519 signature and public key",
+      "User context for OBO flows",
+      "Metadata",
+      "Trust details",
+      "Capabilities",
+      "User context (propagated from OBO flow)",
+      "Timing",
+      "Rejection reason (if not verified)",
+      "V10: Limit pending challenges to prevent DoS accumulation",
+      "V10: Purge expired challenges and enforce limit",
+      "Generate nonce challenge",
+      "Get peer response",
+      "Verify nonce and basic checks",
+      "Sign the challenge+response payload with Ed25519",
+      "Build the peer's handshake instance with their real identity",
+      "Bind response to the expected peer DID to prevent DID substitution",
+      "Look up peer identity for public-key verification",
+      "Verify Ed25519 signature over the challenge payload",
+      "Verify public key matches the registered identity",
+      "Use registry-authoritative trust score \u2014 never trust self-reported value",
+      "Use registry-authoritative capabilities \u2014 never trust self-reported value"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HandshakeChallenge: Challenge issued during a trust handshake.",
+      "HandshakeResponse: Response to a handshake challenge.",
+      "HandshakeResult: Result of a trust handshake.",
+      "TrustHandshake: Ed25519 challenge/response trust handshake.\n\nVerifies:\n1. Agent identity (Ed2551",
+      "generate: Generate a new challenge with a random nonce.",
+      "is_expired: Check if the challenge has exceeded its time-to-live.",
+      "success: Create a successful handshake result.",
+      "failure: Create a failed handshake result.",
+      "_get_cached_result: Get cached verification result if still valid.",
+      "_cache_result: Cache a verification result with timestamp."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "clear_cache",
+    "is_expired",
+    "HandshakeChallenge",
+    "validate_challenge",
+    "HandshakeResult",
+    "success",
+    "generate",
+    "HandshakeResponse",
+    "failure",
+    "TrustHandshake",
+    "create_challenge"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "logging",
+      "secrets",
+      "asyncio",
+      "agentmesh.constants",
+      "agentmesh.identity.agent_id",
+      "agentmesh.identity.delegation",
+      "agentmesh.exceptions"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "generate",
+      "line": 36,
+      "doc": "Generate a new challenge with a random nonce.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_expired",
+      "line": 43,
+      "doc": "Check if the challenge has exceeded its time-to-live.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "success",
+      "line": 97,
+      "doc": "Create a successful handshake result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "peer_did",
+        "trust_score",
+        "capabilities",
+        "peer_name",
+        "started",
+        "user_context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "failure",
+      "line": 134,
+      "doc": "Create a failed handshake result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "peer_did",
+        "reason",
+        "started"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "identity",
+        "registry",
+        "cache_ttl_seconds",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_cached_result",
+      "line": 206,
+      "doc": "Get cached verification result if still valid.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_cache_result",
+      "line": 215,
+      "doc": "Cache a verification result with timestamp.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_purge_expired_challenges",
+      "line": 219,
+      "doc": "Remove expired challenges to prevent unbounded growth.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_cache",
+      "line": 228,
+      "doc": "Clear all cached peer verification results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "initiate",
+      "line": 232,
+      "doc": "Initiate a simple nonce-based handshake with a peer.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "protocol",
+        "required_trust_score",
+        "required_capabilities",
+        "use_cache"
+      ],
+      "returns": "HandshakeResult"
+    },
+    {
+      "name": "_do_initiate",
+      "line": 267,
+      "doc": "Execute the core handshake: generate nonce, verify it comes back.",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "required_trust_score",
+        "required_capabilities",
+        "start"
+      ],
+      "returns": "HandshakeResult"
+    },
+    {
+      "name": "respond",
+      "line": 325,
+      "doc": "Respond to a trust handshake challenge with an Ed25519 signature.\n\nThe response payload is signed with the agent's Ed25519 private key.\nThe verifier checks the signature against the agent's registered\npublic key, preventing DID fabrication.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "challenge",
+        "my_capabilities",
+        "my_trust_score",
+        "private_key",
+        "identity",
+        "user_context"
+      ],
+      "returns": "HandshakeResponse"
+    },
+    {
+      "name": "_get_peer_response",
+      "line": 367,
+      "doc": "Resolve peer identity from registry and produce a signed response.\n\nReturns ``None`` (causing handshake failure) when:\n- No registry is configured\n- The peer DID is not registered\n- The peer identity is not active (revoked/suspended/expired)",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_did",
+        "challenge"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_verify_response",
+      "line": 410,
+      "doc": "Verify handshake response with Ed25519 signature verification.\n\nChecks performed in order:\n1. Challenge ID matches\n2. Challenge not expired\n3. Response DID matches expected peer DID (if provided)\n4. Peer DID is registered and active\n5. Ed25519 signature is valid\n6. Public key matches registered identity\n7. Registry trust score meets threshold (never self-reported)\n8. Registry capabilities include all required capabilities",
+      "is_public": false,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "self",
+        "response",
+        "challenge",
+        "required_score",
+        "required_capabilities",
+        "expected_peer_did"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "create_challenge",
+      "line": 500,
+      "doc": "Create and register a new challenge.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "HandshakeChallenge"
+    },
+    {
+      "name": "validate_challenge",
+      "line": 506,
+      "doc": "Check if a challenge ID is valid and has not expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "challenge_id"
+      ],
+      "returns": "bool"
+    }
+  ],
+  "classes": [
+    {
+      "name": "HandshakeChallenge",
+      "line": 27,
+      "doc": "Challenge issued during a trust handshake.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HandshakeResponse",
+      "line": 49,
+      "doc": "Response to a handshake challenge.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "HandshakeResult",
+      "line": 71,
+      "doc": "Result of a trust handshake.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustHandshake",
+      "line": 156,
+      "doc": "Ed25519 challenge/response trust handshake.\n\nVerifies:\n1. Agent identity (Ed25519 signature over challenge nonce)\n2. Registry membership (peer must be registered and active)\n3. Trust score (threshold check)\n4. Capabilities (attestation)\n\nRequires an ``IdentityRegistry`` to resolve peer DIDs to their\ncryptographic identities.  Without a registry, all peers are rejected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 56,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

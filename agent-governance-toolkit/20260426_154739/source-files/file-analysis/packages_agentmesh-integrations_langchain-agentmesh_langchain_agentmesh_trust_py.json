@@ -1,0 +1,631 @@
+{
+  "path": "packages/agentmesh-integrations/langchain-agentmesh/langchain_agentmesh/trust.py",
+  "extension": ".py",
+  "size_bytes": 32922,
+  "line_count": 894,
+  "documentation": {
+    "file_docstring": "Trust verification and handshake protocols for AgentMesh.\n\nThis module provides trust verification between agents, including\nagent cards, handshakes, and scope chains.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Anchor trust to this verifier's identity.",
+      "Chain must terminate at the advertised peer identity.",
+      "Enforce deterministic linkage between adjacent delegations.",
+      "Check for cached result",
+      "Verify identity exists",
+      "Verify DID format",
+      "Verify card signature",
+      "Check trust score",
+      "Verify capabilities",
+      "Check scope chain if present",
+      "All checks passed",
+      "Cache result",
+      "Create delegation data for signing",
+      "Sign with delegator's identity",
+      "Track known identities",
+      "Check expiration",
+      "Verify signature",
+      "Get delegator identity",
+      "Verify delegation signature",
+      "Verify chain linkage (except for first delegation from root)",
+      "Check if delegation is still valid"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_canonical_json: Serialize JSON deterministically for signing and verification.",
+      "_delegation_signing_payload: Build the canonical delegation payload used for signatures.",
+      "_scope_chain_fingerprint: Generate deterministic digest for replay-window tracking.",
+      "TrustPolicy: Policy configuration for trust verification.",
+      "TrustVerificationResult: Result of a trust verification operation.",
+      "TrustedAgentCard: Agent card containing identity and trust information.\n\nUsed for agent discovery ",
+      "Delegation: A delegation of capabilities from one agent to another.",
+      "TrustHandshake: Handles trust verification between agents.",
+      "DelegationChain: Manages a chain of trust delegations.",
+      "AgentDirectory: Local directory for discovering trusted agents.\n\nProvides a framework-level regi"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "list_trusted",
+    "TrustPolicy",
+    "verify_scope_chain",
+    "to_dict",
+    "TrustedAgentCard",
+    "to_json",
+    "Delegation",
+    "TrustVerificationResult",
+    "get_delegated_capabilities",
+    "from_json",
+    "remove",
+    "AgentDirectory",
+    "verify_signature",
+    "sign",
+    "verify_peer",
+    "from_dict",
+    "find_by_capability",
+    "clear_cache",
+    "register",
+    "verify",
+    "find_by_did",
+    "add_delegation",
+    "DelegationChain",
+    "TrustHandshake",
+    "count"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "collections",
+      "dataclasses",
+      "datetime",
+      "hashlib",
+      "threading",
+      "typing",
+      "langchain_agentmesh.identity"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_canonical_json",
+      "line": 27,
+      "doc": "Serialize JSON deterministically for signing and verification.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_delegation_signing_payload",
+      "line": 32,
+      "doc": "Build the canonical delegation payload used for signatures.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "delegator",
+        "delegatee",
+        "capabilities",
+        "expires_at"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_scope_chain_fingerprint",
+      "line": 48,
+      "doc": "Generate deterministic digest for replay-window tracking.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "scope_chain"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_get_signable_content",
+      "line": 124,
+      "doc": "Get deterministic content for signing.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "sign",
+      "line": 136,
+      "doc": "Cryptographically sign this card with the given identity.\n\nArgs:\n    identity: The identity to sign with (must have private key)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_signature",
+      "line": 146,
+      "doc": "Verify the card's signature is valid.\n\nReturns:\n    True if signature is valid, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_json",
+      "line": 158,
+      "doc": "Serialize card to JSON-compatible dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_json",
+      "line": 183,
+      "doc": "Deserialize card from JSON dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 225,
+      "doc": "Serialize delegation to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 240,
+      "doc": "Deserialize delegation from dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 263,
+      "doc": "Initialize handshake handler.\n\nArgs:\n    my_identity: This agent's identity\n    policy: Trust policy to apply (uses defaults if not provided)",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "my_identity",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_cached_result",
+      "line": 282,
+      "doc": "Get cached verification result if still valid.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_cache_result",
+      "line": 292,
+      "doc": "Cache a verification result.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did",
+        "result"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_prune_seen_scope_chains",
+      "line": 297,
+      "doc": "Remove scope chain fingerprints outside replay window.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_record_scope_chain_fingerprint",
+      "line": 309,
+      "doc": "Record fingerprint with bounded memory growth.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fingerprint",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_is_replay_scope_chain",
+      "line": 324,
+      "doc": "Check replay set membership under lock.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fingerprint",
+        "now"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_enforce_scope_chain_rate_limit",
+      "line": 329,
+      "doc": "Bound verification attempts per actor in a sliding window.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "actor_id",
+        "now"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_scope_chain_failure",
+      "line": 341,
+      "doc": "Return sanitized error for callers and log detailed reason.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "detail"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_allowed_signature_algorithms",
+      "line": 359,
+      "doc": "Resolve allowed signature algorithms from policy.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_scope_chain",
+      "line": 373,
+      "doc": "Verify cryptographic validity and effective permissions of a scope chain.\n\nReturns:\n    Tuple of ``(is_valid, error_message, effective_capabilities)``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scope_chain"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_verify_scope_chain",
+      "line": 552,
+      "doc": "Verify the peer scope chain and return the effective delegated capabilities.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_card"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_peer",
+      "line": 565,
+      "doc": "Verify a peer agent's trustworthiness.\n\nArgs:\n    peer_card: The peer's agent card\n    required_capabilities: Capabilities the peer must have\n    min_trust_score: Minimum trust score required\n\nReturns:\n    TrustVerificationResult with verification status",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "peer_card",
+        "required_capabilities",
+        "min_trust_score"
+      ],
+      "returns": "TrustVerificationResult"
+    },
+    {
+      "name": "clear_cache",
+      "line": 666,
+      "doc": "Clear all cached verification results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 677,
+      "doc": "Initialize scope chain.\n\nArgs:\n    root_identity: The root authority identity",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "root_identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_delegation",
+      "line": 689,
+      "doc": "Add a delegation to the chain.\n\nArgs:\n    delegatee: The agent receiving the delegation\n    capabilities: Capabilities being delegated\n    expires_in_hours: Optional expiration time\n    delegator_identity: Identity of delegator (root if not specified)\n\nReturns:\n    The created Delegation\n\nRaises:\n    ValueError: If delegatee lacks identity",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "delegatee",
+        "capabilities",
+        "expires_in_hours",
+        "delegator_identity"
+      ],
+      "returns": "Delegation"
+    },
+    {
+      "name": "verify",
+      "line": 748,
+      "doc": "Verify the entire scope chain.\n\nReturns:\n    True if chain is valid, False otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_delegated_capabilities",
+      "line": 793,
+      "doc": "Get capabilities delegated to an agent.\n\nArgs:\n    agent_did: The agent's DID\n\nReturns:\n    List of delegated capabilities",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 820,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 823,
+      "doc": "Register an agent card after verifying its signature.\n\nArgs:\n    card: The agent card to register\n\nReturns:\n    True if registered, False if signature verification failed",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "card"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "find_by_did",
+      "line": 839,
+      "doc": "Look up an agent by DID.\n\nArgs:\n    did: The agent's decentralized identifier\n\nReturns:\n    The agent card if found, None otherwise",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "find_by_capability",
+      "line": 850,
+      "doc": "Find all agents that advertise a specific capability.\n\nArgs:\n    capability: The capability to search for\n\nReturns:\n    List of agent cards with the capability",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_trusted",
+      "line": 864,
+      "doc": "List all agents above a minimum trust score.\n\nArgs:\n    min_trust_score: Minimum trust score threshold\n\nReturns:\n    List of trusted agent cards",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "min_trust_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove",
+      "line": 878,
+      "doc": "Remove an agent from the directory.\n\nArgs:\n    did: The agent's DID\n\nReturns:\n    True if removed, False if not found",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "count",
+      "line": 892,
+      "doc": "Return number of registered agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TrustPolicy",
+      "line": 72,
+      "doc": "Policy configuration for trust verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustVerificationResult",
+      "line": 97,
+      "doc": "Result of a trust verification operation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustedAgentCard",
+      "line": 108,
+      "doc": "Agent card containing identity and trust information.\n\nUsed for agent discovery and verification in multi-agent systems.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Delegation",
+      "line": 215,
+      "doc": "A delegation of capabilities from one agent to another.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustHandshake",
+      "line": 260,
+      "doc": "Handles trust verification between agents.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "DelegationChain",
+      "line": 674,
+      "doc": "Manages a chain of trust delegations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AgentDirectory",
+      "line": 812,
+      "doc": "Local directory for discovering trusted agents.\n\nProvides a framework-level registry so agents can find each other\nby DID or capability without a centralized service dependency.\nPairs with the core AgentMesh Registry for production deployments.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 119,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

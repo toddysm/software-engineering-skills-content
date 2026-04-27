@@ -1,0 +1,325 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/risk.py",
+  "extension": ".py",
+  "size_bytes": 12021,
+  "line_count": 361,
+  "documentation": {
+    "file_docstring": "Continuous Risk Scoring\n\nUpdates trust score every \u226430s based on agent behavior.\nScore visible in dashboard; configurable alert thresholds.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Overall score (0-1000, higher = safer)",
+      "Component scores (0-100 each)",
+      "Signals",
+      "Timestamps",
+      "Weighted total (behavior and compliance weighted higher)",
+      "Alert thresholds",
+      "Trigger immediate recalculation for critical signals",
+      "Filter to recent signals (last 24 hours)",
+      "Calculate component scores",
+      "Count signals",
+      "Update score",
+      "Check for alerts",
+      "Alert on level change",
+      "Alert on threshold breach"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RiskSignal: A single risk signal contributing to the agent's risk score.\n\nAttributes:\n    si",
+      "RiskScore: Comprehensive risk score for an agent.\n\nScore ranges from 0 (highest risk) to 10",
+      "RiskScorer: Continuous risk scoring engine.\n\nUpdates trust score every \u226430s based on:\n- Iden",
+      "weight: Get weight based on severity.",
+      "get_risk_level: Convert a numeric score to a risk level string.\n\nArgs:\n    score: Total risk sco",
+      "update: Update component scores and recalculate the total.\n\nArgs:\n    identity: Identity",
+      "get_score: Get current risk score for an agent.\n\nCreates a default score if one does not al",
+      "add_signal: Add a risk signal for an agent.\n\nCritical signals trigger an immediate score rec",
+      "recalculate: Recalculate risk score based on current signals.\n\nCalled every \u226430s or immediate",
+      "_calculate_identity_score: Calculate identity component score."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "RiskScorer",
+    "get_score",
+    "add_signal",
+    "clear_signals",
+    "RiskScore",
+    "update",
+    "recalculate",
+    "get_high_risk_agents",
+    "on_alert",
+    "get_risk_level",
+    "weight",
+    "RiskSignal"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "dataclasses",
+      "agentmesh.constants"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "weight",
+      "line": 51,
+      "doc": "Get weight based on severity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "get_risk_level",
+      "line": 92,
+      "doc": "Convert a numeric score to a risk level string.\n\nArgs:\n    score: Total risk score (0\u20131000, higher is safer).\n\nReturns:\n    One of \"critical\", \"high\", \"medium\", \"low\", or \"minimal\".",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "score"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "update",
+      "line": 112,
+      "doc": "Update component scores and recalculate the total.\n\nArgs:\n    identity: Identity verification score (0\u2013100).\n    behavior: Behavioral pattern score (0\u2013100).\n    network: Network activity score (0\u2013100).\n    compliance: Compliance score (0\u2013100).\n    active_signals: Number of active risk signals.\n    critical_signals: Number of critical-severity signals.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity",
+        "behavior",
+        "network",
+        "compliance",
+        "active_signals",
+        "critical_signals"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 169,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_score",
+      "line": 174,
+      "doc": "Get current risk score for an agent.\n\nCreates a default score if one does not already exist.\n\nArgs:\n    agent_did: The agent's DID.\n\nReturns:\n    The agent's current RiskScore.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "RiskScore"
+    },
+    {
+      "name": "add_signal",
+      "line": 189,
+      "doc": "Add a risk signal for an agent.\n\nCritical signals trigger an immediate score recalculation.\n\nArgs:\n    agent_did: The agent's DID.\n    signal: The risk signal to record.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "signal"
+      ],
+      "returns": null
+    },
+    {
+      "name": "recalculate",
+      "line": 207,
+      "doc": "Recalculate risk score based on current signals.\n\nCalled every \u226430s or immediately on critical signals. Only signals\nfrom the last 24 hours are considered.\n\nArgs:\n    agent_did: The agent's DID.\n\nReturns:\n    The updated RiskScore.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "RiskScore"
+    },
+    {
+      "name": "_calculate_identity_score",
+      "line": 252,
+      "doc": "Calculate identity component score.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_calculate_behavior_score",
+      "line": 262,
+      "doc": "Calculate behavior component score.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_calculate_network_score",
+      "line": 272,
+      "doc": "Calculate network component score.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_calculate_compliance_score",
+      "line": 282,
+      "doc": "Calculate compliance component score.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "signals"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "_check_alerts",
+      "line": 292,
+      "doc": "Check if alerts should be triggered.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "score",
+        "old_level"
+      ],
+      "returns": null
+    },
+    {
+      "name": "on_alert",
+      "line": 326,
+      "doc": "Register an alert callback.\n\nArgs:\n    callback: A callable that receives an alert dict with keys\n        such as ``type``, ``agent_did``, and ``score``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "callback"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_high_risk_agents",
+      "line": 335,
+      "doc": "Get all agents above risk threshold.\n\nArgs:\n    threshold: Score below which an agent is considered high-risk.\n        Defaults to HIGH_THRESHOLD.\n\nReturns:\n    List of RiskScore objects for agents below the threshold.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_signals",
+      "line": 351,
+      "doc": "Clear all signals for an agent (e.g., after remediation).\n\nTriggers an immediate recalculation after clearing.\n\nArgs:\n    agent_did: The agent's DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RiskSignal",
+      "line": 31,
+      "doc": "A single risk signal contributing to the agent's risk score.\n\nAttributes:\n    signal_type: Category of the signal (e.g. \"identity.verification\").\n    severity: Severity level determining the signal's weight.\n    value: Normalized signal value from 0.0 (no risk) to 1.0 (max risk).\n    timestamp: When the signal was recorded.\n    source: Origin system that produced the signal.\n    details: Additional context about the signal.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RiskScore",
+      "line": 63,
+      "doc": "Comprehensive risk score for an agent.\n\nScore ranges from 0 (highest risk) to 1000 (lowest risk).\nInverted from trust score for clarity: lower = more risky.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RiskScorer",
+      "line": 151,
+      "doc": "Continuous risk scoring engine.\n\nUpdates trust score every \u226430s based on:\n- Identity verification status\n- Behavioral patterns\n- Network activity\n- Compliance violations",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 46,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

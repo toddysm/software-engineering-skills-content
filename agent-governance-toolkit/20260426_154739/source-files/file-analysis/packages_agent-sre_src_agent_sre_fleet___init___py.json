@@ -1,0 +1,517 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/fleet/__init__.py",
+  "extension": ".py",
+  "size_bytes": 13609,
+  "line_count": 420,
+  "documentation": {
+    "file_docstring": "Agent Fleet Management for Agent-SRE.\n\nMonitor and manage multiple AI agents as a fleet. Tracks per-agent\nhealth, aggregates SLO compliance across the fleet, detects anomalies,\nand provides fleet-wide operational views.\n\nComponents:\n- AgentRegistration: Per-agent metadata and configuration\n- FleetManager: Central registry and health aggregator\n- FleetStatus: Aggregate fleet health snapshot\n- AgentHealth: Per-agent health report\n\nUsage:\n    fleet = FleetManager()\n\n    fleet.register(\"agent-a\", tags={\"team\": \"search\"}, slo=my_slo)\n    fleet.register(\"agent-b\", tags={\"team\": \"support\"}, slo=other_slo)\n\n    fleet.heartbeat(\"agent-a\")\n    fleet.record_event(\"agent-a\", success=True, latency_ms=120, cost_usd=0.01)\n\n    status = fleet.status()          # Fleet-wide health\n    health = fleet.agent_health(\"agent-a\")  # Per-agent drill-down",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Enums",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Data classes",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Fleet manager",
+      "---------------------------------------------------------------------------",
+      "-- Registration --",
+      "-- Heartbeat --",
+      "-- Events --",
+      "Auto-SLO recording",
+      "-- State management --",
+      "-- Health queries --",
+      "Fleet-wide metrics",
+      "Determine fleet health",
+      "-- Filtering --"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentState: Operational state of an agent in the fleet.",
+      "FleetHealth: Aggregate fleet health level.",
+      "AgentEvent: A recorded event for an agent.",
+      "AgentRegistration: Registration record for a single agent.",
+      "AgentHealth: Health report for a single agent.",
+      "FleetStatus: Aggregate fleet health snapshot.",
+      "FleetManager: Central registry and health aggregator for an agent fleet.\n\nTracks agent registr",
+      "is_responsive: True if heartbeat is within the timeout.",
+      "success_rate: Success rate over all recorded events.",
+      "avg_latency_ms: Average latency across all events."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "FleetHealth",
+    "agents_by_tag",
+    "avg_latency_ms",
+    "status",
+    "drain",
+    "to_dict",
+    "AgentHealth",
+    "heartbeat",
+    "is_responsive",
+    "AgentEvent",
+    "recent_events",
+    "agents_by_state",
+    "agent_ids",
+    "AgentState",
+    "top_cost_agents",
+    "uptime_seconds",
+    "agent_count",
+    "success_rate",
+    "AgentRegistration",
+    "register",
+    "event_count",
+    "record_event",
+    "get_agent",
+    "refresh_states",
+    "agent_health",
+    "FleetManager",
+    "deregister",
+    "FleetStatus",
+    "total_cost_usd"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "is_responsive",
+      "line": 88,
+      "doc": "True if heartbeat is within the timeout.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "uptime_seconds",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "event_count",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "success_rate",
+      "line": 101,
+      "doc": "Success rate over all recorded events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "avg_latency_ms",
+      "line": 109,
+      "doc": "Average latency across all events.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "total_cost_usd",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "recent_events",
+      "line": 119,
+      "doc": "Events within the last N seconds.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "window_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 196,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "heartbeat_timeout",
+        "success_rate_threshold"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 207,
+      "doc": "Register an agent in the fleet.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tags",
+        "slo",
+        "heartbeat_timeout"
+      ],
+      "returns": "AgentRegistration"
+    },
+    {
+      "name": "deregister",
+      "line": 224,
+      "doc": "Remove an agent from the fleet.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_agent",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agent_ids",
+      "line": 236,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agent_count",
+      "line": 240,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "heartbeat",
+      "line": 245,
+      "doc": "Record a heartbeat from an agent. Returns False if agent not found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "record_event",
+      "line": 257,
+      "doc": "Record a task event for an agent. Returns False if agent not found.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "success",
+        "latency_ms",
+        "cost_usd",
+        "metadata"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "refresh_states",
+      "line": 285,
+      "doc": "Update agent states based on heartbeats and success rates.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "drain",
+      "line": 298,
+      "doc": "Mark an agent as draining (no new work).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "agent_health",
+      "line": 308,
+      "doc": "Get health report for a single agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "status",
+      "line": 331,
+      "doc": "Get aggregate fleet health status.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "FleetStatus"
+    },
+    {
+      "name": "agents_by_tag",
+      "line": 401,
+      "doc": "Find agent IDs matching a tag key-value pair.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "agents_by_state",
+      "line": 408,
+      "doc": "Find agent IDs in a given state.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "state"
+      ],
+      "returns": null
+    },
+    {
+      "name": "top_cost_agents",
+      "line": 412,
+      "doc": "Get top-N agents by total cost.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "n"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 418,
+      "doc": "Full fleet state as dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentState",
+      "line": 40,
+      "doc": "Operational state of an agent in the fleet.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "FleetHealth",
+      "line": 50,
+      "doc": "Aggregate fleet health level.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentEvent",
+      "line": 64,
+      "doc": "A recorded event for an agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentRegistration",
+      "line": 75,
+      "doc": "Registration record for a single agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AgentHealth",
+      "line": 126,
+      "doc": "Health report for a single agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FleetStatus",
+      "line": 156,
+      "doc": "Aggregate fleet health snapshot.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FleetManager",
+      "line": 189,
+      "doc": "Central registry and health aggregator for an agent fleet.\n\nTracks agent registrations, heartbeats, events, and provides\nfleet-wide and per-agent health views.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 58,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui"
+    ]
+  }
+}

@@ -1,0 +1,1233 @@
+{
+  "path": "packages/agent-compliance/tests/test_prompt_defense.py",
+  "extension": ".py",
+  "size_bytes": 22370,
+  "line_count": 610,
+  "documentation": {
+    "file_docstring": "Tests for prompt defense evaluator.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Fixtures",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Grade scoring",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Report structure",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Grading",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Individual vector detection",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Configuration",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Determinism",
+      "---------------------------------------------------------------------------",
+      "Compare everything except evaluated_at (timestamp differs)",
+      "---------------------------------------------------------------------------",
+      "Serialization",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Blocking logic",
+      "---------------------------------------------------------------------------",
+      "F threshold = nothing blocks",
+      "---------------------------------------------------------------------------",
+      "Audit entry integration",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Compliance violations",
+      "---------------------------------------------------------------------------",
+      "Strong prompt may still have some missing",
+      "---------------------------------------------------------------------------",
+      "File evaluation",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Input length guard (ReDoS)",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Edge cases",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Performance",
+      "---------------------------------------------------------------------------",
+      "Warm up"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestScoreToGrade: Tests for the grade mapping function.",
+      "TestReportStructure: Tests for PromptDefenseReport correctness.",
+      "TestGrading: Tests for grade assignment.",
+      "TestVectorDetection: Tests for individual attack vector detection.",
+      "TestConfiguration: Tests for PromptDefenseConfig.",
+      "TestDeterminism: Verify identical inputs always produce identical outputs.",
+      "TestSerialization: Tests for report serialization.",
+      "TestBlocking: Tests for is_blocking() threshold logic.",
+      "TestAuditEntry: Tests for MerkleAuditChain integration.",
+      "TestComplianceViolation: Tests for ComplianceViolation generation."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "setup_method",
+    "test_audit_entry_trace_id",
+    "test_audit_entry_outcome_denied",
+    "TestReportStructure",
+    "test_special_regex_chars",
+    "test_coverage_format",
+    "TestConfiguration",
+    "test_case_insensitivity",
+    "test_to_json_is_valid",
+    "test_audit_entry_no_raw_prompt",
+    "test_very_long_prompt",
+    "test_role_escape_missing",
+    "test_role_escape_defended",
+    "test_grade_b",
+    "test_context_overflow_defended",
+    "test_multilang_defended",
+    "test_audit_entry_outcome_success",
+    "test_output_weaponization_defended",
+    "test_instruction_override_defended",
+    "test_custom_severity",
+    "test_grade_a",
+    "test_unicode_defended",
+    "test_prompt_hash_is_sha256",
+    "test_to_json_is_sorted",
+    "TestGrading",
+    "test_defended_plus_missing_equals_total",
+    "test_to_dict_keys",
+    "test_grade_c",
+    "test_evaluated_at_is_iso",
+    "test_grade_d",
+    "test_violations_only_for_undefended",
+    "test_social_engineering_defended",
+    "test_weak_prompt_gets_low_grade",
+    "test_returns_report",
+    "test_empty_file_raises",
+    "test_empty_prompt_is_blocking",
+    "TestVectorDetection",
+    "test_strong_prompt_not_blocking",
+    "test_nonexistent_file_raises",
+    "test_violations_for_missing_defenses",
+    "TestInputLengthGuard",
+    "test_strong_prompt_gets_high_grade",
+    "test_partial_prompt_gets_middle_grade",
+    "TestPerformance",
+    "test_no_violations_for_strong_prompt",
+    "test_grade_f",
+    "test_same_input_same_json",
+    "test_finding_fields",
+    "test_score_range",
+    "test_valid_file",
+    "TestDeterminism",
+    "TestComplianceViolation",
+    "test_rejects_oversized_input",
+    "test_abuse_prevention_defended",
+    "test_filter_vectors",
+    "test_under_5ms_typical",
+    "TestAuditEntry",
+    "test_audit_entry_fields",
+    "test_findings_count",
+    "test_whitespace_only",
+    "test_data_leakage_defended",
+    "test_violation_fields",
+    "TestEvaluateFile",
+    "test_accepts_max_length_input",
+    "test_same_input_same_hash",
+    "TestScoreToGrade",
+    "TestBlocking",
+    "test_grade_f_threshold",
+    "test_default_config",
+    "test_same_input_same_grade",
+    "test_indirect_injection_defended",
+    "TestSerialization",
+    "test_output_manipulation_defended",
+    "test_empty_prompt_gets_f",
+    "test_custom_min_grade",
+    "TestEdgeCases",
+    "test_total_equals_vector_count",
+    "test_input_validation_defended"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "hashlib",
+      "agent_compliance.prompt_defense",
+      "pytest",
+      "pytest",
+      "pathlib",
+      "pathlib",
+      "pytest",
+      "time"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_grade_a",
+      "line": 61,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grade_b",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grade_c",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grade_d",
+      "line": 73,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grade_f",
+      "line": 77,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 90,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_returns_report",
+      "line": 93,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_total_equals_vector_count",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defended_plus_missing_equals_total",
+      "line": 101,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_range",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_coverage_format",
+      "line": 111,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_findings_count",
+      "line": 118,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_finding_fields",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_prompt_hash_is_sha256",
+      "line": 134,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluated_at_is_iso",
+      "line": 139,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 153,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_prompt_gets_f",
+      "line": 156,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_weak_prompt_gets_low_grade",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_strong_prompt_gets_high_grade",
+      "line": 165,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_partial_prompt_gets_middle_grade",
+      "line": 170,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_find",
+      "line": 187,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "report",
+        "vector_id"
+      ],
+      "returns": "PromptDefenseFinding"
+    },
+    {
+      "name": "test_role_escape_defended",
+      "line": 197,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_role_escape_missing",
+      "line": 203,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_instruction_override_defended",
+      "line": 207,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_data_leakage_defended",
+      "line": 213,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_output_manipulation_defended",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multilang_defended",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unicode_defended",
+      "line": 231,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_context_overflow_defended",
+      "line": 237,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_indirect_injection_defended",
+      "line": 243,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_social_engineering_defended",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_output_weaponization_defended",
+      "line": 256,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_abuse_prevention_defended",
+      "line": 262,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_input_validation_defended",
+      "line": 268,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_default_config",
+      "line": 283,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_min_grade",
+      "line": 288,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_filter_vectors",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom_severity",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 322,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_input_same_grade",
+      "line": 325,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_input_same_hash",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_same_input_same_json",
+      "line": 337,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 356,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_keys",
+      "line": 359,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_json_is_valid",
+      "line": 367,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_json_is_sorted",
+      "line": 373,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 388,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_strong_prompt_not_blocking",
+      "line": 391,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_prompt_is_blocking",
+      "line": 395,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_grade_f_threshold",
+      "line": 400,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 414,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_fields",
+      "line": 417,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_outcome_success",
+      "line": 427,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_outcome_denied",
+      "line": 432,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_no_raw_prompt",
+      "line": 437,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_audit_entry_trace_id",
+      "line": 443,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 461,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violations_for_missing_defenses",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_violations_for_strong_prompt",
+      "line": 469,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violation_fields",
+      "line": 476,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_violations_only_for_undefended",
+      "line": 486,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 505,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_nonexistent_file_raises",
+      "line": 508,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_empty_file_raises",
+      "line": 514,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_file",
+      "line": 523,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 541,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rejects_oversized_input",
+      "line": 544,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_accepts_max_length_input",
+      "line": 551,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 565,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_whitespace_only",
+      "line": 568,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_very_long_prompt",
+      "line": 572,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_special_regex_chars",
+      "line": 577,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_case_insensitivity",
+      "line": 581,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 597,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_under_5ms_typical",
+      "line": 600,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestScoreToGrade",
+      "line": 58,
+      "doc": "Tests for the grade mapping function.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestReportStructure",
+      "line": 87,
+      "doc": "Tests for PromptDefenseReport correctness.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGrading",
+      "line": 150,
+      "doc": "Tests for grade assignment.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestVectorDetection",
+      "line": 181,
+      "doc": "Tests for individual attack vector detection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestConfiguration",
+      "line": 280,
+      "doc": "Tests for PromptDefenseConfig.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDeterminism",
+      "line": 319,
+      "doc": "Verify identical inputs always produce identical outputs.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSerialization",
+      "line": 353,
+      "doc": "Tests for report serialization.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestBlocking",
+      "line": 385,
+      "doc": "Tests for is_blocking() threshold logic.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAuditEntry",
+      "line": 411,
+      "doc": "Tests for MerkleAuditChain integration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestComplianceViolation",
+      "line": 458,
+      "doc": "Tests for ComplianceViolation generation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvaluateFile",
+      "line": 502,
+      "doc": "Tests for evaluate_file() path handling.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestInputLengthGuard",
+      "line": 538,
+      "doc": "Tests for max prompt length protection.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEdgeCases",
+      "line": 562,
+      "doc": "Edge case handling.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPerformance",
+      "line": 594,
+      "doc": "Ensure evaluation stays fast.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 32,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,471 @@
+{
+  "path": "agent-governance-rust/agentmesh/src/policy.rs",
+  "extension": ".rs",
+  "size_bytes": 31872,
+  "line_count": 983,
+  "documentation": {
+    "file_docstring": null,
+    "header_comments": [],
+    "inline_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "! YAML-based policy evaluation engine with four-way decisions:",
+      "! allow, deny, requires-approval, and rate-limit.",
+      "A single rule inside a policy profile.",
+      "Rule priority \u2014 higher values are evaluated first.",
+      "The scope at which this rule applies.",
+      "A loaded policy profile parsed from YAML.",
+      "Policy evaluation engine.",
+      "",
+      "Rules are evaluated in order; first match wins.",
+      "When no profile is loaded, all actions are allowed.",
+      "Create an empty policy engine (allows everything) with default",
+      "[`ConflictResolutionStrategy::PriorityFirstMatch`].",
+      "Create a policy engine with a specific conflict resolution strategy.",
+      "Return the active conflict resolution strategy.",
+      "Resolve conflicts among multiple candidate decisions using the",
+      "configured strategy.",
+      "",
+      "Returns a [`ResolutionResult`] describing which decision won,",
+      "whether a conflict was detected, and how many candidates were",
+      "evaluated.",
+      "Whether a policy profile is loaded.",
+      "Load a policy profile from a YAML string.",
+      "Load a policy profile from a YAML file on disk.",
+      "Evaluate an action against the loaded policy.",
+      "",
+      "If no profile is loaded, returns [`PolicyDecision::Allow`].",
+      "An optional `context` map is matched against rule conditions.",
+      "Deny list takes precedence",
+      "Allow list: if the action matches an allow pattern, permit it.",
+      "If the list is non-empty but no pattern matches, deny only",
+      "when the action matches a deny-list prefix (scoped deny).",
+      "Actions outside the rule's scope fall through to later rules.",
+      "Only deny if action is in scope (matches a denied prefix",
+      "or shares a namespace with an allowed action)",
+      "Errors returned by policy operations.",
+      "Glob-style pattern matching: `shell:*` matches `shell:ls`.",
+      "\"data.delete\" shares the \"data\" namespace with allowed \"data.read\"/\"data.write\"",
+      "\"admin.delete\" is outside the capability rule's scope, falls through to Allow",
+      "First 3 calls should be allowed",
+      "4th call should be rate-limited",
+      "First rule denies data.read, so it should be denied",
+      "Actions outside denied scope are allowed",
+      "In-scope but not in allowlist",
+      "Conditions don't match, rule is skipped, falls through to Allow",
+      "No context provided - conditions require it, rule is skipped",
+      "api.call: 2 allowed",
+      "db.query: 1 allowed (independent counter)",
+      "First call is allowed",
+      "Second call hits rate limit (within the 0s window)",
+      "Wait for the window to expire (0s window \u2192 needs >0 elapsed seconds)",
+      "After window reset, call should be allowed again",
+      "\"data.read\" doesn't match any denied actions \u2014 falls through to Allow",
+      "\"data\" does not match \"data.read\" (no wildcard)",
+      "\"data.rea\" does not match \"data.read\""
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "is_loaded",
+    "resolve_conflicts",
+    "load_from_file",
+    "new",
+    "with_strategy",
+    "strategy",
+    "PolicyRule",
+    "PolicyError",
+    "load_from_yaml",
+    "PolicyEngine",
+    "PolicyProfile",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [
+      "super::*"
+    ],
+    "external": [
+      "serde::{Deserialize, Serialize}"
+    ],
+    "standard": [
+      "std::collections::HashMap",
+      "std::sync::{Mutex, RwLock}",
+      "std::time::Instant"
+    ]
+  },
+  "functions": [
+    {
+      "name": "new",
+      "line": 64,
+      "doc": "[`ConflictResolutionStrategy::PriorityFirstMatch`].",
+      "is_public": true
+    },
+    {
+      "name": "with_strategy",
+      "line": 73,
+      "doc": "Create a policy engine with a specific conflict resolution strategy.",
+      "is_public": true
+    },
+    {
+      "name": "strategy",
+      "line": 82,
+      "doc": "Return the active conflict resolution strategy.",
+      "is_public": true
+    },
+    {
+      "name": "resolve_conflicts",
+      "line": 92,
+      "doc": "evaluated.",
+      "is_public": true
+    },
+    {
+      "name": "is_loaded",
+      "line": 161,
+      "doc": "Whether a policy profile is loaded.",
+      "is_public": true
+    },
+    {
+      "name": "load_from_yaml",
+      "line": 169,
+      "doc": "Load a policy profile from a YAML string.",
+      "is_public": true
+    },
+    {
+      "name": "load_from_file",
+      "line": 177,
+      "doc": "Load a policy profile from a YAML file on disk.",
+      "is_public": true
+    },
+    {
+      "name": "evaluate",
+      "line": 186,
+      "doc": "An optional `context` map is matched against rule conditions.",
+      "is_public": true
+    },
+    {
+      "name": "check_rate_limit",
+      "line": 272,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "default",
+      "line": 298,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "action_matches",
+      "line": 313,
+      "doc": "Glob-style pattern matching: `shell:*` matches `shell:ls`.",
+      "is_public": false
+    },
+    {
+      "name": "conditions_match",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "parse_duration",
+      "line": 346,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_allow_listed_action",
+      "line": 387,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_deny_shell",
+      "line": 394,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_not_in_allowlist_in_scope",
+      "line": 402,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_out_of_scope_falls_through",
+      "line": 411,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_approval_required",
+      "line": 420,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_rate_limiting",
+      "line": 428,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_no_profile_allows_all",
+      "line": 441,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_action_matches",
+      "line": 447,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_with_strategy_constructor",
+      "line": 458,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_default_strategy_is_priority_first_match",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_empty",
+      "line": 473,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_single",
+      "line": 482,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_deny_overrides",
+      "line": 497,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_allow_overrides",
+      "line": 519,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_priority_first_match",
+      "line": 541,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_most_specific_wins",
+      "line": 563,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_resolve_conflicts_most_specific_tiebreaker",
+      "line": 585,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_policy_rule_priority_and_scope_defaults",
+      "line": 606,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_policy_rule_with_priority_and_scope",
+      "line": 623,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_no_conflict_when_all_same_decision",
+      "line": 642,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_multiple_capability_rules_first_match_wins",
+      "line": 664,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_policy_with_only_deny_rules",
+      "line": 686,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_policy_with_only_allow_rules",
+      "line": 712,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_conditions_matching",
+      "line": 735,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_conditions_not_matching",
+      "line": 759,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_conditions_no_context_skips_rule",
+      "line": 784,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_loading_invalid_yaml_returns_error",
+      "line": 804,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_loading_from_temp_file",
+      "line": 812,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_multiple_rate_limit_rules_for_different_actions",
+      "line": 823,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_rate_limit_resets_after_window",
+      "line": 859,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_wildcard_matches_everything",
+      "line": 887,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_parse_duration_minutes",
+      "line": 914,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_parse_duration_seconds",
+      "line": 919,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_parse_duration_hours",
+      "line": 924,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_parse_duration_bare_number",
+      "line": 929,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_is_loaded_false_initially",
+      "line": 934,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_is_loaded_true_after_load",
+      "line": 940,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_rules_present_but_none_match_falls_through",
+      "line": 947,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_action_matches_empty_strings",
+      "line": 964,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_action_matches_exact_match",
+      "line": 971,
+      "doc": "No documentation",
+      "is_public": false
+    },
+    {
+      "name": "test_action_matches_partial_non_match",
+      "line": 977,
+      "doc": "No documentation",
+      "is_public": false
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyRule",
+      "line": 17,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "PolicyProfile",
+      "line": 45,
+      "doc": "No documentation",
+      "is_public": true
+    },
+    {
+      "name": "PolicyEngine",
+      "line": 55,
+      "doc": "When no profile is loaded, all actions are allowed.",
+      "is_public": true
+    },
+    {
+      "name": "PolicyError",
+      "line": 305,
+      "doc": "No documentation",
+      "is_public": true
+    }
+  ],
+  "complexity_score": 33,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, ui, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

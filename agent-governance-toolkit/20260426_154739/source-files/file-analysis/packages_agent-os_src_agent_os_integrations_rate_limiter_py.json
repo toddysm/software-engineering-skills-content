@@ -1,0 +1,200 @@
+{
+  "path": "packages/agent-os/src/agent_os/integrations/rate_limiter.py",
+  "extension": ".py",
+  "size_bytes": 4704,
+  "line_count": 130,
+  "documentation": {
+    "file_docstring": "Tool-call rate limiting tied to governance policy.\n\nThis module enforces token-bucket limits for tool invocations, optionally scoped\nper agent and governed by ``GovernancePolicy.max_tool_calls``.\n\nSee also:\n    - hypervisor.security.rate_limiter: runtime-layer per-agent/per-ring limits.\n    - agentmesh.services.rate_limiter: service/proxy-level limits in Agent Mesh.\n    - agentmesh.services.rate_limit_middleware: HTTP edge middleware in Agent Mesh.\n    - agent_os.policies.rate_limiting: shared token-bucket primitives.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Each bucket: (tokens: float, last_refill: float)",
+      "------------------------------------------------------------------",
+      "Internal helpers",
+      "------------------------------------------------------------------",
+      "------------------------------------------------------------------",
+      "Public API",
+      "------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RateLimitStatus: Snapshot of an agent's rate-limit state.",
+      "RateLimiter: Thread-safe token-bucket rate limiter for tool calls.\n\nArgs:\n    max_calls: Maxi",
+      "_refill: Add tokens accrued since the last refill.",
+      "allow: Try to consume one token. Returns ``True`` if the call is allowed.",
+      "check: Return current rate-limit status without consuming a token.",
+      "wait_time: Return seconds until at least one token is available (0.0 if available now).",
+      "reset: Reset the bucket for *agent_id* (or the global bucket if ``per_agent=False``)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "wait_time",
+    "check",
+    "RateLimiter",
+    "allow",
+    "reset",
+    "RateLimitStatus"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "threading",
+      "time",
+      "dataclasses",
+      "typing",
+      "base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__init__",
+      "line": 46,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "max_calls",
+        "time_window",
+        "per_agent",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_key",
+      "line": 69,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_refill",
+      "line": 72,
+      "doc": "Add tokens accrued since the last refill.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "bucket",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_get_bucket",
+      "line": 80,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "key",
+        "now"
+      ],
+      "returns": "list"
+    },
+    {
+      "name": "allow",
+      "line": 93,
+      "doc": "Try to consume one token. Returns ``True`` if the call is allowed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "check",
+      "line": 103,
+      "doc": "Return current rate-limit status without consuming a token.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "RateLimitStatus"
+    },
+    {
+      "name": "wait_time",
+      "line": 123,
+      "doc": "Return seconds until at least one token is available (0.0 if available now).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "reset",
+      "line": 127,
+      "doc": "Reset the bucket for *agent_id* (or the global bucket if ``per_agent=False``).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "RateLimitStatus",
+      "line": 24,
+      "doc": "Snapshot of an agent's rate-limit state.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RateLimiter",
+      "line": 32,
+      "doc": "Thread-safe token-bucket rate limiter for tool calls.\n\nArgs:\n    max_calls: Maximum number of calls allowed per time window (bucket size).\n    time_window: Duration of the time window in seconds.\n    per_agent: If ``True``, limits are tracked independently per agent.\n        If ``False``, a single global bucket is used for all agents.\n    policy: Optional GovernancePolicy whose ``max_tool_calls`` overrides\n        *max_calls*.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 20,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

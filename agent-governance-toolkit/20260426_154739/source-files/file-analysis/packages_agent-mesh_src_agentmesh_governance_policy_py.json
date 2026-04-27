@@ -1,0 +1,592 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/policy.py",
+  "extension": ".py",
+  "size_bytes": 41343,
+  "line_count": 1121,
+  "documentation": {
+    "file_docstring": "Policy Engine\n\nDeclarative policy engine with YAML/JSON policies.\nPolicy evaluation latency <5ms with 100% deterministic results.\n\nSupports schema versioning via ``apiVersion`` (e.g.,\n``governance.toolkit/v1``). Older versions emit deprecation\nwarnings; unknown versions raise ``ValueError``.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Supported schema versions (newest first)",
+      "Lifecycle stage",
+      "Condition",
+      "Action",
+      "Rate limiting",
+      "Approval workflow",
+      "Priority (higher = evaluated first)",
+      "Enabled",
+      "Simple expression evaluation",
+      "In production, would use a proper expression parser",
+      "V27: Fail-closed \u2014 treat evaluation errors as a match so",
+      "the rule's action (typically \"deny\") takes effect. This",
+      "prevents attackers from crafting inputs that trigger",
+      "exceptions to bypass policy rules.",
+      "Maximum recursion depth for compound expressions to prevent DoS",
+      "Handle compound conditions first (AND/OR)",
+      "This must be checked before individual conditions",
+      "OR conditions",
+      "AND conditions",
+      "Now handle atomic conditions",
+      "Equality: action.type == 'export'",
+      "Inequality: action.type != 'export'",
+      "Membership: field in ['a', 'b', 'c']",
+      "Comparison: field > number",
+      "Boolean attribute: data.contains_pii",
+      "Composition",
+      "Target",
+      "Scope for conflict resolution",
+      "Rules",
+      "Default action",
+      "Metadata",
+      "Normalize extends field",
+      "Parse own rules",
+      "Cycle detection",
+      "Resolve parent policies and merge rules",
+      "Deduplicate (diamond inheritance) \u2014 track by rule name",
+      "Merge: parent rules first, then child rules.",
+      "Child cannot override parent deny rules (additive-only).",
+      "Convert rules to dicts",
+      "Which rule matched",
+      "Details",
+      "For require_approval",
+      "For rate limiting",
+      "Timing",
+      "Extension metadata (e.g., authority resolver details)",
+      "Check rate limit if applicable",
+      "Build actionable error message",
+      "Build detailed, actionable message",
+      "Pattern-based suggestions",
+      "Check if reset time passed",
+      "Parse limit (e.g., \"100/hour\")",
+      "\u2500\u2500 OPA/Rego integration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Cedar integration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "1. Check YAML/JSON policies first",
+      "Map policy scope string to enum",
+      "Apply rate limiting for the winning rule",
+      "2. Authority resolution (trust-based narrowing)",
+      "3. Check Rego policies",
+      "4. Check Cedar policies",
+      "Map context to Cedar action",
+      "5. No rules matched - use default",
+      "V26: Fail-closed \u2014 no policies loaded means deny by default.",
+      "Operators must explicitly load an allow policy.",
+      "\u2500\u2500 Schema versioning helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "Legacy policy without apiVersion \u2014 treat as v1.0, inject current",
+      "Migration: 1.0 \u2192 governance.toolkit/v1",
+      "Check apiVersion",
+      "Check required fields",
+      "Validate rules",
+      "Validate default_action"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "PolicyRule: A single policy rule.\n\nRules define conditions and actions:\n- condition: Express",
+      "Policy: Complete policy document.\n\nPolicies are defined in YAML/JSON and loaded at runti",
+      "PolicyDecision: Result of policy evaluation.\n\nAttributes:\n    allowed: Whether the action is per",
+      "PolicyEngine: Declarative policy engine.\n\nFeatures:\n- YAML/JSON policy definitions\n- <5ms eval",
+      "_validate_api_version: Validate and warn about the apiVersion field in a policy document.\n\nArgs:\n    da",
+      "migrate_policy: Migrate a policy YAML document to the target schema version.\n\nCurrently supports",
+      "validate_policy_schema: Validate a policy YAML document against its declared schema.\n\nChecks for require",
+      "evaluate: Evaluate the rule condition against a context.\n\nSupports simple expressions like",
+      "_eval_expression: Evaluate a simple expression.",
+      "_get_nested: Get nested value from dict using dot notation."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "get_policy",
+    "load_cedar",
+    "from_yaml_file",
+    "PolicyEngine",
+    "remove_policy",
+    "validate_policy_schema",
+    "from_json",
+    "load_yaml_file",
+    "load_json",
+    "load_rego",
+    "PolicyRule",
+    "Policy",
+    "to_yaml",
+    "list_policies",
+    "evaluate",
+    "migrate_policy",
+    "load_yaml",
+    "applies_to",
+    "load_policy",
+    "from_yaml",
+    "PolicyDecision",
+    "set_authority_resolver"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "logging",
+      "os",
+      "warnings",
+      "yaml",
+      "json",
+      "re",
+      "agentmesh.governance.conflict_resolution",
+      "agentmesh.governance.opa",
+      "agentmesh.governance.cedar",
+      "agentmesh.governance.conflict_resolution",
+      "datetime",
+      "agentmesh.governance.authority"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_validate_api_version",
+      "line": 984,
+      "doc": "Validate and warn about the apiVersion field in a policy document.\n\nArgs:\n    data: Parsed policy dict (from YAML/JSON).\n\nRaises:\n    ValueError: If the ``apiVersion`` is present but not recognized.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "migrate_policy",
+      "line": 1028,
+      "doc": "Migrate a policy YAML document to the target schema version.\n\nCurrently supports:\n- ``1.0`` \u2192 ``governance.toolkit/v1``: Adds ``apiVersion`` field.\n\nArgs:\n    yaml_content: Raw YAML policy string.\n    target_version: Target apiVersion to migrate to.\n\nReturns:\n    Updated YAML string with the new apiVersion.\n\nRaises:\n    ValueError: If the target version is not supported.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "yaml_content",
+        "target_version"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_policy_schema",
+      "line": 1066,
+      "doc": "Validate a policy YAML document against its declared schema.\n\nChecks for required fields, valid values, and structural correctness.\n\nArgs:\n    yaml_content: Raw YAML policy string.\n\nReturns:\n    List of validation error strings. Empty list means valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "yaml_content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 73,
+      "doc": "Evaluate the rule condition against a context.\n\nSupports simple expressions like:\n- ``action.type == 'export'``\n- ``data.contains_pii``\n- ``user.role in ['admin', 'operator']``\n\nArgs:\n    context: Dictionary of runtime values the condition is\n        evaluated against. Keys are accessed via dot notation.\n\nReturns:\n    ``True`` if the rule is enabled and the condition matches,\n    ``False`` otherwise (including on evaluation errors).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_eval_expression",
+      "line": 111,
+      "doc": "Evaluate a simple expression.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "expr",
+        "context",
+        "_depth"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_get_nested",
+      "line": 181,
+      "doc": "Get nested value from dict using dot notation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "obj",
+        "path"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "from_yaml",
+      "line": 241,
+      "doc": "Load a policy from a YAML string.\n\nValidates the ``apiVersion`` field against supported versions\nand emits deprecation warnings for older schemas. Resolves\n``extends`` references relative to ``base_dir``.\n\nArgs:\n    yaml_content: Raw YAML string containing the policy definition.\n    base_dir: Directory for resolving relative ``extends`` paths.\n\nReturns:\n    A fully-constructed ``Policy`` instance with inherited rules.\n\nRaises:\n    ValueError: If the ``apiVersion`` is not recognized or a\n        circular ``extends`` reference is detected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "yaml_content",
+        "base_dir"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_yaml_file",
+      "line": 280,
+      "doc": "Load a policy from a YAML file, resolving ``extends`` parents.\n\nRecursively loads parent policies referenced by ``extends``,\nmerging rules with additive-only semantics (child can add\nrules but cannot weaken or remove parent deny rules).\n\nDetects and rejects circular references.\n\nArgs:\n    file_path: Path to the YAML policy file.\n\nReturns:\n    A ``Policy`` with all inherited rules merged.\n\nRaises:\n    ValueError: On circular references or missing parent files.\n    FileNotFoundError: If a referenced file does not exist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "file_path",
+        "_resolve_stack"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_json",
+      "line": 363,
+      "doc": "Load a policy from a JSON string.\n\nValidates the ``apiVersion`` field against supported versions\nand emits deprecation warnings for older schemas.\n\nArgs:\n    json_content: Raw JSON string containing the policy definition.\n\nReturns:\n    A fully-constructed ``Policy`` instance.\n\nRaises:\n    ValueError: If the ``apiVersion`` is not recognized.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "json_content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "applies_to",
+      "line": 388,
+      "doc": "Check if this policy applies to a given agent.\n\nA policy applies when the agent DID matches ``self.agent``,\nappears in ``self.agents``, or when ``self.agents`` contains\nthe wildcard ``\"*\"``.\n\nArgs:\n    agent_did: Decentralized identifier of the agent.\n\nReturns:\n    ``True`` if the policy targets this agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_yaml",
+      "line": 409,
+      "doc": "Export this policy as a YAML string.\n\nReturns:\n    YAML-formatted policy document.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 477,
+      "doc": "Initialize the policy engine.\n\nArgs:\n    conflict_strategy: How to resolve conflicts when multiple\n        rules match. One of ``\"deny_overrides\"``,\n        ``\"allow_overrides\"``, ``\"priority_first_match\"``\n        (default, preserves v1.0 behavior), or\n        ``\"most_specific_wins\"``.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "conflict_strategy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_policy",
+      "line": 500,
+      "doc": "Load a policy into the engine.\n\nArgs:\n    policy: Policy instance to register. Replaces any existing\n        policy with the same name.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_yaml",
+      "line": 509,
+      "doc": "Parse and register a policy from a YAML string.\n\nArgs:\n    yaml_content: Raw YAML policy definition.\n\nReturns:\n    The loaded ``Policy`` instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "yaml_content"
+      ],
+      "returns": "Policy"
+    },
+    {
+      "name": "load_yaml_file",
+      "line": 522,
+      "doc": "Parse and register a policy from a YAML file.\n\nResolves ``extends`` references recursively with additive-only\nmerge semantics. Parent deny rules cannot be weakened by children.\n\nArgs:\n    file_path: Path to the YAML policy file.\n\nReturns:\n    The loaded ``Policy`` with inherited rules merged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "file_path"
+      ],
+      "returns": "Policy"
+    },
+    {
+      "name": "load_json",
+      "line": 538,
+      "doc": "Parse and register a policy from a JSON string.\n\nArgs:\n    json_content: Raw JSON policy definition.\n\nReturns:\n    The loaded ``Policy`` instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "json_content"
+      ],
+      "returns": "Policy"
+    },
+    {
+      "name": "set_authority_resolver",
+      "line": 551,
+      "doc": "Register an ``AuthorityResolver`` for reputation-gated authority.\n\nThe resolver is called during evaluation after YAML/JSON rule\nmatching and before OPA/Cedar policies. It can narrow\ncapabilities, apply spend limits, or deny the action based on\ntrust scoring and delegation chain context.\n\nArgs:\n    resolver: An object implementing the ``AuthorityResolver``\n        protocol (i.e., has a ``resolve(AuthorityRequest) ->\n        AuthorityDecision`` method).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "resolver"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_apply_rule",
+      "line": 566,
+      "doc": "Apply a matched rule and generate actionable error messages.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule",
+        "policy",
+        "context"
+      ],
+      "returns": "PolicyDecision"
+    },
+    {
+      "name": "_get_suggestion",
+      "line": 615,
+      "doc": "Generate actionable suggestions based on the rule condition.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule",
+        "context"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_is_rate_limited",
+      "line": 635,
+      "doc": "Check if a rule is rate limited.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_increment_rate_limit",
+      "line": 656,
+      "doc": "Increment rate limit counter.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rule"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_parse_limit",
+      "line": 673,
+      "doc": "Parse a limit string like '100/hour'.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_policy",
+      "line": 688,
+      "doc": "Get a loaded policy by name.\n\nArgs:\n    name: Policy name.\n\nReturns:\n    The ``Policy`` if found, otherwise ``None``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_policies",
+      "line": 699,
+      "doc": "List all loaded policy names.\n\nReturns:\n    List of registered policy name strings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "remove_policy",
+      "line": 707,
+      "doc": "Remove a policy from the engine.\n\nArgs:\n    name: Name of the policy to remove.\n\nReturns:\n    ``True`` if the policy was found and removed, ``False`` otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "load_rego",
+      "line": 723,
+      "doc": "Load a .rego file alongside YAML/JSON policies.\n\nThe OPA evaluator runs in parallel: YAML rules are checked first,\nand if no rule matches, the Rego policy is consulted.\n\nArgs:\n    rego_path: Path to a .rego file\n    rego_content: Inline Rego policy string\n    package: Rego package name (used to build query path)\n\nReturns:\n    OPAEvaluator instance for direct use",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "rego_path",
+        "rego_content",
+        "package"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_cedar",
+      "line": 745,
+      "doc": "Load a .cedar file alongside YAML/JSON and Rego policies.\n\nCedar evaluators run after Rego: YAML rules first, then Rego,\nthen Cedar, then defaults.\n\nArgs:\n    cedar_path: Path to a .cedar policy file\n    cedar_content: Inline Cedar policy string\n    entities: Cedar entities for authorization context\n    mode: Evaluation mode (auto, cedarpy, cli, builtin)\n\nReturns:\n    CedarEvaluator instance for direct use",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cedar_path",
+        "cedar_content",
+        "entities",
+        "mode"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 777,
+      "doc": "Evaluate all applicable policies for an agent action.\n\nCollects ALL matching rules across all applicable policies\nfor the given lifecycle stage, then resolves conflicts using\nthe configured strategy:\n\n- ``priority_first_match``: Highest-priority matching rule wins\n  (v1.0 behavior).\n- ``deny_overrides``: Any deny wins, regardless of priority.\n- ``allow_overrides``: Any allow wins, regardless of priority.\n- ``most_specific_wins``: Agent-scoped > tenant > global;\n  priority breaks ties within the same scope.\n\nArgs:\n    agent_did: Decentralized identifier of the acting agent.\n    context: Runtime context dict describing the action.\n    stage: Lifecycle stage to evaluate. One of ``\"pre_input\"``,\n        ``\"pre_tool\"`` (default), ``\"post_tool\"``, ``\"pre_output\"``.\n        Only rules matching this stage are evaluated.\n\nReturns:\n    A ``PolicyDecision`` indicating whether the action is allowed\n    and which rule (if any) matched.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "context",
+        "stage"
+      ],
+      "returns": "PolicyDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "PolicyRule",
+      "line": 34,
+      "doc": "A single policy rule.\n\nRules define conditions and actions:\n- condition: Expression that evaluates to true/false\n- action: What to do when condition matches (allow, deny, warn, require_approval)\n- stage: When in the agent lifecycle this rule is evaluated",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Policy",
+      "line": 193,
+      "doc": "Complete policy document.\n\nPolicies are defined in YAML/JSON and loaded at runtime.\nUse ``apiVersion: governance.toolkit/v1`` in YAML files for\nschema-versioned policies.\n\nSupports hierarchical composition via ``extends``. Child policies\ninherit all rules from parent policies and can add new rules but\ncannot weaken or remove parent rules (additive-only semantics).",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyDecision",
+      "line": 421,
+      "doc": "Result of policy evaluation.\n\nAttributes:\n    allowed: Whether the action is permitted.\n    action: The action taken (allow, deny, warn, require_approval, log).\n    matched_rule: Name of the rule that triggered the decision.\n    policy_name: Name of the policy containing the matched rule.\n    reason: Human-readable explanation of the decision.\n    approvers: List of required approvers for ``require_approval`` actions.\n    rate_limited: Whether the decision was caused by rate limiting.\n    rate_limit_reset: When the rate limit resets (if applicable).\n    evaluated_at: Timestamp of evaluation.\n    evaluation_ms: Evaluation latency in milliseconds.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "PolicyEngine",
+      "line": 462,
+      "doc": "Declarative policy engine.\n\nFeatures:\n- YAML/JSON policy definitions\n- <5ms evaluation latency\n- 100% deterministic across runs\n- Rate limiting support\n- Approval workflows\n- Configurable conflict resolution strategy",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 162,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

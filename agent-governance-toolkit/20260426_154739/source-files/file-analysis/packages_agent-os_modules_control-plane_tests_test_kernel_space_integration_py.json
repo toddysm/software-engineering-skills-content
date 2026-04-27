@@ -1,0 +1,495 @@
+{
+  "path": "packages/agent-os/modules/control-plane/tests/test_kernel_space_integration.py",
+  "extension": ".py",
+  "size_bytes": 14768,
+  "line_count": 399,
+  "documentation": {
+    "file_docstring": "Integration tests for KernelSpace with PolicyEngine and FlightRecorder.\n\nThese tests verify that:\n1. PolicyEngine is properly wired to KernelSpace._check_policy()\n2. FlightRecorder logs all actions\n3. _sys_exec() actually executes tools\n4. Policy violations are blocked and logged",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Add src to path for imports",
+      "Add constraints allowing specific tools for test-agent",
+      "For SYS_EXEC, the actual tool name is checked (not \"code_execute\")",
+      "For other syscalls like SYS_CHECKPOLICY, the mapped name is checked",
+      "Create a request that should be allowed (file_read is in the allow-list)",
+      "Verify metrics increased",
+      "Check if an allowed action is permitted",
+      "Register a simple tool",
+      "Execute the tool",
+      "Register an async tool",
+      "Register a tool",
+      "Execute the tool",
+      "Check flight recorder",
+      "Register a tool that raises an error",
+      "Add failing_tool to allowed list",
+      "Check flight recorder",
+      "Add allowed tools for metrics-agent",
+      "Make several syscalls",
+      "Verify metrics increased",
+      "Register a tool",
+      "Should execute without policy check",
+      "Register multiple tools",
+      "Unregister one",
+      "Try to unregister non-existent",
+      "restricted-agent has no allowed tools by default",
+      "Register a tool",
+      "Policy violation triggers kernel panic (agent termination)",
+      "Add constraints allowing specific tools for secure-agent",
+      "attacker-agent has no permissions - will trigger kernel panic",
+      "Policy violation triggers kernel panic (agent termination)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestKernelSpaceIntegration: Integration tests for KernelSpace with all kernel components.",
+      "TestKernelSpaceWithRealPolicies: Tests with realistic policy configurations.",
+      "temp_db: Create a temporary database for flight recorder.",
+      "flight_recorder: Create a FlightRecorder instance.",
+      "policy_engine: Create a PolicyEngine with test policies.",
+      "kernel_with_policy: Create a KernelSpace with policy engine and flight recorder.",
+      "kernel_without_policy: Create a KernelSpace without policy engine (permissive mode).",
+      "test_policy_engine_wired_to_check_policy: Verify PolicyEngine is properly wired to _check_policy.",
+      "test_sys_checkpolicy_uses_policy_engine: Verify SYS_CHECKPOLICY syscall uses the policy engine.",
+      "test_sys_exec_executes_registered_tool: Verify SYS_EXEC actually executes registered tools."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "secure_kernel",
+    "temp_db",
+    "kernel_without_policy",
+    "any_tool",
+    "policy_engine",
+    "kernel_with_policy",
+    "secure_policy_engine",
+    "test_tool",
+    "failing_tool",
+    "TestKernelSpaceIntegration",
+    "flight_recorder",
+    "TestKernelSpaceWithRealPolicies",
+    "echo_tool"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "asyncio",
+      "pytest",
+      "tempfile",
+      "os",
+      "sys",
+      "datetime",
+      "agent_control_plane.kernel_space",
+      "agent_control_plane.policy_engine",
+      "agent_control_plane.flight_recorder",
+      "agent_control_plane.signals",
+      "agent_control_plane.signals"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "temp_db",
+      "line": 34,
+      "doc": "Create a temporary database for flight recorder.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "flight_recorder",
+      "line": 45,
+      "doc": "Create a FlightRecorder instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self",
+        "temp_db"
+      ],
+      "returns": null
+    },
+    {
+      "name": "policy_engine",
+      "line": 52,
+      "doc": "Create a PolicyEngine with test policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "kernel_with_policy",
+      "line": 69,
+      "doc": "Create a KernelSpace with policy engine and flight recorder.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self",
+        "policy_engine",
+        "flight_recorder"
+      ],
+      "returns": null
+    },
+    {
+      "name": "kernel_without_policy",
+      "line": 77,
+      "doc": "Create a KernelSpace without policy engine (permissive mode).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_engine_wired_to_check_policy",
+      "line": 82,
+      "doc": "Verify PolicyEngine is properly wired to _check_policy.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sys_checkpolicy_uses_policy_engine",
+      "line": 100,
+      "doc": "Verify SYS_CHECKPOLICY syscall uses the policy engine.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sys_exec_executes_registered_tool",
+      "line": 119,
+      "doc": "Verify SYS_EXEC actually executes registered tools.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sys_exec_blocks_unregistered_tool",
+      "line": 144,
+      "doc": "Verify SYS_EXEC returns error for unregistered tools.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_sys_exec_with_async_tool",
+      "line": 162,
+      "doc": "Verify SYS_EXEC handles async tools correctly.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_flight_recorder_logs_all_actions",
+      "line": 187,
+      "doc": "Verify FlightRecorder logs all tool executions.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy",
+        "flight_recorder"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_tool_execution_error_logged",
+      "line": 217,
+      "doc": "Verify tool execution errors are logged to flight recorder.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy",
+        "flight_recorder"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_kernel_metrics_track_policy_checks",
+      "line": 251,
+      "doc": "Verify kernel metrics track policy checks and violations.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_permissive_mode_without_policy_engine",
+      "line": 272,
+      "doc": "Verify kernel allows all actions when no policy engine is set.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_without_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_list_and_unregister_tools",
+      "line": 293,
+      "doc": "Verify tool registration, listing, and unregistration.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_policy_blocks_unauthorized_tool",
+      "line": 318,
+      "doc": "Verify policy blocks tools not in allow-list.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "kernel_with_policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "secure_policy_engine",
+      "line": 343,
+      "doc": "Create a policy engine with realistic security policies.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "secure_kernel",
+      "line": 356,
+      "doc": "Create a secure kernel with policy engine.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "self",
+        "secure_policy_engine"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_file_read_within_workspace_allowed",
+      "line": 361,
+      "doc": "Verify file reads are allowed for permitted agent.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "secure_kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unauthorized_tool_blocked",
+      "line": 378,
+      "doc": "Verify unauthorized tools are blocked by policy.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self",
+        "secure_kernel"
+      ],
+      "returns": null
+    },
+    {
+      "name": "echo_tool",
+      "line": 124,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "message"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "async_echo",
+      "line": 167,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "message",
+        "delay"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "test_tool",
+      "line": 192,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "value"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "failing_tool",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "any_tool",
+      "line": 277,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestKernelSpaceIntegration",
+      "line": 30,
+      "doc": "Integration tests for KernelSpace with all kernel components.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestKernelSpaceWithRealPolicies",
+      "line": 339,
+      "doc": "Tests with realistic policy configurations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 19,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

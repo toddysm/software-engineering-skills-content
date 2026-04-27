@@ -1,0 +1,458 @@
+{
+  "path": "packages/agent-mesh/tests/test_expired_certs.py",
+  "extension": ".py",
+  "size_bytes": 9939,
+  "line_count": 252,
+  "documentation": {
+    "file_docstring": "Tests for expired certificate handling in scope chains (#119).\n\nValidates that credentials and delegation links with expired timestamps are\ncorrectly rejected, including edge cases around clock skew and boundary times.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Credential expiry tests",
+      "---------------------------------------------------------------------------",
+      "expires_at was set at issue time; by the time we check, utcnow >= expires_at",
+      "is_valid only checks status + expires_at",
+      "Force expiry",
+      "---------------------------------------------------------------------------",
+      "Delegation link expiry tests",
+      "---------------------------------------------------------------------------",
+      "Set expiry to just barely in the past",
+      "Structural verification still passes",
+      "But the individual link reports itself invalid",
+      "---------------------------------------------------------------------------",
+      "Clock skew tolerance tests",
+      "---------------------------------------------------------------------------",
+      "Still has 30s left \u2014 should be valid",
+      "With default threshold of 60s, a 30s credential is expiring soon",
+      "---------------------------------------------------------------------------",
+      "Agent identity expiry tests",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_chain_with_expiring_link: Build a 2-link chain where the second link has the given expiry.",
+      "TestCredentialExpiry: Credential.is_valid rejects expired credentials.",
+      "TestCredentialManagerExpiry: CredentialManager.validate rejects expired tokens.",
+      "TestDelegationLinkExpiry: DelegationLink.is_valid rejects expired links.",
+      "TestScopeChainWithExpiredLinks: Chain verification with expired links in the chain.",
+      "TestClockSkewTolerance: Edge cases around small time differences.",
+      "TestAgentIdentityExpiry: AgentIdentity.is_active respects expires_at.",
+      "test_just_expired_one_second_ago: Credential that expired 1 second ago is invalid.",
+      "test_far_expired_one_year_ago: Credential expired 1 year ago is invalid.",
+      "test_valid_credential: Credential with future expiry is valid."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_far_expired_one_year_ago",
+    "test_credential_within_grace_period",
+    "test_valid_credential",
+    "test_identity_not_yet_expired",
+    "TestAgentIdentityExpiry",
+    "test_credential_not_expiring_soon",
+    "test_credential_is_expiring_soon",
+    "test_validate_returns_none_for_expired",
+    "TestCredentialExpiry",
+    "test_chain_with_expired_link_verify_passes_structurally",
+    "test_not_yet_valid_future_issue",
+    "test_revoked_identity_not_active",
+    "test_link_at_exact_expiry_boundary",
+    "test_application_checks_link_validity",
+    "TestCredentialManagerExpiry",
+    "test_far_expired_link",
+    "test_cleanup_removes_expired",
+    "test_credential_at_exact_boundary",
+    "test_just_expired_one_second_ago",
+    "test_expired_link_invalid",
+    "TestDelegationLinkExpiry",
+    "TestClockSkewTolerance",
+    "test_link_no_expiry_valid",
+    "test_identity_no_expiry_active",
+    "TestScopeChainWithExpiredLinks",
+    "test_valid_link_future_expiry",
+    "test_expired_identity_not_active",
+    "test_revoked_credential_invalid"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "uuid",
+      "datetime",
+      "pytest",
+      "agentmesh.identity.agent_id",
+      "agentmesh.identity.credentials",
+      "agentmesh.identity.delegation"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_identity",
+      "line": 23,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "name"
+      ],
+      "returns": "AgentIdentity"
+    },
+    {
+      "name": "_chain_with_expiring_link",
+      "line": 31,
+      "doc": "Build a 2-link chain where the second link has the given expiry.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "expires_at"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_just_expired_one_second_ago",
+      "line": 69,
+      "doc": "Credential that expired 1 second ago is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_far_expired_one_year_ago",
+      "line": 74,
+      "doc": "Credential expired 1 year ago is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_credential",
+      "line": 80,
+      "doc": "Credential with future expiry is valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credential_at_exact_boundary",
+      "line": 85,
+      "doc": "Credential whose expires_at == now is technically expired (< not <=).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_not_yet_valid_future_issue",
+      "line": 91,
+      "doc": "Credential issued in the future but active status is considered valid\nby is_valid (which only checks status + expires_at). The issued_at field\nis informational; applications should check it separately if needed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_credential_invalid",
+      "line": 100,
+      "doc": "Revoked credential is invalid regardless of expiry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_returns_none_for_expired",
+      "line": 110,
+      "doc": "Expired credential token returns None from validate.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cleanup_removes_expired",
+      "line": 118,
+      "doc": "cleanup_expired removes non-active expired credentials.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_link_invalid",
+      "line": 135,
+      "doc": "Link with past expires_at is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_far_expired_link",
+      "line": 142,
+      "doc": "Link expired 1 year ago is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_valid_link_future_expiry",
+      "line": 149,
+      "doc": "Link with future expiry is valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_link_no_expiry_valid",
+      "line": 156,
+      "doc": "Link with no expires_at is valid (no expiry set).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_link_at_exact_expiry_boundary",
+      "line": 161,
+      "doc": "Link whose expires_at just passed is invalid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_chain_with_expired_link_verify_passes_structurally",
+      "line": 173,
+      "doc": "Chain.verify() checks structural integrity (hashes, narrowing,\nsignatures) \u2014 link expiry is checked via link.is_valid() separately.\nThis test documents current behaviour: verify() does NOT reject\nexpired links automatically.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_application_checks_link_validity",
+      "line": 188,
+      "doc": "Applications should iterate links and check is_valid for expiry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credential_within_grace_period",
+      "line": 204,
+      "doc": "Credential expiring within a small grace window may still be valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credential_is_expiring_soon",
+      "line": 210,
+      "doc": "is_expiring_soon detects credentials about to expire.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_credential_not_expiring_soon",
+      "line": 216,
+      "doc": "Credential with plenty of TTL remaining is not expiring soon.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_identity_not_active",
+      "line": 229,
+      "doc": "Identity with past expires_at is not active.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_identity_not_yet_expired",
+      "line": 235,
+      "doc": "Identity with future expires_at is active.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_identity_no_expiry_active",
+      "line": 241,
+      "doc": "Identity with no expires_at is active.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_revoked_identity_not_active",
+      "line": 247,
+      "doc": "Revoked identity is not active even if not expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestCredentialExpiry",
+      "line": 66,
+      "doc": "Credential.is_valid rejects expired credentials.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestCredentialManagerExpiry",
+      "line": 107,
+      "doc": "CredentialManager.validate rejects expired tokens.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDelegationLinkExpiry",
+      "line": 132,
+      "doc": "DelegationLink.is_valid rejects expired links.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestScopeChainWithExpiredLinks",
+      "line": 170,
+      "doc": "Chain verification with expired links in the chain.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestClockSkewTolerance",
+      "line": 201,
+      "doc": "Edge cases around small time differences.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentIdentityExpiry",
+      "line": 226,
+      "doc": "AgentIdentity.is_active respects expires_at.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 6,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

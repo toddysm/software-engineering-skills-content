@@ -1,0 +1,761 @@
+{
+  "path": "packages/agent-marketplace/tests/test_org_marketplace.py",
+  "extension": ".py",
+  "size_bytes": 20091,
+  "line_count": 524,
+  "documentation": {
+    "file_docstring": "Tests for org-scoped marketplace, quality scoring, and per-org MCP policies.\n\nCovers:\n  - Issue #733: Org-scoped plugin listing (see global + org plugins, not other orgs)\n  - Issue #736: Quality scoring (record scores, badges, overall score)\n  - Issue #737: Per-org MCP policy resolution (inherit, merge, cannot un-block)",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Helpers",
+      "---------------------------------------------------------------------------",
+      "===========================================================================",
+      "Issue #733 \u2014 Org-scoped plugin listing",
+      "===========================================================================",
+      "Global plugins (organization=None)",
+      "Contoso-specific plugins",
+      "Fabrikam-specific plugins",
+      "===========================================================================",
+      "Issue #733 \u2014 OrgMarketplacePolicy & get_effective_policy",
+      "===========================================================================",
+      "===========================================================================",
+      "Issue #736 \u2014 Plugin quality scoring",
+      "===========================================================================",
+      "===========================================================================",
+      "Issue #737 \u2014 Per-org MCP policy resolution",
+      "===========================================================================",
+      "-- Blocklist mode -------------------------------------------------------",
+      "-- Allowlist mode -------------------------------------------------------",
+      "Falls back to base.allowed since intersection is empty",
+      "===========================================================================",
+      "Issue #737 \u2014 evaluate_plugin_compliance with organization",
+      "===========================================================================",
+      "===========================================================================",
+      "Top-level import smoke test",
+      "==========================================================================="
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "_make_manifest: Create a PluginManifest with sensible defaults.",
+      "TestPluginManifestOrganizationField: PluginManifest.organization field basics.",
+      "TestRegistryListForOrganization: PluginRegistry.list_for_organization visibility rules.",
+      "TestOrgMarketplacePolicy: OrgMarketplacePolicy dataclass and MarketplacePolicy.get_effective_policy.",
+      "TestQualityScore: QualityScore dataclass.",
+      "TestPluginQualityProfile: PluginQualityProfile aggregation.",
+      "TestQualityStore: QualityStore record/retrieve operations.",
+      "TestGetEffectiveMCPPolicy: MarketplacePolicy.get_effective_mcp_policy merge logic.",
+      "TestEvaluatePluginComplianceWithOrg: evaluate_plugin_compliance respects per-org MCP policies.",
+      "test_new_symbols_importable: New public symbols are importable from the top-level package."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "TestQualityStore",
+    "test_separate_versions_have_separate_profiles",
+    "test_org_blocked_server_rejected",
+    "test_unknown_org_returns_base",
+    "test_record_and_retrieve",
+    "test_badge_unrated",
+    "test_get_effective_policy_preserves_signature_requirement",
+    "TestQualityScore",
+    "test_get_effective_policy_no_org",
+    "test_overall_score_empty",
+    "test_base_blocked_server_rejected_via_org",
+    "test_get_badge_known_plugin",
+    "test_allowlist_org_adds_blocks",
+    "TestPluginManifestOrganizationField",
+    "test_org_policy_defaults",
+    "test_get_score_missing",
+    "test_defaults",
+    "test_allowlist_org_inherits_base_when_no_overlap",
+    "test_without_org_uses_base_policy",
+    "test_compliant_server_with_org",
+    "test_badge_bronze",
+    "test_overall_score_average",
+    "test_basic_construction",
+    "TestGetEffectiveMCPPolicy",
+    "test_new_symbols_importable",
+    "TestRegistryListForOrganization",
+    "test_badge_unrated_no_scores",
+    "test_backward_compatible_serialization",
+    "test_blocklist_require_declaration_inherits",
+    "test_badge_silver",
+    "test_all_versions_of_global_plugin_visible",
+    "test_get_effective_policy_merges_plugin_types",
+    "test_get_effective_policy_unknown_org",
+    "test_badge_gold",
+    "test_record_multiple_dimensions",
+    "test_get_score_existing",
+    "test_get_badge_unknown_plugin",
+    "test_blocklist_org_cannot_unblock_enterprise_blocked",
+    "test_allowlist_org_only_allows_enterprise_approved",
+    "test_no_org_returns_base",
+    "test_set_organization",
+    "test_blocklist_org_adds_own_blocks",
+    "TestPluginQualityProfile",
+    "TestEvaluatePluginComplianceWithOrg",
+    "test_default_organization_is_none",
+    "TestOrgMarketplacePolicy",
+    "test_org_does_not_see_other_org_plugins",
+    "test_badge_platinum",
+    "test_unknown_org_sees_only_global",
+    "test_org_sees_global_and_own_plugins",
+    "test_record_updates_existing_dimension"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "pytest",
+      "agent_marketplace.manifest",
+      "agent_marketplace.marketplace_policy",
+      "agent_marketplace.quality_scoring",
+      "agent_marketplace.registry",
+      "agent_marketplace"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_make_manifest",
+      "line": 37,
+      "doc": "Create a PluginManifest with sensible defaults.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "PluginManifest"
+    },
+    {
+      "name": "test_new_symbols_importable",
+      "line": 508,
+      "doc": "New public symbols are importable from the top-level package.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_default_organization_is_none",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_set_organization",
+      "line": 62,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_backward_compatible_serialization",
+      "line": 66,
+      "doc": "Existing manifests without organization still load fine.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_build_registry",
+      "line": 82,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "PluginRegistry"
+    },
+    {
+      "name": "test_org_sees_global_and_own_plugins",
+      "line": 97,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_does_not_see_other_org_plugins",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_all_versions_of_global_plugin_visible",
+      "line": 110,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_org_sees_only_global",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_policy_defaults",
+      "line": 131,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_effective_policy_no_org",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_effective_policy_unknown_org",
+      "line": 143,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_effective_policy_merges_plugin_types",
+      "line": 148,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_effective_policy_preserves_signature_requirement",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic_construction",
+      "line": 180,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 190,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_profile",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "scores"
+      ],
+      "returns": "PluginQualityProfile"
+    },
+    {
+      "name": "test_overall_score_empty",
+      "line": 206,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_overall_score_average",
+      "line": 210,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_badge_platinum",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_badge_gold",
+      "line": 221,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_badge_silver",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_badge_bronze",
+      "line": 229,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_badge_unrated",
+      "line": 233,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_badge_unrated_no_scores",
+      "line": 237,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_score_existing",
+      "line": 241,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_score_missing",
+      "line": 245,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_and_retrieve",
+      "line": 253,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_updates_existing_dimension",
+      "line": 264,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_multiple_dimensions",
+      "line": 278,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_badge_unknown_plugin",
+      "line": 292,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_badge_known_plugin",
+      "line": 296,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_separate_versions_have_separate_profiles",
+      "line": 304,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_org_returns_base",
+      "line": 326,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_unknown_org_returns_base",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_org_cannot_unblock_enterprise_blocked",
+      "line": 340,
+      "doc": "Org-level policy cannot remove servers blocked at enterprise level.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_org_adds_own_blocks",
+      "line": 359,
+      "doc": "Org can add additional blocked servers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_blocklist_require_declaration_inherits",
+      "line": 374,
+      "doc": "If base requires declaration, org inherits it.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_org_only_allows_enterprise_approved",
+      "line": 391,
+      "doc": "Org cannot allow servers not in the enterprise allowlist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_org_inherits_base_when_no_overlap",
+      "line": 409,
+      "doc": "When org's allowed list has no overlap, fall back to base.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowlist_org_adds_blocks",
+      "line": 427,
+      "doc": "Org can add blocked servers even in allowlist mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_org_blocked_server_rejected",
+      "line": 450,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_base_blocked_server_rejected_via_org",
+      "line": 464,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_compliant_server_with_org",
+      "line": 477,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_without_org_uses_base_policy",
+      "line": 490,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestPluginManifestOrganizationField",
+      "line": 55,
+      "doc": "PluginManifest.organization field basics.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestRegistryListForOrganization",
+      "line": 79,
+      "doc": "PluginRegistry.list_for_organization visibility rules.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestOrgMarketplacePolicy",
+      "line": 128,
+      "doc": "OrgMarketplacePolicy dataclass and MarketplacePolicy.get_effective_policy.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestQualityScore",
+      "line": 177,
+      "doc": "QualityScore dataclass.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPluginQualityProfile",
+      "line": 196,
+      "doc": "PluginQualityProfile aggregation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestQualityStore",
+      "line": 250,
+      "doc": "QualityStore record/retrieve operations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestGetEffectiveMCPPolicy",
+      "line": 323,
+      "doc": "MarketplacePolicy.get_effective_mcp_policy merge logic.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestEvaluatePluginComplianceWithOrg",
+      "line": 447,
+      "doc": "evaluate_plugin_compliance respects per-org MCP policies.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 10,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "auth",
+      "logging"
+    ]
+  }
+}

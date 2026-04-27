@@ -1,0 +1,552 @@
+{
+  "path": "packages/agent-compliance/tests/test_security_scanner.py",
+  "extension": ".py",
+  "size_bytes": 23885,
+  "line_count": 673,
+  "documentation": {
+    "file_docstring": "Tests for security scanner.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "SecurityScanner uses instance state, but guard against any",
+      "module-level or class-level mutation leaking between tests.",
+      "Only the non-expired exemption should be loaded",
+      "Matching finding should be exempted",
+      "Different file should not be exempted",
+      "Test files should be excluded",
+      "Build artifacts should be excluded",
+      "Regular source files should be included",
+      "Test patterns should be recognized as test credentials",
+      "Code with eval() should be detected",
+      "Test known rule",
+      "Test unknown rule",
+      "Should find all three dangerous patterns",
+      "Binary content triggers UnicodeDecodeError and is skipped",
+      "The expired exemption should have been filtered out during load",
+      "Outer block should be detected; inner escaped backticks should not",
+      "cause a parser crash or false positive.",
+      "Should detect eval() in the second (non-nested) block"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "TestSecurityFinding: Tests for SecurityFinding class.",
+      "TestSecurityScanner: Tests for SecurityScanner class.",
+      "TestFormatSecurityReport: Tests for format_security_report function.",
+      "test_is_blocking_critical: Test that critical findings are blocking.",
+      "test_is_blocking_high: Test that high severity findings are blocking.",
+      "test_is_not_blocking_medium: Test that medium severity findings are not blocking.",
+      "test_is_not_blocking_low: Test that low severity findings are not blocking.",
+      "test_to_dict: Test conversion to dictionary.",
+      "test_format_cli: Test CLI formatting.",
+      "setup_method: Ensure clean state before each test."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "setup_method",
+    "test_is_not_blocking_low",
+    "test_load_exemptions_expired_filtered_out",
+    "test_is_exempted_by_file_and_line",
+    "test_scanner_initialization",
+    "test_load_exemptions_valid_file",
+    "test_scan_binary_file_skipped",
+    "test_check_shell_code_block_dangerous_rm",
+    "test_scan_empty_file",
+    "test_severity_filtering_blocking",
+    "test_should_scan_file_exclusions",
+    "test_format_cli",
+    "test_format_warnings_only_no_blocking",
+    "test_scan_comments_only_file",
+    "test_is_exempted_by_category",
+    "test_check_python_code_block_eval_detection",
+    "test_get_bandit_recommendation",
+    "test_scan_markdown_nested_code_blocks",
+    "test_check_python_code_block_exec_detection",
+    "test_format_empty_findings",
+    "test_load_exemptions_file_not_exists",
+    "test_format_critical_findings",
+    "test_is_blocking_critical",
+    "TestSecurityScanner",
+    "test_is_test_credential_allowed_patterns",
+    "test_to_dict",
+    "test_exemption_with_expired_date",
+    "test_format_multiple_severity_levels",
+    "TestSecurityFinding",
+    "test_scan_markdown_file",
+    "TestFormatSecurityReport",
+    "test_is_blocking_high",
+    "test_is_not_blocking_medium",
+    "test_is_exempted_by_cve",
+    "test_check_js_code_block_eval_detection"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "pathlib",
+      "pytest",
+      "agent_compliance.security"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_is_blocking_critical",
+      "line": 22,
+      "doc": "Test that critical findings are blocking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_blocking_high",
+      "line": 33,
+      "doc": "Test that high severity findings are blocking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_not_blocking_medium",
+      "line": 43,
+      "doc": "Test that medium severity findings are not blocking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_not_blocking_low",
+      "line": 53,
+      "doc": "Test that low severity findings are not blocking.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 63,
+      "doc": "Test conversion to dictionary.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_cli",
+      "line": 87,
+      "doc": "Test CLI formatting.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "setup_method",
+      "line": 110,
+      "doc": "Ensure clean state before each test.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scanner_initialization",
+      "line": 116,
+      "doc": "Test scanner initialization.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_exemptions_file_not_exists",
+      "line": 128,
+      "doc": "Test loading exemptions when file doesn't exist.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_exemptions_valid_file",
+      "line": 136,
+      "doc": "Test loading valid exemptions file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_load_exemptions_expired_filtered_out",
+      "line": 160,
+      "doc": "Test that expired exemptions are filtered out.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_exempted_by_file_and_line",
+      "line": 192,
+      "doc": "Test exemption matching by file and line.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_exempted_by_category",
+      "line": 234,
+      "doc": "Test exemption matching by category and file.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_exempted_by_cve",
+      "line": 264,
+      "doc": "Test exemption matching by CVE identifier.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_should_scan_file_exclusions",
+      "line": 295,
+      "doc": "Test file exclusion patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_test_credential_allowed_patterns",
+      "line": 315,
+      "doc": "Test allowed test credential patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_python_code_block_eval_detection",
+      "line": 330,
+      "doc": "Test Python code block dangerous pattern detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_python_code_block_exec_detection",
+      "line": 347,
+      "doc": "Test Python exec() pattern detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_js_code_block_eval_detection",
+      "line": 362,
+      "doc": "Test JavaScript eval() detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_check_shell_code_block_dangerous_rm",
+      "line": 377,
+      "doc": "Test shell script dangerous pattern detection.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_get_bandit_recommendation",
+      "line": 393,
+      "doc": "Test bandit recommendation lookup.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_markdown_file",
+      "line": 408,
+      "doc": "Test scanning markdown files for dangerous code patterns.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_empty_file",
+      "line": 441,
+      "doc": "Test scanning an empty file produces no findings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_comments_only_file",
+      "line": 455,
+      "doc": "Test scanning a markdown file with only comments and no code blocks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_binary_file_skipped",
+      "line": 474,
+      "doc": "Test that scanning a binary file is skipped gracefully.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_exemption_with_expired_date",
+      "line": 489,
+      "doc": "Test that an expired exemption does not suppress findings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_scan_markdown_nested_code_blocks",
+      "line": 524,
+      "doc": "Test scanning markdown with nested triple backticks.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_severity_filtering_blocking",
+      "line": 553,
+      "doc": "Test that only critical/high findings block; medium/low do not.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tmp_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_empty_findings",
+      "line": 591,
+      "doc": "Test formatting with no findings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_critical_findings",
+      "line": 596,
+      "doc": "Test formatting with critical findings.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_multiple_severity_levels",
+      "line": 616,
+      "doc": "Test formatting with mixed severity levels.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_format_warnings_only_no_blocking",
+      "line": 652,
+      "doc": "Test formatting with only warnings (no blocking issues).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestSecurityFinding",
+      "line": 19,
+      "doc": "Tests for SecurityFinding class.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestSecurityScanner",
+      "line": 107,
+      "doc": "Tests for SecurityScanner class.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestFormatSecurityReport",
+      "line": 588,
+      "doc": "Tests for format_security_report function.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, ui, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

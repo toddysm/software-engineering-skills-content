@@ -1,0 +1,297 @@
+{
+  "path": "packages/agent-os/src/agent_os/constraint_graph.py",
+  "extension": ".py",
+  "size_bytes": 7769,
+  "line_count": 234,
+  "documentation": {
+    "file_docstring": "Constraint Graph \u2014 DAG-based resource access control.\n\nThe constraint graph is the **only** path through which agents may access\nresources (tools, APIs, data).  Every resource access request is resolved\nby traversing a directed acyclic graph of constraint edges that encode\nallow/deny rules with optional conditions.\n\nArchitecture:\n    Agent \u2500\u2500\u25b6 ConstraintGraph.resolve() \u2500\u2500\u25b6 allow / deny\n                     \u2502\n                     \u251c\u2500 match agent_pattern against agent_id\n                     \u251c\u2500 match resource name\n                     \u2514\u2500 evaluate conditions (time, role, etc.)\n\nIntegration:\n    ``ConstraintGraphEnforcer`` implements the same ``intercept()`` protocol\n    as ``PolicyInterceptor`` so it can be composed via ``CompositeInterceptor``.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Data models",
+      "---------------------------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Constraint Graph",
+      "---------------------------------------------------------------------------",
+      "-- mutators -----------------------------------------------------------",
+      "-- query --------------------------------------------------------------",
+      "-- resolution ---------------------------------------------------------",
+      "Deny by default",
+      "-- internals ----------------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Enforcer (PolicyInterceptor-compatible)",
+      "---------------------------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "Permission: Permission type for a constraint edge.",
+      "ResourceType: Classification of a governed resource.",
+      "ResourceNode: A resource (tool, API, data) in the constraint graph.\n\nAttributes:\n    name: Uni",
+      "ConstraintEdge: A constraint linking an agent pattern to a resource permission.\n\nAttributes:\n   ",
+      "ConstraintGraph: DAG of resource constraints.\n\nEdges are evaluated in priority order (highest fir",
+      "ConstraintGraphEnforcer: Intercepts tool calls and enforces the constraint graph.\n\nImplements the same ``",
+      "add_resource: Register a resource node.",
+      "add_constraint: Add a constraint edge and re-sort by descending priority.",
+      "resources: Read-only view of registered resources.",
+      "edges: Read-only copy of constraint edges (sorted by priority)."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "ConstraintEdge",
+    "ConstraintGraphEnforcer",
+    "resources",
+    "ConstraintGraph",
+    "resolve",
+    "ResourceType",
+    "Permission",
+    "edges",
+    "ResourceNode",
+    "intercept",
+    "add_constraint",
+    "add_resource"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "fnmatch",
+      "logging",
+      "dataclasses",
+      "enum",
+      "typing",
+      "agent_os.integrations.base"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__hash__",
+      "line": 63,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "__eq__",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "other"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 103,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_resource",
+      "line": 109,
+      "doc": "Register a resource node.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "node"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_constraint",
+      "line": 113,
+      "doc": "Add a constraint edge and re-sort by descending priority.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "edge"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resources",
+      "line": 121,
+      "doc": "Read-only view of registered resources.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "edges",
+      "line": 126,
+      "doc": "Read-only copy of constraint edges (sorted by priority).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "resolve",
+      "line": 132,
+      "doc": "Check whether *agent_id* may access *resource*.\n\nArgs:\n    agent_id: The requesting agent's identifier.\n    resource: Name of the target resource.\n    context: Runtime context used for condition evaluation.\n\nReturns:\n    ``True`` if access is allowed, ``False`` otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "resource",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_conditions_met",
+      "line": 179,
+      "doc": "Return ``True`` if every condition key/value is present in *context*.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "conditions",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "__init__",
+      "line": 199,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "graph",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "intercept",
+      "line": 207,
+      "doc": "Enforce constraint graph for a ``ToolCallRequest``.\n\nImports are deferred to avoid circular dependency with\n``integrations.base``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "request"
+      ],
+      "returns": "Any"
+    }
+  ],
+  "classes": [
+    {
+      "name": "Permission",
+      "line": 37,
+      "doc": "Permission type for a constraint edge.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ResourceType",
+      "line": 43,
+      "doc": "Classification of a governed resource.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ResourceNode",
+      "line": 51,
+      "doc": "A resource (tool, API, data) in the constraint graph.\n\nAttributes:\n    name: Unique resource identifier (e.g. ``\"database_query\"``).\n    resource_type: Classification of the resource.\n    metadata: Arbitrary key/value metadata for condition evaluation.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ConstraintEdge",
+      "line": 73,
+      "doc": "A constraint linking an agent pattern to a resource permission.\n\nAttributes:\n    agent_pattern: Glob pattern matched against agent IDs.\n    resource: The resource this constraint governs.\n    permission: Whether to allow or deny access.\n    conditions: Optional key/value conditions that must all be satisfied\n        for this edge to apply (e.g. ``{\"role\": \"admin\"}``).\n    priority: Higher-priority edges take precedence during resolution.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ConstraintGraph",
+      "line": 95,
+      "doc": "DAG of resource constraints.\n\nEdges are evaluated in priority order (highest first).  The first matching\nedge determines the outcome.  If no edge matches, access is **denied** by\ndefault (deny-by-default posture).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ConstraintGraphEnforcer",
+      "line": 191,
+      "doc": "Intercepts tool calls and enforces the constraint graph.\n\nImplements the same ``intercept(request) -> result`` protocol used by\n``PolicyInterceptor`` and ``CompositeInterceptor`` so it can be plugged\ninto the existing governance pipeline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.48,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

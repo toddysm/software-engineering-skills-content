@@ -1,0 +1,233 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/cedar.py",
+  "extension": ".py",
+  "size_bytes": 13178,
+  "line_count": 378,
+  "documentation": {
+    "file_docstring": "Cedar Policy Adapter\n\nEvaluates policies written in Cedar (AWS's authorization policy language)\nalongside the existing YAML/JSON and OPA/Rego engines.\n\nThree modes:\n  1. **cedarpy** \u2014 Python bindings to the Rust Cedar engine (fastest, requires ``pip install cedarpy``)\n  2. **CLI** \u2014 Calls ``cedar authorize`` subprocess (requires Cedar CLI installed)\n  3. **Built-in** \u2014 Simple pattern evaluator for common permit/forbid rules (no external deps)\n\nWhy Cedar?\n  Enterprises standardized on AWS Cedar for authorization won't adopt a\n  new policy DSL. Supporting Cedar lets them reuse existing policies for\n  agent governance without political or operational overhead.\n\nUsage:\n    from agentmesh.governance.cedar import CedarEvaluator\n\n    # Built-in mode (no external deps)\n    evaluator = CedarEvaluator(policy_content='''\n        permit(\n            principal,\n            action == Action::\"ReadData\",\n            resource\n        );\n        forbid(\n            principal,\n            action == Action::\"DeleteFile\",\n            resource\n        );\n    ''')\n    decision = evaluator.evaluate(\"Action::\"ReadData\"\", {\"agent\": {\"role\": \"analyst\"}})\n\n    # With cedarpy bindings\n    evaluator = CedarEvaluator(mode=\"cedarpy\", policy_path=\"policies/mesh.cedar\")\n    decision = evaluator.evaluate(\n        \"Action::\"Export\"\",\n        {\"agent_did\": \"did:example:1\", \"resource\": \"Resource::\"dataset\"\"},\n    )\n\n    # Integrated with PolicyEngine\n    from agentmesh.governance.policy import PolicyEngine\n    engine = PolicyEngine()\n    engine.load_cedar(\"policies/mesh.cedar\")",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Built-in mode (no external deps)",
+      "With cedarpy bindings",
+      "Integrated with PolicyEngine",
+      "Eagerly load policy content",
+      "Eagerly load entities",
+      "Detect available engines",
+      "Normalize action for matching",
+      "\u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CedarDecision: Result from a Cedar policy evaluation.\n\nAttributes:\n    allowed: Whether the pol",
+      "CedarEvaluator: Evaluate Cedar policies for AgentMesh governance.\n\nSupports three modes (auto-de",
+      "_parse_cedar_statements: Parse Cedar permit/forbid statements from policy content.",
+      "load_cedar_into_engine: Register a .cedar file with the existing PolicyEngine.\n\nUsage:\n    from agentmes",
+      "__init__: Initialize the Cedar evaluator.\n\nArgs:\n    mode: Evaluation mode. ``\"auto\"`` tri",
+      "evaluate: Evaluate a Cedar authorization request.\n\nArgs:\n    action: Cedar action string (",
+      "_build_request: Build a Cedar authorization request from context.",
+      "_evaluate_cedarpy: Evaluate via cedarpy Python bindings.",
+      "_evaluate_cli: Evaluate via cedar CLI subprocess.",
+      "_evaluate_builtin: Built-in Cedar pattern evaluator for common permit/forbid rules.\n\nParses simple "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "CedarEvaluator",
+    "evaluate",
+    "CedarDecision",
+    "load_cedar_into_engine"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "re",
+      "shutil",
+      "subprocess",
+      "tempfile",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing",
+      "cedarpy",
+      "cedarpy"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_parse_cedar_statements",
+      "line": 330,
+      "doc": "Parse Cedar permit/forbid statements from policy content.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "content"
+      ],
+      "returns": null
+    },
+    {
+      "name": "load_cedar_into_engine",
+      "line": 354,
+      "doc": "Register a .cedar file with the existing PolicyEngine.\n\nUsage:\n    from agentmesh.governance.policy import PolicyEngine\n    from agentmesh.governance.cedar import load_cedar_into_engine\n\n    engine = PolicyEngine()\n    cedar = load_cedar_into_engine(engine, \"policies/mesh.cedar\")\n\n    decision = cedar.evaluate('Action::\"Export\"', {\"agent_did\": \"did:example:1\"})",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "engine",
+        "cedar_path",
+        "entities"
+      ],
+      "returns": "CedarEvaluator"
+    },
+    {
+      "name": "__init__",
+      "line": 97,
+      "doc": "Initialize the Cedar evaluator.\n\nArgs:\n    mode: Evaluation mode. ``\"auto\"`` tries cedarpy \u2192 CLI \u2192 builtin.\n    policy_path: Path to a ``.cedar`` policy file.\n    policy_content: Inline Cedar policy string.\n    entities: Entities list for authorization context.\n    entities_path: Path to Cedar entities JSON file.\n    schema_path: Path to Cedar schema file.\n    timeout_seconds: Maximum time to wait for evaluation.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "mode",
+        "policy_path",
+        "policy_content",
+        "entities",
+        "entities_path",
+        "schema_path",
+        "timeout_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_check_cedarpy",
+      "line": 138,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [],
+      "returns": "bool"
+    },
+    {
+      "name": "evaluate",
+      "line": 145,
+      "doc": "Evaluate a Cedar authorization request.\n\nArgs:\n    action: Cedar action string (e.g., ``Action::\"ReadData\"``)\n    context: Input context for evaluation, should include\n        ``agent_did`` or ``principal`` and ``resource`` keys.\n\nReturns:\n    CedarDecision with the result.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context"
+      ],
+      "returns": "CedarDecision"
+    },
+    {
+      "name": "_build_request",
+      "line": 186,
+      "doc": "Build a Cedar authorization request from context.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_evaluate_cedarpy",
+      "line": 208,
+      "doc": "Evaluate via cedarpy Python bindings.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context"
+      ],
+      "returns": "CedarDecision"
+    },
+    {
+      "name": "_evaluate_cli",
+      "line": 234,
+      "doc": "Evaluate via cedar CLI subprocess.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context"
+      ],
+      "returns": "CedarDecision"
+    },
+    {
+      "name": "_evaluate_builtin",
+      "line": 280,
+      "doc": "Built-in Cedar pattern evaluator for common permit/forbid rules.\n\nParses simple Cedar policy patterns:\n  - permit(principal, action == Action::\"X\", resource);\n  - forbid(principal, action == Action::\"X\", resource);\n  - permit(principal, action, resource);  // catch-all",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action",
+        "context"
+      ],
+      "returns": "CedarDecision"
+    }
+  ],
+  "classes": [
+    {
+      "name": "CedarDecision",
+      "line": 67,
+      "doc": "Result from a Cedar policy evaluation.\n\nAttributes:\n    allowed: Whether the policy permits the action.\n    raw_result: Raw response from the Cedar engine.\n    action: The Cedar action that was evaluated.\n    evaluation_ms: Evaluation latency in milliseconds.\n    source: How the evaluation was performed.\n    error: Error message if evaluation failed, otherwise ``None``.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "CedarEvaluator",
+      "line": 87,
+      "doc": "Evaluate Cedar policies for AgentMesh governance.\n\nSupports three modes (auto-detected by default):\n  - cedarpy: Python bindings to Rust Cedar engine\n  - cli: ``cedar`` CLI subprocess\n  - builtin: Simple pattern matcher for permit/forbid rules",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

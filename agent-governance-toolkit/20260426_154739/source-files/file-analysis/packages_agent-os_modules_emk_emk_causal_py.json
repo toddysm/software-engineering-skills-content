@@ -1,0 +1,325 @@
+{
+  "path": "packages/agent-os/modules/emk/emk/causal.py",
+  "extension": ".py",
+  "size_bytes": 11939,
+  "line_count": 352,
+  "documentation": {
+    "file_docstring": "Causal Episodic Memory \u2014 Episodes with causal links.\n\nExtends EMK's Episode schema with causal indexing: each episode knows\nwhat caused it and what effects it triggered.  This enables causal\nchain retrieval for debugging, compliance auditing, and RL training.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "---------------------------------------------------------------------------",
+      "Data structures",
+      "---------------------------------------------------------------------------",
+      "frozen dataclass \u2014 use object.__setattr__",
+      "-- Serialisation helpers ------------------------------------------------",
+      "---------------------------------------------------------------------------",
+      "Causal Memory Store  (SQLite-backed)",
+      "---------------------------------------------------------------------------",
+      "-- Core API -------------------------------------------------------------",
+      "Backward edge: caused_by \u2192 this",
+      "Forward edges: this \u2192 each effect",
+      "Allow re-visiting the root so the forward walk can start",
+      "Deduplicate + sort by timestamp",
+      "-- Internal helpers -----------------------------------------------------",
+      "Fetch forward edges"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "CausalEpisode: An episode enriched with causal links.\n\nParameters\n----------\naction : str\n    W",
+      "CausalMemoryStore: Persistent causal episodic memory backed by SQLite.\n\nRecords episodes with causa",
+      "record: Record a causal episode.\n\nInserts the episode row and any causal edges (caused_b",
+      "get: Retrieve a single episode by ID.",
+      "get_effects: Get all episodes directly caused by *episode_id*.",
+      "get_causes: Get all episodes that directly caused *episode_id*.",
+      "get_causal_chain: Walk the causal graph from *episode_id*.\n\nParameters\n----------\ndirection : \"bac",
+      "query_by_agent: Get recent episodes for an agent.",
+      "query_by_action: Get recent episodes matching an action type."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "record",
+    "get_causes",
+    "episode_count",
+    "get_causal_chain",
+    "CausalEpisode",
+    "get_effects",
+    "to_dict",
+    "edge_count",
+    "get",
+    "close",
+    "from_dict",
+    "query_by_action",
+    "CausalMemoryStore",
+    "query_by_agent"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "sqlite3",
+      "time",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "__post_init__",
+      "line": 67,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 87,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_dict",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "data"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 149,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "db_path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record",
+      "line": 159,
+      "doc": "Record a causal episode.\n\nInserts the episode row and any causal edges (caused_by \u2192 this,\nthis \u2192 each effect).  Returns the episode_id.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "episode"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get",
+      "line": 204,
+      "doc": "Retrieve a single episode by ID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "episode_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_effects",
+      "line": 213,
+      "doc": "Get all episodes directly caused by *episode_id*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "episode_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_causes",
+      "line": 226,
+      "doc": "Get all episodes that directly caused *episode_id*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "episode_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_causal_chain",
+      "line": 239,
+      "doc": "Walk the causal graph from *episode_id*.\n\nParameters\n----------\ndirection : \"backward\" | \"forward\" | \"both\"\n    backward = follow caused_by links (why did this happen?)\n    forward  = follow caused_effects (what did this cause?)\n    both     = union of both directions\nmax_depth : int\n    Maximum traversal depth to prevent infinite loops.\n\nReturns\n-------\nList of CausalEpisode ordered by timestamp.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "episode_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query_by_agent",
+      "line": 297,
+      "doc": "Get recent episodes for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "query_by_action",
+      "line": 307,
+      "doc": "Get recent episodes matching an action type.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "episode_count",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "edge_count",
+      "line": 323,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "close",
+      "line": 327,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_row_to_episode",
+      "line": 332,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "row"
+      ],
+      "returns": "CausalEpisode"
+    },
+    {
+      "name": "_walk",
+      "line": 265,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "eid",
+        "depth",
+        "fwd"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "CausalEpisode",
+      "line": 28,
+      "doc": "An episode enriched with causal links.\n\nParameters\n----------\naction : str\n    What was done.\nparams : dict\n    Parameters of the action.\nresult : dict\n    Outcome of the action.\ncaused_by : str | None\n    Episode ID that triggered this one (backward link).\ncaused_effects : tuple[str, ...]\n    Episode IDs that this episode subsequently triggered (forward links).\npolicy_context : dict\n    Active policies when this episode executed.\ntrust_context : dict\n    Peer trust scores when this episode executed.\nagent_id : str\n    DID / identifier of the acting agent.\ntimestamp : float\n    Unix epoch (auto-generated).\nepisode_id : str\n    SHA-256 content hash (auto-generated).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CausalMemoryStore",
+      "line": 141,
+      "doc": "Persistent causal episodic memory backed by SQLite.\n\nRecords episodes with causal links and supports graph traversal\nto retrieve full causal chains.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 31,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "logging"
+    ]
+  }
+}

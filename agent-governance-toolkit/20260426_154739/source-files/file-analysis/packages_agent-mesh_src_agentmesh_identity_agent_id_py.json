@@ -1,0 +1,599 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/agent_id.py",
+  "extension": ".py",
+  "size_bytes": 21283,
+  "line_count": 594,
+  "documentation": {
+    "file_docstring": "Agent Identity\n\nEvery agent gets a unique, cryptographically bound identity issued by AgentMesh CA.\nIdentity persists across restarts; revocation propagates in \u22645s.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Create deterministic but unique ID",
+      "Cryptographic identity",
+      "Human sponsor (accountability)",
+      "Organization",
+      "Capabilities (what this agent is allowed to do)",
+      "Metadata",
+      "Status",
+      "Delegation",
+      "Private key stored separately (not serialized)",
+      "Generate keypair",
+      "Encode public key",
+      "Generate DID",
+      "Create key ID",
+      "Store private key (not serialized)",
+      "Maximum delegation depth to prevent Sybil attacks via infinite chains.",
+      "V01: Enforce maximum delegation depth",
+      "V02: Block wildcard capability propagation",
+      "Validate capabilities are a subset",
+      "Create child identity",
+      "Set delegation metadata",
+      "Guard against blind reactivation of security suspensions",
+      "Prefix matching: \"read:*\" matches \"read:data\" but \":*\" is rejected",
+      "------------------------------------------------------------------",
+      "Delegation chain verification (Issue #607)",
+      "------------------------------------------------------------------",
+      "Circular reference detected",
+      "Leaf-only validation (no parent \u2192 root)",
+      "Depth must be > 0 for delegated identities",
+      "Without a registry we can only validate structural consistency",
+      "Parent must be active",
+      "Child capabilities must be subset of parent's",
+      "Depth must be exactly parent + 1",
+      "Recurse up the chain",
+      "Index by sponsor",
+      "Revoke all children"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "AgentDID: Decentralized Identifier for an agent.\n\nFormat: did:mesh:<unique-id>",
+      "AgentIdentity: First-class identity for an AI agent.\n\nUnlike service accounts, agent identities",
+      "IdentityRegistry: Registry for agent identities.\n\nIn production, this would be backed by a databas",
+      "generate: Generate a new DID for an agent.",
+      "from_string: Parse a DID string.",
+      "create: Create a new agent identity.\n\nThis is the primary factory method for creating go",
+      "sign: Sign data with this agent's private key.",
+      "verify_signature: Verify a signature against this agent's public key.",
+      "delegate: Delegate to a child agent with narrowed capabilities.\n\nThe child agent's capabil",
+      "revoke: Revoke this identity."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "delegate",
+    "list_active",
+    "verify_delegation_chain",
+    "validate_parent_did",
+    "is_trusted",
+    "validate_public_key",
+    "reactivate",
+    "create",
+    "from_jwks",
+    "to_jwk",
+    "revoke",
+    "is_active",
+    "verify_signature",
+    "sign",
+    "from_string",
+    "from_jwk",
+    "register",
+    "get_by_sponsor",
+    "to_jwks",
+    "AgentDID",
+    "validate_sponsor_email",
+    "get_effective_capabilities",
+    "validate_name",
+    "to_did_document",
+    "IdentityRegistry",
+    "generate",
+    "get",
+    "has_capability",
+    "AgentIdentity",
+    "suspend"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "cryptography.hazmat.primitives.asymmetric",
+      "cryptography.hazmat.primitives",
+      "hashlib",
+      "logging",
+      "uuid",
+      "base64",
+      "agentmesh.exceptions",
+      "agentmesh.identity.jwk",
+      "agentmesh.identity.jwk",
+      "agentmesh.identity.jwk",
+      "agentmesh.identity.jwk"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "generate",
+      "line": 36,
+      "doc": "Generate a new DID for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "name",
+        "org"
+      ],
+      "returns": null
+    },
+    {
+      "name": "from_string",
+      "line": 44,
+      "doc": "Parse a DID string.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "did_string"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__str__",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__hash__",
+      "line": 54,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "validate_name",
+      "line": 113,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_public_key",
+      "line": 120,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_sponsor_email",
+      "line": 127,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_parent_did",
+      "line": 136,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create",
+      "line": 144,
+      "doc": "Create a new agent identity.\n\nThis is the primary factory method for creating governed agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "name",
+        "sponsor",
+        "capabilities",
+        "organization",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sign",
+      "line": 197,
+      "doc": "Sign data with this agent's private key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "verify_signature",
+      "line": 205,
+      "doc": "Verify a signature against this agent's public key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "data",
+        "signature"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "delegate",
+      "line": 223,
+      "doc": "Delegate to a child agent with narrowed capabilities.\n\nThe child agent's capabilities MUST be a subset of the parent's.\nThis is enforced cryptographically - scope chains can only narrow.\n\nLineage-bound trust (Invariant 6): if ``max_initial_trust_score``\nis provided, it is stored on the child identity so that authority\nresolvers can cap the child's initial trust at\n``min(default_score, parent_score)``. This prevents trust washing\nthrough sub-agent spawning (Sybil resistance).\n\nArgs:\n    name: Name for the child agent.\n    capabilities: Capabilities to delegate (must be subset of parent's).\n    description: Optional description.\n    max_initial_trust_score: Upper bound on the child's initial trust\n        score. Typically set to the parent's current trust score.\n\nRaises:\n    ValueError: If capabilities are not a subset, delegation depth\n        exceeds MAX_DELEGATION_DEPTH, or wildcard is propagated.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "capabilities",
+        "description",
+        "max_initial_trust_score"
+      ],
+      "returns": null
+    },
+    {
+      "name": "revoke",
+      "line": 290,
+      "doc": "Revoke this identity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "suspend",
+      "line": 296,
+      "doc": "Temporarily suspend this identity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "reactivate",
+      "line": 302,
+      "doc": "Reactivate a suspended identity.\n\nArgs:\n    override_reason: If True, bypass the security-suspension guard.\n        Must be explicitly set when reactivating an identity that was\n        suspended for security reasons.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_active",
+      "line": 325,
+      "doc": "Check if identity is active and not expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_capability",
+      "line": 333,
+      "doc": "Check if this agent has a specific capability.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_jwk",
+      "line": 347,
+      "doc": "Export this identity as a JWK (JSON Web Key).\n\nArgs:\n    include_private: If True, include the private key. Defaults to False.\n\nReturns:\n    A dict representing the JWK per RFC 7517.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "include_private"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "from_jwk",
+      "line": 361,
+      "doc": "Create an AgentIdentity from a JWK.\n\nArgs:\n    jwk: A dict representing a JWK with Ed25519 key material.\n\nReturns:\n    A new AgentIdentity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "jwk"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_jwks",
+      "line": 374,
+      "doc": "Export this identity as a JWK Set.\n\nArgs:\n    include_private: If True, include private keys. Defaults to False.\n\nReturns:\n    A dict with a \"keys\" array containing the JWK.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "include_private"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "from_jwks",
+      "line": 388,
+      "doc": "Import an AgentIdentity from a JWK Set.\n\nArgs:\n    jwks: A dict representing a JWK Set.\n    kid: Optional key ID to filter by.\n\nReturns:\n    An AgentIdentity from the matching key.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "jwks",
+        "kid"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_delegation_chain",
+      "line": 407,
+      "doc": "Verify the entire delegation chain from *identity* to the root.\n\nWalks ``parent_did`` links, checking at each level that:\n1. The parent exists in *registry* (if supplied) or has no parent.\n2. The child's capabilities are a subset of the parent's.\n3. The delegation depth is consistent.\n4. No circular references exist.\n\nWhen *registry* is ``None`` only the leaf identity is validated\n(parent lookup is not possible without a registry).\n\nReturns ``True`` when the chain is valid, ``False`` otherwise.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "identity",
+        "registry",
+        "_visited"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_effective_capabilities",
+      "line": 468,
+      "doc": "Return the intersection of capabilities across the full chain.\n\nWalks the delegation chain from this identity to the root,\nreturning only capabilities present at *every* level.  If the\nregistry is ``None`` or a parent cannot be found, returns this\nidentity's own capabilities (the narrowest known set).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "registry"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_did_document",
+      "line": 500,
+      "doc": "Export as a DID Document (W3C format).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 531,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "require_attestation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register",
+      "line": 536,
+      "doc": "Register an identity.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "identity"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get",
+      "line": 557,
+      "doc": "Get an identity by DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "is_trusted",
+      "line": 562,
+      "doc": "Check if an agent DID is trusted in the registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "revoke",
+      "line": 572,
+      "doc": "Revoke an identity and all its delegates.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did",
+        "reason"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "get_by_sponsor",
+      "line": 587,
+      "doc": "Get all identities for a sponsor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "sponsor_email"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_active",
+      "line": 592,
+      "doc": "List all active identities.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "AgentDID",
+      "line": 25,
+      "doc": "Decentralized Identifier for an agent.\n\nFormat: did:mesh:<unique-id>",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AgentIdentity",
+      "line": 58,
+      "doc": "First-class identity for an AI agent.\n\nUnlike service accounts, agent identities:\n- Are linked to a human sponsor\n- Have ephemeral credentials\n- Support scope chains\n- Are continuously risk-scored",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "IdentityRegistry",
+      "line": 524,
+      "doc": "Registry for agent identities.\n\nIn production, this would be backed by a database and the AgentMesh CA.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 80,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

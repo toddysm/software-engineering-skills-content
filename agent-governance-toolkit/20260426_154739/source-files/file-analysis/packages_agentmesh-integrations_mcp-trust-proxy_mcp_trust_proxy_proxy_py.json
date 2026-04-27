@@ -1,0 +1,305 @@
+{
+  "path": "packages/agentmesh-integrations/mcp-trust-proxy/mcp_trust_proxy/proxy.py",
+  "extension": ".py",
+  "size_bytes": 9261,
+  "line_count": 270,
+  "documentation": {
+    "file_docstring": "MCP Trust Proxy \u2014 trust-gated tool access for MCP servers.\n\nWraps any MCP tool endpoint with AgentMesh trust verification.\nBefore an agent can call a tool, it must:\n1. Present a valid agent DID\n2. Meet the trust score threshold (global or per-tool)\n3. Have the required capabilities (if tool requires specific ones)\n4. Not be blocked or rate-limited\n\nWorks without importing MCP SDK \u2014 operates on tool names and agent metadata.\nCan be used as middleware in front of any MCP server.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Note: This class is not thread-safe. For concurrent use, wrap",
+      "authorize() calls with a threading.Lock.",
+      "Before forwarding tool call to MCP server:",
+      "1. DID required",
+      "2. Blocked DID",
+      "Get tool policy",
+      "3. Tool blocked",
+      "4. Trust score",
+      "5. Capabilities",
+      "5.5. Tool argument injection scanning",
+      "6. Rate limit",
+      "Allowed"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ToolPolicy: Access policy for a specific MCP tool.",
+      "AuthResult: Result of an authorization check.",
+      "TrustProxy: MCP trust proxy \u2014 intercepts tool calls and verifies agent identity.\n\nUsage as m",
+      "set_tool_policy: Set or update policy for a specific tool.",
+      "block_agent: Block an agent by DID.",
+      "unblock_agent: Unblock an agent by DID.",
+      "authorize: Authorize an MCP tool call.\n\nChecks (in order):\n1. Agent DID is present (if requ"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "AuthResult",
+    "deny",
+    "ToolPolicy",
+    "get_tool_policies",
+    "authorize",
+    "clear_rate_limits",
+    "block_agent",
+    "to_dict",
+    "get_audit_log",
+    "set_tool_policy",
+    "unblock_agent",
+    "TrustProxy",
+    "get_stats"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "logging",
+      "re",
+      "time",
+      "dataclasses",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "to_dict",
+      "line": 38,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 58,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "default_min_trust",
+        "tool_policies",
+        "blocked_dids",
+        "require_did",
+        "scan_arguments"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_iter_string_values",
+      "line": 125,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "value"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_scan_tool_args",
+      "line": 140,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "tool_args"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_tool_policy",
+      "line": 147,
+      "doc": "Set or update policy for a specific tool.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "tool_name",
+        "policy"
+      ],
+      "returns": null
+    },
+    {
+      "name": "block_agent",
+      "line": 151,
+      "doc": "Block an agent by DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "unblock_agent",
+      "line": 155,
+      "doc": "Unblock an agent by DID.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did"
+      ],
+      "returns": null
+    },
+    {
+      "name": "authorize",
+      "line": 159,
+      "doc": "Authorize an MCP tool call.\n\nChecks (in order):\n1. Agent DID is present (if required)\n2. Agent DID is not blocked\n3. Tool is not blocked\n4. Trust score meets threshold\n5. Agent has required capabilities\n5.5. Tool arguments do not contain prompt injection patterns\n6. Rate limit not exceeded",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_did",
+        "agent_trust_score",
+        "tool_name",
+        "agent_capabilities",
+        "tool_args"
+      ],
+      "returns": "AuthResult"
+    },
+    {
+      "name": "get_audit_log",
+      "line": 252,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_tool_policies",
+      "line": 255,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_stats",
+      "line": 258,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "clear_rate_limits",
+      "line": 269,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "deny",
+      "line": 181,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "reason"
+      ],
+      "returns": "AuthResult"
+    }
+  ],
+  "classes": [
+    {
+      "name": "ToolPolicy",
+      "line": 29,
+      "doc": "Access policy for a specific MCP tool.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AuthResult",
+      "line": 48,
+      "doc": "Result of an authorization check.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "TrustProxy",
+      "line": 70,
+      "doc": "MCP trust proxy \u2014 intercepts tool calls and verifies agent identity.\n\nUsage as middleware:\n    proxy = TrustProxy(default_min_trust=300)\n    proxy.set_tool_policy(\"shell_exec\", ToolPolicy(blocked=True))\n\n    # Before forwarding tool call to MCP server:\n    result = proxy.authorize(\n        agent_did=\"did:mesh:agent-1\",\n        agent_trust_score=600,\n        agent_capabilities=[\"search\"],\n        tool_name=\"web_search\",\n    )\n    if not result.allowed:\n        return {\"error\": result.reason}",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 36,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,407 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/identity/delegation.py",
+  "extension": ".py",
+  "size_bytes": 13968,
+  "line_count": 372,
+  "documentation": {
+    "file_docstring": "Scope Chains\n\nSimple scope passing: sub-agent gets parent's scopes minus any denied ones.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Chain position",
+      "Agents",
+      "Capability narrowing",
+      "Timestamps",
+      "User context for OBO flows",
+      "Kept for API compatibility (not cryptographically enforced)",
+      "Root (human sponsor)",
+      "Known agent identities (kept for API compatibility)",
+      "Chain links",
+      "Final agent",
+      "Chain metadata",
+      "Verification",
+      "Verify capability narrowing",
+      "Verify link hash",
+      "Verify Ed25519 signature"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "UserContext: User context for On-Behalf-Of (OBO) flows.\n\nWhen an agent acts on behalf of an e",
+      "DelegationLink: A single link in a scope chain.\n\nEach link represents a parent granting capabili",
+      "ScopeChain: Simple scope chain from root sponsor to current agent.\n\nSub-agent gets parent's ",
+      "is_valid: Check if the user context is still valid.",
+      "has_permission: Check if the user has a specific permission.",
+      "has_role: Check if the user has a specific role.",
+      "create: Create a new user context with TTL.",
+      "verify_capability_narrowing: Verify that delegated capabilities are a subset of parent's.",
+      "_is_narrower_capability: Check if a capability is a narrowed version of a parent capability.",
+      "compute_hash: Compute hash of this link."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "validate_root_sponsor_email",
+    "is_valid",
+    "ScopeChain",
+    "create",
+    "has_permission",
+    "compute_hash",
+    "validate_leaf_did",
+    "create_root",
+    "verify_capability_narrowing",
+    "validate_root_capabilities",
+    "validate_chain_id",
+    "get_depth",
+    "verify",
+    "trace_capability",
+    "add_link",
+    "DelegationLink",
+    "get_effective_capabilities",
+    "UserContext",
+    "has_role"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "datetime",
+      "typing",
+      "pydantic",
+      "hashlib",
+      "json",
+      "agentmesh.identity.agent_id",
+      "agentmesh.constants",
+      "agentmesh.exceptions",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "is_valid",
+      "line": 37,
+      "doc": "Check if the user context is still valid.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_permission",
+      "line": 43,
+      "doc": "Check if the user has a specific permission.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "permission"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "has_role",
+      "line": 49,
+      "doc": "Check if the user has a specific role.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "role"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "create",
+      "line": 54,
+      "doc": "Create a new user context with TTL.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "user_id",
+        "user_email",
+        "roles",
+        "permissions",
+        "ttl_seconds"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_capability_narrowing",
+      "line": 107,
+      "doc": "Verify that delegated capabilities are a subset of parent's.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_is_narrower_capability",
+      "line": 115,
+      "doc": "Check if a capability is a narrowed version of a parent capability.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "cap",
+        "parent_caps"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "compute_hash",
+      "line": 126,
+      "doc": "Compute hash of this link.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "is_valid",
+      "line": 141,
+      "doc": "Check if this link is valid (expiration and capability narrowing only).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "validate_chain_id",
+      "line": 182,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_root_sponsor_email",
+      "line": 189,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "validate_root_capabilities",
+      "line": 198,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": null
+    },
+    {
+      "name": "validate_leaf_did",
+      "line": 205,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "v"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_depth",
+      "line": 221,
+      "doc": "Return the current depth of the scope chain.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "int"
+    },
+    {
+      "name": "add_link",
+      "line": 225,
+      "doc": "Add a link to the chain with simple scope narrowing validation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "link"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_verify_link_signature",
+      "line": 253,
+      "doc": "Verify the Ed25519 signature on a delegation link.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "link"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "verify",
+      "line": 261,
+      "doc": "Verify the chain \u2014 scope narrowing, hash integrity, and signatures.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_effective_capabilities",
+      "line": 297,
+      "doc": "Get the effective capabilities at the end of the chain.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "trace_capability",
+      "line": 303,
+      "doc": "Trace how a capability was granted through the chain.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "capability"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_update_chain_hash",
+      "line": 328,
+      "doc": "Update the overall chain hash.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "create_root",
+      "line": 339,
+      "doc": "Create a new chain with a root sponsor.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "sponsor_email",
+        "root_agent_did",
+        "capabilities",
+        "sponsor_verified"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "UserContext",
+      "line": 20,
+      "doc": "User context for On-Behalf-Of (OBO) flows.\n\nWhen an agent acts on behalf of an end user, this context propagates\nthrough the scope chain so downstream agents can enforce\nuser-level access control.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "DelegationLink",
+      "line": 74,
+      "doc": "A single link in a scope chain.\n\nEach link represents a parent granting capabilities to a child.\nThe child's capabilities MUST be a subset of the parent's.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ScopeChain",
+      "line": 152,
+      "doc": "Simple scope chain from root sponsor to current agent.\n\nSub-agent gets parent's scopes minus any denied ones.\nNo cryptographic chain verification.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 53,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: database, api, business_logic, auth, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "auth",
+      "logging"
+    ]
+  }
+}

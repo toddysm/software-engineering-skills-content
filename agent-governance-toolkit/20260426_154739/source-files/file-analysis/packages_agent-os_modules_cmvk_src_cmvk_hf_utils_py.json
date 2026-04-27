@@ -1,0 +1,174 @@
+{
+  "path": "packages/agent-os/modules/cmvk/src/cmvk/hf_utils.py",
+  "extension": ".py",
+  "size_bytes": 8551,
+  "line_count": 301,
+  "documentation": {
+    "file_docstring": "Hugging Face Hub Utilities for CMVK\n\nLightweight utilities for pushing/pulling datasets and experiment results\nto the Hugging Face Hub. Designed for research reproducibility.\n\nUsage:\n    from cmvk.hf_utils import upload_experiment_logs, download_dataset\n\n    # Upload experiment results\n    upload_experiment_logs(\n        results_path=\"experiments/results.json\",\n        repo_id=\"microsoft/cmvk-benchmark-data\"\n    )\n\n    # Download shared datasets\n    download_dataset(\n        repo_id=\"microsoft/cmvk-benchmark-data\",\n        filename=\"datasets/humaneval_50.json\",\n        local_path=\"experiments/datasets/\"\n    )\n\nRequirements:\n    pip install huggingface_hub",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Upload experiment results",
+      "Download shared datasets",
+      "Default repository configuration",
+      "Create repo if needed",
+      "Determine path in repo",
+      "Auto-generate commit message",
+      "Create metadata wrapper",
+      "Write to temp file and upload"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "HuggingFaceHubError: Raised when Hugging Face Hub operations fail.",
+      "_get_api: Get HfApi instance, raising helpful error if not installed.",
+      "check_auth: Check if Hugging Face authentication is configured.\n\nReturns:\n    True if authen",
+      "upload_experiment_logs: Upload experiment results/logs to Hugging Face Hub.\n\nArgs:\n    results_path: Pat",
+      "upload_traces: Upload execution traces directory to Hugging Face Hub.\n\nArgs:\n    trace_dir: Dir",
+      "download_dataset: Download a dataset file from Hugging Face Hub.\n\nArgs:\n    repo_id: Hugging Face ",
+      "upload_verification_dataset: Upload a verification dataset (list of problems/results) to HF Hub.\n\nArgs:\n    d"
+    ]
+  },
+  "purpose": {
+    "primary_role": "utility",
+    "secondary_roles": [],
+    "confidence": 0.8,
+    "indicators": [
+      "utility/helper path"
+    ]
+  },
+  "exports": [
+    "HuggingFaceHubError",
+    "download_dataset",
+    "upload_experiment_logs",
+    "check_auth",
+    "upload_verification_dataset",
+    "upload_traces"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "json",
+      "logging",
+      "pathlib",
+      "typing",
+      "huggingface_hub",
+      "huggingface_hub",
+      "huggingface_hub",
+      "tempfile",
+      "datetime",
+      "huggingface_hub"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_get_api",
+      "line": 52,
+      "doc": "Get HfApi instance, raising helpful error if not installed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "HfApi"
+    },
+    {
+      "name": "check_auth",
+      "line": 65,
+      "doc": "Check if Hugging Face authentication is configured.\n\nReturns:\n    True if authenticated, False otherwise.\n\nExample:\n    >>> if check_auth():\n    ...     upload_experiment_logs(\"results.json\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": "bool"
+    },
+    {
+      "name": "upload_experiment_logs",
+      "line": 84,
+      "doc": "Upload experiment results/logs to Hugging Face Hub.\n\nArgs:\n    results_path: Path to local results file (JSON, CSV, etc.)\n    repo_id: Hugging Face repository ID (e.g., \"username/repo-name\")\n    path_in_repo: Path within the repository. If None, uses filename.\n    commit_message: Custom commit message. Auto-generated if None.\n    private: Whether to make the repository private.\n\nReturns:\n    URL of the uploaded file.\n\nRaises:\n    HuggingFaceHubError: If upload fails or file not found.\n    FileNotFoundError: If results_path doesn't exist.\n\nExample:\n    >>> url = upload_experiment_logs(\n    ...     \"experiments/results.json\",\n    ...     repo_id=\"microsoft/cmvk-benchmark-data\"\n    ... )\n    >>> print(f\"Uploaded to: {url}\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "results_path",
+        "repo_id",
+        "path_in_repo",
+        "commit_message",
+        "private"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "upload_traces",
+      "line": 156,
+      "doc": "Upload execution traces directory to Hugging Face Hub.\n\nArgs:\n    trace_dir: Directory containing trace JSON files.\n    repo_id: Hugging Face repository ID.\n    max_files: Maximum number of files to upload.\n\nReturns:\n    List of uploaded file URLs.\n\nExample:\n    >>> urls = upload_traces(\"logs/traces/\")\n    >>> print(f\"Uploaded {len(urls)} trace files\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "trace_dir",
+        "repo_id",
+        "max_files"
+      ],
+      "returns": null
+    },
+    {
+      "name": "download_dataset",
+      "line": 201,
+      "doc": "Download a dataset file from Hugging Face Hub.\n\nArgs:\n    repo_id: Hugging Face repository ID.\n    filename: Path to file within the repository.\n    local_path: Local directory to save the file.\n    revision: Git revision (branch, tag, or commit).\n\nReturns:\n    Path to the downloaded file.\n\nExample:\n    >>> path = download_dataset(\n    ...     filename=\"datasets/humaneval_50.json\",\n    ...     local_path=\"experiments/datasets/\"\n    ... )\n    >>> with open(path) as f:\n    ...     data = json.load(f)",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "repo_id",
+        "filename",
+        "local_path",
+        "revision"
+      ],
+      "returns": "Path"
+    },
+    {
+      "name": "upload_verification_dataset",
+      "line": 247,
+      "doc": "Upload a verification dataset (list of problems/results) to HF Hub.\n\nArgs:\n    data: List of problem dictionaries with verification results.\n    dataset_name: Name for the dataset file.\n    repo_id: Hugging Face repository ID.\n    description: Optional description to include in metadata.\n\nReturns:\n    URL of the uploaded dataset.\n\nExample:\n    >>> results = [\n    ...     {\"task_id\": \"HE/1\", \"success\": True, \"drift_score\": 0.15},\n    ...     {\"task_id\": \"HE/2\", \"success\": False, \"drift_score\": 0.89},\n    ... ]\n    >>> upload_verification_dataset(results, \"humaneval_run_001\")",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "data",
+        "dataset_name",
+        "repo_id",
+        "description"
+      ],
+      "returns": "str"
+    }
+  ],
+  "classes": [
+    {
+      "name": "HuggingFaceHubError",
+      "line": 46,
+      "doc": "Raised when Hugging Face Hub operations fail.",
+      "is_public": true,
+      "bases": [
+        "Exception"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 27,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,471 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/anomaly/rogue_detector.py",
+  "extension": ".py",
+  "size_bytes": 16550,
+  "line_count": 459,
+  "documentation": {
+    "file_docstring": "Rogue agent detection engine (OWASP ASI-10).\n\nDetects behavioral anomalies that indicate an agent has gone rogue:\ntool-call frequency spikes, action entropy deviation, and capability\nprofile violations.  Combines these signals into a single risk\nassessment with optional auto-quarantine recommendations.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "\u2500\u2500 Enums / value types \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Configuration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "ToolCallFrequencyAnalyzer",
+      "ActionEntropyScorer",
+      "CapabilityProfileDeviation",
+      "RogueAgentDetector",
+      "\u2500\u2500 Assessment result \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "\u2500\u2500 Analyzers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "agent_id \u2192 deque of (window_start, count) tuples",
+      "agent_id \u2192 (current_window_start, running_count)",
+      "agent_id \u2192 list of action names",
+      "Agent stuck in a loop \u2014 further below threshold \u2192 higher score",
+      "Erratic behavior",
+      "agent_id \u2192 set of allowed tool names",
+      "agent_id \u2192 (total_calls, violation_count)",
+      "\u2500\u2500 Orchestrator \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "-- data ingestion ---------------------------------------------------",
+      "-- assessment -------------------------------------------------------",
+      "-- tamper-evident hash chain --",
+      "-- queries ----------------------------------------------------------",
+      "-- internals --------------------------------------------------------"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "RiskLevel: Overall risk classification for an agent.",
+      "RogueDetectorConfig: Tunable thresholds for the rogue-agent detector.",
+      "RogueAssessment: Result of a rogue-agent risk assessment.",
+      "ToolCallFrequencyAnalyzer: Z-score analysis on tool-call frequency per time window.\n\nTracks calls per agent",
+      "ActionEntropyScorer: Shannon entropy scoring for agent action diversity.\n\nLow entropy \u2192 agent stuck i",
+      "CapabilityProfileDeviation: Detect when an agent uses tools outside its declared profile.\n\nEach agent regist",
+      "RogueAgentDetector: Orchestrates frequency, entropy, and capability analyzers to\nproduce a composite",
+      "_hash_payload: Return a canonical JSON string of the fields covered by the hash.",
+      "compute_hash: Compute SHA-256 entry hash chained to *previous_hash*.",
+      "_flush_bucket: Rotate the current bucket if the window has elapsed."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "record",
+    "entropy",
+    "RogueAgentDetector",
+    "verify_assessment_chain",
+    "RiskLevel",
+    "ActionEntropyScorer",
+    "RogueAssessment",
+    "assess",
+    "assessments",
+    "register_profile",
+    "compute_hash",
+    "ToolCallFrequencyAnalyzer",
+    "to_dict",
+    "register_capability_profile",
+    "RogueDetectorConfig",
+    "record_action",
+    "CapabilityProfileDeviation",
+    "score"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "json",
+      "logging",
+      "math",
+      "time",
+      "collections",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_hash_payload",
+      "line": 82,
+      "doc": "Return a canonical JSON string of the fields covered by the hash.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "compute_hash",
+      "line": 95,
+      "doc": "Compute SHA-256 entry hash chained to *previous_hash*.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "previous_hash"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 102,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 128,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "window_seconds",
+        "z_threshold",
+        "min_windows"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_flush_bucket",
+      "line": 144,
+      "doc": "Rotate the current bucket if the window has elapsed.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "now"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record",
+      "line": 155,
+      "doc": "Record a single tool call.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "score",
+      "line": 162,
+      "doc": "Return a z-score for the current window's call frequency.\n\nReturns 0.0 when insufficient data is available.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "timestamp"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 194,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "low_threshold",
+        "high_threshold",
+        "min_actions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record",
+      "line": 206,
+      "doc": "Record an action for the given agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "action"
+      ],
+      "returns": null
+    },
+    {
+      "name": "entropy",
+      "line": 210,
+      "doc": "Compute Shannon entropy of the agent's action distribution.\n\nReturns ``None`` when fewer than ``min_actions`` have been recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "score",
+      "line": 231,
+      "doc": "Return an anomaly score based on entropy deviation.\n\n* Score > 0 indicates anomalous entropy (too low or too high).\n* Returns 0.0 when data is insufficient or entropy is in range.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "violation_weight"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_profile",
+      "line": 267,
+      "doc": "Register or update the capability profile for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "allowed_tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record",
+      "line": 271,
+      "doc": "Record a tool call and return ``True`` if it is a violation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "tool_name"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "score",
+      "line": 285,
+      "doc": "Return a capability-deviation score in ``[0, 1]``.\n\nA value of 0 means no violations; 1 means every call was\noutside the declared profile.  Scaled by ``violation_weight``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "__init__",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "config"
+      ],
+      "returns": null
+    },
+    {
+      "name": "record_action",
+      "line": 331,
+      "doc": "Feed an observed action into all analyzers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "action",
+        "tool_name",
+        "timestamp"
+      ],
+      "returns": null
+    },
+    {
+      "name": "register_capability_profile",
+      "line": 344,
+      "doc": "Declare the set of tools an agent is expected to use.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "allowed_tools"
+      ],
+      "returns": null
+    },
+    {
+      "name": "assess",
+      "line": 354,
+      "doc": "Produce a composite risk assessment for *agent_id*.\n\nCombines frequency z-score, entropy anomaly score, and\ncapability violation score into a single ``RogueAssessment``.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "agent_id",
+        "timestamp"
+      ],
+      "returns": "RogueAssessment"
+    },
+    {
+      "name": "assessments",
+      "line": 413,
+      "doc": "Return a copy of the assessment history.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify_assessment_chain",
+      "line": 417,
+      "doc": "Walk every assessment and verify hash linkage.\n\nReturns ``(True, None)`` when the chain is intact, or\n``(False, description)`` on the first broken link.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_classify_risk",
+      "line": 444,
+      "doc": "Map composite score to a risk level.\n\nThresholds (mirroring ``AnomalySeverity`` boundaries):\n* < 1.0  \u2192 LOW\n* < 2.0  \u2192 MEDIUM\n* < 3.0  \u2192 HIGH\n* >= 3.0 \u2192 CRITICAL",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "composite_score"
+      ],
+      "returns": "RiskLevel"
+    }
+  ],
+  "classes": [
+    {
+      "name": "RiskLevel",
+      "line": 30,
+      "doc": "Overall risk classification for an agent.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "RogueDetectorConfig",
+      "line": 43,
+      "doc": "Tunable thresholds for the rogue-agent detector.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "RogueAssessment",
+      "line": 67,
+      "doc": "Result of a rogue-agent risk assessment.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ToolCallFrequencyAnalyzer",
+      "line": 121,
+      "doc": "Z-score analysis on tool-call frequency per time window.\n\nTracks calls per agent per time bucket and detects sudden spikes\nusing z-score against baseline.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ActionEntropyScorer",
+      "line": 187,
+      "doc": "Shannon entropy scoring for agent action diversity.\n\nLow entropy \u2192 agent stuck in a loop (repetitive behavior).\nVery high entropy \u2192 erratic, unfocused behavior.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "CapabilityProfileDeviation",
+      "line": 252,
+      "doc": "Detect when an agent uses tools outside its declared profile.\n\nEach agent registers a set of allowed tools.  Any tool call\noutside that set increments a violation counter.  The score\nis the fraction of total calls that are violations.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "RogueAgentDetector",
+      "line": 304,
+      "doc": "Orchestrates frequency, entropy, and capability analyzers to\nproduce a composite risk assessment for each agent.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 39,
+  "responsibility": {
+    "single_responsibility_score": 0.5599999999999999,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns"
+    ],
+    "detected_concerns": [
+      "database",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "path": "packages/agent-compliance/src/agent_compliance/integrity.py",
+  "extension": ".py",
+  "size_bytes": 13795,
+  "line_count": 392,
+  "documentation": {
+    "file_docstring": "Bootstrap Integrity Verification.\n\nVerifies that governance module source files have not been tampered\nwith by comparing SHA-256 hashes against a published manifest. This\nanswers the \"who watches the watcher\" question \u2014 the governance layer\nitself must prove it hasn't been subverted.\n\nUsage::\n\n    from agent_compliance.integrity import IntegrityVerifier\n\n    verifier = IntegrityVerifier()\n    report = verifier.verify()\n    print(report.passed)     # True/False\n    print(report.summary())  # Human-readable summary",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Governance modules whose integrity we verify",
+      "Critical functions whose bytecode we hash for runtime tamper detection",
+      "Phase 1: File hash verification",
+      "Phase 2: Critical function bytecode verification"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FileIntegrityResult: Result of verifying a single file.",
+      "FunctionIntegrityResult: Result of verifying a critical function's bytecode.",
+      "IntegrityReport: Complete integrity verification report.\n\nAttributes:\n    passed: Overall pass/fa",
+      "_hash_file: SHA-256 hash of a file's contents.",
+      "_hash_function_bytecode: SHA-256 hash of a function's compiled bytecode.",
+      "_resolve_function: Resolve 'ClassName.method' or 'function_name' from a module.",
+      "IntegrityVerifier: Verifies governance module integrity at startup or on demand.\n\nArgs:\n    manifes",
+      "summary: Human-readable summary of the verification.",
+      "to_dict: Serialize to dict for JSON output.",
+      "verify: Run full integrity verification.\n\nReturns:\n    An IntegrityReport with per-file "
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "IntegrityReport",
+    "FileIntegrityResult",
+    "summary",
+    "IntegrityVerifier",
+    "to_dict",
+    "generate_manifest",
+    "verify",
+    "FunctionIntegrityResult"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "hashlib",
+      "importlib",
+      "inspect",
+      "json",
+      "logging",
+      "os",
+      "collections.abc",
+      "dataclasses",
+      "datetime",
+      "types",
+      "typing",
+      "agent_compliance.verify",
+      "logging"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "_hash_file",
+      "line": 176,
+      "doc": "SHA-256 hash of a file's contents.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "path"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_hash_function_bytecode",
+      "line": 185,
+      "doc": "SHA-256 hash of a function's compiled bytecode.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "func"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "_resolve_function",
+      "line": 194,
+      "doc": "Resolve 'ClassName.method' or 'function_name' from a module.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "module",
+        "dotted_name"
+      ],
+      "returns": null
+    },
+    {
+      "name": "summary",
+      "line": 115,
+      "doc": "Human-readable summary of the verification.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "to_dict",
+      "line": 144,
+      "doc": "Serialize to dict for JSON output.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "dict"
+    },
+    {
+      "name": "__init__",
+      "line": 217,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "manifest_path",
+        "modules",
+        "critical_functions"
+      ],
+      "returns": null
+    },
+    {
+      "name": "verify",
+      "line": 238,
+      "doc": "Run full integrity verification.\n\nReturns:\n    An IntegrityReport with per-file and per-function results.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "IntegrityReport"
+    },
+    {
+      "name": "generate_manifest",
+      "line": 345,
+      "doc": "Generate an integrity manifest from current module state.\n\nWrites a JSON file containing SHA-256 hashes of all governance\nmodule source files and critical function bytecodes.\n\nArgs:\n    output_path: Where to write integrity.json.\n\nReturns:\n    The manifest dict.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "output_path"
+      ],
+      "returns": "dict"
+    }
+  ],
+  "classes": [
+    {
+      "name": "FileIntegrityResult",
+      "line": 68,
+      "doc": "Result of verifying a single file.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FunctionIntegrityResult",
+      "line": 80,
+      "doc": "Result of verifying a critical function's bytecode.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "IntegrityReport",
+      "line": 92,
+      "doc": "Complete integrity verification report.\n\nAttributes:\n    passed: Overall pass/fail.\n    file_results: Per-file hash check results.\n    function_results: Per-function bytecode check results.\n    verified_at: Timestamp of verification.\n    manifest_path: Path to the manifest used (if any).\n    modules_checked: Count of modules verified.\n    modules_missing: Modules that couldn't be imported.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "IntegrityVerifier",
+      "line": 205,
+      "doc": "Verifies governance module integrity at startup or on demand.\n\nArgs:\n    manifest_path: Path to integrity.json manifest. If None,\n        generates a baseline instead of verifying against one.\n    modules: List of module names to verify. Defaults to\n        GOVERNANCE_MODULES.\n    critical_functions: List of (module, func_path) tuples for\n        bytecode verification.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 37,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "business_logic",
+      "logging"
+    ]
+  }
+}

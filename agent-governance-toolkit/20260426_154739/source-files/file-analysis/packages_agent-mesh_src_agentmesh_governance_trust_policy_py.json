@@ -1,0 +1,210 @@
+{
+  "path": "packages/agent-mesh/src/agentmesh/governance/trust_policy.py",
+  "extension": ".py",
+  "size_bytes": 6823,
+  "line_count": 197,
+  "documentation": {
+    "file_docstring": "Trust Policy DSL\n\nDeclarative trust policy definitions with rule-based evaluation,\npriority ordering, and YAML configuration support.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "V31: Reject overly complex regex patterns to prevent ReDoS"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "ConditionOperator: Supported condition operators for trust rules.",
+      "TrustCondition: A single condition in a trust rule.\n\nAttributes:\n    field: Dot-notated path to ",
+      "TrustRule: A single trust policy rule with condition, action, and priority.\n\nAttributes:\n  ",
+      "TrustDefaults: Default trust policy parameters applied when no rule matches.",
+      "TrustPolicy: A declarative trust policy with rules and defaults.\n\nPolicies can be loaded from",
+      "load_policies: Load all YAML trust policies from a directory.\n\nScans for ``*.yaml`` and ``*.yml",
+      "evaluate: Evaluate this condition against a context dictionary.\n\nArgs:\n    context: Runtim",
+      "_resolve_field: Resolve a dot-notated field path against a context dict.",
+      "_apply_operator: Apply a comparison operator.",
+      "from_yaml: Load a TrustPolicy from a YAML file.\n\nArgs:\n    path: Path to the YAML policy fi"
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.85,
+    "indicators": [
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "load_policies",
+    "TrustPolicy",
+    "TrustCondition",
+    "TrustRule",
+    "ConditionOperator",
+    "to_yaml",
+    "from_yaml",
+    "TrustDefaults",
+    "evaluate"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "re",
+      "enum",
+      "pathlib",
+      "typing",
+      "yaml",
+      "pydantic"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "load_policies",
+      "line": 180,
+      "doc": "Load all YAML trust policies from a directory.\n\nScans for ``*.yaml`` and ``*.yml`` files in sorted order.\n\nArgs:\n    directory: Path to the directory containing policy files.\n\nReturns:\n    List of ``TrustPolicy`` instances loaded from the directory.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "directory"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 47,
+      "doc": "Evaluate this condition against a context dictionary.\n\nArgs:\n    context: Runtime context with values accessible via\n        dot-notated field paths.\n\nReturns:\n    ``True`` if the condition is satisfied.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "context"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "_resolve_field",
+      "line": 61,
+      "doc": "Resolve a dot-notated field path against a context dict.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "context",
+        "field"
+      ],
+      "returns": "Any"
+    },
+    {
+      "name": "_apply_operator",
+      "line": 73,
+      "doc": "Apply a comparison operator.",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "actual",
+        "operator",
+        "expected"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "from_yaml",
+      "line": 154,
+      "doc": "Load a TrustPolicy from a YAML file.\n\nArgs:\n    path: Path to the YAML policy file.\n\nReturns:\n    A fully-constructed ``TrustPolicy`` instance.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "classmethod"
+      ],
+      "args": [
+        "cls",
+        "path"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_yaml",
+      "line": 168,
+      "doc": "Save this TrustPolicy to a YAML file.\n\nArgs:\n    path: Destination file path.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "path"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "ConditionOperator",
+      "line": 19,
+      "doc": "Supported condition operators for trust rules.",
+      "is_public": true,
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustCondition",
+      "line": 33,
+      "doc": "A single condition in a trust rule.\n\nAttributes:\n    field: Dot-notated path to a context value\n        (e.g. ``\"trust_score\"``, ``\"agent.namespace\"``).\n    operator: Comparison operator to apply.\n    value: Expected value to compare against.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustRule",
+      "line": 106,
+      "doc": "A single trust policy rule with condition, action, and priority.\n\nAttributes:\n    name: Unique rule name.\n    description: Human-readable description of what the rule does.\n    condition: The ``TrustCondition`` to evaluate.\n    action: Action to take when the condition matches\n        (allow, deny, warn, or require_approval).\n    priority: Evaluation priority (lower number = higher priority).",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustDefaults",
+      "line": 127,
+      "doc": "Default trust policy parameters applied when no rule matches.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TrustPolicy",
+      "line": 138,
+      "doc": "A declarative trust policy with rules and defaults.\n\nPolicies can be loaded from and saved to YAML files for easy configuration.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 30,
+  "responsibility": {
+    "single_responsibility_score": 1.0,
+    "cohesion_indicators": [],
+    "concerns": [],
+    "detected_concerns": [
+      "ui",
+      "logging"
+    ]
+  }
+}

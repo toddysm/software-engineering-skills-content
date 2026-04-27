@@ -1,0 +1,509 @@
+{
+  "path": "packages/agent-sre/tests/test_langfuse.py",
+  "extension": ".py",
+  "size_bytes": 12084,
+  "line_count": 345,
+  "documentation": {
+    "file_docstring": "Tests for Langfuse integration \u2014 SLO scoring and cost observations.\n\nUses offline mode (no Langfuse connection required) to verify that\nAgent SRE data is correctly prepared for Langfuse export.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "========== Fixtures ==========",
+      "Record some data",
+      "========== Offline Mode Tests ==========",
+      "Should have: status + budget_remaining + burn_rate + 2 SLIs = 5 scores",
+      "With 1 failure in 10, budget is consumed but not exhausted",
+      "Value depends on windowed average of recorded measurements",
+      "9 success + 1 failure, but current_value() averages all recorded SLIValues",
+      "9 * 0.30 = 2.70 / 9 = 0.30",
+      "status + budget + burn_rate, but no SLI (current_value is None)",
+      "========== Live Mode Tests ==========",
+      "Should not raise",
+      "Score still recorded locally",
+      "========== Integration Tests ==========",
+      "Simulate 100 tasks",
+      "Score every 10 tasks",
+      "Final scoring",
+      "Should have status + budget + burn_rate + 3 SLIs = 6 scores",
+      "Check SLI values are in expected ranges",
+      "Check cost observations"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "exporter: Offline exporter for testing.",
+      "mock_client: Mock Langfuse client.",
+      "live_exporter: Exporter with mock Langfuse client.",
+      "sample_slo: A sample SLO with data recorded.",
+      "TestLangfuseExporterOffline: Test offline (no client) mode.",
+      "TestLangfuseExporterLive: Test live mode with mock Langfuse client.",
+      "TestLangfuseIntegration: End-to-end tests combining Langfuse with other Agent SRE components.",
+      "test_is_offline: Exporter without client is offline.",
+      "test_score_slo_creates_scores: Scoring an SLO produces multiple score objects.",
+      "test_score_slo_status: SLO status is correctly encoded as score."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_slo_no_data_produces_fewer_scores",
+    "live_exporter",
+    "test_is_offline",
+    "mock_client",
+    "test_imports_from_package",
+    "test_slo_lifecycle_with_langfuse",
+    "test_score_slo_sli_values",
+    "TestLangfuseExporterOffline",
+    "test_clear",
+    "test_score_client_args",
+    "test_score_stored_in_memory",
+    "TestLangfuseIntegration",
+    "test_score_trace_arbitrary",
+    "test_cost_calls_client_span",
+    "test_client_error_does_not_raise",
+    "test_score_slo_status",
+    "test_score_calls_client",
+    "sample_slo",
+    "TestLangfuseExporterLive",
+    "test_score_slo_creates_scores",
+    "test_score_slo_budget_remaining",
+    "test_record_cost",
+    "test_cost_client_error_does_not_raise",
+    "test_score_slo_burn_rate",
+    "test_score_sli_task_success_rate",
+    "test_is_not_offline",
+    "test_record_cost_with_metadata",
+    "exporter",
+    "test_multiple_traces",
+    "test_score_sli_cost_per_task"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "unittest.mock",
+      "pytest",
+      "agent_sre.integrations.langfuse",
+      "agent_sre.slo.indicators",
+      "agent_sre.slo.objectives",
+      "agent_sre.integrations.langfuse"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "exporter",
+      "line": 23,
+      "doc": "Offline exporter for testing.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "mock_client",
+      "line": 29,
+      "doc": "Mock Langfuse client.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "live_exporter",
+      "line": 38,
+      "doc": "Exporter with mock Langfuse client.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [
+        "mock_client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "sample_slo",
+      "line": 44,
+      "doc": "A sample SLO with data recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "test_is_offline",
+      "line": 70,
+      "doc": "Exporter without client is offline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_slo_creates_scores",
+      "line": 74,
+      "doc": "Scoring an SLO produces multiple score objects.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_slo_status",
+      "line": 81,
+      "doc": "SLO status is correctly encoded as score.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_slo_budget_remaining",
+      "line": 90,
+      "doc": "Error budget remaining is recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_slo_burn_rate",
+      "line": 98,
+      "doc": "Burn rate is recorded.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_slo_sli_values",
+      "line": 106,
+      "doc": "Individual SLI values are scored.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_sli_task_success_rate",
+      "line": 117,
+      "doc": "Task success rate SLI has a value close to expected.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_sli_cost_per_task",
+      "line": 126,
+      "doc": "Cost per task SLI has correct value.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_stored_in_memory",
+      "line": 134,
+      "doc": "Scores are accessible via .scores property.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_cost",
+      "line": 141,
+      "doc": "Cost observations are stored offline.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_record_cost_with_metadata",
+      "line": 155,
+      "doc": "Cost observations can carry metadata.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_trace_arbitrary",
+      "line": 167,
+      "doc": "Arbitrary scores can be attached to traces.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear",
+      "line": 180,
+      "doc": "Clear removes all stored data.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slo_no_data_produces_fewer_scores",
+      "line": 192,
+      "doc": "SLO with no recorded data produces SLO-level scores but no SLI scores.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_multiple_traces",
+      "line": 206,
+      "doc": "Different trace IDs produce separate score sets.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_not_offline",
+      "line": 220,
+      "doc": "Exporter with client is live.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "live_exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_calls_client",
+      "line": 224,
+      "doc": "Scoring calls the Langfuse client.score() method.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "live_exporter",
+        "mock_client",
+        "sample_slo"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_score_client_args",
+      "line": 230,
+      "doc": "Client.score receives correct arguments.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "live_exporter",
+        "mock_client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cost_calls_client_span",
+      "line": 246,
+      "doc": "Cost recording calls client.span().",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "live_exporter",
+        "mock_client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_client_error_does_not_raise",
+      "line": 261,
+      "doc": "Client errors are caught and logged, not raised.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "live_exporter",
+        "mock_client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_cost_client_error_does_not_raise",
+      "line": 276,
+      "doc": "Cost client errors are caught and logged.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "live_exporter",
+        "mock_client"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_slo_lifecycle_with_langfuse",
+      "line": 296,
+      "doc": "Full SLO lifecycle: create, record, evaluate, score to Langfuse.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "exporter"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_imports_from_package",
+      "line": 340,
+      "doc": "Public API is importable.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestLangfuseExporterOffline",
+      "line": 67,
+      "doc": "Test offline (no client) mode.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLangfuseExporterLive",
+      "line": 217,
+      "doc": "Test live mode with mock Langfuse client.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestLangfuseIntegration",
+      "line": 293,
+      "doc": "End-to-end tests combining Langfuse with other Agent SRE components.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 26,
+  "responsibility": {
+    "single_responsibility_score": 0.42,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple concerns detected: ui, api, auth, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

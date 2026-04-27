@@ -1,0 +1,209 @@
+{
+  "path": "packages/agent-os/modules/amb/amb_core/broker.py",
+  "extension": ".py",
+  "size_bytes": 4100,
+  "line_count": 145,
+  "documentation": {
+    "file_docstring": "Broker adapter interface for AMB.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Type alias for message handler functions"
+    ],
+    "inline_comments": [],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "BrokerAdapter: Abstract base class for broker adapters.\n\nThis provides a broker-agnostic interf",
+      "connect: Establish connection to the broker.\n\nRaises:\n    ConnectionError: If connection ",
+      "disconnect: Close connection to the broker.",
+      "publish: Publish a message to the broker.\n\nArgs:\n    message: The message to publish\n    ",
+      "subscribe: Subscribe to a topic and register a handler.\n\nArgs:\n    topic: Topic to subscrib",
+      "unsubscribe: Unsubscribe from a topic.\n\nArgs:\n    subscription_id: The subscription ID return",
+      "request: Send a request and wait for a response (request-response pattern).\n\nArgs:\n    me",
+      "get_pending_messages: Get pending messages from a topic (if supported by broker).\n\nArgs:\n    topic: To",
+      "get_backpressure_stats: Get backpressure statistics (if supported by broker).\n\nOptional method - brokers",
+      "get_queue_size: Get current queue size for a topic (if supported by broker).\n\nOptional method - "
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "BrokerAdapter",
+    "get_backpressure_stats",
+    "get_queue_size"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "abc",
+      "typing",
+      "amb_core.models"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "connect",
+      "line": 23,
+      "doc": "Establish connection to the broker.\n\nRaises:\n    ConnectionError: If connection fails",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "disconnect",
+      "line": 33,
+      "doc": "Close connection to the broker.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "publish",
+      "line": 40,
+      "doc": "Publish a message to the broker.\n\nArgs:\n    message: The message to publish\n    wait_for_confirmation: If True, wait for broker confirmation (slower but reliable)\n                         If False, fire and forget (faster but no guarantee)\n\nReturns:\n    Optional message ID or confirmation token if wait_for_confirmation is True\n\nRaises:\n    PublishError: If publishing fails",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message",
+        "wait_for_confirmation"
+      ],
+      "returns": null
+    },
+    {
+      "name": "subscribe",
+      "line": 58,
+      "doc": "Subscribe to a topic and register a handler.\n\nArgs:\n    topic: Topic to subscribe to\n    handler: Async function to handle incoming messages\n\nReturns:\n    Subscription ID that can be used to unsubscribe\n\nRaises:\n    SubscriptionError: If subscription fails",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "topic",
+        "handler"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "unsubscribe",
+      "line": 75,
+      "doc": "Unsubscribe from a topic.\n\nArgs:\n    subscription_id: The subscription ID returned from subscribe()\n\nRaises:\n    SubscriptionError: If unsubscription fails",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "subscription_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "request",
+      "line": 88,
+      "doc": "Send a request and wait for a response (request-response pattern).\n\nArgs:\n    message: The request message\n    timeout: Maximum time to wait for response in seconds\n\nReturns:\n    The response message\n\nRaises:\n    TimeoutError: If no response received within timeout\n    RequestError: If request fails",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "message",
+        "timeout"
+      ],
+      "returns": "Message"
+    },
+    {
+      "name": "get_pending_messages",
+      "line": 106,
+      "doc": "Get pending messages from a topic (if supported by broker).\n\nArgs:\n    topic: Topic to get messages from\n    limit: Maximum number of messages to retrieve\n\nReturns:\n    List of pending messages",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "args": [
+        "self",
+        "topic",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_backpressure_stats",
+      "line": 119,
+      "doc": "Get backpressure statistics (if supported by broker).\n\nOptional method - brokers may choose not to implement this.\n\nArgs:\n    topic: Optional topic to get stats for\n    \nReturns:\n    Statistics about backpressure events",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_queue_size",
+      "line": 133,
+      "doc": "Get current queue size for a topic (if supported by broker).\n\nOptional method - brokers may choose not to implement this.\n\nArgs:\n    topic: The topic to check\n    \nReturns:\n    Number of messages in the queue, or 0 if not supported",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "topic"
+      ],
+      "returns": "int"
+    }
+  ],
+  "classes": [
+    {
+      "name": "BrokerAdapter",
+      "line": 14,
+      "doc": "Abstract base class for broker adapters.\n\nThis provides a broker-agnostic interface that can be implemented\nfor different message brokers (Redis, RabbitMQ, Kafka, etc.).",
+      "is_public": true,
+      "bases": [
+        "ABC"
+      ],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 21,
+  "responsibility": {
+    "single_responsibility_score": 0.6,
+    "cohesion_indicators": [],
+    "concerns": [
+      "Multiple concerns detected: api, auth, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "auth",
+      "logging"
+    ]
+  }
+}

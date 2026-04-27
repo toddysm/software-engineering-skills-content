@@ -1,0 +1,808 @@
+{
+  "path": "packages/agentmesh-integrations/a2a-protocol/tests/test_a2a.py",
+  "extension": ".py",
+  "size_bytes": 18754,
+  "line_count": 532,
+  "documentation": {
+    "file_docstring": "Tests for A2A AgentMesh integration.\n\nCovers: AgentCard, AgentSkill, TaskEnvelope, TaskState, TrustGate, TrustPolicy\nNo external dependencies \u2014 pure unit tests.\n\nRun with: python -m pytest tests/ -v --tb=short",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "=============================================================================",
+      "AgentSkill",
+      "=============================================================================",
+      "defaults present",
+      "=============================================================================",
+      "AgentCard",
+      "=============================================================================",
+      "=============================================================================",
+      "TaskMessage",
+      "=============================================================================",
+      "=============================================================================",
+      "TaskEnvelope",
+      "=============================================================================",
+      "=============================================================================",
+      "TrustPolicy",
+      "=============================================================================",
+      "=============================================================================",
+      "TrustResult",
+      "=============================================================================",
+      "=============================================================================",
+      "TrustGate",
+      "=============================================================================",
+      "Normal skill: allowed at 500",
+      "Admin skill: denied at 500",
+      "Admin skill: allowed at 950",
+      "Agent 1: 2 allowed",
+      "Agent 1: rate limited",
+      "Agent 2: still allowed (different DID)",
+      "=============================================================================",
+      "Integration: full lifecycle",
+      "=============================================================================",
+      "1. Agent B publishes card",
+      "2. Agent A creates task targeting a skill",
+      "3. Trust gate evaluates",
+      "4. Task executes",
+      "5. Verify serialisation roundtrip"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "test_full_lifecycle: Agent A discovers Agent B via card, sends trusted task, gate evaluates.",
+      "test_denied_lifecycle: Low-trust agent is denied and task auto-fails.",
+      "test_card_to_json_roundtrip: AgentCard survives JSON serialisation."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_roundtrip_serialisation",
+    "test_allowed",
+    "test_denied_lifecycle",
+    "test_skill_trust_override",
+    "test_clear_rate_limits",
+    "test_allow_in_allow_list",
+    "test_to_json",
+    "TestAgentSkill",
+    "test_state_machine_happy_path",
+    "test_deny_low_trust_score",
+    "test_denied",
+    "test_has_skill",
+    "test_deny_missing_did",
+    "test_from_identity",
+    "test_defaults",
+    "test_minimal_to_dict",
+    "test_deny_not_in_allow_list",
+    "test_allow_sufficient_trust",
+    "test_rate_limit",
+    "test_skill_ids",
+    "test_metadata",
+    "TestTrustResult",
+    "test_create_factory",
+    "test_invalid_transition_from_failed",
+    "test_rate_limit_per_agent",
+    "test_basic",
+    "test_invalid_transition_from_complete",
+    "TestTrustPolicy",
+    "TestAgentCard",
+    "test_basic_creation",
+    "test_state_machine_cancel",
+    "test_is_terminal_for_non_terminal",
+    "TestTrustGate",
+    "test_to_dict_core_fields",
+    "test_evaluation_log",
+    "test_deny_blocked_did",
+    "TestIntegration",
+    "TestTaskMessage",
+    "test_to_dict_with_error",
+    "test_custom",
+    "test_allow_valid_request",
+    "test_card_to_json_roundtrip",
+    "test_add_message",
+    "test_no_did_required",
+    "test_to_dict",
+    "test_to_dict_extensions",
+    "test_evaluate_and_gate_allow",
+    "test_from_dict",
+    "test_state_machine_fail",
+    "test_stats",
+    "test_full_lifecycle",
+    "TestTaskEnvelope",
+    "test_evaluate_and_gate_auto_fail"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "json",
+      "pytest",
+      "a2a_agentmesh.agent_card",
+      "a2a_agentmesh.task",
+      "a2a_agentmesh.trust_gate"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_basic",
+      "line": 27,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 32,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_minimal_to_dict",
+      "line": 51,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic_creation",
+      "line": 66,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_identity",
+      "line": 71,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_core_fields",
+      "line": 92,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_extensions",
+      "line": 105,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_json",
+      "line": 116,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_from_dict",
+      "line": 122,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_has_skill",
+      "line": 137,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_skill_ids",
+      "line": 147,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_basic",
+      "line": 162,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 168,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_metadata",
+      "line": 174,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_create_factory",
+      "line": 186,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_state_machine_happy_path",
+      "line": 202,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_state_machine_fail",
+      "line": 211,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_state_machine_cancel",
+      "line": 219,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_transition_from_complete",
+      "line": 225,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_invalid_transition_from_failed",
+      "line": 232,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_add_message",
+      "line": 238,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_to_dict_with_error",
+      "line": 260,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_roundtrip_serialisation",
+      "line": 266,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_is_terminal_for_non_terminal",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_defaults",
+      "line": 295,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_custom",
+      "line": 301,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allowed",
+      "line": 318,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_denied",
+      "line": 324,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_envelope",
+      "line": 335,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "did",
+        "score",
+        "skill"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allow_valid_request",
+      "line": 342,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_missing_did",
+      "line": 347,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_blocked_did",
+      "line": 354,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_not_in_allow_list",
+      "line": 360,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allow_in_allow_list",
+      "line": 366,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_deny_low_trust_score",
+      "line": 371,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_allow_sufficient_trust",
+      "line": 377,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_skill_trust_override",
+      "line": 382,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rate_limit",
+      "line": 397,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_rate_limit_per_agent",
+      "line": 405,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_and_gate_auto_fail",
+      "line": 415,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluate_and_gate_allow",
+      "line": 423,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_evaluation_log",
+      "line": 430,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_stats",
+      "line": 437,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_clear_rate_limits",
+      "line": 447,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_no_did_required",
+      "line": 454,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_lifecycle",
+      "line": 467,
+      "doc": "Agent A discovers Agent B via card, sends trusted task, gate evaluates.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_denied_lifecycle",
+      "line": 505,
+      "doc": "Low-trust agent is denied and task auto-fails.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_card_to_json_roundtrip",
+      "line": 518,
+      "doc": "AgentCard survives JSON serialisation.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "TestAgentSkill",
+      "line": 26,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestAgentCard",
+      "line": 65,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTaskMessage",
+      "line": 161,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTaskEnvelope",
+      "line": 185,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustPolicy",
+      "line": 294,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustResult",
+      "line": 317,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestTrustGate",
+      "line": 334,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIntegration",
+      "line": 466,
+      "doc": "No documentation",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 2,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: database, api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "database",
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

@@ -1,0 +1,647 @@
+{
+  "path": "packages/agent-os/modules/amb/tests/test_features.py",
+  "extension": ".py",
+  "size_bytes": 17763,
+  "line_count": 533,
+  "documentation": {
+    "file_docstring": "Tests for new AMB features: schema validation, DLQ, persistence, and tracing.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "============================================================================",
+      "Schema Validation Tests (AMB-003)",
+      "============================================================================",
+      "Missing required fields",
+      "Valid payload should work",
+      "============================================================================",
+      "Dead Letter Queue Tests (AMB-002)",
+      "============================================================================",
+      "Use wait_for_confirmation=True to ensure handler runs synchronously",
+      "Give more time for async processing",
+      "Check DLQ - note: handler errors in fire-and-forget may not reach DLQ",
+      "This test validates the DLQ mechanism works",
+      "With wait_for_confirmation=True, the error should be captured",
+      "============================================================================",
+      "Persistence Tests (AMB-001)",
+      "============================================================================",
+      "Check persistence",
+      "Publish some messages",
+      "Replay messages",
+      "============================================================================",
+      "Distributed Tracing Tests (AMB-004)",
+      "============================================================================",
+      "Check that trace ID was injected",
+      "============================================================================",
+      "Message Priority Tests (AMB-005)",
+      "============================================================================",
+      "============================================================================",
+      "Message TTL Tests (AMB-007)",
+      "============================================================================",
+      "Create an already-expired message",
+      "Create message that's already expired",
+      "Manually publish through adapter to test expiration check",
+      "Message should be in DLQ due to expiration",
+      "Note: The expired check happens in the handler wrapper",
+      "============================================================================",
+      "Integration Tests",
+      "============================================================================",
+      "Verify message was received",
+      "Verify persistence",
+      "Verify DLQ is empty (no failures)"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "FraudAlertPayload: Test schema for fraud alerts.",
+      "TestSchemaValidation: Tests for schema validation functionality.",
+      "TestDeadLetterQueue: Tests for Dead Letter Queue functionality.",
+      "TestPersistence: Tests for message persistence functionality.",
+      "TestDistributedTracing: Tests for distributed tracing functionality.",
+      "TestMessagePriority: Tests for message prioritization.",
+      "TestMessageTTL: Tests for message TTL/expiration.",
+      "TestIntegration: Integration tests combining multiple features.",
+      "test_schema_registry_creation: Test creating a schema registry.",
+      "test_register_pydantic_schema: Test registering a Pydantic model schema."
+    ]
+  },
+  "purpose": {
+    "primary_role": "test",
+    "secondary_roles": [],
+    "confidence": 0.9,
+    "indicators": [
+      "test file naming pattern",
+      "test class/function patterns"
+    ]
+  },
+  "exports": [
+    "test_message_with_priority",
+    "TestMessagePriority",
+    "TestMessageTTL",
+    "test_validate_unregistered_topic_non_strict",
+    "test_priority_enum_values",
+    "TestSchemaValidation",
+    "test_trace_context_creation",
+    "test_validate_unregistered_topic_strict",
+    "test_validate_invalid_payload",
+    "test_message_no_ttl",
+    "test_validate_valid_payload",
+    "test_schema_registry_creation",
+    "test_message_not_expired",
+    "FraudAlertPayload",
+    "TestDistributedTracing",
+    "TestIntegration",
+    "TestPersistence",
+    "TestDeadLetterQueue",
+    "test_register_pydantic_schema",
+    "test_trace_context_manager",
+    "test_trace_span_creation",
+    "test_register_dict_schema",
+    "test_trace_to_headers"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "pytest",
+      "asyncio",
+      "datetime",
+      "pydantic",
+      "amb_core"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "test_schema_registry_creation",
+      "line": 39,
+      "doc": "Test creating a schema registry.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_pydantic_schema",
+      "line": 44,
+      "doc": "Test registering a Pydantic model schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_register_dict_schema",
+      "line": 52,
+      "doc": "Test registering a dict-based schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_valid_payload",
+      "line": 59,
+      "doc": "Test validating a valid payload.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_invalid_payload",
+      "line": 74,
+      "doc": "Test validating an invalid payload.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_unregistered_topic_strict",
+      "line": 87,
+      "doc": "Test validating unregistered topic in strict mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_validate_unregistered_topic_non_strict",
+      "line": 94,
+      "doc": "Test validating unregistered topic in non-strict mode.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bus_with_schema_validation",
+      "line": 103,
+      "doc": "Test MessageBus with schema validation.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bus_rejects_invalid_payload",
+      "line": 121,
+      "doc": "Test MessageBus rejects invalid payload.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dlq_add_entry",
+      "line": 142,
+      "doc": "Test adding an entry to DLQ.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dlq_get_entry",
+      "line": 162,
+      "doc": "Test getting an entry from DLQ.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dlq_remove_entry",
+      "line": 186,
+      "doc": "Test removing an entry from DLQ.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_dlq_retry",
+      "line": 210,
+      "doc": "Test retrying a DLQ entry.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bus_with_dlq_handler_error",
+      "line": 239,
+      "doc": "Test MessageBus routes failed messages to DLQ.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_inmemory_store_basic",
+      "line": 269,
+      "doc": "Test basic InMemoryMessageStore operations.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bus_with_persistence",
+      "line": 287,
+      "doc": "Test MessageBus with persistence enabled.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_replay_messages",
+      "line": 298,
+      "doc": "Test replaying persisted messages.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_context_creation",
+      "line": 325,
+      "doc": "Test creating a new trace context.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_context_manager",
+      "line": 333,
+      "doc": "Test trace context as context manager.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_span_creation",
+      "line": 340,
+      "doc": "Test creating child spans.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_trace_to_headers",
+      "line": 348,
+      "doc": "Test converting trace to headers.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_bus_auto_injects_trace",
+      "line": 357,
+      "doc": "Test MessageBus auto-injects trace context.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_priority_enum_values",
+      "line": 384,
+      "doc": "Test priority enum has correct ordering.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_message_with_priority",
+      "line": 391,
+      "doc": "Test creating message with priority.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_publish_with_priority",
+      "line": 403,
+      "doc": "Test publishing with priority.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_message_not_expired",
+      "line": 421,
+      "doc": "Test message is not expired immediately.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_message_no_ttl",
+      "line": 433,
+      "doc": "Test message without TTL is never expired.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_expired_message_goes_to_dlq",
+      "line": 446,
+      "doc": "Test expired messages go to DLQ.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "test_full_featured_bus",
+      "line": 486,
+      "doc": "Test MessageBus with all features enabled.",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [
+        "asyncio"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 230,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "failing_handler",
+      "line": 244,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 309,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 362,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 456,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    },
+    {
+      "name": "handler",
+      "line": 502,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": true,
+      "decorators": [],
+      "args": [
+        "msg"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FraudAlertPayload",
+      "line": 29,
+      "doc": "Test schema for fraud alerts.",
+      "is_public": true,
+      "bases": [
+        "BaseModel"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "TestSchemaValidation",
+      "line": 36,
+      "doc": "Tests for schema validation functionality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDeadLetterQueue",
+      "line": 138,
+      "doc": "Tests for Dead Letter Queue functionality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestPersistence",
+      "line": 265,
+      "doc": "Tests for message persistence functionality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestDistributedTracing",
+      "line": 322,
+      "doc": "Tests for distributed tracing functionality.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMessagePriority",
+      "line": 381,
+      "doc": "Tests for message prioritization.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestMessageTTL",
+      "line": 418,
+      "doc": "Tests for message TTL/expiration.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TestIntegration",
+      "line": 482,
+      "doc": "Integration tests combining multiple features.",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 9,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}

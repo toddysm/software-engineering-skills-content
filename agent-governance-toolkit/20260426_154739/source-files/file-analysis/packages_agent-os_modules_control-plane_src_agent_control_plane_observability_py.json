@@ -1,0 +1,567 @@
+{
+  "path": "packages/agent-os/modules/control-plane/src/agent_control_plane/observability.py",
+  "extension": ".py",
+  "size_bytes": 22524,
+  "line_count": 787,
+  "documentation": {
+    "file_docstring": "Observability and Metrics - Real-time Monitoring and Prometheus Integration\n\nThis module provides production-grade observability features including real-time\nmetrics, Prometheus integration, trace visualization, and monitoring dashboards.\n\nResearch Foundations:\n    - Prometheus monitoring best practices\n    - OpenTelemetry for distributed tracing\n    - \"Observability Engineering\" (O'Reilly, 2022) - metrics, logs, traces\n    - SRE principles from Google SRE Book\n\nSee docs/RESEARCH_FOUNDATION.md for complete references.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License."
+    ],
+    "inline_comments": [
+      "Record metrics",
+      "Export for Prometheus",
+      "Simplified histogram - in production would have buckets",
+      "Store as gauge for simplification",
+      "HELP line",
+      "TYPE line",
+      "Metric lines",
+      "Define alert rule",
+      "Check alerts",
+      "New alert",
+      "Alert should resolve",
+      "Log error but don't fail alerting",
+      "Start trace",
+      "Add spans",
+      "End span",
+      "Get trace",
+      "Create root span",
+      "Move to trace",
+      "Remove from active",
+      "End any remaining active spans",
+      "Build span hierarchy",
+      "Group spans by parent",
+      "Build tree starting from root (parent_span_id = None)",
+      "Get dashboard data",
+      "Get key metrics",
+      "Get active alerts",
+      "Get recent traces",
+      "Determine health based on alerts"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": false,
+    "member_docstrings": [
+      "MetricType: Types of metrics",
+      "AlertSeverity: Alert severity levels",
+      "Metric: A metric measurement.\n\nAttributes:\n    name: Metric name\n    metric_type: Type o",
+      "Alert: An alert notification.\n\nAttributes:\n    alert_id: Unique identifier\n    name: Al",
+      "Trace: A distributed trace for a request/operation.\n\nAttributes:\n    trace_id: Unique t",
+      "Span: A span within a trace.\n\nAttributes:\n    span_id: Unique span identifier\n    pare",
+      "PrometheusExporter: Prometheus metrics exporter.\n\nExports metrics in Prometheus text format for scra",
+      "AlertManager: Alert management system.\n\nFeatures:\n- Rule-based alerting\n- Threshold monitoring",
+      "TraceCollector: Distributed tracing collector.\n\nFeatures:\n- Trace and span collection\n- Parent-c",
+      "ObservabilityDashboard: Central observability dashboard aggregating metrics, alerts, and traces.\n\nFeatur"
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "Alert",
+    "get_dashboard_data",
+    "create_observability_suite",
+    "get_active_alerts",
+    "get_trace",
+    "end_span",
+    "end_trace",
+    "start_span",
+    "observe_histogram",
+    "Span",
+    "ObservabilityDashboard",
+    "MetricType",
+    "build_node",
+    "get_metrics",
+    "TraceCollector",
+    "get_trace_visualization",
+    "export",
+    "start_trace",
+    "get_alert_history",
+    "AlertSeverity",
+    "get_health_status",
+    "increment_counter",
+    "AlertManager",
+    "add_rule",
+    "evaluate",
+    "Trace",
+    "Metric",
+    "set_gauge",
+    "PrometheusExporter",
+    "list_traces"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "typing",
+      "dataclasses",
+      "enum",
+      "datetime",
+      "collections",
+      "time",
+      "uuid",
+      "uuid"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "create_observability_suite",
+      "line": 770,
+      "doc": "Create a complete observability suite.\n\nReturns:\n    Dictionary with all observability components",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 160,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "increment_counter",
+      "line": 164,
+      "doc": "Increment a counter metric.\n\nArgs:\n    name: Metric name\n    value: Amount to increment\n    labels: Metric labels\n    help_text: Help text for metric",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "value",
+        "labels",
+        "help_text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "set_gauge",
+      "line": 201,
+      "doc": "Set a gauge metric.\n\nArgs:\n    name: Metric name\n    value: Value to set\n    labels: Metric labels\n    help_text: Help text",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "value",
+        "labels",
+        "help_text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "observe_histogram",
+      "line": 234,
+      "doc": "Observe a histogram metric.\n\nArgs:\n    name: Metric name\n    value: Observed value\n    labels: Metric labels\n    help_text: Help text",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "value",
+        "labels",
+        "help_text"
+      ],
+      "returns": null
+    },
+    {
+      "name": "export",
+      "line": 269,
+      "doc": "Export metrics in Prometheus text format.\n\nReturns:\n    Prometheus-formatted metrics text",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "get_metrics",
+      "line": 299,
+      "doc": "Get all metrics",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_make_label_key",
+      "line": 306,
+      "doc": "Create unique key from labels",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "labels"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "__init__",
+      "line": 338,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "add_rule",
+      "line": 343,
+      "doc": "Add an alerting rule.\n\nArgs:\n    name: Rule name\n    condition: Function that evaluates alert condition\n    severity: Alert severity\n    message: Alert message\n    labels: Additional labels",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "condition",
+        "severity",
+        "message",
+        "labels"
+      ],
+      "returns": null
+    },
+    {
+      "name": "evaluate",
+      "line": 368,
+      "doc": "Evaluate alert rules against current metrics.\n\nArgs:\n    metrics: Current metrics to evaluate\n    \nReturns:\n    List of firing alerts",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_active_alerts",
+      "line": 415,
+      "doc": "Get currently firing alerts",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_alert_history",
+      "line": 419,
+      "doc": "Get alert history",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "hours"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 460,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "start_trace",
+      "line": 464,
+      "doc": "Start a new trace.\n\nArgs:\n    operation_name: Name of the operation\n    metadata: Additional metadata\n    \nReturns:\n    trace_id",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "operation_name",
+        "metadata"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "start_span",
+      "line": 497,
+      "doc": "Start a new span within a trace.\n\nArgs:\n    trace_id: Trace ID\n    operation_name: Operation name\n    parent_span_id: Parent span ID if nested\n    tags: Span tags\n    \nReturns:\n    span_id",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "operation_name",
+        "parent_span_id",
+        "tags"
+      ],
+      "returns": "str"
+    },
+    {
+      "name": "end_span",
+      "line": 530,
+      "doc": "End a span.\n\nArgs:\n    trace_id: Trace ID\n    span_id: Span ID\n    tags: Additional tags to add",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id",
+        "span_id",
+        "tags"
+      ],
+      "returns": null
+    },
+    {
+      "name": "end_trace",
+      "line": 564,
+      "doc": "End a trace",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trace",
+      "line": 578,
+      "doc": "Get a trace by ID",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "list_traces",
+      "line": 582,
+      "doc": "List recent traces",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "limit"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_trace_visualization",
+      "line": 594,
+      "doc": "Get trace data formatted for visualization.\n\nArgs:\n    trace_id: Trace ID\n    \nReturns:\n    Visualization data with spans in hierarchical format",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "trace_id"
+      ],
+      "returns": null
+    },
+    {
+      "name": "_build_span_tree",
+      "line": 623,
+      "doc": "Build hierarchical span tree",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "spans"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 668,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "prometheus",
+        "alerts",
+        "traces"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_dashboard_data",
+      "line": 678,
+      "doc": "Get comprehensive dashboard data.\n\nReturns:\n    Dashboard data with metrics, alerts, traces",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "get_health_status",
+      "line": 733,
+      "doc": "Get overall system health status.\n\nReturns:\n    Health status with overall assessment",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "build_node",
+      "line": 634,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "span"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "MetricType",
+      "line": 26,
+      "doc": "Types of metrics",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "AlertSeverity",
+      "line": 34,
+      "doc": "Alert severity levels",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Metric",
+      "line": 43,
+      "doc": "A metric measurement.\n\nAttributes:\n    name: Metric name\n    metric_type: Type of metric\n    value: Current value\n    labels: Key-value labels\n    timestamp: When measured\n    help_text: Description of metric",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Alert",
+      "line": 64,
+      "doc": "An alert notification.\n\nAttributes:\n    alert_id: Unique identifier\n    name: Alert name\n    severity: Severity level\n    message: Alert message\n    labels: Context labels\n    firing: Whether alert is currently firing\n    started_at: When alert started firing",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Trace",
+      "line": 88,
+      "doc": "A distributed trace for a request/operation.\n\nAttributes:\n    trace_id: Unique trace identifier\n    spans: List of spans in this trace\n    started_at: Trace start time\n    duration_ms: Total duration\n    metadata: Additional trace metadata",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "Span",
+      "line": 107,
+      "doc": "A span within a trace.\n\nAttributes:\n    span_id: Unique span identifier\n    parent_span_id: Parent span if nested\n    operation_name: Name of operation\n    started_at: Span start time\n    duration_ms: Span duration\n    tags: Span tags\n    logs: Span logs",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "PrometheusExporter",
+      "line": 129,
+      "doc": "Prometheus metrics exporter.\n\nExports metrics in Prometheus text format for scraping.\n\nFeatures:\n- Counter, gauge, histogram, summary metrics\n- Multi-dimensional labels\n- Automatic metric registration\n- Text format export for Prometheus scraping\n\nUsage:\n    exporter = PrometheusExporter()\n    \n    # Record metrics\n    exporter.increment_counter(\n        \"agent_requests_total\",\n        labels={\"agent_id\": \"agent1\", \"status\": \"success\"}\n    )\n    \n    exporter.set_gauge(\n        \"agent_active_sessions\",\n        value=5,\n        labels={\"agent_id\": \"agent1\"}\n    )\n    \n    # Export for Prometheus\n    metrics_text = exporter.export()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "AlertManager",
+      "line": 313,
+      "doc": "Alert management system.\n\nFeatures:\n- Rule-based alerting\n- Threshold monitoring\n- Alert aggregation and deduplication\n- Alert routing and notifications\n\nUsage:\n    alert_mgr = AlertManager()\n    \n    # Define alert rule\n    alert_mgr.add_rule(\n        name=\"high_error_rate\",\n        condition=lambda metrics: metrics.get(\"error_rate\", 0) > 0.05,\n        severity=AlertSeverity.ERROR,\n        message=\"Error rate exceeds 5%\"\n    )\n    \n    # Check alerts\n    alerts = alert_mgr.evaluate(current_metrics)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "TraceCollector",
+      "line": 431,
+      "doc": "Distributed tracing collector.\n\nFeatures:\n- Trace and span collection\n- Parent-child span relationships\n- Trace visualization data\n- Performance analysis\n\nUsage:\n    collector = TraceCollector()\n    \n    # Start trace\n    trace_id = collector.start_trace(\"agent_request\")\n    \n    # Add spans\n    span_id = collector.start_span(\n        trace_id=trace_id,\n        operation_name=\"policy_check\"\n    )\n    \n    # End span\n    collector.end_span(trace_id, span_id)\n    \n    # Get trace\n    trace = collector.get_trace(trace_id)",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    },
+    {
+      "name": "ObservabilityDashboard",
+      "line": 647,
+      "doc": "Central observability dashboard aggregating metrics, alerts, and traces.\n\nFeatures:\n- Real-time metrics display\n- Active alert monitoring\n- Trace visualization\n- System health overview\n\nUsage:\n    dashboard = ObservabilityDashboard(\n        prometheus=prometheus_exporter,\n        alerts=alert_manager,\n        traces=trace_collector\n    )\n    \n    # Get dashboard data\n    data = dashboard.get_dashboard_data()",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 57,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: ui, api, logging"
+    ],
+    "detected_concerns": [
+      "ui",
+      "api",
+      "logging"
+    ]
+  }
+}

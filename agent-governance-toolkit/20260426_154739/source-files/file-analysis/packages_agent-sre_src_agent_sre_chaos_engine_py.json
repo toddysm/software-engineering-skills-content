@@ -1,0 +1,727 @@
+{
+  "path": "packages/agent-sre/src/agent_sre/chaos/engine.py",
+  "extension": ".py",
+  "size_bytes": 13045,
+  "line_count": 357,
+  "documentation": {
+    "file_docstring": "Chaos engine \u2014 fault injection and resilience testing for agents.",
+    "header_comments": [
+      "Copyright (c) Microsoft Corporation.",
+      "Licensed under the MIT License.",
+      "Public Preview \u2014 basic implementation"
+    ],
+    "inline_comments": [
+      "Adversarial fault types",
+      "Behavioral fault types",
+      "Adversarial fault factory methods",
+      "Legacy aliases for backward compatibility",
+      "Behavioral fault factory methods"
+    ],
+    "todo_comments": [],
+    "has_readme_style_header": true,
+    "member_docstrings": [
+      "FaultType: Types of faults that can be injected.",
+      "ExperimentState: State of a chaos experiment.",
+      "Fault: A fault to inject during a chaos experiment.",
+      "AbortCondition: Condition that stops a chaos experiment for safety.",
+      "FaultInjectionEvent: Record of a fault being injected.",
+      "ResilienceScore: Fault impact score from a chaos experiment (simple pass/fail).",
+      "ChaosExperiment: A chaos engineering experiment against agent(s).",
+      "latency_injection: Inject latency into a target.",
+      "error_injection: Inject errors into a target.",
+      "timeout_injection: Inject timeouts into a target."
+    ]
+  },
+  "purpose": {
+    "primary_role": "unknown",
+    "secondary_roles": [],
+    "confidence": 0.0,
+    "indicators": []
+  },
+  "exports": [
+    "network_partition",
+    "start",
+    "identity_spoofing",
+    "is_expired",
+    "data_exfiltration",
+    "abort",
+    "to_dict",
+    "trust_perturbation",
+    "tool_error",
+    "ExperimentState",
+    "ResilienceScore",
+    "llm_degraded",
+    "Fault",
+    "llm_latency",
+    "calculate_resilience",
+    "prompt_injection",
+    "FaultType",
+    "credential_expire",
+    "error_injection",
+    "deadlock_injection",
+    "contradictory_instruction",
+    "privilege_escalation",
+    "cost_spike",
+    "AbortCondition",
+    "tool_timeout",
+    "delegation_reject",
+    "check_abort",
+    "complete",
+    "ChaosExperiment",
+    "FaultInjectionEvent",
+    "policy_bypass",
+    "tool_wrong_schema",
+    "should_abort",
+    "inject_fault",
+    "timeout_injection",
+    "latency_injection",
+    "tool_abuse",
+    "remaining_seconds",
+    "elapsed_seconds"
+  ],
+  "imports": {
+    "internal": [],
+    "external": [
+      "__future__",
+      "time",
+      "uuid",
+      "dataclasses",
+      "enum",
+      "typing"
+    ],
+    "standard": []
+  },
+  "functions": [
+    {
+      "name": "latency_injection",
+      "line": 56,
+      "doc": "Inject latency into a target.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "delay_ms",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "error_injection",
+      "line": 61,
+      "doc": "Inject errors into a target.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "error",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "timeout_injection",
+      "line": 66,
+      "doc": "Inject timeouts into a target.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "delay_ms",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "prompt_injection",
+      "line": 73,
+      "doc": "Inject a prompt injection attack against a target.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "technique",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "policy_bypass",
+      "line": 78,
+      "doc": "Attempt to bypass a governance policy.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "policy_name",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "privilege_escalation",
+      "line": 83,
+      "doc": "Attempt privilege escalation against a target.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "target_role",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "data_exfiltration",
+      "line": 88,
+      "doc": "Simulate data exfiltration attempt.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "data_type",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "tool_abuse",
+      "line": 93,
+      "doc": "Simulate abuse of a dangerous tool.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "tool_name",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "identity_spoofing",
+      "line": 98,
+      "doc": "Simulate identity spoofing attack.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "spoofed_id",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "tool_timeout",
+      "line": 104,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "tool",
+        "delay_ms",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "tool_error",
+      "line": 108,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "tool",
+        "error",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "llm_latency",
+      "line": 112,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "provider",
+        "p99_ms",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "tool_wrong_schema",
+      "line": 116,
+      "doc": "Simulate a tool returning data with an unexpected schema.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "tool",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "llm_degraded",
+      "line": 121,
+      "doc": "Simulate LLM quality degradation (incoherent or low-quality responses).",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "provider",
+        "quality",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "delegation_reject",
+      "line": 126,
+      "doc": "Simulate an agent refusing a delegated task.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "from_agent",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "credential_expire",
+      "line": 131,
+      "doc": "Simulate credential expiration for an agent.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agent"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "network_partition",
+      "line": 136,
+      "doc": "Simulate a network partition isolating agents from each other.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agents"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "cost_spike",
+      "line": 146,
+      "doc": "Simulate a sudden cost spike on a tool or provider.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "tool",
+        "multiplier"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "deadlock_injection",
+      "line": 153,
+      "doc": "Simulate circular dependency deadlock between agents.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "agents",
+        "timeout_ms",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "contradictory_instruction",
+      "line": 165,
+      "doc": "Inject conflicting directives to test conflict resolution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "directive_a",
+        "directive_b",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "trust_perturbation",
+      "line": 180,
+      "doc": "Dynamically change an agent's trust score during execution.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "staticmethod"
+      ],
+      "args": [
+        "target",
+        "delta",
+        "rate"
+      ],
+      "returns": "Fault"
+    },
+    {
+      "name": "to_dict",
+      "line": 184,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "should_abort",
+      "line": 201,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "value"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "to_dict",
+      "line": 208,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 222,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "to_dict",
+      "line": 239,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "__init__",
+      "line": 249,
+      "doc": "No documentation",
+      "is_public": false,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "name",
+        "target_agent",
+        "faults",
+        "duration_seconds",
+        "abort_conditions",
+        "blast_radius",
+        "description"
+      ],
+      "returns": null
+    },
+    {
+      "name": "elapsed_seconds",
+      "line": 275,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "remaining_seconds",
+      "line": 282,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "float"
+    },
+    {
+      "name": "is_expired",
+      "line": 286,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [
+        "property"
+      ],
+      "args": [
+        "self"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "start",
+      "line": 289,
+      "doc": "Start the experiment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    },
+    {
+      "name": "inject_fault",
+      "line": 294,
+      "doc": "Record a fault injection event.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "fault",
+        "applied",
+        "details"
+      ],
+      "returns": null
+    },
+    {
+      "name": "check_abort",
+      "line": 303,
+      "doc": "Check abort conditions. Returns True if experiment should stop.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "metrics"
+      ],
+      "returns": "bool"
+    },
+    {
+      "name": "abort",
+      "line": 312,
+      "doc": "Abort the experiment.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "reason"
+      ],
+      "returns": null
+    },
+    {
+      "name": "complete",
+      "line": 318,
+      "doc": "Mark the experiment as completed.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "resilience"
+      ],
+      "returns": null
+    },
+    {
+      "name": "calculate_resilience",
+      "line": 325,
+      "doc": "Calculate fault impact score \u2014 simple pass/fail based on success rate.",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self",
+        "baseline_success_rate",
+        "experiment_success_rate",
+        "recovery_time_ms",
+        "cost_increase_percent"
+      ],
+      "returns": "ResilienceScore"
+    },
+    {
+      "name": "to_dict",
+      "line": 343,
+      "doc": "No documentation",
+      "is_public": true,
+      "is_async": false,
+      "decorators": [],
+      "args": [
+        "self"
+      ],
+      "returns": null
+    }
+  ],
+  "classes": [
+    {
+      "name": "FaultType",
+      "line": 15,
+      "doc": "Types of faults that can be injected.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "ExperimentState",
+      "line": 36,
+      "doc": "State of a chaos experiment.",
+      "is_public": true,
+      "bases": [
+        "Enum"
+      ],
+      "decorators": []
+    },
+    {
+      "name": "Fault",
+      "line": 47,
+      "doc": "A fault to inject during a chaos experiment.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "AbortCondition",
+      "line": 194,
+      "doc": "Condition that stops a chaos experiment for safety.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "FaultInjectionEvent",
+      "line": 213,
+      "doc": "Record of a fault being injected.",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ResilienceScore",
+      "line": 233,
+      "doc": "Fault impact score from a chaos experiment (simple pass/fail).",
+      "is_public": true,
+      "bases": [],
+      "decorators": [
+        "dataclass"
+      ]
+    },
+    {
+      "name": "ChaosExperiment",
+      "line": 246,
+      "doc": "A chaos engineering experiment against agent(s).",
+      "is_public": true,
+      "bases": [],
+      "decorators": []
+    }
+  ],
+  "complexity_score": 16,
+  "responsibility": {
+    "single_responsibility_score": 0.33599999999999997,
+    "cohesion_indicators": [],
+    "concerns": [
+      "High function count may indicate multiple responsibilities",
+      "Multiple classes may indicate mixed concerns",
+      "Multiple concerns detected: api, business_logic, logging"
+    ],
+    "detected_concerns": [
+      "api",
+      "business_logic",
+      "logging"
+    ]
+  }
+}
