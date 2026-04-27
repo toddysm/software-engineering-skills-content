@@ -1,1 +1,44 @@
-# Architecture Overview\n\n## System Type\n\nThis is a **Full-Stack Web Application** with a React frontend with backend API services.\n\n*Architecture indicators: web server detected, React frontend detected, REST API structure, multiple services (possible microservices)*\n\n## Technology Stack\n\n**Frontend**: React, React/JSX\n\n**Backend**: Python Data/ML, Express.js, Django, Flask, C#, FastAPI, Go, JavaScript/TypeScript, Python, Rust\n\n**Database**: Redis, SQLAlchemy ORM, Postgres, Sqlite\n\n**Testing**: Python Test Framework, JavaScript Testing Framework\n\n## Component Organization\n\nThe system is organized into 2078 main components across 12 directory levels. The code is complexly organized.\n\n**Main directories**: examples, benchmarks, docs, scripts, agent-governance-rust\n\n## Data Flow & Patterns\n\nThe system follows MVC (Model-View-Controller) and Layered Architecture patterns for clear separation of concerns.\n\n**Key patterns**: MVC (Model-View-Controller), Layered Architecture\n\n## System Coupling\n\nThe system has low coupling. Most files have few dependencies, indicating good separation of concerns.\n\n## Architectural Strengths\n\n✅ No circular dependencies detected\n\n✅ Good documentation coverage (93% of files)\n\n## Architectural Concerns\n\n⚠️ 642 files have high complexity\n\n
+# Architecture Overview
+
+## System Type
+
+This is a **Full-Stack Web Application** with a React frontend with backend API services.
+
+*Architecture indicators: web server detected, React frontend detected, REST API structure, multiple services (possible microservices)*
+
+## Technology Stack
+
+**Frontend**: React, React/JSX
+
+**Backend**: Python Data/ML, Express.js, Django, Flask, C#, FastAPI, Go, JavaScript/TypeScript, Python, Rust
+
+**Database**: Redis, SQLAlchemy ORM, Postgres, Sqlite
+
+**Testing**: Python Test Framework, JavaScript Testing Framework
+
+## Component Organization
+
+The system is organized into 2078 main components across 12 directory levels. The code is complexly organized.
+
+**Main directories**: examples, benchmarks, docs, scripts, agent-governance-rust
+
+## Data Flow & Patterns
+
+The system follows MVC (Model-View-Controller) and Layered Architecture patterns for clear separation of concerns.
+
+**Key patterns**: MVC (Model-View-Controller), Layered Architecture
+
+## System Coupling
+
+The system has low coupling. Most files have few dependencies, indicating good separation of concerns.
+
+## Architectural Strengths
+
+✅ No circular dependencies detected
+
+✅ Good documentation coverage (93% of files)
+
+## Architectural Concerns
+
+⚠️ 642 files have high complexity
+
